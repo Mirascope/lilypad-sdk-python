@@ -1,8 +1,8 @@
-# Petstore Python API library
+# Lilypad SDK Python API library
 
 [![PyPI version](https://img.shields.io/pypi/v/lilypad_sdk.svg)](https://pypi.org/project/lilypad_sdk/)
 
-The Petstore Python library provides convenient access to the Petstore REST API from any Python 3.7+
+The Lilypad SDK Python library provides convenient access to the Lilypad SDK REST API from any Python 3.7+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
@@ -10,7 +10,7 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [app.stainlessapi.com](https://app.stainlessapi.com/docs). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.lilypad-sdk.com](https://docs.lilypad-sdk.com). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
@@ -27,49 +27,34 @@ pip install git+ssh://git@github.com/stainless-sdks/lilypad-sdk-python.git
 The full API of this library can be found in [api.md](api.md).
 
 ```python
-import os
-from lilypad_sdk import Petstore
+from lilypad_sdk import LilypadSDK
 
-client = Petstore(
-    # This is the default and can be omitted
-    api_key=os.environ.get("PETSTORE_API_KEY"),
-)
+client = LilypadSDK()
 
-order = client.store.create_order(
-    pet_id=1,
-    quantity=1,
-    status="placed",
+call = client.calls.create(
+    input="input",
+    output="output",
+    project_name="project_name",
 )
-print(order.id)
 ```
-
-While you can provide an `api_key` keyword argument,
-we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `PETSTORE_API_KEY="My API Key"` to your `.env` file
-so that your API Key is not stored in source control.
 
 ## Async usage
 
-Simply import `AsyncPetstore` instead of `Petstore` and use `await` with each API call:
+Simply import `AsyncLilypadSDK` instead of `LilypadSDK` and use `await` with each API call:
 
 ```python
-import os
 import asyncio
-from lilypad_sdk import AsyncPetstore
+from lilypad_sdk import AsyncLilypadSDK
 
-client = AsyncPetstore(
-    # This is the default and can be omitted
-    api_key=os.environ.get("PETSTORE_API_KEY"),
-)
+client = AsyncLilypadSDK()
 
 
 async def main() -> None:
-    order = await client.store.create_order(
-        pet_id=1,
-        quantity=1,
-        status="placed",
+    call = await client.calls.create(
+        input="input",
+        output="output",
+        project_name="project_name",
     )
-    print(order.id)
 
 
 asyncio.run(main())
@@ -97,12 +82,16 @@ All errors inherit from `lilypad_sdk.APIError`.
 
 ```python
 import lilypad_sdk
-from lilypad_sdk import Petstore
+from lilypad_sdk import LilypadSDK
 
-client = Petstore()
+client = LilypadSDK()
 
 try:
-    client.store.inventory()
+    client.calls.create(
+        input="input",
+        output="output",
+        project_name="project_name",
+    )
 except lilypad_sdk.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -136,16 +125,20 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from lilypad_sdk import Petstore
+from lilypad_sdk import LilypadSDK
 
 # Configure the default for all requests:
-client = Petstore(
+client = LilypadSDK(
     # default is 2
     max_retries=0,
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).store.inventory()
+client.with_options(max_retries=5).calls.create(
+    input="input",
+    output="output",
+    project_name="project_name",
+)
 ```
 
 ### Timeouts
@@ -154,21 +147,25 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/#fine-tuning-the-configuration) object:
 
 ```python
-from lilypad_sdk import Petstore
+from lilypad_sdk import LilypadSDK
 
 # Configure the default for all requests:
-client = Petstore(
+client = LilypadSDK(
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
-client = Petstore(
+client = LilypadSDK(
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).store.inventory()
+client.with_options(timeout=5.0).calls.create(
+    input="input",
+    output="output",
+    project_name="project_name",
+)
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -181,10 +178,10 @@ Note that requests that time out are [retried twice by default](#retries).
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
 
-You can enable logging by setting the environment variable `PETSTORE_LOG` to `debug`.
+You can enable logging by setting the environment variable `LILYPAD_SDK_LOG` to `debug`.
 
 ```shell
-$ export PETSTORE_LOG=debug
+$ export LILYPAD_SDK_LOG=debug
 ```
 
 ### How to tell whether `None` means `null` or missing
@@ -204,14 +201,18 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from lilypad_sdk import Petstore
+from lilypad_sdk import LilypadSDK
 
-client = Petstore()
-response = client.store.with_raw_response.inventory()
+client = LilypadSDK()
+response = client.calls.with_raw_response.create(
+    input="input",
+    output="output",
+    project_name="project_name",
+)
 print(response.headers.get('X-My-Header'))
 
-store = response.parse()  # get the object that `store.inventory()` would have returned
-print(store)
+call = response.parse()  # get the object that `calls.create()` would have returned
+print(call)
 ```
 
 These methods return an [`APIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
@@ -225,7 +226,11 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.store.with_streaming_response.inventory() as response:
+with client.calls.with_streaming_response.create(
+    input="input",
+    output="output",
+    project_name="project_name",
+) as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():
@@ -278,10 +283,10 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 - Additional [advanced](https://www.python-httpx.org/advanced/clients/) functionality
 
 ```python
-from lilypad_sdk import Petstore, DefaultHttpxClient
+from lilypad_sdk import LilypadSDK, DefaultHttpxClient
 
-client = Petstore(
-    # Or use the `PETSTORE_BASE_URL` env var
+client = LilypadSDK(
+    # Or use the `LILYPAD_SDK_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
         proxies="http://my.test.proxy.example.com",

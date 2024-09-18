@@ -18,11 +18,11 @@ __all__ = [
 ]
 
 
-class PetstoreError(Exception):
+class LilypadSDKError(Exception):
     pass
 
 
-class APIError(PetstoreError):
+class APIError(LilypadSDKError):
     message: str
     request: httpx.Request
 

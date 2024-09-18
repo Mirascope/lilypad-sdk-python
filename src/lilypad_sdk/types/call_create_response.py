@@ -2,6 +2,6 @@
 
 from typing_extensions import TypeAlias
 
-__all__ = ["UserLoginResponse"]
+__all__ = ["CallCreateResponse"]
 
-UserLoginResponse: TypeAlias = str
+CallCreateResponse: TypeAlias = bool
