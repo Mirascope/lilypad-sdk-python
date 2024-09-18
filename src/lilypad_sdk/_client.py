@@ -25,7 +25,7 @@ from ._utils import (
 )
 from ._version import __version__
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import PetstoreError, APIStatusError
+from ._exceptions import APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
@@ -38,27 +38,23 @@ __all__ = [
     "ProxiesTypes",
     "RequestOptions",
     "resources",
-    "Petstore",
-    "AsyncPetstore",
+    "LilypadSDK",
+    "AsyncLilypadSDK",
     "Client",
     "AsyncClient",
 ]
 
 
-class Petstore(SyncAPIClient):
-    pets: resources.PetsResource
-    store: resources.StoreResource
-    user: resources.UserResource
-    with_raw_response: PetstoreWithRawResponse
-    with_streaming_response: PetstoreWithStreamedResponse
+class LilypadSDK(SyncAPIClient):
+    calls: resources.CallsResource
+    with_raw_response: LilypadSDKWithRawResponse
+    with_streaming_response: LilypadSDKWithStreamedResponse
 
     # client options
-    api_key: str
 
     def __init__(
         self,
         *,
-        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -78,22 +74,11 @@ class Petstore(SyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new synchronous petstore client instance.
-
-        This automatically infers the `api_key` argument from the `PETSTORE_API_KEY` environment variable if it is not provided.
-        """
-        if api_key is None:
-            api_key = os.environ.get("PETSTORE_API_KEY")
-        if api_key is None:
-            raise PetstoreError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the PETSTORE_API_KEY environment variable"
-            )
-        self.api_key = api_key
-
+        """Construct a new synchronous lilypad-sdk client instance."""
         if base_url is None:
-            base_url = os.environ.get("PETSTORE_BASE_URL")
+            base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
         if base_url is None:
-            base_url = f"https://petstore3.swagger.io/api/v3"
+            base_url = f"/api"
 
         super().__init__(
             version=__version__,
@@ -106,22 +91,14 @@ class Petstore(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.pets = resources.PetsResource(self)
-        self.store = resources.StoreResource(self)
-        self.user = resources.UserResource(self)
-        self.with_raw_response = PetstoreWithRawResponse(self)
-        self.with_streaming_response = PetstoreWithStreamedResponse(self)
+        self.calls = resources.CallsResource(self)
+        self.with_raw_response = LilypadSDKWithRawResponse(self)
+        self.with_streaming_response = LilypadSDKWithStreamedResponse(self)
 
     @property
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
-
-    @property
-    @override
-    def auth_headers(self) -> dict[str, str]:
-        api_key = self.api_key
-        return {"api_key": api_key}
 
     @property
     @override
@@ -135,7 +112,6 @@ class Petstore(SyncAPIClient):
     def copy(
         self,
         *,
-        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -169,7 +145,6 @@ class Petstore(SyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            api_key=api_key or self.api_key,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -217,20 +192,16 @@ class Petstore(SyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class AsyncPetstore(AsyncAPIClient):
-    pets: resources.AsyncPetsResource
-    store: resources.AsyncStoreResource
-    user: resources.AsyncUserResource
-    with_raw_response: AsyncPetstoreWithRawResponse
-    with_streaming_response: AsyncPetstoreWithStreamedResponse
+class AsyncLilypadSDK(AsyncAPIClient):
+    calls: resources.AsyncCallsResource
+    with_raw_response: AsyncLilypadSDKWithRawResponse
+    with_streaming_response: AsyncLilypadSDKWithStreamedResponse
 
     # client options
-    api_key: str
 
     def __init__(
         self,
         *,
-        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -250,22 +221,11 @@ class AsyncPetstore(AsyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new async petstore client instance.
-
-        This automatically infers the `api_key` argument from the `PETSTORE_API_KEY` environment variable if it is not provided.
-        """
-        if api_key is None:
-            api_key = os.environ.get("PETSTORE_API_KEY")
-        if api_key is None:
-            raise PetstoreError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the PETSTORE_API_KEY environment variable"
-            )
-        self.api_key = api_key
-
+        """Construct a new async lilypad-sdk client instance."""
         if base_url is None:
-            base_url = os.environ.get("PETSTORE_BASE_URL")
+            base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
         if base_url is None:
-            base_url = f"https://petstore3.swagger.io/api/v3"
+            base_url = f"/api"
 
         super().__init__(
             version=__version__,
@@ -278,22 +238,14 @@ class AsyncPetstore(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.pets = resources.AsyncPetsResource(self)
-        self.store = resources.AsyncStoreResource(self)
-        self.user = resources.AsyncUserResource(self)
-        self.with_raw_response = AsyncPetstoreWithRawResponse(self)
-        self.with_streaming_response = AsyncPetstoreWithStreamedResponse(self)
+        self.calls = resources.AsyncCallsResource(self)
+        self.with_raw_response = AsyncLilypadSDKWithRawResponse(self)
+        self.with_streaming_response = AsyncLilypadSDKWithStreamedResponse(self)
 
     @property
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
-
-    @property
-    @override
-    def auth_headers(self) -> dict[str, str]:
-        api_key = self.api_key
-        return {"api_key": api_key}
 
     @property
     @override
@@ -307,7 +259,6 @@ class AsyncPetstore(AsyncAPIClient):
     def copy(
         self,
         *,
-        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,
@@ -341,7 +292,6 @@ class AsyncPetstore(AsyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            api_key=api_key or self.api_key,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -389,34 +339,26 @@ class AsyncPetstore(AsyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class PetstoreWithRawResponse:
-    def __init__(self, client: Petstore) -> None:
-        self.pets = resources.PetsResourceWithRawResponse(client.pets)
-        self.store = resources.StoreResourceWithRawResponse(client.store)
-        self.user = resources.UserResourceWithRawResponse(client.user)
+class LilypadSDKWithRawResponse:
+    def __init__(self, client: LilypadSDK) -> None:
+        self.calls = resources.CallsResourceWithRawResponse(client.calls)
 
 
-class AsyncPetstoreWithRawResponse:
-    def __init__(self, client: AsyncPetstore) -> None:
-        self.pets = resources.AsyncPetsResourceWithRawResponse(client.pets)
-        self.store = resources.AsyncStoreResourceWithRawResponse(client.store)
-        self.user = resources.AsyncUserResourceWithRawResponse(client.user)
+class AsyncLilypadSDKWithRawResponse:
+    def __init__(self, client: AsyncLilypadSDK) -> None:
+        self.calls = resources.AsyncCallsResourceWithRawResponse(client.calls)
 
 
-class PetstoreWithStreamedResponse:
-    def __init__(self, client: Petstore) -> None:
-        self.pets = resources.PetsResourceWithStreamingResponse(client.pets)
-        self.store = resources.StoreResourceWithStreamingResponse(client.store)
-        self.user = resources.UserResourceWithStreamingResponse(client.user)
+class LilypadSDKWithStreamedResponse:
+    def __init__(self, client: LilypadSDK) -> None:
+        self.calls = resources.CallsResourceWithStreamingResponse(client.calls)
 
 
-class AsyncPetstoreWithStreamedResponse:
-    def __init__(self, client: AsyncPetstore) -> None:
-        self.pets = resources.AsyncPetsResourceWithStreamingResponse(client.pets)
-        self.store = resources.AsyncStoreResourceWithStreamingResponse(client.store)
-        self.user = resources.AsyncUserResourceWithStreamingResponse(client.user)
+class AsyncLilypadSDKWithStreamedResponse:
+    def __init__(self, client: AsyncLilypadSDK) -> None:
+        self.calls = resources.AsyncCallsResourceWithStreamingResponse(client.calls)
 
 
-Client = Petstore
+Client = LilypadSDK
 
-AsyncClient = AsyncPetstore
+AsyncClient = AsyncLilypadSDK
