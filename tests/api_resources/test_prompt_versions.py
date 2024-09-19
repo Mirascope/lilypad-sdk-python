@@ -18,6 +18,51 @@ class TestPromptVersions:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
     @parametrize
+    def test_method_create(self, client: LilypadSDK) -> None:
+        prompt_version = client.prompt_versions.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        )
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
+        prompt_version = client.prompt_versions.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+            lexical_closure="lexical_closure",
+            previous_version_id=0,
+            version_hash="version_hash",
+        )
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    def test_raw_response_create(self, client: LilypadSDK) -> None:
+        response = client.prompt_versions.with_raw_response.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        prompt_version = response.parse()
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+        with client.prompt_versions.with_streaming_response.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            prompt_version = response.parse()
+            assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
     def test_method_retrieve(self, client: LilypadSDK) -> None:
         prompt_version = client.prompt_versions.retrieve(
             "version_hash",
@@ -58,6 +103,51 @@ class TestPromptVersions:
 
 class TestAsyncPromptVersions:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @parametrize
+    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+        prompt_version = await async_client.prompt_versions.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        )
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+        prompt_version = await async_client.prompt_versions.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+            lexical_closure="lexical_closure",
+            previous_version_id=0,
+            version_hash="version_hash",
+        )
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.prompt_versions.with_raw_response.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        prompt_version = await response.parse()
+        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.prompt_versions.with_streaming_response.create(
+            function_name="function_name",
+            prompt_template="prompt_template",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            prompt_version = await response.parse()
+            assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @parametrize
     async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:

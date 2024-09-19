@@ -1,7 +1,20 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing_extensions import TypeAlias
+from typing import Optional
+from datetime import datetime
+
+from .._models import BaseModel
 
 __all__ = ["CallCreateResponse"]
 
-CallCreateResponse: TypeAlias = bool
+
+class CallCreateResponse(BaseModel):
+    input: str
+
+    output: str
+
+    id: Optional[int] = None
+
+    created_at: Optional[datetime] = None
+
+    prompt_version_id: Optional[int] = None
