@@ -8,8 +8,22 @@ from .calls import (
     CallsResourceWithStreamingResponse,
     AsyncCallsResourceWithStreamingResponse,
 )
+from .prompt_versions import (
+    PromptVersionsResource,
+    AsyncPromptVersionsResource,
+    PromptVersionsResourceWithRawResponse,
+    AsyncPromptVersionsResourceWithRawResponse,
+    PromptVersionsResourceWithStreamingResponse,
+    AsyncPromptVersionsResourceWithStreamingResponse,
+)
 
 __all__ = [
+    "PromptVersionsResource",
+    "AsyncPromptVersionsResource",
+    "PromptVersionsResourceWithRawResponse",
+    "AsyncPromptVersionsResourceWithRawResponse",
+    "PromptVersionsResourceWithStreamingResponse",
+    "AsyncPromptVersionsResourceWithStreamingResponse",
     "CallsResource",
     "AsyncCallsResource",
     "CallsResourceWithRawResponse",

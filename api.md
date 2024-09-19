@@ -1,3 +1,15 @@
+# PromptVersions
+
+Types:
+
+```python
+from lilypad_sdk.types import PromptVersionPublic
+```
+
+Methods:
+
+- <code title="get /prompt-versions/{version_hash}">client.prompt_versions.<a href="./src/lilypad_sdk/resources/prompt_versions.py">retrieve</a>(version_hash) -> <a href="./src/lilypad_sdk/types/prompt_version_public.py">PromptVersionPublic</a></code>
+
 # Calls
 
 Types:

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from typing import Union
+from datetime import datetime
+
 import httpx
 
 from ..types import call_create_params
@@ -50,7 +53,8 @@ class CallsResource(SyncAPIResource):
         *,
         input: str,
         output: str,
-        project_name: str,
+        created_at: Union[str, datetime] | NotGiven = NOT_GIVEN,
+        prompt_version_id: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -76,7 +80,8 @@ class CallsResource(SyncAPIResource):
                 {
                     "input": input,
                     "output": output,
-                    "project_name": project_name,
+                    "created_at": created_at,
+                    "prompt_version_id": prompt_version_id,
                 },
                 call_create_params.CallCreateParams,
             ),
@@ -131,7 +136,8 @@ class AsyncCallsResource(AsyncAPIResource):
         *,
         input: str,
         output: str,
-        project_name: str,
+        created_at: Union[str, datetime] | NotGiven = NOT_GIVEN,
+        prompt_version_id: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -157,7 +163,8 @@ class AsyncCallsResource(AsyncAPIResource):
                 {
                     "input": input,
                     "output": output,
-                    "project_name": project_name,
+                    "created_at": created_at,
+                    "prompt_version_id": prompt_version_id,
                 },
                 call_create_params.CallCreateParams,
             ),
