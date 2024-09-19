@@ -4,20 +4,9 @@ from typing import Optional
 from datetime import datetime
 
 from .._models import BaseModel
+from .prompt_version_public import PromptVersionPublic
 
-__all__ = ["CallPublicWithPromptVersion", "PromptVersion"]
-
-
-class PromptVersion(BaseModel):
-    id: int
-
-    function_name: str
-
-    prompt_template: str
-
-    previous_version_id: Optional[int] = None
-
-    project_id: Optional[int] = None
+__all__ = ["CallPublicWithPromptVersion"]
 
 
 class CallPublicWithPromptVersion(BaseModel):
@@ -27,7 +16,7 @@ class CallPublicWithPromptVersion(BaseModel):
 
     output: str
 
-    prompt_version: PromptVersion
+    prompt_version: PromptVersionPublic
     """Prompt Version public model."""
 
     created_at: Optional[datetime] = None

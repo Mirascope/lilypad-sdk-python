@@ -34,7 +34,6 @@ client = LilypadSDK()
 call = client.calls.create(
     input="input",
     output="output",
-    project_name="project_name",
 )
 ```
 
@@ -53,7 +52,6 @@ async def main() -> None:
     call = await client.calls.create(
         input="input",
         output="output",
-        project_name="project_name",
     )
 
 
@@ -90,7 +88,6 @@ try:
     client.calls.create(
         input="input",
         output="output",
-        project_name="project_name",
     )
 except lilypad_sdk.APIConnectionError as e:
     print("The server could not be reached")
@@ -137,7 +134,6 @@ client = LilypadSDK(
 client.with_options(max_retries=5).calls.create(
     input="input",
     output="output",
-    project_name="project_name",
 )
 ```
 
@@ -164,7 +160,6 @@ client = LilypadSDK(
 client.with_options(timeout=5.0).calls.create(
     input="input",
     output="output",
-    project_name="project_name",
 )
 ```
 
@@ -207,7 +202,6 @@ client = LilypadSDK()
 response = client.calls.with_raw_response.create(
     input="input",
     output="output",
-    project_name="project_name",
 )
 print(response.headers.get('X-My-Header'))
 
@@ -229,7 +223,6 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 with client.calls.with_streaming_response.create(
     input="input",
     output="output",
-    project_name="project_name",
 ) as response:
     print(response.headers.get("X-My-Header"))
 
