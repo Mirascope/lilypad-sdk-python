@@ -22,8 +22,8 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.call_table import CallTable
 from ..types.call_list_response import CallListResponse
-from ..types.call_create_response import CallCreateResponse
 
 __all__ = ["CallsResource", "AsyncCallsResource"]
 
@@ -61,7 +61,7 @@ class CallsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CallCreateResponse:
+    ) -> CallTable:
         """
         Creates a logged call.
 
@@ -88,7 +88,7 @@ class CallsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CallCreateResponse,
+            cast_to=CallTable,
         )
 
     def list(
@@ -144,7 +144,7 @@ class AsyncCallsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CallCreateResponse:
+    ) -> CallTable:
         """
         Creates a logged call.
 
@@ -171,7 +171,7 @@ class AsyncCallsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CallCreateResponse,
+            cast_to=CallTable,
         )
 
     async def list(

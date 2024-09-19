@@ -22,6 +22,7 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.prompt_version_public import PromptVersionPublic
+from ..types.prompt_version_retrieve_response import PromptVersionRetrieveResponse
 
 __all__ = ["PromptVersionsResource", "AsyncPromptVersionsResource"]
 
@@ -51,6 +52,7 @@ class PromptVersionsResource(SyncAPIResource):
         *,
         function_name: str,
         prompt_template: str,
+        input_arguments: Optional[str] | NotGiven = NOT_GIVEN,
         lexical_closure: Optional[str] | NotGiven = NOT_GIVEN,
         previous_version_id: Optional[int] | NotGiven = NOT_GIVEN,
         version_hash: Optional[str] | NotGiven = NOT_GIVEN,
@@ -79,6 +81,7 @@ class PromptVersionsResource(SyncAPIResource):
                 {
                     "function_name": function_name,
                     "prompt_template": prompt_template,
+                    "input_arguments": input_arguments,
                     "lexical_closure": lexical_closure,
                     "previous_version_id": previous_version_id,
                     "version_hash": version_hash,
@@ -101,7 +104,7 @@ class PromptVersionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> PromptVersionPublic:
+    ) -> Optional[PromptVersionRetrieveResponse]:
         """
         Get prompt version id by hash.
 
@@ -121,7 +124,7 @@ class PromptVersionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=PromptVersionPublic,
+            cast_to=int,
         )
 
 
@@ -150,6 +153,7 @@ class AsyncPromptVersionsResource(AsyncAPIResource):
         *,
         function_name: str,
         prompt_template: str,
+        input_arguments: Optional[str] | NotGiven = NOT_GIVEN,
         lexical_closure: Optional[str] | NotGiven = NOT_GIVEN,
         previous_version_id: Optional[int] | NotGiven = NOT_GIVEN,
         version_hash: Optional[str] | NotGiven = NOT_GIVEN,
@@ -178,6 +182,7 @@ class AsyncPromptVersionsResource(AsyncAPIResource):
                 {
                     "function_name": function_name,
                     "prompt_template": prompt_template,
+                    "input_arguments": input_arguments,
                     "lexical_closure": lexical_closure,
                     "previous_version_id": previous_version_id,
                     "version_hash": version_hash,
@@ -200,7 +205,7 @@ class AsyncPromptVersionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> PromptVersionPublic:
+    ) -> Optional[PromptVersionRetrieveResponse]:
         """
         Get prompt version id by hash.
 
@@ -220,7 +225,7 @@ class AsyncPromptVersionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=PromptVersionPublic,
+            cast_to=int,
         )
 
 

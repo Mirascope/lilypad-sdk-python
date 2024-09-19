@@ -665,12 +665,12 @@ class TestLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/calls").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/prompt-versions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
             self.client.post(
-                "/calls",
-                body=cast(object, dict(input="input", output="output")),
+                "/prompt-versions",
+                body=cast(object, dict(function_name="function_name", prompt_template="prompt_template")),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -680,12 +680,12 @@ class TestLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/calls").mock(return_value=httpx.Response(500))
+        respx_mock.post("/prompt-versions").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
             self.client.post(
-                "/calls",
-                body=cast(object, dict(input="input", output="output")),
+                "/prompt-versions",
+                body=cast(object, dict(function_name="function_name", prompt_template="prompt_template")),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -707,9 +707,11 @@ class TestLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/calls").mock(side_effect=retry_handler)
+        respx_mock.post("/prompt-versions").mock(side_effect=retry_handler)
 
-        response = client.calls.with_raw_response.create(input="input", output="output")
+        response = client.prompt_versions.with_raw_response.create(
+            function_name="function_name", prompt_template="prompt_template"
+        )
 
         assert response.retries_taken == failures_before_success
 
@@ -1337,12 +1339,12 @@ class TestAsyncLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/calls").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/prompt-versions").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
             await self.client.post(
-                "/calls",
-                body=cast(object, dict(input="input", output="output")),
+                "/prompt-versions",
+                body=cast(object, dict(function_name="function_name", prompt_template="prompt_template")),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -1352,12 +1354,12 @@ class TestAsyncLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/calls").mock(return_value=httpx.Response(500))
+        respx_mock.post("/prompt-versions").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
             await self.client.post(
-                "/calls",
-                body=cast(object, dict(input="input", output="output")),
+                "/prompt-versions",
+                body=cast(object, dict(function_name="function_name", prompt_template="prompt_template")),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -1382,8 +1384,10 @@ class TestAsyncLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/calls").mock(side_effect=retry_handler)
+        respx_mock.post("/prompt-versions").mock(side_effect=retry_handler)
 
-        response = await client.calls.with_raw_response.create(input="input", output="output")
+        response = await client.prompt_versions.with_raw_response.create(
+            function_name="function_name", prompt_template="prompt_template"
+        )
 
         assert response.retries_taken == failures_before_success

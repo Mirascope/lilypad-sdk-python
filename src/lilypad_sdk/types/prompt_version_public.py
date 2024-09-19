@@ -14,6 +14,8 @@ class PromptVersionPublic(BaseModel):
 
     prompt_template: str
 
+    input_arguments: Optional[str] = None
+
     lexical_closure: Optional[str] = None
 
     previous_version_id: Optional[int] = None
