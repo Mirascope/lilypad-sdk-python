@@ -35,6 +35,7 @@ call = client.calls.create(
     input="input",
     output="output",
 )
+print(call.id)
 ```
 
 ## Async usage
@@ -53,6 +54,7 @@ async def main() -> None:
         input="input",
         output="output",
     )
+    print(call.id)
 
 
 asyncio.run(main())
@@ -206,7 +208,7 @@ response = client.calls.with_raw_response.create(
 print(response.headers.get('X-My-Header'))
 
 call = response.parse()  # get the object that `calls.create()` would have returned
-print(call)
+print(call.id)
 ```
 
 These methods return an [`APIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
