@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import os
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import pytest
 
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
-from lilypad_sdk.types import PromptVersionPublic
+from lilypad_sdk.types import PromptVersionPublic, PromptVersionRetrieveResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -30,6 +30,7 @@ class TestPromptVersions:
         prompt_version = client.prompt_versions.create(
             function_name="function_name",
             prompt_template="prompt_template",
+            input_arguments="input_arguments",
             lexical_closure="lexical_closure",
             previous_version_id=0,
             version_hash="version_hash",
@@ -67,7 +68,7 @@ class TestPromptVersions:
         prompt_version = client.prompt_versions.retrieve(
             "version_hash",
         )
-        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+        assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
     @parametrize
     def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
@@ -78,7 +79,7 @@ class TestPromptVersions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         prompt_version = response.parse()
-        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+        assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
     @parametrize
     def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
@@ -89,7 +90,7 @@ class TestPromptVersions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             prompt_version = response.parse()
-            assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+            assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -117,6 +118,7 @@ class TestAsyncPromptVersions:
         prompt_version = await async_client.prompt_versions.create(
             function_name="function_name",
             prompt_template="prompt_template",
+            input_arguments="input_arguments",
             lexical_closure="lexical_closure",
             previous_version_id=0,
             version_hash="version_hash",
@@ -154,7 +156,7 @@ class TestAsyncPromptVersions:
         prompt_version = await async_client.prompt_versions.retrieve(
             "version_hash",
         )
-        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+        assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
     @parametrize
     async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
@@ -165,7 +167,7 @@ class TestAsyncPromptVersions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         prompt_version = await response.parse()
-        assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+        assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
     @parametrize
     async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
@@ -176,7 +178,7 @@ class TestAsyncPromptVersions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             prompt_version = await response.parse()
-            assert_matches_type(PromptVersionPublic, prompt_version, path=["response"])
+            assert_matches_type(Optional[PromptVersionRetrieveResponse], prompt_version, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

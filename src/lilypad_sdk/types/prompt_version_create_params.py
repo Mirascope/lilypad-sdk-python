@@ -13,6 +13,8 @@ class PromptVersionCreateParams(TypedDict, total=False):
 
     prompt_template: Required[str]
 
+    input_arguments: Optional[str]
+
     lexical_closure: Optional[str]
 
     previous_version_id: Optional[int]

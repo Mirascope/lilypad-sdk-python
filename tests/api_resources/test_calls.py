@@ -9,7 +9,7 @@ import pytest
 
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
-from lilypad_sdk.types import CallListResponse, CallCreateResponse
+from lilypad_sdk.types import CallTable, CallListResponse
 from lilypad_sdk._utils import parse_datetime
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -24,7 +24,7 @@ class TestCalls:
             input="input",
             output="output",
         )
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
@@ -34,7 +34,7 @@ class TestCalls:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             prompt_version_id=0,
         )
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     def test_raw_response_create(self, client: LilypadSDK) -> None:
@@ -46,7 +46,7 @@ class TestCalls:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         call = response.parse()
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     def test_streaming_response_create(self, client: LilypadSDK) -> None:
@@ -58,7 +58,7 @@ class TestCalls:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             call = response.parse()
-            assert_matches_type(CallCreateResponse, call, path=["response"])
+            assert_matches_type(CallTable, call, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -97,7 +97,7 @@ class TestAsyncCalls:
             input="input",
             output="output",
         )
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
@@ -107,7 +107,7 @@ class TestAsyncCalls:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             prompt_version_id=0,
         )
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
@@ -119,7 +119,7 @@ class TestAsyncCalls:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         call = await response.parse()
-        assert_matches_type(CallCreateResponse, call, path=["response"])
+        assert_matches_type(CallTable, call, path=["response"])
 
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
@@ -131,7 +131,7 @@ class TestAsyncCalls:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             call = await response.parse()
-            assert_matches_type(CallCreateResponse, call, path=["response"])
+            assert_matches_type(CallTable, call, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

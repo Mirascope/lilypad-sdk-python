@@ -5,10 +5,10 @@ from datetime import datetime
 
 from .._models import BaseModel
 
-__all__ = ["CallCreateResponse"]
+__all__ = ["CallTable"]
 
 
-class CallCreateResponse(BaseModel):
+class CallTable(BaseModel):
     input: str
 
     output: str
