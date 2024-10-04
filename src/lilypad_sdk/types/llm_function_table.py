@@ -5,16 +5,18 @@ from datetime import datetime
 
 from .._models import BaseModel
 
-__all__ = ["CallTable"]
+__all__ = ["LlmFunctionTable"]
 
 
-class CallTable(BaseModel):
-    input: str
+class LlmFunctionTable(BaseModel):
+    code: str
 
-    output: str
+    function_name: str
 
     id: Optional[int] = None
 
     created_at: Optional[datetime] = None
 
-    prompt_version_id: Optional[int] = None
+    input_arguments: Optional[str] = None
+
+    version_hash: Optional[str] = None

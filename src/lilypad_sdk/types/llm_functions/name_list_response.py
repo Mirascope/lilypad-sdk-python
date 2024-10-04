@@ -1,8 +1,8 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import Optional
+from typing import List
 from typing_extensions import TypeAlias
 
-__all__ = ["PromptVersionRetrieveResponse"]
+__all__ = ["NameListResponse"]
 
-PromptVersionRetrieveResponse: TypeAlias = Optional[int]
+NameListResponse: TypeAlias = List[str]

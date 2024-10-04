@@ -5,18 +5,14 @@ from __future__ import annotations
 from typing import Optional
 from typing_extensions import Required, TypedDict
 
-__all__ = ["PromptVersionCreateParams"]
+__all__ = ["LlmFunctionCreateParams"]
 
 
-class PromptVersionCreateParams(TypedDict, total=False):
+class LlmFunctionCreateParams(TypedDict, total=False):
+    code: Required[str]
+
     function_name: Required[str]
 
-    prompt_template: Required[str]
+    version_hash: Required[str]
 
     input_arguments: Optional[str]
-
-    lexical_closure: Optional[str]
-
-    previous_version_id: Optional[int]
-
-    version_hash: Optional[str]
