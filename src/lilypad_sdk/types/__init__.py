@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from .call_table import CallTable as CallTable
-from .call_create_params import CallCreateParams as CallCreateParams
-from .call_list_response import CallListResponse as CallListResponse
-from .prompt_version_public import PromptVersionPublic as PromptVersionPublic
-from .prompt_version_create_params import PromptVersionCreateParams as PromptVersionCreateParams
-from .call_public_with_prompt_version import CallPublicWithPromptVersion as CallPublicWithPromptVersion
-from .prompt_version_retrieve_response import PromptVersionRetrieveResponse as PromptVersionRetrieveResponse
+from .span_public import SpanPublic as SpanPublic
+from .llm_function_table import LlmFunctionTable as LlmFunctionTable
+from .trace_list_response import TraceListResponse as TraceListResponse
+from .llm_function_base_public import LlmFunctionBasePublic as LlmFunctionBasePublic
+from .llm_function_list_params import LlmFunctionListParams as LlmFunctionListParams
+from .llm_function_create_params import LlmFunctionCreateParams as LlmFunctionCreateParams
+from .llm_function_list_response import LlmFunctionListResponse as LlmFunctionListResponse

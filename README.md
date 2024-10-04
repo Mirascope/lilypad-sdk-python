@@ -31,11 +31,7 @@ from lilypad_sdk import LilypadSDK
 
 client = LilypadSDK()
 
-prompt_version_public = client.prompt_versions.create(
-    function_name="function_name",
-    prompt_template="prompt_template",
-)
-print(prompt_version_public.id)
+metric = client.metrics.create()
 ```
 
 ## Async usage
@@ -50,11 +46,7 @@ client = AsyncLilypadSDK()
 
 
 async def main() -> None:
-    prompt_version_public = await client.prompt_versions.create(
-        function_name="function_name",
-        prompt_template="prompt_template",
-    )
-    print(prompt_version_public.id)
+    metric = await client.metrics.create()
 
 
 asyncio.run(main())
@@ -87,10 +79,7 @@ from lilypad_sdk import LilypadSDK
 client = LilypadSDK()
 
 try:
-    client.prompt_versions.create(
-        function_name="function_name",
-        prompt_template="prompt_template",
-    )
+    client.metrics.create()
 except lilypad_sdk.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -133,10 +122,7 @@ client = LilypadSDK(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).prompt_versions.create(
-    function_name="function_name",
-    prompt_template="prompt_template",
-)
+client.with_options(max_retries=5).metrics.create()
 ```
 
 ### Timeouts
@@ -159,10 +145,7 @@ client = LilypadSDK(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).prompt_versions.create(
-    function_name="function_name",
-    prompt_template="prompt_template",
-)
+client.with_options(timeout=5.0).metrics.create()
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -201,14 +184,11 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from lilypad_sdk import LilypadSDK
 
 client = LilypadSDK()
-response = client.prompt_versions.with_raw_response.create(
-    function_name="function_name",
-    prompt_template="prompt_template",
-)
+response = client.metrics.with_raw_response.create()
 print(response.headers.get('X-My-Header'))
 
-prompt_version = response.parse()  # get the object that `prompt_versions.create()` would have returned
-print(prompt_version.id)
+metric = response.parse()  # get the object that `metrics.create()` would have returned
+print(metric)
 ```
 
 These methods return an [`APIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
@@ -222,10 +202,7 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.prompt_versions.with_streaming_response.create(
-    function_name="function_name",
-    prompt_template="prompt_template",
-) as response:
+with client.metrics.with_streaming_response.create() as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():
