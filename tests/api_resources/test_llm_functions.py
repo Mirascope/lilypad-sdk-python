@@ -10,7 +10,6 @@ import pytest
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
 from lilypad_sdk.types import (
-    LlmFunctionTable,
     LlmFunctionBasePublic,
     LlmFunctionListResponse,
 )
@@ -28,7 +27,7 @@ class TestLlmFunctions:
             function_name="function_name",
             version_hash="version_hash",
         )
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
@@ -38,7 +37,7 @@ class TestLlmFunctions:
             version_hash="version_hash",
             input_arguments="input_arguments",
         )
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     def test_raw_response_create(self, client: LilypadSDK) -> None:
@@ -51,7 +50,7 @@ class TestLlmFunctions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         llm_function = response.parse()
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     def test_streaming_response_create(self, client: LilypadSDK) -> None:
@@ -64,7 +63,7 @@ class TestLlmFunctions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             llm_function = response.parse()
-            assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+            assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -148,7 +147,7 @@ class TestAsyncLlmFunctions:
             function_name="function_name",
             version_hash="version_hash",
         )
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
@@ -158,7 +157,7 @@ class TestAsyncLlmFunctions:
             version_hash="version_hash",
             input_arguments="input_arguments",
         )
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
@@ -171,7 +170,7 @@ class TestAsyncLlmFunctions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         llm_function = await response.parse()
-        assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+        assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
@@ -184,7 +183,7 @@ class TestAsyncLlmFunctions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             llm_function = await response.parse()
-            assert_matches_type(LlmFunctionTable, llm_function, path=["response"])
+            assert_matches_type(LlmFunctionBasePublic, llm_function, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

@@ -8,7 +8,7 @@ from lilypad_sdk.types import LlmFunctionBasePublic, LlmFunctionTable, LlmFuncti
 
 Methods:
 
-- <code title="post /llm-functions/">client.llm_functions.<a href="./src/lilypad_sdk/resources/llm_functions/llm_functions.py">create</a>(\*\*<a href="src/lilypad_sdk/types/llm_function_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/llm_function_table.py">LlmFunctionTable</a></code>
+- <code title="post /llm-functions/">client.llm_functions.<a href="./src/lilypad_sdk/resources/llm_functions/llm_functions.py">create</a>(\*\*<a href="src/lilypad_sdk/types/llm_function_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/llm_function_base_public.py">LlmFunctionBasePublic</a></code>
 - <code title="get /llm-functions/{version_hash}">client.llm_functions.<a href="./src/lilypad_sdk/resources/llm_functions/llm_functions.py">retrieve</a>(version_hash) -> <a href="./src/lilypad_sdk/types/llm_function_base_public.py">LlmFunctionBasePublic</a></code>
 - <code title="get /llm-functions">client.llm_functions.<a href="./src/lilypad_sdk/resources/llm_functions/llm_functions.py">list</a>(\*\*<a href="src/lilypad_sdk/types/llm_function_list_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/llm_function_list_response.py">LlmFunctionListResponse</a></code>
 
