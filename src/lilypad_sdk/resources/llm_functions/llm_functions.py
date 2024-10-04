@@ -37,7 +37,6 @@ from .provider_call_params import (
     ProviderCallParamsResourceWithStreamingResponse,
     AsyncProviderCallParamsResourceWithStreamingResponse,
 )
-from ...types.llm_function_table import LlmFunctionTable
 from ...types.llm_function_base_public import LlmFunctionBasePublic
 from ...types.llm_function_list_response import LlmFunctionListResponse
 
@@ -85,7 +84,7 @@ class LlmFunctionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> LlmFunctionTable:
+    ) -> LlmFunctionBasePublic:
         """
         Get prompt version id by hash.
 
@@ -112,7 +111,7 @@ class LlmFunctionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=LlmFunctionTable,
+            cast_to=LlmFunctionBasePublic,
         )
 
     def retrieve(
@@ -225,7 +224,7 @@ class AsyncLlmFunctionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> LlmFunctionTable:
+    ) -> LlmFunctionBasePublic:
         """
         Get prompt version id by hash.
 
@@ -252,7 +251,7 @@ class AsyncLlmFunctionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=LlmFunctionTable,
+            cast_to=LlmFunctionBasePublic,
         )
 
     async def retrieve(
