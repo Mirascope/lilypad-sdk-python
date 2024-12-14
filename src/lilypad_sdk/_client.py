@@ -8,7 +8,7 @@ from typing_extensions import Self, override
 
 import httpx
 
-from . import resources, _exceptions
+from . import _exceptions
 from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
@@ -24,6 +24,7 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
+from .resources import traces, metrics
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import APIStatusError
 from ._base_client import (
@@ -31,13 +32,13 @@ from ._base_client import (
     SyncAPIClient,
     AsyncAPIClient,
 )
+from .resources.llm_functions import llm_functions
 
 __all__ = [
     "Timeout",
     "Transport",
     "ProxiesTypes",
     "RequestOptions",
-    "resources",
     "LilypadSDK",
     "AsyncLilypadSDK",
     "Client",
@@ -46,9 +47,9 @@ __all__ = [
 
 
 class LilypadSDK(SyncAPIClient):
-    llm_functions: resources.LlmFunctionsResource
-    metrics: resources.MetricsResource
-    traces: resources.TracesResource
+    llm_functions: llm_functions.LlmFunctionsResource
+    metrics: metrics.MetricsResource
+    traces: traces.TracesResource
     with_raw_response: LilypadSDKWithRawResponse
     with_streaming_response: LilypadSDKWithStreamedResponse
 
@@ -93,9 +94,9 @@ class LilypadSDK(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.llm_functions = resources.LlmFunctionsResource(self)
-        self.metrics = resources.MetricsResource(self)
-        self.traces = resources.TracesResource(self)
+        self.llm_functions = llm_functions.LlmFunctionsResource(self)
+        self.metrics = metrics.MetricsResource(self)
+        self.traces = traces.TracesResource(self)
         self.with_raw_response = LilypadSDKWithRawResponse(self)
         self.with_streaming_response = LilypadSDKWithStreamedResponse(self)
 
@@ -197,9 +198,9 @@ class LilypadSDK(SyncAPIClient):
 
 
 class AsyncLilypadSDK(AsyncAPIClient):
-    llm_functions: resources.AsyncLlmFunctionsResource
-    metrics: resources.AsyncMetricsResource
-    traces: resources.AsyncTracesResource
+    llm_functions: llm_functions.AsyncLlmFunctionsResource
+    metrics: metrics.AsyncMetricsResource
+    traces: traces.AsyncTracesResource
     with_raw_response: AsyncLilypadSDKWithRawResponse
     with_streaming_response: AsyncLilypadSDKWithStreamedResponse
 
@@ -244,9 +245,9 @@ class AsyncLilypadSDK(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.llm_functions = resources.AsyncLlmFunctionsResource(self)
-        self.metrics = resources.AsyncMetricsResource(self)
-        self.traces = resources.AsyncTracesResource(self)
+        self.llm_functions = llm_functions.AsyncLlmFunctionsResource(self)
+        self.metrics = metrics.AsyncMetricsResource(self)
+        self.traces = traces.AsyncTracesResource(self)
         self.with_raw_response = AsyncLilypadSDKWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadSDKWithStreamedResponse(self)
 
@@ -349,30 +350,30 @@ class AsyncLilypadSDK(AsyncAPIClient):
 
 class LilypadSDKWithRawResponse:
     def __init__(self, client: LilypadSDK) -> None:
-        self.llm_functions = resources.LlmFunctionsResourceWithRawResponse(client.llm_functions)
-        self.metrics = resources.MetricsResourceWithRawResponse(client.metrics)
-        self.traces = resources.TracesResourceWithRawResponse(client.traces)
+        self.llm_functions = llm_functions.LlmFunctionsResourceWithRawResponse(client.llm_functions)
+        self.metrics = metrics.MetricsResourceWithRawResponse(client.metrics)
+        self.traces = traces.TracesResourceWithRawResponse(client.traces)
 
 
 class AsyncLilypadSDKWithRawResponse:
     def __init__(self, client: AsyncLilypadSDK) -> None:
-        self.llm_functions = resources.AsyncLlmFunctionsResourceWithRawResponse(client.llm_functions)
-        self.metrics = resources.AsyncMetricsResourceWithRawResponse(client.metrics)
-        self.traces = resources.AsyncTracesResourceWithRawResponse(client.traces)
+        self.llm_functions = llm_functions.AsyncLlmFunctionsResourceWithRawResponse(client.llm_functions)
+        self.metrics = metrics.AsyncMetricsResourceWithRawResponse(client.metrics)
+        self.traces = traces.AsyncTracesResourceWithRawResponse(client.traces)
 
 
 class LilypadSDKWithStreamedResponse:
     def __init__(self, client: LilypadSDK) -> None:
-        self.llm_functions = resources.LlmFunctionsResourceWithStreamingResponse(client.llm_functions)
-        self.metrics = resources.MetricsResourceWithStreamingResponse(client.metrics)
-        self.traces = resources.TracesResourceWithStreamingResponse(client.traces)
+        self.llm_functions = llm_functions.LlmFunctionsResourceWithStreamingResponse(client.llm_functions)
+        self.metrics = metrics.MetricsResourceWithStreamingResponse(client.metrics)
+        self.traces = traces.TracesResourceWithStreamingResponse(client.traces)
 
 
 class AsyncLilypadSDKWithStreamedResponse:
     def __init__(self, client: AsyncLilypadSDK) -> None:
-        self.llm_functions = resources.AsyncLlmFunctionsResourceWithStreamingResponse(client.llm_functions)
-        self.metrics = resources.AsyncMetricsResourceWithStreamingResponse(client.metrics)
-        self.traces = resources.AsyncTracesResourceWithStreamingResponse(client.traces)
+        self.llm_functions = llm_functions.AsyncLlmFunctionsResourceWithStreamingResponse(client.llm_functions)
+        self.metrics = metrics.AsyncMetricsResourceWithStreamingResponse(client.metrics)
+        self.traces = traces.AsyncTracesResourceWithStreamingResponse(client.traces)
 
 
 Client = LilypadSDK
