@@ -16,7 +16,7 @@ __all__ = ["SpanPublic"]
 class SpanPublic(BaseModel):
     id: str
 
-    child_spans: List[SpanPublic]
+    child_spans: List["SpanPublic"]
 
     data: str
 
