@@ -25,7 +25,7 @@ from lilypad_sdk import LilypadSDK, AsyncLilypadSDK, APIResponseValidationError
 from lilypad_sdk._types import Omit
 from lilypad_sdk._models import BaseModel, FinalRequestOptions
 from lilypad_sdk._constants import RAW_RESPONSE_HEADER
-from lilypad_sdk._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
+from lilypad_sdk._exceptions import APIStatusError, APITimeoutError, LilypadSDKError, APIResponseValidationError
 from lilypad_sdk._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -36,6 +36,7 @@ from lilypad_sdk._base_client import (
 from .utils import update_env
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
+api_key = "My API Key"
 
 
 def _get_params(client: BaseClient[Any, Any]) -> dict[str, str]:
@@ -57,7 +58,7 @@ def _get_open_connections(client: LilypadSDK | AsyncLilypadSDK) -> int:
 
 
 class TestLilypadSDK:
-    client = LilypadSDK(base_url=base_url, _strict_response_validation=True)
+    client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     def test_raw_response(self, respx_mock: MockRouter) -> None:
@@ -83,6 +84,10 @@ class TestLilypadSDK:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
+        copied = self.client.copy(api_key="another My API Key")
+        assert copied.api_key == "another My API Key"
+        assert self.client.api_key == "My API Key"
+
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
         copied = self.client.copy(max_retries=7)
@@ -100,7 +105,9 @@ class TestLilypadSDK:
         assert isinstance(self.client.timeout, httpx.Timeout)
 
     def test_copy_default_headers(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True, default_headers={"X-Foo": "bar"})
+        client = LilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+        )
         assert client.default_headers["X-Foo"] == "bar"
 
         # does not override the already given value when not specified
@@ -132,7 +139,9 @@ class TestLilypadSDK:
             client.copy(set_default_headers={}, default_headers={"X-Foo": "Bar"})
 
     def test_copy_default_query(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True, default_query={"foo": "bar"})
+        client = LilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"foo": "bar"}
+        )
         assert _get_params(client)["foo"] == "bar"
 
         # does not override the already given value when not specified
@@ -255,7 +264,9 @@ class TestLilypadSDK:
         assert timeout == httpx.Timeout(100.0)
 
     def test_client_timeout_option(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True, timeout=httpx.Timeout(0))
+        client = LilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
+        )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -264,7 +275,9 @@ class TestLilypadSDK:
     def test_http_client_timeout_option(self) -> None:
         # custom timeout given to the httpx client should be used
         with httpx.Client(timeout=None) as http_client:
-            client = LilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = LilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -272,7 +285,9 @@ class TestLilypadSDK:
 
         # no timeout given to the httpx client should not use the httpx default
         with httpx.Client() as http_client:
-            client = LilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = LilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -280,7 +295,9 @@ class TestLilypadSDK:
 
         # explicitly passing the default timeout currently results in it being ignored
         with httpx.Client(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
-            client = LilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = LilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -289,16 +306,24 @@ class TestLilypadSDK:
     async def test_invalid_http_client(self) -> None:
         with pytest.raises(TypeError, match="Invalid `http_client` arg"):
             async with httpx.AsyncClient() as http_client:
-                LilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=cast(Any, http_client))
+                LilypadSDK(
+                    base_url=base_url,
+                    api_key=api_key,
+                    _strict_response_validation=True,
+                    http_client=cast(Any, http_client),
+                )
 
     def test_default_headers_option(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True, default_headers={"X-Foo": "bar"})
+        client = LilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+        )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "bar"
         assert request.headers.get("x-stainless-lang") == "python"
 
         client2 = LilypadSDK(
             base_url=base_url,
+            api_key=api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -309,8 +334,20 @@ class TestLilypadSDK:
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
+    def test_validate_headers(self) -> None:
+        client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("X-API-Key") == api_key
+
+        with pytest.raises(LilypadSDKError):
+            with update_env(**{"LILYPAD_SDK_API_KEY": Omit()}):
+                client2 = LilypadSDK(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
+
     def test_default_query_option(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True, default_query={"query_param": "bar"})
+        client = LilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"query_param": "bar"}
+        )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         url = httpx.URL(request.url)
         assert dict(url.params) == {"query_param": "bar"}
@@ -509,7 +546,7 @@ class TestLilypadSDK:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = LilypadSDK(base_url="https://example.com/from_init", _strict_response_validation=True)
+        client = LilypadSDK(base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True)
         assert client.base_url == "https://example.com/from_init/"
 
         client.base_url = "https://example.com/from_setter"  # type: ignore[assignment]
@@ -518,15 +555,18 @@ class TestLilypadSDK:
 
     def test_base_url_env(self) -> None:
         with update_env(LILYPAD_SDK_BASE_URL="http://localhost:5000/from/env"):
-            client = LilypadSDK(_strict_response_validation=True)
+            client = LilypadSDK(api_key=api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            LilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            LilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             LilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -546,9 +586,12 @@ class TestLilypadSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            LilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            LilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             LilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -568,9 +611,12 @@ class TestLilypadSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            LilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            LilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             LilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -588,7 +634,7 @@ class TestLilypadSDK:
         assert request.url == "https://myapi.com/foo"
 
     def test_copied_client_does_not_close_http(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -599,7 +645,7 @@ class TestLilypadSDK:
         assert not client.is_closed()
 
     def test_client_context_manager(self) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -620,7 +666,9 @@ class TestLilypadSDK:
 
     def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            LilypadSDK(base_url=base_url, _strict_response_validation=True, max_retries=cast(Any, None))
+            LilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, max_retries=cast(Any, None)
+            )
 
     @pytest.mark.respx(base_url=base_url)
     def test_received_text_for_expected_json(self, respx_mock: MockRouter) -> None:
@@ -629,12 +677,12 @@ class TestLilypadSDK:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = LilypadSDK(base_url=base_url, _strict_response_validation=True)
+        strict_client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             strict_client.get("/foo", cast_to=Model)
 
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=False)
+        client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=False)
 
         response = client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -662,7 +710,7 @@ class TestLilypadSDK:
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = LilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -672,11 +720,16 @@ class TestLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/v1/metrics").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(
+            side_effect=httpx.TimeoutException("Test timeout error")
+        )
 
         with pytest.raises(APITimeoutError):
             self.client.post(
-                "/v1/metrics", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
+                body=cast(object, dict(body=[{}])),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -684,11 +737,16 @@ class TestLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/v1/metrics").mock(return_value=httpx.Response(500))
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(
+            return_value=httpx.Response(500)
+        )
 
         with pytest.raises(APIStatusError):
             self.client.post(
-                "/v1/metrics", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
+                body=cast(object, dict(body=[{}])),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -717,9 +775,11 @@ class TestLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = client.metrics.with_raw_response.create()
+        response = client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e", body=[{}]
+        )
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -741,9 +801,13 @@ class TestLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = client.metrics.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
+        response = client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body=[{}],
+            extra_headers={"x-stainless-retry-count": Omit()},
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -764,15 +828,19 @@ class TestLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = client.metrics.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
+        response = client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body=[{}],
+            extra_headers={"x-stainless-retry-count": "42"},
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 
 
 class TestAsyncLilypadSDK:
-    client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True)
+    client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -800,6 +868,10 @@ class TestAsyncLilypadSDK:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
+        copied = self.client.copy(api_key="another My API Key")
+        assert copied.api_key == "another My API Key"
+        assert self.client.api_key == "My API Key"
+
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
         copied = self.client.copy(max_retries=7)
@@ -817,7 +889,9 @@ class TestAsyncLilypadSDK:
         assert isinstance(self.client.timeout, httpx.Timeout)
 
     def test_copy_default_headers(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, default_headers={"X-Foo": "bar"})
+        client = AsyncLilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+        )
         assert client.default_headers["X-Foo"] == "bar"
 
         # does not override the already given value when not specified
@@ -849,7 +923,9 @@ class TestAsyncLilypadSDK:
             client.copy(set_default_headers={}, default_headers={"X-Foo": "Bar"})
 
     def test_copy_default_query(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, default_query={"foo": "bar"})
+        client = AsyncLilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"foo": "bar"}
+        )
         assert _get_params(client)["foo"] == "bar"
 
         # does not override the already given value when not specified
@@ -972,7 +1048,9 @@ class TestAsyncLilypadSDK:
         assert timeout == httpx.Timeout(100.0)
 
     async def test_client_timeout_option(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, timeout=httpx.Timeout(0))
+        client = AsyncLilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
+        )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -981,7 +1059,9 @@ class TestAsyncLilypadSDK:
     async def test_http_client_timeout_option(self) -> None:
         # custom timeout given to the httpx client should be used
         async with httpx.AsyncClient(timeout=None) as http_client:
-            client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = AsyncLilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -989,7 +1069,9 @@ class TestAsyncLilypadSDK:
 
         # no timeout given to the httpx client should not use the httpx default
         async with httpx.AsyncClient() as http_client:
-            client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = AsyncLilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -997,7 +1079,9 @@ class TestAsyncLilypadSDK:
 
         # explicitly passing the default timeout currently results in it being ignored
         async with httpx.AsyncClient(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
-            client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=http_client)
+            client = AsyncLilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -1006,16 +1090,24 @@ class TestAsyncLilypadSDK:
     def test_invalid_http_client(self) -> None:
         with pytest.raises(TypeError, match="Invalid `http_client` arg"):
             with httpx.Client() as http_client:
-                AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, http_client=cast(Any, http_client))
+                AsyncLilypadSDK(
+                    base_url=base_url,
+                    api_key=api_key,
+                    _strict_response_validation=True,
+                    http_client=cast(Any, http_client),
+                )
 
     def test_default_headers_option(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, default_headers={"X-Foo": "bar"})
+        client = AsyncLilypadSDK(
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+        )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "bar"
         assert request.headers.get("x-stainless-lang") == "python"
 
         client2 = AsyncLilypadSDK(
             base_url=base_url,
+            api_key=api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -1026,9 +1118,19 @@ class TestAsyncLilypadSDK:
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
+    def test_validate_headers(self) -> None:
+        client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("X-API-Key") == api_key
+
+        with pytest.raises(LilypadSDKError):
+            with update_env(**{"LILYPAD_SDK_API_KEY": Omit()}):
+                client2 = AsyncLilypadSDK(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
+
     def test_default_query_option(self) -> None:
         client = AsyncLilypadSDK(
-            base_url=base_url, _strict_response_validation=True, default_query={"query_param": "bar"}
+            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"query_param": "bar"}
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         url = httpx.URL(request.url)
@@ -1228,7 +1330,9 @@ class TestAsyncLilypadSDK:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = AsyncLilypadSDK(base_url="https://example.com/from_init", _strict_response_validation=True)
+        client = AsyncLilypadSDK(
+            base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True
+        )
         assert client.base_url == "https://example.com/from_init/"
 
         client.base_url = "https://example.com/from_setter"  # type: ignore[assignment]
@@ -1237,15 +1341,18 @@ class TestAsyncLilypadSDK:
 
     def test_base_url_env(self) -> None:
         with update_env(LILYPAD_SDK_BASE_URL="http://localhost:5000/from/env"):
-            client = AsyncLilypadSDK(_strict_response_validation=True)
+            client = AsyncLilypadSDK(api_key=api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncLilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            AsyncLilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             AsyncLilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1265,9 +1372,12 @@ class TestAsyncLilypadSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncLilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            AsyncLilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             AsyncLilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1287,9 +1397,12 @@ class TestAsyncLilypadSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncLilypadSDK(base_url="http://localhost:5000/custom/path/", _strict_response_validation=True),
+            AsyncLilypadSDK(
+                base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True
+            ),
             AsyncLilypadSDK(
                 base_url="http://localhost:5000/custom/path/",
+                api_key=api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1307,7 +1420,7 @@ class TestAsyncLilypadSDK:
         assert request.url == "https://myapi.com/foo"
 
     async def test_copied_client_does_not_close_http(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -1319,7 +1432,7 @@ class TestAsyncLilypadSDK:
         assert not client.is_closed()
 
     async def test_client_context_manager(self) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         async with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -1341,7 +1454,9 @@ class TestAsyncLilypadSDK:
 
     async def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True, max_retries=cast(Any, None))
+            AsyncLilypadSDK(
+                base_url=base_url, api_key=api_key, _strict_response_validation=True, max_retries=cast(Any, None)
+            )
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -1351,12 +1466,12 @@ class TestAsyncLilypadSDK:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True)
+        strict_client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             await strict_client.get("/foo", cast_to=Model)
 
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=False)
+        client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=False)
 
         response = await client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -1385,7 +1500,7 @@ class TestAsyncLilypadSDK:
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     @pytest.mark.asyncio
     async def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = AsyncLilypadSDK(base_url=base_url, _strict_response_validation=True)
+        client = AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -1395,11 +1510,16 @@ class TestAsyncLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/v1/metrics").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(
+            side_effect=httpx.TimeoutException("Test timeout error")
+        )
 
         with pytest.raises(APITimeoutError):
             await self.client.post(
-                "/v1/metrics", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
+                body=cast(object, dict(body=[{}])),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1407,11 +1527,16 @@ class TestAsyncLilypadSDK:
     @mock.patch("lilypad_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.post("/v1/metrics").mock(return_value=httpx.Response(500))
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(
+            return_value=httpx.Response(500)
+        )
 
         with pytest.raises(APIStatusError):
             await self.client.post(
-                "/v1/metrics", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
+                body=cast(object, dict(body=[{}])),
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1441,9 +1566,11 @@ class TestAsyncLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = await client.metrics.with_raw_response.create()
+        response = await client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e", body=[{}]
+        )
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1466,9 +1593,13 @@ class TestAsyncLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = await client.metrics.with_raw_response.create(extra_headers={"x-stainless-retry-count": Omit()})
+        response = await client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body=[{}],
+            extra_headers={"x-stainless-retry-count": Omit()},
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -1490,9 +1621,13 @@ class TestAsyncLilypadSDK:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.post("/v1/metrics").mock(side_effect=retry_handler)
+        respx_mock.post("/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations").mock(side_effect=retry_handler)
 
-        response = await client.metrics.with_raw_response.create(extra_headers={"x-stainless-retry-count": "42"})
+        response = await client.ee.projects.annotations.with_raw_response.create(
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body=[{}],
+            extra_headers={"x-stainless-retry-count": "42"},
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 

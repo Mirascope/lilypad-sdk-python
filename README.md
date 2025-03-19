@@ -27,26 +27,43 @@ pip install git+ssh://git@github.com/stainless-sdks/lilypad-sdk-python.git
 The full API of this library can be found in [api.md](api.md).
 
 ```python
+import os
 from lilypad_sdk import LilypadSDK
 
-client = LilypadSDK()
+client = LilypadSDK(
+    api_key=os.environ.get("LILYPAD_SDK_API_KEY"),  # This is the default and can be omitted
+)
 
-metric = client.metrics.create()
+annotation_publics = client.ee.projects.annotations.create(
+    project_uuid="REPLACE_ME",
+    body=[{}],
+)
 ```
+
+While you can provide an `api_key` keyword argument,
+we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
+to add `LILYPAD_SDK_API_KEY="My API Key"` to your `.env` file
+so that your API Key is not stored in source control.
 
 ## Async usage
 
 Simply import `AsyncLilypadSDK` instead of `LilypadSDK` and use `await` with each API call:
 
 ```python
+import os
 import asyncio
 from lilypad_sdk import AsyncLilypadSDK
 
-client = AsyncLilypadSDK()
+client = AsyncLilypadSDK(
+    api_key=os.environ.get("LILYPAD_SDK_API_KEY"),  # This is the default and can be omitted
+)
 
 
 async def main() -> None:
-    metric = await client.metrics.create()
+    annotation_publics = await client.ee.projects.annotations.create(
+        project_uuid="REPLACE_ME",
+        body=[{}],
+    )
 
 
 asyncio.run(main())
@@ -79,7 +96,10 @@ from lilypad_sdk import LilypadSDK
 client = LilypadSDK()
 
 try:
-    client.metrics.create()
+    client.ee.projects.annotations.create(
+        project_uuid="REPLACE_ME",
+        body=[{}],
+    )
 except lilypad_sdk.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -122,7 +142,10 @@ client = LilypadSDK(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).metrics.create()
+client.with_options(max_retries=5).ee.projects.annotations.create(
+    project_uuid="REPLACE_ME",
+    body=[{}],
+)
 ```
 
 ### Timeouts
@@ -145,7 +168,10 @@ client = LilypadSDK(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).metrics.create()
+client.with_options(timeout=5.0).ee.projects.annotations.create(
+    project_uuid="REPLACE_ME",
+    body=[{}],
+)
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -186,11 +212,14 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from lilypad_sdk import LilypadSDK
 
 client = LilypadSDK()
-response = client.metrics.with_raw_response.create()
+response = client.ee.projects.annotations.with_raw_response.create(
+    project_uuid="REPLACE_ME",
+    body=[{}],
+)
 print(response.headers.get('X-My-Header'))
 
-metric = response.parse()  # get the object that `metrics.create()` would have returned
-print(metric)
+annotation = response.parse()  # get the object that `ee.projects.annotations.create()` would have returned
+print(annotation)
 ```
 
 These methods return an [`APIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
@@ -204,7 +233,10 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.metrics.with_streaming_response.create() as response:
+with client.ee.projects.annotations.with_streaming_response.create(
+    project_uuid="REPLACE_ME",
+    body=[{}],
+) as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():
