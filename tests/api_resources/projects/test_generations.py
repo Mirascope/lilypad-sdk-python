@@ -1,0 +1,784 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+import os
+from typing import Any, cast
+
+import pytest
+
+from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from tests.utils import assert_matches_type
+from lilypad_sdk._utils import parse_datetime
+from lilypad_sdk.types.projects import (
+    GenerationListResponse,
+    GenerationArchiveResponse,
+    GenerationArchiveByNameResponse,
+)
+from lilypad_sdk.types.ee.projects import GenerationPublic
+
+base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
+
+
+class TestGenerations:
+    parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @parametrize
+    def test_method_create(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+            archived=parse_datetime("2019-12-27T18:11:19.117Z"),
+            arg_types={"foo": "string"},
+            call_params={
+                "frequency_penalty": 0,
+                "max_tokens": 0,
+                "presence_penalty": 0,
+                "seed": 0,
+                "stop": "string",
+                "temperature": 0,
+                "top_p": 0,
+            },
+            custom_id="custom_id",
+            dependencies={
+                "foo": {
+                    "extras": ["string"],
+                    "version": "version",
+                }
+            },
+            is_default=True,
+            is_managed=True,
+            model="model",
+            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            prompt_template="prompt_template",
+            provider="provider",
+            version_num=0,
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_create(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_create(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid_1` but received ''"):
+            client.projects.generations.with_raw_response.create(
+                project_uuid_1="",
+                code="code",
+                hash="hash",
+                name="x",
+                signature="signature",
+                project_uuid_2="",
+            )
+
+    @parametrize
+    def test_method_retrieve(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_retrieve(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.retrieve(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            client.projects.generations.with_raw_response.retrieve(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    def test_method_update(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_method_update_with_all_params(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            is_default=True,
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_update(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_update(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_update(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.update(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            client.projects.generations.with_raw_response.update(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    def test_method_list(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_list(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_list(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_list(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.list(
+                "",
+            )
+
+    @parametrize
+    def test_method_archive(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_archive(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_archive(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_archive(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.archive(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            client.projects.generations.with_raw_response.archive(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    def test_method_archive_by_name(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_archive_by_name(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_archive_by_name(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_archive_by_name(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.archive_by_name(
+                generation_name="generation_name",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_name` but received ''"):
+            client.projects.generations.with_raw_response.archive_by_name(
+                generation_name="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    def test_method_retrieve_by_hash(self, client: LilypadSDK) -> None:
+        generation = client.projects.generations.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_raw_response_retrieve_by_hash(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.with_raw_response.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    def test_streaming_response_retrieve_by_hash(self, client: LilypadSDK) -> None:
+        with client.projects.generations.with_streaming_response.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_path_params_retrieve_by_hash(self, client: LilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.generations.with_raw_response.retrieve_by_hash(
+                generation_hash="generation_hash",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_hash` but received ''"):
+            client.projects.generations.with_raw_response.retrieve_by_hash(
+                generation_hash="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+
+class TestAsyncGenerations:
+    parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @parametrize
+    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+            archived=parse_datetime("2019-12-27T18:11:19.117Z"),
+            arg_types={"foo": "string"},
+            call_params={
+                "frequency_penalty": 0,
+                "max_tokens": 0,
+                "presence_penalty": 0,
+                "seed": 0,
+                "stop": "string",
+                "temperature": 0,
+                "top_p": 0,
+            },
+            custom_id="custom_id",
+            dependencies={
+                "foo": {
+                    "extras": ["string"],
+                    "version": "version",
+                }
+            },
+            is_default=True,
+            is_managed=True,
+            model="model",
+            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            prompt_template="prompt_template",
+            provider="provider",
+            version_num=0,
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.create(
+            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            code="code",
+            hash="hash",
+            name="x",
+            signature="signature",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_create(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid_1` but received ''"):
+            await async_client.projects.generations.with_raw_response.create(
+                project_uuid_1="",
+                code="code",
+                hash="hash",
+                name="x",
+                signature="signature",
+                project_uuid_2="",
+            )
+
+    @parametrize
+    async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.retrieve(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.retrieve(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.retrieve(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    async def test_method_update(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_method_update_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            is_default=True,
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_update(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_update(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.update(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_update(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.update(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.update(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.list(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationListResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_list(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.list(
+                "",
+            )
+
+    @parametrize
+    async def test_method_archive(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_archive(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_archive(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.archive(
+            generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationArchiveResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_archive(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.archive(
+                generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.archive(
+                generation_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    async def test_method_archive_by_name(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_archive_by_name(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_archive_by_name(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.archive_by_name(
+            generation_name="generation_name",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationArchiveByNameResponse, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_archive_by_name(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.archive_by_name(
+                generation_name="generation_name",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_name` but received ''"):
+            await async_client.projects.generations.with_raw_response.archive_by_name(
+                generation_name="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @parametrize
+    async def test_method_retrieve_by_hash(self, async_client: AsyncLilypadSDK) -> None:
+        generation = await async_client.projects.generations.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_raw_response_retrieve_by_hash(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.with_raw_response.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        generation = await response.parse()
+        assert_matches_type(GenerationPublic, generation, path=["response"])
+
+    @parametrize
+    async def test_streaming_response_retrieve_by_hash(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.with_streaming_response.retrieve_by_hash(
+            generation_hash="generation_hash",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            generation = await response.parse()
+            assert_matches_type(GenerationPublic, generation, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_path_params_retrieve_by_hash(self, async_client: AsyncLilypadSDK) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.generations.with_raw_response.retrieve_by_hash(
+                generation_hash="generation_hash",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_hash` but received ''"):
+            await async_client.projects.generations.with_raw_response.retrieve_by_hash(
+                generation_hash="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )

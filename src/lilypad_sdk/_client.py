@@ -24,15 +24,18 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
-from .resources import traces, metrics
+from .resources import spans, users, api_keys, settings, current_user, user_organizations
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError
+from ._exceptions import APIStatusError, LilypadSDKError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
 )
-from .resources.llm_functions import llm_functions
+from .resources.ee import ee
+from .resources.auth import auth
+from .resources.projects import projects
+from .resources.organizations import organizations
 
 __all__ = [
     "Timeout",
@@ -47,17 +50,26 @@ __all__ = [
 
 
 class LilypadSDK(SyncAPIClient):
-    llm_functions: llm_functions.LlmFunctionsResource
-    metrics: metrics.MetricsResource
-    traces: traces.TracesResource
+    ee: ee.EeResource
+    api_keys: api_keys.APIKeysResource
+    projects: projects.ProjectsResource
+    spans: spans.SpansResource
+    auth: auth.AuthResource
+    user_organizations: user_organizations.UserOrganizationsResource
+    users: users.UsersResource
+    current_user: current_user.CurrentUserResource
+    organizations: organizations.OrganizationsResource
+    settings: settings.SettingsResource
     with_raw_response: LilypadSDKWithRawResponse
     with_streaming_response: LilypadSDKWithStreamedResponse
 
     # client options
+    api_key: str
 
     def __init__(
         self,
         *,
+        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -77,11 +89,22 @@ class LilypadSDK(SyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new synchronous lilypad-sdk client instance."""
+        """Construct a new synchronous lilypad-sdk client instance.
+
+        This automatically infers the `api_key` argument from the `LILYPAD_SDK_API_KEY` environment variable if it is not provided.
+        """
+        if api_key is None:
+            api_key = os.environ.get("LILYPAD_SDK_API_KEY")
+        if api_key is None:
+            raise LilypadSDKError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_SDK_API_KEY environment variable"
+            )
+        self.api_key = api_key
+
         if base_url is None:
             base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
         if base_url is None:
-            base_url = f"/api"
+            base_url = f"/v0"
 
         super().__init__(
             version=__version__,
@@ -94,9 +117,16 @@ class LilypadSDK(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.llm_functions = llm_functions.LlmFunctionsResource(self)
-        self.metrics = metrics.MetricsResource(self)
-        self.traces = traces.TracesResource(self)
+        self.ee = ee.EeResource(self)
+        self.api_keys = api_keys.APIKeysResource(self)
+        self.projects = projects.ProjectsResource(self)
+        self.spans = spans.SpansResource(self)
+        self.auth = auth.AuthResource(self)
+        self.user_organizations = user_organizations.UserOrganizationsResource(self)
+        self.users = users.UsersResource(self)
+        self.current_user = current_user.CurrentUserResource(self)
+        self.organizations = organizations.OrganizationsResource(self)
+        self.settings = settings.SettingsResource(self)
         self.with_raw_response = LilypadSDKWithRawResponse(self)
         self.with_streaming_response = LilypadSDKWithStreamedResponse(self)
 
@@ -104,6 +134,12 @@ class LilypadSDK(SyncAPIClient):
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
+
+    @property
+    @override
+    def auth_headers(self) -> dict[str, str]:
+        api_key = self.api_key
+        return {"X-API-Key": api_key}
 
     @property
     @override
@@ -117,6 +153,7 @@ class LilypadSDK(SyncAPIClient):
     def copy(
         self,
         *,
+        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -150,6 +187,7 @@ class LilypadSDK(SyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
+            api_key=api_key or self.api_key,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -198,17 +236,26 @@ class LilypadSDK(SyncAPIClient):
 
 
 class AsyncLilypadSDK(AsyncAPIClient):
-    llm_functions: llm_functions.AsyncLlmFunctionsResource
-    metrics: metrics.AsyncMetricsResource
-    traces: traces.AsyncTracesResource
+    ee: ee.AsyncEeResource
+    api_keys: api_keys.AsyncAPIKeysResource
+    projects: projects.AsyncProjectsResource
+    spans: spans.AsyncSpansResource
+    auth: auth.AsyncAuthResource
+    user_organizations: user_organizations.AsyncUserOrganizationsResource
+    users: users.AsyncUsersResource
+    current_user: current_user.AsyncCurrentUserResource
+    organizations: organizations.AsyncOrganizationsResource
+    settings: settings.AsyncSettingsResource
     with_raw_response: AsyncLilypadSDKWithRawResponse
     with_streaming_response: AsyncLilypadSDKWithStreamedResponse
 
     # client options
+    api_key: str
 
     def __init__(
         self,
         *,
+        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -228,11 +275,22 @@ class AsyncLilypadSDK(AsyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new async lilypad-sdk client instance."""
+        """Construct a new async lilypad-sdk client instance.
+
+        This automatically infers the `api_key` argument from the `LILYPAD_SDK_API_KEY` environment variable if it is not provided.
+        """
+        if api_key is None:
+            api_key = os.environ.get("LILYPAD_SDK_API_KEY")
+        if api_key is None:
+            raise LilypadSDKError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_SDK_API_KEY environment variable"
+            )
+        self.api_key = api_key
+
         if base_url is None:
             base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
         if base_url is None:
-            base_url = f"/api"
+            base_url = f"/v0"
 
         super().__init__(
             version=__version__,
@@ -245,9 +303,16 @@ class AsyncLilypadSDK(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.llm_functions = llm_functions.AsyncLlmFunctionsResource(self)
-        self.metrics = metrics.AsyncMetricsResource(self)
-        self.traces = traces.AsyncTracesResource(self)
+        self.ee = ee.AsyncEeResource(self)
+        self.api_keys = api_keys.AsyncAPIKeysResource(self)
+        self.projects = projects.AsyncProjectsResource(self)
+        self.spans = spans.AsyncSpansResource(self)
+        self.auth = auth.AsyncAuthResource(self)
+        self.user_organizations = user_organizations.AsyncUserOrganizationsResource(self)
+        self.users = users.AsyncUsersResource(self)
+        self.current_user = current_user.AsyncCurrentUserResource(self)
+        self.organizations = organizations.AsyncOrganizationsResource(self)
+        self.settings = settings.AsyncSettingsResource(self)
         self.with_raw_response = AsyncLilypadSDKWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadSDKWithStreamedResponse(self)
 
@@ -255,6 +320,12 @@ class AsyncLilypadSDK(AsyncAPIClient):
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
+
+    @property
+    @override
+    def auth_headers(self) -> dict[str, str]:
+        api_key = self.api_key
+        return {"X-API-Key": api_key}
 
     @property
     @override
@@ -268,6 +339,7 @@ class AsyncLilypadSDK(AsyncAPIClient):
     def copy(
         self,
         *,
+        api_key: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,
@@ -301,6 +373,7 @@ class AsyncLilypadSDK(AsyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
+            api_key=api_key or self.api_key,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -350,30 +423,64 @@ class AsyncLilypadSDK(AsyncAPIClient):
 
 class LilypadSDKWithRawResponse:
     def __init__(self, client: LilypadSDK) -> None:
-        self.llm_functions = llm_functions.LlmFunctionsResourceWithRawResponse(client.llm_functions)
-        self.metrics = metrics.MetricsResourceWithRawResponse(client.metrics)
-        self.traces = traces.TracesResourceWithRawResponse(client.traces)
+        self.ee = ee.EeResourceWithRawResponse(client.ee)
+        self.api_keys = api_keys.APIKeysResourceWithRawResponse(client.api_keys)
+        self.projects = projects.ProjectsResourceWithRawResponse(client.projects)
+        self.spans = spans.SpansResourceWithRawResponse(client.spans)
+        self.auth = auth.AuthResourceWithRawResponse(client.auth)
+        self.user_organizations = user_organizations.UserOrganizationsResourceWithRawResponse(client.user_organizations)
+        self.users = users.UsersResourceWithRawResponse(client.users)
+        self.current_user = current_user.CurrentUserResourceWithRawResponse(client.current_user)
+        self.organizations = organizations.OrganizationsResourceWithRawResponse(client.organizations)
+        self.settings = settings.SettingsResourceWithRawResponse(client.settings)
 
 
 class AsyncLilypadSDKWithRawResponse:
     def __init__(self, client: AsyncLilypadSDK) -> None:
-        self.llm_functions = llm_functions.AsyncLlmFunctionsResourceWithRawResponse(client.llm_functions)
-        self.metrics = metrics.AsyncMetricsResourceWithRawResponse(client.metrics)
-        self.traces = traces.AsyncTracesResourceWithRawResponse(client.traces)
+        self.ee = ee.AsyncEeResourceWithRawResponse(client.ee)
+        self.api_keys = api_keys.AsyncAPIKeysResourceWithRawResponse(client.api_keys)
+        self.projects = projects.AsyncProjectsResourceWithRawResponse(client.projects)
+        self.spans = spans.AsyncSpansResourceWithRawResponse(client.spans)
+        self.auth = auth.AsyncAuthResourceWithRawResponse(client.auth)
+        self.user_organizations = user_organizations.AsyncUserOrganizationsResourceWithRawResponse(
+            client.user_organizations
+        )
+        self.users = users.AsyncUsersResourceWithRawResponse(client.users)
+        self.current_user = current_user.AsyncCurrentUserResourceWithRawResponse(client.current_user)
+        self.organizations = organizations.AsyncOrganizationsResourceWithRawResponse(client.organizations)
+        self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
 
 
 class LilypadSDKWithStreamedResponse:
     def __init__(self, client: LilypadSDK) -> None:
-        self.llm_functions = llm_functions.LlmFunctionsResourceWithStreamingResponse(client.llm_functions)
-        self.metrics = metrics.MetricsResourceWithStreamingResponse(client.metrics)
-        self.traces = traces.TracesResourceWithStreamingResponse(client.traces)
+        self.ee = ee.EeResourceWithStreamingResponse(client.ee)
+        self.api_keys = api_keys.APIKeysResourceWithStreamingResponse(client.api_keys)
+        self.projects = projects.ProjectsResourceWithStreamingResponse(client.projects)
+        self.spans = spans.SpansResourceWithStreamingResponse(client.spans)
+        self.auth = auth.AuthResourceWithStreamingResponse(client.auth)
+        self.user_organizations = user_organizations.UserOrganizationsResourceWithStreamingResponse(
+            client.user_organizations
+        )
+        self.users = users.UsersResourceWithStreamingResponse(client.users)
+        self.current_user = current_user.CurrentUserResourceWithStreamingResponse(client.current_user)
+        self.organizations = organizations.OrganizationsResourceWithStreamingResponse(client.organizations)
+        self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
 
 
 class AsyncLilypadSDKWithStreamedResponse:
     def __init__(self, client: AsyncLilypadSDK) -> None:
-        self.llm_functions = llm_functions.AsyncLlmFunctionsResourceWithStreamingResponse(client.llm_functions)
-        self.metrics = metrics.AsyncMetricsResourceWithStreamingResponse(client.metrics)
-        self.traces = traces.AsyncTracesResourceWithStreamingResponse(client.traces)
+        self.ee = ee.AsyncEeResourceWithStreamingResponse(client.ee)
+        self.api_keys = api_keys.AsyncAPIKeysResourceWithStreamingResponse(client.api_keys)
+        self.projects = projects.AsyncProjectsResourceWithStreamingResponse(client.projects)
+        self.spans = spans.AsyncSpansResourceWithStreamingResponse(client.spans)
+        self.auth = auth.AsyncAuthResourceWithStreamingResponse(client.auth)
+        self.user_organizations = user_organizations.AsyncUserOrganizationsResourceWithStreamingResponse(
+            client.user_organizations
+        )
+        self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
+        self.current_user = current_user.AsyncCurrentUserResourceWithStreamingResponse(client.current_user)
+        self.organizations = organizations.AsyncOrganizationsResourceWithStreamingResponse(client.organizations)
+        self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
 
 
 Client = LilypadSDK
