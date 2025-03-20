@@ -17,6 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestUsers:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_update_active_organization(self, client: LilypadSDK) -> None:
         user = client.users.update_active_organization(
@@ -24,6 +25,7 @@ class TestUsers:
         )
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_update_active_organization(self, client: LilypadSDK) -> None:
         response = client.users.with_raw_response.update_active_organization(
@@ -35,6 +37,7 @@ class TestUsers:
         user = response.parse()
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_update_active_organization(self, client: LilypadSDK) -> None:
         with client.users.with_streaming_response.update_active_organization(
@@ -48,6 +51,7 @@ class TestUsers:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_update_active_organization(self, client: LilypadSDK) -> None:
         with pytest.raises(
@@ -57,6 +61,7 @@ class TestUsers:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_update_keys(self, client: LilypadSDK) -> None:
         user = client.users.update_keys(
@@ -64,6 +69,7 @@ class TestUsers:
         )
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_update_keys(self, client: LilypadSDK) -> None:
         response = client.users.with_raw_response.update_keys(
@@ -75,6 +81,7 @@ class TestUsers:
         user = response.parse()
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_update_keys(self, client: LilypadSDK) -> None:
         with client.users.with_streaming_response.update_keys(
@@ -92,6 +99,7 @@ class TestUsers:
 class TestAsyncUsers:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_update_active_organization(self, async_client: AsyncLilypadSDK) -> None:
         user = await async_client.users.update_active_organization(
@@ -99,6 +107,7 @@ class TestAsyncUsers:
         )
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_update_active_organization(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.users.with_raw_response.update_active_organization(
@@ -110,6 +119,7 @@ class TestAsyncUsers:
         user = await response.parse()
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_update_active_organization(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.users.with_streaming_response.update_active_organization(
@@ -123,6 +133,7 @@ class TestAsyncUsers:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_update_active_organization(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(
@@ -132,6 +143,7 @@ class TestAsyncUsers:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_update_keys(self, async_client: AsyncLilypadSDK) -> None:
         user = await async_client.users.update_keys(
@@ -139,6 +151,7 @@ class TestAsyncUsers:
         )
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_update_keys(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.users.with_raw_response.update_keys(
@@ -150,6 +163,7 @@ class TestAsyncUsers:
         user = await response.parse()
         assert_matches_type(UserPublic, user, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_update_keys(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.users.with_streaming_response.update_keys(

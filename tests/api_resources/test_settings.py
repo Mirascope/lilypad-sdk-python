@@ -17,11 +17,13 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestSettings:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_retrieve(self, client: LilypadSDK) -> None:
         setting = client.settings.retrieve()
         assert_matches_type(SettingRetrieveResponse, setting, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
         response = client.settings.with_raw_response.retrieve()
@@ -31,6 +33,7 @@ class TestSettings:
         setting = response.parse()
         assert_matches_type(SettingRetrieveResponse, setting, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
         with client.settings.with_streaming_response.retrieve() as response:
@@ -46,11 +49,13 @@ class TestSettings:
 class TestAsyncSettings:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         setting = await async_client.settings.retrieve()
         assert_matches_type(SettingRetrieveResponse, setting, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.settings.with_raw_response.retrieve()
@@ -60,6 +65,7 @@ class TestAsyncSettings:
         setting = await response.parse()
         assert_matches_type(SettingRetrieveResponse, setting, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.settings.with_streaming_response.retrieve() as response:

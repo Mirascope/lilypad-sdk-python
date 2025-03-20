@@ -53,10 +53,10 @@ class EnvironmentsResource(SyncAPIResource):
 
     def create(
         self,
-        project_uuid_1: str,
+        path_project_uuid: str,
         *,
         name: str,
-        project_uuid_2: str,
+        body_project_uuid: str,
         description: Optional[str] | NotGiven = NOT_GIVEN,
         is_default: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -78,14 +78,14 @@ class EnvironmentsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid_1:
-            raise ValueError(f"Expected a non-empty value for `project_uuid_1` but received {project_uuid_1!r}")
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
         return self._post(
-            f"/ee/projects/{project_uuid_1}/environments",
+            f"/ee/projects/{path_project_uuid}/environments",
             body=maybe_transform(
                 {
                     "name": name,
-                    "project_uuid_2": project_uuid_2,
+                    "body_project_uuid": body_project_uuid,
                     "description": description,
                     "is_default": is_default,
                 },
@@ -381,10 +381,10 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
 
     async def create(
         self,
-        project_uuid_1: str,
+        path_project_uuid: str,
         *,
         name: str,
-        project_uuid_2: str,
+        body_project_uuid: str,
         description: Optional[str] | NotGiven = NOT_GIVEN,
         is_default: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -406,14 +406,14 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid_1:
-            raise ValueError(f"Expected a non-empty value for `project_uuid_1` but received {project_uuid_1!r}")
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
         return await self._post(
-            f"/ee/projects/{project_uuid_1}/environments",
+            f"/ee/projects/{path_project_uuid}/environments",
             body=await async_maybe_transform(
                 {
                     "name": name,
-                    "project_uuid_2": project_uuid_2,
+                    "body_project_uuid": body_project_uuid,
                     "description": description,
                     "is_default": is_default,
                 },

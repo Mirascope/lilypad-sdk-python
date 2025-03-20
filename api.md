@@ -10,7 +10,7 @@ from lilypad_sdk.types.ee import GenerationCreate
 
 Methods:
 
-- <code title="post /ee/projects/{project_uuid}/managed-generations">client.ee.projects.<a href="./src/lilypad_sdk/resources/ee/projects/projects.py">create_managed_generation</a>(project_uuid_1, \*\*<a href="src/lilypad_sdk/types/ee/project_create_managed_generation_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
+- <code title="post /ee/projects/{project_uuid}/managed-generations">client.ee.projects.<a href="./src/lilypad_sdk/resources/ee/projects/projects.py">create_managed_generation</a>(path_project_uuid, \*\*<a href="src/lilypad_sdk/types/ee/project_create_managed_generation_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 
 ### Annotations
 
@@ -90,7 +90,7 @@ from lilypad_sdk.types.ee.projects import (
 
 Methods:
 
-- <code title="post /ee/projects/{project_uuid}/environments">client.ee.projects.environments.<a href="./src/lilypad_sdk/resources/ee/projects/environments.py">create</a>(project_uuid_1, \*\*<a href="src/lilypad_sdk/types/ee/projects/environment_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/environment_public.py">EnvironmentPublic</a></code>
+- <code title="post /ee/projects/{project_uuid}/environments">client.ee.projects.environments.<a href="./src/lilypad_sdk/resources/ee/projects/environments.py">create</a>(path_project_uuid, \*\*<a href="src/lilypad_sdk/types/ee/projects/environment_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/environment_public.py">EnvironmentPublic</a></code>
 - <code title="get /ee/projects/{project_uuid}/environments/{environment_uuid}">client.ee.projects.environments.<a href="./src/lilypad_sdk/resources/ee/projects/environments.py">retrieve</a>(environment_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/environment_public.py">EnvironmentPublic</a></code>
 - <code title="get /ee/projects/{project_uuid}/environments">client.ee.projects.environments.<a href="./src/lilypad_sdk/resources/ee/projects/environments.py">list</a>(project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/environment_list_response.py">EnvironmentListResponse</a></code>
 - <code title="delete /ee/projects/{project_uuid}/environments/{environment_uuid}">client.ee.projects.environments.<a href="./src/lilypad_sdk/resources/ee/projects/environments.py">delete</a>(environment_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/environment_delete_response.py">EnvironmentDeleteResponse</a></code>
@@ -160,7 +160,7 @@ from lilypad_sdk.types.projects import (
 
 Methods:
 
-- <code title="post /projects/{project_uuid}/generations">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">create</a>(project_uuid_1, \*\*<a href="src/lilypad_sdk/types/projects/generation_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
+- <code title="post /projects/{project_uuid}/generations">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">create</a>(path_project_uuid, \*\*<a href="src/lilypad_sdk/types/projects/generation_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 - <code title="get /projects/{project_uuid}/generations/{generation_uuid}">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">retrieve</a>(generation_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 - <code title="patch /projects/{project_uuid}/generations/{generation_uuid}">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">update</a>(generation_uuid, \*, project_uuid, \*\*<a href="src/lilypad_sdk/types/projects/generation_update_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 - <code title="get /projects/{project_uuid}/generations">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">list</a>(project_uuid) -> <a href="./src/lilypad_sdk/types/projects/generation_list_response.py">GenerationListResponse</a></code>

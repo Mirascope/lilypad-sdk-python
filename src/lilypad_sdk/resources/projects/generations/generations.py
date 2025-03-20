@@ -77,7 +77,7 @@ class GenerationsResource(SyncAPIResource):
 
     def create(
         self,
-        project_uuid_1: str,
+        path_project_uuid: str,
         *,
         code: str,
         hash: str,
@@ -91,7 +91,7 @@ class GenerationsResource(SyncAPIResource):
         is_default: Optional[bool] | NotGiven = NOT_GIVEN,
         is_managed: Optional[bool] | NotGiven = NOT_GIVEN,
         model: Optional[str] | NotGiven = NOT_GIVEN,
-        project_uuid_2: Optional[str] | NotGiven = NOT_GIVEN,
+        body_project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         prompt_template: Optional[str] | NotGiven = NOT_GIVEN,
         provider: Optional[str] | NotGiven = NOT_GIVEN,
         version_num: Optional[int] | NotGiven = NOT_GIVEN,
@@ -126,10 +126,10 @@ class GenerationsResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid_1:
-            raise ValueError(f"Expected a non-empty value for `project_uuid_1` but received {project_uuid_1!r}")
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
         return self._post(
-            f"/projects/{project_uuid_1}/generations",
+            f"/projects/{path_project_uuid}/generations",
             body=maybe_transform(
                 {
                     "code": code,
@@ -144,7 +144,7 @@ class GenerationsResource(SyncAPIResource):
                     "is_default": is_default,
                     "is_managed": is_managed,
                     "model": model,
-                    "project_uuid_2": project_uuid_2,
+                    "body_project_uuid": body_project_uuid,
                     "prompt_template": prompt_template,
                     "provider": provider,
                     "version_num": version_num,
@@ -403,7 +403,7 @@ class AsyncGenerationsResource(AsyncAPIResource):
 
     async def create(
         self,
-        project_uuid_1: str,
+        path_project_uuid: str,
         *,
         code: str,
         hash: str,
@@ -417,7 +417,7 @@ class AsyncGenerationsResource(AsyncAPIResource):
         is_default: Optional[bool] | NotGiven = NOT_GIVEN,
         is_managed: Optional[bool] | NotGiven = NOT_GIVEN,
         model: Optional[str] | NotGiven = NOT_GIVEN,
-        project_uuid_2: Optional[str] | NotGiven = NOT_GIVEN,
+        body_project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         prompt_template: Optional[str] | NotGiven = NOT_GIVEN,
         provider: Optional[str] | NotGiven = NOT_GIVEN,
         version_num: Optional[int] | NotGiven = NOT_GIVEN,
@@ -452,10 +452,10 @@ class AsyncGenerationsResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid_1:
-            raise ValueError(f"Expected a non-empty value for `project_uuid_1` but received {project_uuid_1!r}")
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
         return await self._post(
-            f"/projects/{project_uuid_1}/generations",
+            f"/projects/{path_project_uuid}/generations",
             body=await async_maybe_transform(
                 {
                     "code": code,
@@ -470,7 +470,7 @@ class AsyncGenerationsResource(AsyncAPIResource):
                     "is_default": is_default,
                     "is_managed": is_managed,
                     "model": model,
-                    "project_uuid_2": project_uuid_2,
+                    "body_project_uuid": body_project_uuid,
                     "prompt_template": prompt_template,
                     "provider": provider,
                     "version_num": version_num,

@@ -6,7 +6,7 @@ The Lilypad SDK Python library provides convenient access to the Lilypad SDK RES
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
-It is generated with [Stainless](https://www.stainlessapi.com/).
+It is generated with [Stainless](https://www.stainless.com/).
 
 ## Documentation
 
@@ -20,7 +20,7 @@ pip install git+ssh://git@github.com/stainless-sdks/lilypad-sdk-python.git
 ```
 
 > [!NOTE]
-> Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre lilypad_sdk`
+> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre lilypad_sdk`
 
 ## Usage
 
@@ -79,6 +79,34 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 - Converting to a dictionary, `model.to_dict()`
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
+
+## Nested params
+
+Nested parameters are dictionaries, typed using `TypedDict`, for example:
+
+```python
+from lilypad_sdk import LilypadSDK
+
+client = LilypadSDK()
+
+generation_public = client.ee.projects.create_managed_generation(
+    path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+    code="code",
+    hash="hash",
+    name="x",
+    signature="signature",
+    call_params={
+        "frequency_penalty": 0,
+        "max_tokens": 0,
+        "presence_penalty": 0,
+        "seed": 0,
+        "stop": "string",
+        "temperature": 0,
+        "top_p": 0,
+    },
+)
+print(generation_public.call_params)
+```
 
 ## Handling errors
 

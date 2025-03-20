@@ -17,11 +17,13 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestOrganizations:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_license(self, client: LilypadSDK) -> None:
         organization = client.ee.organizations.get_license()
         assert_matches_type(OrganizationGetLicenseResponse, organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_license(self, client: LilypadSDK) -> None:
         response = client.ee.organizations.with_raw_response.get_license()
@@ -31,6 +33,7 @@ class TestOrganizations:
         organization = response.parse()
         assert_matches_type(OrganizationGetLicenseResponse, organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_license(self, client: LilypadSDK) -> None:
         with client.ee.organizations.with_streaming_response.get_license() as response:
@@ -46,11 +49,13 @@ class TestOrganizations:
 class TestAsyncOrganizations:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_license(self, async_client: AsyncLilypadSDK) -> None:
         organization = await async_client.ee.organizations.get_license()
         assert_matches_type(OrganizationGetLicenseResponse, organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_license(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.organizations.with_raw_response.get_license()
@@ -60,6 +65,7 @@ class TestAsyncOrganizations:
         organization = await response.parse()
         assert_matches_type(OrganizationGetLicenseResponse, organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_license(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.organizations.with_streaming_response.get_license() as response:

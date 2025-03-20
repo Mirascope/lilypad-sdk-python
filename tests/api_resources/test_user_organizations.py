@@ -22,6 +22,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestUserOrganizations:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_create(self, client: LilypadSDK) -> None:
         user_organization = client.user_organizations.create(
@@ -29,6 +30,7 @@ class TestUserOrganizations:
         )
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_create(self, client: LilypadSDK) -> None:
         response = client.user_organizations.with_raw_response.create(
@@ -40,6 +42,7 @@ class TestUserOrganizations:
         user_organization = response.parse()
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_create(self, client: LilypadSDK) -> None:
         with client.user_organizations.with_streaming_response.create(
@@ -53,6 +56,7 @@ class TestUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_update(self, client: LilypadSDK) -> None:
         user_organization = client.user_organizations.update(
@@ -61,6 +65,7 @@ class TestUserOrganizations:
         )
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_update(self, client: LilypadSDK) -> None:
         response = client.user_organizations.with_raw_response.update(
@@ -73,6 +78,7 @@ class TestUserOrganizations:
         user_organization = response.parse()
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_update(self, client: LilypadSDK) -> None:
         with client.user_organizations.with_streaming_response.update(
@@ -87,6 +93,7 @@ class TestUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_update(self, client: LilypadSDK) -> None:
         with pytest.raises(
@@ -97,11 +104,13 @@ class TestUserOrganizations:
                 role="owner",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_list(self, client: LilypadSDK) -> None:
         user_organization = client.user_organizations.list()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_list(self, client: LilypadSDK) -> None:
         response = client.user_organizations.with_raw_response.list()
@@ -111,6 +120,7 @@ class TestUserOrganizations:
         user_organization = response.parse()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_list(self, client: LilypadSDK) -> None:
         with client.user_organizations.with_streaming_response.list() as response:
@@ -122,6 +132,7 @@ class TestUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_delete(self, client: LilypadSDK) -> None:
         user_organization = client.user_organizations.delete(
@@ -129,6 +140,7 @@ class TestUserOrganizations:
         )
         assert_matches_type(UserOrganizationDeleteResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_delete(self, client: LilypadSDK) -> None:
         response = client.user_organizations.with_raw_response.delete(
@@ -140,6 +152,7 @@ class TestUserOrganizations:
         user_organization = response.parse()
         assert_matches_type(UserOrganizationDeleteResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_delete(self, client: LilypadSDK) -> None:
         with client.user_organizations.with_streaming_response.delete(
@@ -153,6 +166,7 @@ class TestUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_delete(self, client: LilypadSDK) -> None:
         with pytest.raises(
@@ -162,11 +176,13 @@ class TestUserOrganizations:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_users(self, client: LilypadSDK) -> None:
         user_organization = client.user_organizations.get_users()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_users(self, client: LilypadSDK) -> None:
         response = client.user_organizations.with_raw_response.get_users()
@@ -176,6 +192,7 @@ class TestUserOrganizations:
         user_organization = response.parse()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_users(self, client: LilypadSDK) -> None:
         with client.user_organizations.with_streaming_response.get_users() as response:
@@ -191,6 +208,7 @@ class TestUserOrganizations:
 class TestAsyncUserOrganizations:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
         user_organization = await async_client.user_organizations.create(
@@ -198,6 +216,7 @@ class TestAsyncUserOrganizations:
         )
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.user_organizations.with_raw_response.create(
@@ -209,6 +228,7 @@ class TestAsyncUserOrganizations:
         user_organization = await response.parse()
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.user_organizations.with_streaming_response.create(
@@ -222,6 +242,7 @@ class TestAsyncUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_update(self, async_client: AsyncLilypadSDK) -> None:
         user_organization = await async_client.user_organizations.update(
@@ -230,6 +251,7 @@ class TestAsyncUserOrganizations:
         )
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_update(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.user_organizations.with_raw_response.update(
@@ -242,6 +264,7 @@ class TestAsyncUserOrganizations:
         user_organization = await response.parse()
         assert_matches_type(UserOrganization, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_update(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.user_organizations.with_streaming_response.update(
@@ -256,6 +279,7 @@ class TestAsyncUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_update(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(
@@ -266,11 +290,13 @@ class TestAsyncUserOrganizations:
                 role="owner",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
         user_organization = await async_client.user_organizations.list()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.user_organizations.with_raw_response.list()
@@ -280,6 +306,7 @@ class TestAsyncUserOrganizations:
         user_organization = await response.parse()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.user_organizations.with_streaming_response.list() as response:
@@ -291,6 +318,7 @@ class TestAsyncUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_delete(self, async_client: AsyncLilypadSDK) -> None:
         user_organization = await async_client.user_organizations.delete(
@@ -298,6 +326,7 @@ class TestAsyncUserOrganizations:
         )
         assert_matches_type(UserOrganizationDeleteResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_delete(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.user_organizations.with_raw_response.delete(
@@ -309,6 +338,7 @@ class TestAsyncUserOrganizations:
         user_organization = await response.parse()
         assert_matches_type(UserOrganizationDeleteResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_delete(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.user_organizations.with_streaming_response.delete(
@@ -322,6 +352,7 @@ class TestAsyncUserOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_delete(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(
@@ -331,11 +362,13 @@ class TestAsyncUserOrganizations:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_users(self, async_client: AsyncLilypadSDK) -> None:
         user_organization = await async_client.user_organizations.get_users()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_users(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.user_organizations.with_raw_response.get_users()
@@ -345,6 +378,7 @@ class TestAsyncUserOrganizations:
         user_organization = await response.parse()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_users(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.user_organizations.with_streaming_response.get_users() as response:

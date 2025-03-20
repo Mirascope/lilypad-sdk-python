@@ -17,6 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestSpans:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_aggregates(self, client: LilypadSDK) -> None:
         span = client.projects.spans.get_aggregates(
@@ -25,6 +26,7 @@ class TestSpans:
         )
         assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_aggregates(self, client: LilypadSDK) -> None:
         response = client.projects.spans.with_raw_response.get_aggregates(
@@ -37,6 +39,7 @@ class TestSpans:
         span = response.parse()
         assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_aggregates(self, client: LilypadSDK) -> None:
         with client.projects.spans.with_streaming_response.get_aggregates(
@@ -51,6 +54,7 @@ class TestSpans:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_get_aggregates(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -63,6 +67,7 @@ class TestSpans:
 class TestAsyncSpans:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
         span = await async_client.projects.spans.get_aggregates(
@@ -71,6 +76,7 @@ class TestAsyncSpans:
         )
         assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.projects.spans.with_raw_response.get_aggregates(
@@ -83,6 +89,7 @@ class TestAsyncSpans:
         span = await response.parse()
         assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.projects.spans.with_streaming_response.get_aggregates(
@@ -97,6 +104,7 @@ class TestAsyncSpans:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):

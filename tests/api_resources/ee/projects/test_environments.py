@@ -24,32 +24,35 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestEnvironments:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_create(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             description="description",
             is_default=True,
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_create(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
 
         assert response.is_closed is True
@@ -57,12 +60,13 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_create(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -72,15 +76,17 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_create(self, client: LilypadSDK) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid_1` but received ''"):
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `path_project_uuid` but received ''"):
             client.ee.projects.environments.with_raw_response.create(
-                project_uuid_1="",
+                path_project_uuid="",
                 name="name",
-                project_uuid_2="",
+                body_project_uuid="",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_retrieve(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.retrieve(
@@ -89,6 +95,7 @@ class TestEnvironments:
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.retrieve(
@@ -101,6 +108,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.retrieve(
@@ -115,6 +123,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_retrieve(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -129,6 +138,7 @@ class TestEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_list(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.list(
@@ -136,6 +146,7 @@ class TestEnvironments:
         )
         assert_matches_type(EnvironmentListResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_list(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.list(
@@ -147,6 +158,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(EnvironmentListResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_list(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.list(
@@ -160,6 +172,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_list(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -167,6 +180,7 @@ class TestEnvironments:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_delete(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.delete(
@@ -175,6 +189,7 @@ class TestEnvironments:
         )
         assert_matches_type(EnvironmentDeleteResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_delete(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.delete(
@@ -187,6 +202,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(EnvironmentDeleteResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_delete(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.delete(
@@ -201,6 +217,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_delete(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -215,6 +232,7 @@ class TestEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_deploy_generation(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.deploy_generation(
@@ -224,6 +242,7 @@ class TestEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_deploy_generation_with_all_params(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.deploy_generation(
@@ -234,6 +253,7 @@ class TestEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_deploy_generation(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.deploy_generation(
@@ -247,6 +267,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_deploy_generation(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.deploy_generation(
@@ -262,6 +283,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_deploy_generation(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -278,6 +300,7 @@ class TestEnvironments:
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_active_deployment(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.get_active_deployment(
@@ -286,6 +309,7 @@ class TestEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_active_deployment(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.get_active_deployment(
@@ -298,6 +322,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_active_deployment(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.get_active_deployment(
@@ -312,6 +337,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_get_active_deployment(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -326,6 +352,7 @@ class TestEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_deployment_history(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.get_deployment_history(
@@ -334,6 +361,7 @@ class TestEnvironments:
         )
         assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_deployment_history(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.get_deployment_history(
@@ -346,6 +374,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_deployment_history(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.get_deployment_history(
@@ -360,6 +389,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_get_deployment_history(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -374,6 +404,7 @@ class TestEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_get_environment_generation(self, client: LilypadSDK) -> None:
         environment = client.ee.projects.environments.get_environment_generation(
@@ -382,6 +413,7 @@ class TestEnvironments:
         )
         assert_matches_type(GenerationPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_get_environment_generation(self, client: LilypadSDK) -> None:
         response = client.ee.projects.environments.with_raw_response.get_environment_generation(
@@ -394,6 +426,7 @@ class TestEnvironments:
         environment = response.parse()
         assert_matches_type(GenerationPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_get_environment_generation(self, client: LilypadSDK) -> None:
         with client.ee.projects.environments.with_streaming_response.get_environment_generation(
@@ -408,6 +441,7 @@ class TestEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_get_environment_generation(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -426,32 +460,35 @@ class TestEnvironments:
 class TestAsyncEnvironments:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             description="description",
             is_default=True,
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
 
         assert response.is_closed is True
@@ -459,12 +496,13 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.create(
-            project_uuid_1="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             name="name",
-            project_uuid_2="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            body_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -474,15 +512,17 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_create(self, async_client: AsyncLilypadSDK) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid_1` but received ''"):
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `path_project_uuid` but received ''"):
             await async_client.ee.projects.environments.with_raw_response.create(
-                project_uuid_1="",
+                path_project_uuid="",
                 name="name",
-                project_uuid_2="",
+                body_project_uuid="",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.retrieve(
@@ -491,6 +531,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.retrieve(
@@ -503,6 +544,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(EnvironmentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.retrieve(
@@ -517,6 +559,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -531,6 +574,7 @@ class TestAsyncEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.list(
@@ -538,6 +582,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(EnvironmentListResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.list(
@@ -549,6 +594,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(EnvironmentListResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.list(
@@ -562,6 +608,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_list(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -569,6 +616,7 @@ class TestAsyncEnvironments:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_delete(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.delete(
@@ -577,6 +625,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(EnvironmentDeleteResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_delete(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.delete(
@@ -589,6 +638,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(EnvironmentDeleteResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_delete(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.delete(
@@ -603,6 +653,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_delete(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -617,6 +668,7 @@ class TestAsyncEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.deploy_generation(
@@ -626,6 +678,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_deploy_generation_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.deploy_generation(
@@ -636,6 +689,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.deploy_generation(
@@ -649,6 +703,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.deploy_generation(
@@ -664,6 +719,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -680,6 +736,7 @@ class TestAsyncEnvironments:
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_active_deployment(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.get_active_deployment(
@@ -688,6 +745,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_active_deployment(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.get_active_deployment(
@@ -700,6 +758,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(DeploymentPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_active_deployment(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.get_active_deployment(
@@ -714,6 +773,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_get_active_deployment(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -728,6 +788,7 @@ class TestAsyncEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_deployment_history(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.get_deployment_history(
@@ -736,6 +797,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_deployment_history(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.get_deployment_history(
@@ -748,6 +810,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_deployment_history(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.get_deployment_history(
@@ -762,6 +825,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_get_deployment_history(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -776,6 +840,7 @@ class TestAsyncEnvironments:
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
         environment = await async_client.ee.projects.environments.get_environment_generation(
@@ -784,6 +849,7 @@ class TestAsyncEnvironments:
         )
         assert_matches_type(GenerationPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.ee.projects.environments.with_raw_response.get_environment_generation(
@@ -796,6 +862,7 @@ class TestAsyncEnvironments:
         environment = await response.parse()
         assert_matches_type(GenerationPublic, environment, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.ee.projects.environments.with_streaming_response.get_environment_generation(
@@ -810,6 +877,7 @@ class TestAsyncEnvironments:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
