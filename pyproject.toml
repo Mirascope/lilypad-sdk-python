@@ -38,7 +38,6 @@ Homepage = "https://github.com/stainless-sdks/lilypad-sdk-python"
 Repository = "https://github.com/stainless-sdks/lilypad-sdk-python"
 
 
-
 [tool.rye]
 managed = true
 # version pins are in requirements-dev.lock
@@ -87,7 +86,7 @@ typecheck = { chain = [
 "typecheck:mypy" = "mypy ."
 
 [build-system]
-requires = ["hatchling", "hatch-fancy-pypi-readme"]
+requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
@@ -152,7 +151,6 @@ reportImplicitOverride = true
 reportImportCycles = false
 reportPrivateUsage = false
 
-
 [tool.ruff]
 line-length = 120
 output-format = "grouped"
@@ -177,7 +175,7 @@ select = [
   "T201",
   "T203",
   # misuse of typing.TYPE_CHECKING
-  "TCH004",
+  "TC004",
   # import rules
   "TID251",
 ]

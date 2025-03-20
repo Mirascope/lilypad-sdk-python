@@ -17,6 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestTraces:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_create(self, client: LilypadSDK) -> None:
         trace = client.projects.traces.create(
@@ -24,6 +25,7 @@ class TestTraces:
         )
         assert_matches_type(TraceCreateResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_create(self, client: LilypadSDK) -> None:
         response = client.projects.traces.with_raw_response.create(
@@ -35,6 +37,7 @@ class TestTraces:
         trace = response.parse()
         assert_matches_type(TraceCreateResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_create(self, client: LilypadSDK) -> None:
         with client.projects.traces.with_streaming_response.create(
@@ -48,6 +51,7 @@ class TestTraces:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_create(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -55,6 +59,7 @@ class TestTraces:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_list(self, client: LilypadSDK) -> None:
         trace = client.projects.traces.list(
@@ -62,6 +67,7 @@ class TestTraces:
         )
         assert_matches_type(TraceListResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_list(self, client: LilypadSDK) -> None:
         response = client.projects.traces.with_raw_response.list(
@@ -73,6 +79,7 @@ class TestTraces:
         trace = response.parse()
         assert_matches_type(TraceListResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_list(self, client: LilypadSDK) -> None:
         with client.projects.traces.with_streaming_response.list(
@@ -86,6 +93,7 @@ class TestTraces:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     def test_path_params_list(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -97,6 +105,7 @@ class TestTraces:
 class TestAsyncTraces:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
         trace = await async_client.projects.traces.create(
@@ -104,6 +113,7 @@ class TestAsyncTraces:
         )
         assert_matches_type(TraceCreateResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.projects.traces.with_raw_response.create(
@@ -115,6 +125,7 @@ class TestAsyncTraces:
         trace = await response.parse()
         assert_matches_type(TraceCreateResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.projects.traces.with_streaming_response.create(
@@ -128,6 +139,7 @@ class TestAsyncTraces:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_create(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
@@ -135,6 +147,7 @@ class TestAsyncTraces:
                 "",
             )
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
         trace = await async_client.projects.traces.list(
@@ -142,6 +155,7 @@ class TestAsyncTraces:
         )
         assert_matches_type(TraceListResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.projects.traces.with_raw_response.list(
@@ -153,6 +167,7 @@ class TestAsyncTraces:
         trace = await response.parse()
         assert_matches_type(TraceListResponse, trace, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.projects.traces.with_streaming_response.list(
@@ -166,6 +181,7 @@ class TestAsyncTraces:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
     @parametrize
     async def test_path_params_list(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):

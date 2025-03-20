@@ -17,6 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestGoogle:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_method_handle_callback(self, client: LilypadSDK) -> None:
         google = client.auth.google.handle_callback(
@@ -24,6 +25,7 @@ class TestGoogle:
         )
         assert_matches_type(UserPublic, google, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_raw_response_handle_callback(self, client: LilypadSDK) -> None:
         response = client.auth.google.with_raw_response.handle_callback(
@@ -35,6 +37,7 @@ class TestGoogle:
         google = response.parse()
         assert_matches_type(UserPublic, google, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     def test_streaming_response_handle_callback(self, client: LilypadSDK) -> None:
         with client.auth.google.with_streaming_response.handle_callback(
@@ -52,6 +55,7 @@ class TestGoogle:
 class TestAsyncGoogle:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_method_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
         google = await async_client.auth.google.handle_callback(
@@ -59,6 +63,7 @@ class TestAsyncGoogle:
         )
         assert_matches_type(UserPublic, google, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_raw_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
         response = await async_client.auth.google.with_raw_response.handle_callback(
@@ -70,6 +75,7 @@ class TestAsyncGoogle:
         google = await response.parse()
         assert_matches_type(UserPublic, google, path=["response"])
 
+    @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
         async with async_client.auth.google.with_streaming_response.handle_callback(

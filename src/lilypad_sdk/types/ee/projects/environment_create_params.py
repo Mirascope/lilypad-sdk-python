@@ -13,7 +13,7 @@ __all__ = ["EnvironmentCreateParams"]
 class EnvironmentCreateParams(TypedDict, total=False):
     name: Required[str]
 
-    project_uuid_2: Required[Annotated[str, PropertyInfo(alias="project_uuid")]]
+    body_project_uuid: Required[Annotated[str, PropertyInfo(alias="project_uuid")]]
 
     description: Optional[str]
 

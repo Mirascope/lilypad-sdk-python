@@ -49,7 +49,7 @@ class ProjectCreateManagedGenerationParams(TypedDict, total=False):
 
     model: Optional[str]
 
-    project_uuid_2: Annotated[Optional[str], PropertyInfo(alias="project_uuid")]
+    body_project_uuid: Annotated[Optional[str], PropertyInfo(alias="project_uuid")]
 
     prompt_template: Optional[str]
 

@@ -23,6 +23,7 @@ from pydantic import ValidationError
 
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK, APIResponseValidationError
 from lilypad_sdk._types import Omit
+from lilypad_sdk._utils import maybe_transform
 from lilypad_sdk._models import BaseModel, FinalRequestOptions
 from lilypad_sdk._constants import RAW_RESPONSE_HEADER
 from lilypad_sdk._exceptions import APIStatusError, APITimeoutError, LilypadSDKError, APIResponseValidationError
@@ -32,6 +33,7 @@ from lilypad_sdk._base_client import (
     BaseClient,
     make_request_options,
 )
+from lilypad_sdk.types.ee.projects.annotation_create_params import AnnotationCreateParams
 
 from .utils import update_env
 
@@ -727,7 +729,7 @@ class TestLilypadSDK:
         with pytest.raises(APITimeoutError):
             self.client.post(
                 "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
-                body=cast(object, dict(body=[{}])),
+                body=cast(object, maybe_transform(dict(body=[{}]), AnnotationCreateParams)),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -744,7 +746,7 @@ class TestLilypadSDK:
         with pytest.raises(APIStatusError):
             self.client.post(
                 "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
-                body=cast(object, dict(body=[{}])),
+                body=cast(object, maybe_transform(dict(body=[{}]), AnnotationCreateParams)),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -1517,7 +1519,7 @@ class TestAsyncLilypadSDK:
         with pytest.raises(APITimeoutError):
             await self.client.post(
                 "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
-                body=cast(object, dict(body=[{}])),
+                body=cast(object, maybe_transform(dict(body=[{}]), AnnotationCreateParams)),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
@@ -1534,7 +1536,7 @@ class TestAsyncLilypadSDK:
         with pytest.raises(APIStatusError):
             await self.client.post(
                 "/ee/projects/182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e/annotations",
-                body=cast(object, dict(body=[{}])),
+                body=cast(object, maybe_transform(dict(body=[{}]), AnnotationCreateParams)),
                 cast_to=httpx.Response,
                 options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
