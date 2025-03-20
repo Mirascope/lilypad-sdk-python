@@ -1,6 +1,6 @@
 # Lilypad SDK Python API library
 
-[![PyPI version](https://img.shields.io/pypi/v/lilypad_sdk.svg)](https://pypi.org/project/lilypad_sdk/)
+[![PyPI version](https://img.shields.io/pypi/v/lilypad-sdk.svg)](https://pypi.org/project/lilypad-sdk/)
 
 The Lilypad SDK Python library provides convenient access to the Lilypad SDK REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
@@ -16,7 +16,7 @@ The REST API documentation can be found on [docs.lilypad-sdk.com](https://docs.l
 
 ```sh
 # install from PyPI
-pip install --pre lilypad_sdk
+pip install --pre lilypad-sdk
 ```
 
 ## Usage
