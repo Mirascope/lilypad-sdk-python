@@ -91,13 +91,13 @@ class LilypadSDK(SyncAPIClient):
     ) -> None:
         """Construct a new synchronous LilypadSDK client instance.
 
-        This automatically infers the `api_key` argument from the `LILYPAD_SDK_API_KEY` environment variable if it is not provided.
+        This automatically infers the `api_key` argument from the `LILYPAD_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
-            api_key = os.environ.get("LILYPAD_SDK_API_KEY")
+            api_key = os.environ.get("LILYPAD_API_KEY")
         if api_key is None:
             raise LilypadSDKError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_SDK_API_KEY environment variable"
+                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_API_KEY environment variable"
             )
         self.api_key = api_key
 
@@ -277,13 +277,13 @@ class AsyncLilypadSDK(AsyncAPIClient):
     ) -> None:
         """Construct a new async AsyncLilypadSDK client instance.
 
-        This automatically infers the `api_key` argument from the `LILYPAD_SDK_API_KEY` environment variable if it is not provided.
+        This automatically infers the `api_key` argument from the `LILYPAD_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
-            api_key = os.environ.get("LILYPAD_SDK_API_KEY")
+            api_key = os.environ.get("LILYPAD_API_KEY")
         if api_key is None:
             raise LilypadSDKError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_SDK_API_KEY environment variable"
+                "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_API_KEY environment variable"
             )
         self.api_key = api_key
 

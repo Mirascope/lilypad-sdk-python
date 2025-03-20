@@ -342,7 +342,7 @@ class TestLilypadSDK:
         assert request.headers.get("X-API-Key") == api_key
 
         with pytest.raises(LilypadSDKError):
-            with update_env(**{"LILYPAD_SDK_API_KEY": Omit()}):
+            with update_env(**{"LILYPAD_API_KEY": Omit()}):
                 client2 = LilypadSDK(base_url=base_url, api_key=None, _strict_response_validation=True)
             _ = client2
 
@@ -1126,7 +1126,7 @@ class TestAsyncLilypadSDK:
         assert request.headers.get("X-API-Key") == api_key
 
         with pytest.raises(LilypadSDKError):
-            with update_env(**{"LILYPAD_SDK_API_KEY": Omit()}):
+            with update_env(**{"LILYPAD_API_KEY": Omit()}):
                 client2 = AsyncLilypadSDK(base_url=base_url, api_key=None, _strict_response_validation=True)
             _ = client2
 
