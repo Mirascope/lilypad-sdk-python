@@ -2,16 +2,6 @@
 
 ## Projects
 
-Types:
-
-```python
-from lilypad_sdk.types.ee import GenerationCreate
-```
-
-Methods:
-
-- <code title="post /ee/projects/{project_uuid}/managed-generations">client.ee.projects.<a href="./src/lilypad_sdk/resources/ee/projects/projects.py">create_managed_generation</a>(path_project_uuid, \*\*<a href="src/lilypad_sdk/types/ee/project_create_managed_generation_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
-
 ### Annotations
 
 Types:
@@ -37,28 +27,14 @@ Types:
 ```python
 from lilypad_sdk.types.ee.projects import (
     GenerationGetAnnotationsResponse,
-    GenerationRunVersionResponse,
+    GenerationRunPlaygroundResponse,
 )
 ```
 
 Methods:
 
-- <code title="get /ee/projects/{project_uuid}/generations/{generation_uuid}/annotations">client.ee.projects.generations.<a href="./src/lilypad_sdk/resources/ee/projects/generations/generations.py">get_annotations</a>(generation_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_get_annotations_response.py">GenerationGetAnnotationsResponse</a></code>
-- <code title="post /ee/projects/{project_uuid}/generations/{generation_uuid}/run">client.ee.projects.generations.<a href="./src/lilypad_sdk/resources/ee/projects/generations/generations.py">run_version</a>(generation_uuid, \*, project_uuid, \*\*<a href="src/lilypad_sdk/types/ee/projects/generation_run_version_params.py">params</a>) -> str</code>
-
-#### Name
-
-Types:
-
-```python
-from lilypad_sdk.types.ee.projects.generations import NameGetByNameResponse
-```
-
-Methods:
-
-- <code title="get /ee/projects/{project_uuid}/generations/name/{generation_name}">client.ee.projects.generations.name.<a href="./src/lilypad_sdk/resources/ee/projects/generations/name.py">get_by_name</a>(generation_name, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generations/name_get_by_name_response.py">NameGetByNameResponse</a></code>
-- <code title="get /ee/projects/{project_uuid}/generations/name/{generation_name}/version/{version_num}">client.ee.projects.generations.name.<a href="./src/lilypad_sdk/resources/ee/projects/generations/name.py">get_by_version</a>(version_num, \*, project_uuid, generation_name) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
-- <code title="get /ee/projects/{project_uuid}/generations/name/{generation_name}/environments">client.ee.projects.generations.name.<a href="./src/lilypad_sdk/resources/ee/projects/generations/name.py">get_deployed_by_name</a>(generation_name, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
+- <code title="get /ee/projects/{project_uuid}/generations/{generation_uuid}/annotations">client.ee.projects.generations.<a href="./src/lilypad_sdk/resources/ee/projects/generations.py">get_annotations</a>(generation_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_get_annotations_response.py">GenerationGetAnnotationsResponse</a></code>
+- <code title="post /ee/projects/{project_uuid}/generations/{generation_uuid}/playground">client.ee.projects.generations.<a href="./src/lilypad_sdk/resources/ee/projects/generations.py">run_playground</a>(generation_uuid, \*, project_uuid, \*\*<a href="src/lilypad_sdk/types/ee/projects/generation_run_playground_params.py">params</a>) -> str</code>
 
 ### Spans
 
@@ -111,6 +87,41 @@ Methods:
 
 - <code title="get /ee/organizations/license">client.ee.organizations.<a href="./src/lilypad_sdk/resources/ee/organizations.py">get_license</a>() -> <a href="./src/lilypad_sdk/types/ee/organization_get_license_response.py">OrganizationGetLicenseResponse</a></code>
 
+## OrganizationsInvites
+
+Types:
+
+```python
+from lilypad_sdk.types.ee import OrganizationInvitePublic
+```
+
+Methods:
+
+- <code title="post /ee/organizations-invites">client.ee.organizations_invites.<a href="./src/lilypad_sdk/resources/ee/organizations_invites.py">create_organization_invite</a>(\*\*<a href="src/lilypad_sdk/types/ee/organizations_invite_create_organization_invite_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/organization_invite_public.py">OrganizationInvitePublic</a></code>
+- <code title="get /ee/organizations-invites/{invite_token}">client.ee.organizations_invites.<a href="./src/lilypad_sdk/resources/ee/organizations_invites.py">get_organization_invite</a>(invite_token) -> <a href="./src/lilypad_sdk/types/ee/organization_invite_public.py">OrganizationInvitePublic</a></code>
+
+## UserOrganizations
+
+Types:
+
+```python
+from lilypad_sdk.types.ee import (
+    UserOrganizationTable,
+    UserRole,
+    UserOrganizationDeleteUserOrganizationResponse,
+    UserOrganizationGetUserOrganizationsResponse,
+    UserOrganizationGetUsersByOrganizationResponse,
+)
+```
+
+Methods:
+
+- <code title="post /ee/user-organizations">client.ee.user_organizations.<a href="./src/lilypad_sdk/resources/ee/user_organizations.py">create_user_organization</a>(\*\*<a href="src/lilypad_sdk/types/ee/user_organization_create_user_organization_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/user_organization_table.py">UserOrganizationTable</a></code>
+- <code title="delete /ee/user-organizations/{user_organization_uuid}">client.ee.user_organizations.<a href="./src/lilypad_sdk/resources/ee/user_organizations.py">delete_user_organization</a>(user_organization_uuid) -> <a href="./src/lilypad_sdk/types/ee/user_organization_delete_user_organization_response.py">UserOrganizationDeleteUserOrganizationResponse</a></code>
+- <code title="get /ee/user-organizations">client.ee.user_organizations.<a href="./src/lilypad_sdk/resources/ee/user_organizations.py">get_user_organizations</a>() -> <a href="./src/lilypad_sdk/types/ee/user_organization_get_user_organizations_response.py">UserOrganizationGetUserOrganizationsResponse</a></code>
+- <code title="get /ee/user-organizations/users">client.ee.user_organizations.<a href="./src/lilypad_sdk/resources/ee/user_organizations.py">get_users_by_organization</a>() -> <a href="./src/lilypad_sdk/types/ee/user_organization_get_users_by_organization_response.py">UserOrganizationGetUsersByOrganizationResponse</a></code>
+- <code title="patch /ee/user-organizations/{user_organization_uuid}">client.ee.user_organizations.<a href="./src/lilypad_sdk/resources/ee/user_organizations.py">update_user_organization</a>(user_organization_uuid, \*\*<a href="src/lilypad_sdk/types/ee/user_organization_update_user_organization_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/user_organization_table.py">UserOrganizationTable</a></code>
+
 # APIKeys
 
 Types:
@@ -131,6 +142,7 @@ Types:
 
 ```python
 from lilypad_sdk.types import (
+    GenerationCreate,
     ProjectCreate,
     ProjectPublic,
     ProjectListResponse,
@@ -145,6 +157,7 @@ Methods:
 - <code title="patch /projects/{project_uuid}">client.projects.<a href="./src/lilypad_sdk/resources/projects/projects.py">update</a>(project_uuid, \*\*<a href="src/lilypad_sdk/types/project_update_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/project_public.py">ProjectPublic</a></code>
 - <code title="get /projects">client.projects.<a href="./src/lilypad_sdk/resources/projects/projects.py">list</a>() -> <a href="./src/lilypad_sdk/types/project_list_response.py">ProjectListResponse</a></code>
 - <code title="delete /projects/{project_uuid}">client.projects.<a href="./src/lilypad_sdk/resources/projects/projects.py">delete</a>(project_uuid) -> <a href="./src/lilypad_sdk/types/project_delete_response.py">ProjectDeleteResponse</a></code>
+- <code title="post /projects/{project_uuid}/managed-generations">client.projects.<a href="./src/lilypad_sdk/resources/projects/projects.py">create_managed_generation</a>(path_project_uuid, \*\*<a href="src/lilypad_sdk/types/project_create_managed_generation_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 
 ## Generations
 
@@ -167,6 +180,20 @@ Methods:
 - <code title="delete /projects/{project_uuid}/generations/{generation_uuid}">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">archive</a>(generation_uuid, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/projects/generation_archive_response.py">GenerationArchiveResponse</a></code>
 - <code title="delete /projects/{project_uuid}/generations/names/{generation_name}">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">archive_by_name</a>(generation_name, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/projects/generation_archive_by_name_response.py">GenerationArchiveByNameResponse</a></code>
 - <code title="get /projects/{project_uuid}/generations/hash/{generation_hash}">client.projects.generations.<a href="./src/lilypad_sdk/resources/projects/generations/generations.py">retrieve_by_hash</a>(generation_hash, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
+
+### Name
+
+Types:
+
+```python
+from lilypad_sdk.types.projects.generations import NameRetrieveByNameResponse
+```
+
+Methods:
+
+- <code title="get /projects/{project_uuid}/generations/name/{generation_name}">client.projects.generations.name.<a href="./src/lilypad_sdk/resources/projects/generations/name.py">retrieve_by_name</a>(generation_name, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/projects/generations/name_retrieve_by_name_response.py">NameRetrieveByNameResponse</a></code>
+- <code title="get /projects/{project_uuid}/generations/name/{generation_name}/version/{version_num}">client.projects.generations.name.<a href="./src/lilypad_sdk/resources/projects/generations/name.py">retrieve_by_version</a>(version_num, \*, project_uuid, generation_name) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
+- <code title="get /projects/{project_uuid}/generations/name/{generation_name}/environments">client.projects.generations.name.<a href="./src/lilypad_sdk/resources/projects/generations/name.py">retrieve_deployed</a>(generation_name, \*, project_uuid) -> <a href="./src/lilypad_sdk/types/ee/projects/generation_public.py">GenerationPublic</a></code>
 
 ### Metadata
 
@@ -254,35 +281,13 @@ from lilypad_sdk.types.auth import UserPublic
 
 Methods:
 
-- <code title="get /auth/github/callback">client.auth.github.<a href="./src/lilypad_sdk/resources/auth/github.py">handle_callback</a>(\*\*<a href="src/lilypad_sdk/types/auth/github_handle_callback_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/auth/user_public.py">UserPublic</a></code>
+- <code title="get /auth/github/callback">client.auth.github.<a href="./src/lilypad_sdk/resources/auth/github.py">callback</a>(\*\*<a href="src/lilypad_sdk/types/auth/github_callback_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/auth/user_public.py">UserPublic</a></code>
 
 ## Google
 
 Methods:
 
-- <code title="get /auth/google/callback">client.auth.google.<a href="./src/lilypad_sdk/resources/auth/google.py">handle_callback</a>(\*\*<a href="src/lilypad_sdk/types/auth/google_handle_callback_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/auth/user_public.py">UserPublic</a></code>
-
-# UserOrganizations
-
-Types:
-
-```python
-from lilypad_sdk.types import (
-    UserOrganization,
-    UserRole,
-    UserOrganizationListResponse,
-    UserOrganizationDeleteResponse,
-    UserOrganizationGetUsersResponse,
-)
-```
-
-Methods:
-
-- <code title="post /user-organizations">client.user_organizations.<a href="./src/lilypad_sdk/resources/user_organizations.py">create</a>(\*\*<a href="src/lilypad_sdk/types/user_organization_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/user_organization.py">UserOrganization</a></code>
-- <code title="patch /user-organizations/{user_organization_uuid}">client.user_organizations.<a href="./src/lilypad_sdk/resources/user_organizations.py">update</a>(user_organization_uuid, \*\*<a href="src/lilypad_sdk/types/user_organization_update_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/user_organization.py">UserOrganization</a></code>
-- <code title="get /user-organizations">client.user_organizations.<a href="./src/lilypad_sdk/resources/user_organizations.py">list</a>() -> <a href="./src/lilypad_sdk/types/user_organization_list_response.py">UserOrganizationListResponse</a></code>
-- <code title="delete /user-organizations/{user_organization_uuid}">client.user_organizations.<a href="./src/lilypad_sdk/resources/user_organizations.py">delete</a>(user_organization_uuid) -> <a href="./src/lilypad_sdk/types/user_organization_delete_response.py">UserOrganizationDeleteResponse</a></code>
-- <code title="get /user-organizations/users">client.user_organizations.<a href="./src/lilypad_sdk/resources/user_organizations.py">get_users</a>() -> <a href="./src/lilypad_sdk/types/user_organization_get_users_response.py">UserOrganizationGetUsersResponse</a></code>
+- <code title="get /auth/google/callback">client.auth.google.<a href="./src/lilypad_sdk/resources/auth/google.py">callback</a>(\*\*<a href="src/lilypad_sdk/types/auth/google_callback_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/auth/user_public.py">UserPublic</a></code>
 
 # Users
 
@@ -302,25 +307,31 @@ Methods:
 Types:
 
 ```python
-from lilypad_sdk.types import Organization
+from lilypad_sdk.types import OrganizationPublic
 ```
 
 Methods:
 
-- <code title="patch /organizations">client.organizations.<a href="./src/lilypad_sdk/resources/organizations/organizations.py">update</a>(\*\*<a href="src/lilypad_sdk/types/organization_update_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/organization.py">Organization</a></code>
+- <code title="patch /organizations">client.organizations.<a href="./src/lilypad_sdk/resources/organizations.py">update</a>(\*\*<a href="src/lilypad_sdk/types/organization_update_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/organization_public.py">OrganizationPublic</a></code>
 
-## Invites
+# ExternalAPIKeys
 
 Types:
 
 ```python
-from lilypad_sdk.types.organizations import OrganizationInvite
+from lilypad_sdk.types import (
+    ExternalAPIKeyPublic,
+    ExternalAPIKeyListResponse,
+    ExternalAPIKeyDeleteResponse,
+)
 ```
 
 Methods:
 
-- <code title="post /organizations/invites">client.organizations.invites.<a href="./src/lilypad_sdk/resources/organizations/invites.py">create</a>(\*\*<a href="src/lilypad_sdk/types/organizations/invite_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/organizations/organization_invite.py">OrganizationInvite</a></code>
-- <code title="get /organizations/invites/{invite_token}">client.organizations.invites.<a href="./src/lilypad_sdk/resources/organizations/invites.py">retrieve</a>(invite_token) -> <a href="./src/lilypad_sdk/types/organizations/organization_invite.py">OrganizationInvite</a></code>
+- <code title="post /external-api-keys">client.external_api_keys.<a href="./src/lilypad_sdk/resources/external_api_keys.py">create</a>(\*\*<a href="src/lilypad_sdk/types/external_api_key_create_params.py">params</a>) -> <a href="./src/lilypad_sdk/types/external_api_key_public.py">ExternalAPIKeyPublic</a></code>
+- <code title="get /external-api-keys/{service_name}">client.external_api_keys.<a href="./src/lilypad_sdk/resources/external_api_keys.py">retrieve</a>(service_name) -> <a href="./src/lilypad_sdk/types/external_api_key_public.py">ExternalAPIKeyPublic</a></code>
+- <code title="get /external-api-keys">client.external_api_keys.<a href="./src/lilypad_sdk/resources/external_api_keys.py">list</a>() -> <a href="./src/lilypad_sdk/types/external_api_key_list_response.py">ExternalAPIKeyListResponse</a></code>
+- <code title="delete /external-api-keys/{service_name}">client.external_api_keys.<a href="./src/lilypad_sdk/resources/external_api_keys.py">delete</a>(service_name) -> <a href="./src/lilypad_sdk/types/external_api_key_delete_response.py">ExternalAPIKeyDeleteResponse</a></code>
 
 # Settings
 

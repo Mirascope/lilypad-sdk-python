@@ -1,6 +1,6 @@
 # Lilypad SDK Python API library
 
-[![PyPI version](https://img.shields.io/pypi/v/lilypad-sdk.svg)](https://pypi.org/project/lilypad-sdk/)
+[![PyPI version](https://img.shields.io/pypi/v/lilypad_sdk.svg)](https://pypi.org/project/lilypad_sdk/)
 
 The Lilypad SDK Python library provides convenient access to the Lilypad SDK REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
@@ -15,9 +15,12 @@ The REST API documentation can be found on [docs.lilypad-sdk.com](https://docs.l
 ## Installation
 
 ```sh
-# install from PyPI
-pip install --pre lilypad-sdk
+# install from this staging repo
+pip install git+ssh://git@github.com/stainless-sdks/lilypad-sdk-python.git
 ```
+
+> [!NOTE]
+> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre lilypad_sdk`
 
 ## Usage
 
@@ -77,6 +80,8 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
 
+from lilypad_sdk.\_utils import parse_datetime
+
 ## Nested params
 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
@@ -86,23 +91,45 @@ from lilypad_sdk import LilypadSDK
 
 client = LilypadSDK()
 
-generation_public = client.ee.projects.create_managed_generation(
-    path_project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-    code="code",
-    hash="hash",
-    name="x",
-    signature="signature",
-    call_params={
-        "frequency_penalty": 0,
-        "max_tokens": 0,
-        "presence_penalty": 0,
-        "seed": 0,
-        "stop": "string",
-        "temperature": 0,
-        "top_p": 0,
+response = client.ee.projects.generations.run_playground(
+    generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+    project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+    arg_values={"foo": 0},
+    model="model",
+    provider="openai",
+    generation={
+        "code": "code",
+        "hash": "hash",
+        "name": "x",
+        "signature": "signature",
+        "archived": parse_datetime("2019-12-27T18:11:19.117Z"),
+        "arg_types": {"foo": "string"},
+        "call_params": {
+            "frequency_penalty": 0,
+            "max_tokens": 0,
+            "presence_penalty": 0,
+            "seed": 0,
+            "stop": "string",
+            "temperature": 0,
+            "top_p": 0,
+        },
+        "custom_id": "custom_id",
+        "dependencies": {
+            "foo": {
+                "extras": ["string"],
+                "version": "version",
+            }
+        },
+        "is_default": True,
+        "is_managed": True,
+        "model": "model",
+        "project_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        "prompt_template": "prompt_template",
+        "provider": "provider",
+        "version_num": 0,
     },
 )
-print(generation_public.call_params)
+print(response.generation)
 ```
 
 ## Handling errors
@@ -247,9 +274,9 @@ annotation = response.parse()  # get the object that `ee.projects.annotations.cr
 print(annotation)
 ```
 
-These methods return an [`APIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -356,7 +383,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/Mirascope/lilypad-sdk-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/lilypad-sdk-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

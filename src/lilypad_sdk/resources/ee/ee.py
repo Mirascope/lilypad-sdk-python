@@ -20,6 +20,22 @@ from .projects.projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
+from .user_organizations import (
+    UserOrganizationsResource,
+    AsyncUserOrganizationsResource,
+    UserOrganizationsResourceWithRawResponse,
+    AsyncUserOrganizationsResourceWithRawResponse,
+    UserOrganizationsResourceWithStreamingResponse,
+    AsyncUserOrganizationsResourceWithStreamingResponse,
+)
+from .organizations_invites import (
+    OrganizationsInvitesResource,
+    AsyncOrganizationsInvitesResource,
+    OrganizationsInvitesResourceWithRawResponse,
+    AsyncOrganizationsInvitesResourceWithRawResponse,
+    OrganizationsInvitesResourceWithStreamingResponse,
+    AsyncOrganizationsInvitesResourceWithStreamingResponse,
+)
 
 __all__ = ["EeResource", "AsyncEeResource"]
 
@@ -34,12 +50,20 @@ class EeResource(SyncAPIResource):
         return OrganizationsResource(self._client)
 
     @cached_property
+    def organizations_invites(self) -> OrganizationsInvitesResource:
+        return OrganizationsInvitesResource(self._client)
+
+    @cached_property
+    def user_organizations(self) -> UserOrganizationsResource:
+        return UserOrganizationsResource(self._client)
+
+    @cached_property
     def with_raw_response(self) -> EeResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return EeResourceWithRawResponse(self)
 
@@ -48,7 +72,7 @@ class EeResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return EeResourceWithStreamingResponse(self)
 
@@ -63,12 +87,20 @@ class AsyncEeResource(AsyncAPIResource):
         return AsyncOrganizationsResource(self._client)
 
     @cached_property
+    def organizations_invites(self) -> AsyncOrganizationsInvitesResource:
+        return AsyncOrganizationsInvitesResource(self._client)
+
+    @cached_property
+    def user_organizations(self) -> AsyncUserOrganizationsResource:
+        return AsyncUserOrganizationsResource(self._client)
+
+    @cached_property
     def with_raw_response(self) -> AsyncEeResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return AsyncEeResourceWithRawResponse(self)
 
@@ -77,7 +109,7 @@ class AsyncEeResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return AsyncEeResourceWithStreamingResponse(self)
 
@@ -94,6 +126,14 @@ class EeResourceWithRawResponse:
     def organizations(self) -> OrganizationsResourceWithRawResponse:
         return OrganizationsResourceWithRawResponse(self._ee.organizations)
 
+    @cached_property
+    def organizations_invites(self) -> OrganizationsInvitesResourceWithRawResponse:
+        return OrganizationsInvitesResourceWithRawResponse(self._ee.organizations_invites)
+
+    @cached_property
+    def user_organizations(self) -> UserOrganizationsResourceWithRawResponse:
+        return UserOrganizationsResourceWithRawResponse(self._ee.user_organizations)
+
 
 class AsyncEeResourceWithRawResponse:
     def __init__(self, ee: AsyncEeResource) -> None:
@@ -106,6 +146,14 @@ class AsyncEeResourceWithRawResponse:
     @cached_property
     def organizations(self) -> AsyncOrganizationsResourceWithRawResponse:
         return AsyncOrganizationsResourceWithRawResponse(self._ee.organizations)
+
+    @cached_property
+    def organizations_invites(self) -> AsyncOrganizationsInvitesResourceWithRawResponse:
+        return AsyncOrganizationsInvitesResourceWithRawResponse(self._ee.organizations_invites)
+
+    @cached_property
+    def user_organizations(self) -> AsyncUserOrganizationsResourceWithRawResponse:
+        return AsyncUserOrganizationsResourceWithRawResponse(self._ee.user_organizations)
 
 
 class EeResourceWithStreamingResponse:
@@ -120,6 +168,14 @@ class EeResourceWithStreamingResponse:
     def organizations(self) -> OrganizationsResourceWithStreamingResponse:
         return OrganizationsResourceWithStreamingResponse(self._ee.organizations)
 
+    @cached_property
+    def organizations_invites(self) -> OrganizationsInvitesResourceWithStreamingResponse:
+        return OrganizationsInvitesResourceWithStreamingResponse(self._ee.organizations_invites)
+
+    @cached_property
+    def user_organizations(self) -> UserOrganizationsResourceWithStreamingResponse:
+        return UserOrganizationsResourceWithStreamingResponse(self._ee.user_organizations)
+
 
 class AsyncEeResourceWithStreamingResponse:
     def __init__(self, ee: AsyncEeResource) -> None:
@@ -132,3 +188,11 @@ class AsyncEeResourceWithStreamingResponse:
     @cached_property
     def organizations(self) -> AsyncOrganizationsResourceWithStreamingResponse:
         return AsyncOrganizationsResourceWithStreamingResponse(self._ee.organizations)
+
+    @cached_property
+    def organizations_invites(self) -> AsyncOrganizationsInvitesResourceWithStreamingResponse:
+        return AsyncOrganizationsInvitesResourceWithStreamingResponse(self._ee.organizations_invites)
+
+    @cached_property
+    def user_organizations(self) -> AsyncUserOrganizationsResourceWithStreamingResponse:
+        return AsyncUserOrganizationsResourceWithStreamingResponse(self._ee.user_organizations)
