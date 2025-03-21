@@ -72,13 +72,13 @@ from .organizations import (
     OrganizationsResourceWithStreamingResponse,
     AsyncOrganizationsResourceWithStreamingResponse,
 )
-from .user_organizations import (
-    UserOrganizationsResource,
-    AsyncUserOrganizationsResource,
-    UserOrganizationsResourceWithRawResponse,
-    AsyncUserOrganizationsResourceWithRawResponse,
-    UserOrganizationsResourceWithStreamingResponse,
-    AsyncUserOrganizationsResourceWithStreamingResponse,
+from .external_api_keys import (
+    ExternalAPIKeysResource,
+    AsyncExternalAPIKeysResource,
+    ExternalAPIKeysResourceWithRawResponse,
+    AsyncExternalAPIKeysResourceWithRawResponse,
+    ExternalAPIKeysResourceWithStreamingResponse,
+    AsyncExternalAPIKeysResourceWithStreamingResponse,
 )
 
 __all__ = [
@@ -112,12 +112,6 @@ __all__ = [
     "AsyncAuthResourceWithRawResponse",
     "AuthResourceWithStreamingResponse",
     "AsyncAuthResourceWithStreamingResponse",
-    "UserOrganizationsResource",
-    "AsyncUserOrganizationsResource",
-    "UserOrganizationsResourceWithRawResponse",
-    "AsyncUserOrganizationsResourceWithRawResponse",
-    "UserOrganizationsResourceWithStreamingResponse",
-    "AsyncUserOrganizationsResourceWithStreamingResponse",
     "UsersResource",
     "AsyncUsersResource",
     "UsersResourceWithRawResponse",
@@ -136,6 +130,12 @@ __all__ = [
     "AsyncOrganizationsResourceWithRawResponse",
     "OrganizationsResourceWithStreamingResponse",
     "AsyncOrganizationsResourceWithStreamingResponse",
+    "ExternalAPIKeysResource",
+    "AsyncExternalAPIKeysResource",
+    "ExternalAPIKeysResourceWithRawResponse",
+    "AsyncExternalAPIKeysResourceWithRawResponse",
+    "ExternalAPIKeysResourceWithStreamingResponse",
+    "AsyncExternalAPIKeysResourceWithStreamingResponse",
     "SettingsResource",
     "AsyncSettingsResource",
     "SettingsResourceWithRawResponse",

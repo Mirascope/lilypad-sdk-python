@@ -24,7 +24,7 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
-from .resources import spans, users, api_keys, settings, current_user, user_organizations
+from .resources import spans, users, api_keys, settings, current_user, organizations, external_api_keys
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import APIStatusError, LilypadSDKError
 from ._base_client import (
@@ -35,7 +35,6 @@ from ._base_client import (
 from .resources.ee import ee
 from .resources.auth import auth
 from .resources.projects import projects
-from .resources.organizations import organizations
 
 __all__ = [
     "Timeout",
@@ -55,10 +54,10 @@ class LilypadSDK(SyncAPIClient):
     projects: projects.ProjectsResource
     spans: spans.SpansResource
     auth: auth.AuthResource
-    user_organizations: user_organizations.UserOrganizationsResource
     users: users.UsersResource
     current_user: current_user.CurrentUserResource
     organizations: organizations.OrganizationsResource
+    external_api_keys: external_api_keys.ExternalAPIKeysResource
     settings: settings.SettingsResource
     with_raw_response: LilypadSDKWithRawResponse
     with_streaming_response: LilypadSDKWithStreamedResponse
@@ -122,10 +121,10 @@ class LilypadSDK(SyncAPIClient):
         self.projects = projects.ProjectsResource(self)
         self.spans = spans.SpansResource(self)
         self.auth = auth.AuthResource(self)
-        self.user_organizations = user_organizations.UserOrganizationsResource(self)
         self.users = users.UsersResource(self)
         self.current_user = current_user.CurrentUserResource(self)
         self.organizations = organizations.OrganizationsResource(self)
+        self.external_api_keys = external_api_keys.ExternalAPIKeysResource(self)
         self.settings = settings.SettingsResource(self)
         self.with_raw_response = LilypadSDKWithRawResponse(self)
         self.with_streaming_response = LilypadSDKWithStreamedResponse(self)
@@ -241,10 +240,10 @@ class AsyncLilypadSDK(AsyncAPIClient):
     projects: projects.AsyncProjectsResource
     spans: spans.AsyncSpansResource
     auth: auth.AsyncAuthResource
-    user_organizations: user_organizations.AsyncUserOrganizationsResource
     users: users.AsyncUsersResource
     current_user: current_user.AsyncCurrentUserResource
     organizations: organizations.AsyncOrganizationsResource
+    external_api_keys: external_api_keys.AsyncExternalAPIKeysResource
     settings: settings.AsyncSettingsResource
     with_raw_response: AsyncLilypadSDKWithRawResponse
     with_streaming_response: AsyncLilypadSDKWithStreamedResponse
@@ -308,10 +307,10 @@ class AsyncLilypadSDK(AsyncAPIClient):
         self.projects = projects.AsyncProjectsResource(self)
         self.spans = spans.AsyncSpansResource(self)
         self.auth = auth.AsyncAuthResource(self)
-        self.user_organizations = user_organizations.AsyncUserOrganizationsResource(self)
         self.users = users.AsyncUsersResource(self)
         self.current_user = current_user.AsyncCurrentUserResource(self)
         self.organizations = organizations.AsyncOrganizationsResource(self)
+        self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResource(self)
         self.settings = settings.AsyncSettingsResource(self)
         self.with_raw_response = AsyncLilypadSDKWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadSDKWithStreamedResponse(self)
@@ -428,10 +427,10 @@ class LilypadSDKWithRawResponse:
         self.projects = projects.ProjectsResourceWithRawResponse(client.projects)
         self.spans = spans.SpansResourceWithRawResponse(client.spans)
         self.auth = auth.AuthResourceWithRawResponse(client.auth)
-        self.user_organizations = user_organizations.UserOrganizationsResourceWithRawResponse(client.user_organizations)
         self.users = users.UsersResourceWithRawResponse(client.users)
         self.current_user = current_user.CurrentUserResourceWithRawResponse(client.current_user)
         self.organizations = organizations.OrganizationsResourceWithRawResponse(client.organizations)
+        self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.settings = settings.SettingsResourceWithRawResponse(client.settings)
 
 
@@ -442,12 +441,10 @@ class AsyncLilypadSDKWithRawResponse:
         self.projects = projects.AsyncProjectsResourceWithRawResponse(client.projects)
         self.spans = spans.AsyncSpansResourceWithRawResponse(client.spans)
         self.auth = auth.AsyncAuthResourceWithRawResponse(client.auth)
-        self.user_organizations = user_organizations.AsyncUserOrganizationsResourceWithRawResponse(
-            client.user_organizations
-        )
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
         self.current_user = current_user.AsyncCurrentUserResourceWithRawResponse(client.current_user)
         self.organizations = organizations.AsyncOrganizationsResourceWithRawResponse(client.organizations)
+        self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
 
 
@@ -458,12 +455,12 @@ class LilypadSDKWithStreamedResponse:
         self.projects = projects.ProjectsResourceWithStreamingResponse(client.projects)
         self.spans = spans.SpansResourceWithStreamingResponse(client.spans)
         self.auth = auth.AuthResourceWithStreamingResponse(client.auth)
-        self.user_organizations = user_organizations.UserOrganizationsResourceWithStreamingResponse(
-            client.user_organizations
-        )
         self.users = users.UsersResourceWithStreamingResponse(client.users)
         self.current_user = current_user.CurrentUserResourceWithStreamingResponse(client.current_user)
         self.organizations = organizations.OrganizationsResourceWithStreamingResponse(client.organizations)
+        self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithStreamingResponse(
+            client.external_api_keys
+        )
         self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
 
 
@@ -474,12 +471,12 @@ class AsyncLilypadSDKWithStreamedResponse:
         self.projects = projects.AsyncProjectsResourceWithStreamingResponse(client.projects)
         self.spans = spans.AsyncSpansResourceWithStreamingResponse(client.spans)
         self.auth = auth.AsyncAuthResourceWithStreamingResponse(client.auth)
-        self.user_organizations = user_organizations.AsyncUserOrganizationsResourceWithStreamingResponse(
-            client.user_organizations
-        )
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)
         self.current_user = current_user.AsyncCurrentUserResourceWithStreamingResponse(client.current_user)
         self.organizations = organizations.AsyncOrganizationsResourceWithStreamingResponse(client.organizations)
+        self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithStreamingResponse(
+            client.external_api_keys
+        )
         self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
 
 

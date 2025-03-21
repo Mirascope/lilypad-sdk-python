@@ -1,0 +1,462 @@
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+import httpx
+
+from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from ..._utils import (
+    maybe_transform,
+    async_maybe_transform,
+)
+from ..._compat import cached_property
+from ...types.ee import (
+    UserRole,
+    user_organization_create_user_organization_params,
+    user_organization_update_user_organization_params,
+)
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
+    to_raw_response_wrapper,
+    to_streamed_response_wrapper,
+    async_to_raw_response_wrapper,
+    async_to_streamed_response_wrapper,
+)
+from ..._base_client import make_request_options
+from ...types.ee.user_role import UserRole
+from ...types.ee.user_organization_table import UserOrganizationTable
+from ...types.ee.user_organization_get_user_organizations_response import UserOrganizationGetUserOrganizationsResponse
+from ...types.ee.user_organization_delete_user_organization_response import (
+    UserOrganizationDeleteUserOrganizationResponse,
+)
+from ...types.ee.user_organization_get_users_by_organization_response import (
+    UserOrganizationGetUsersByOrganizationResponse,
+)
+
+__all__ = ["UserOrganizationsResource", "AsyncUserOrganizationsResource"]
+
+
+class UserOrganizationsResource(SyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> UserOrganizationsResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        """
+        return UserOrganizationsResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> UserOrganizationsResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
+        """
+        return UserOrganizationsResourceWithStreamingResponse(self)
+
+    def create_user_organization(
+        self,
+        *,
+        token: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationTable:
+        """
+        Create user organization
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/ee/user-organizations",
+            body=maybe_transform(
+                {"token": token},
+                user_organization_create_user_organization_params.UserOrganizationCreateUserOrganizationParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationTable,
+        )
+
+    def delete_user_organization(
+        self,
+        user_organization_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationDeleteUserOrganizationResponse:
+        """
+        Delete user organization by uuid
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_organization_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `user_organization_uuid` but received {user_organization_uuid!r}"
+            )
+        return self._delete(
+            f"/ee/user-organizations/{user_organization_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationDeleteUserOrganizationResponse,
+        )
+
+    def get_user_organizations(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUserOrganizationsResponse:
+        """Get all user organizations."""
+        return self._get(
+            "/ee/user-organizations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUserOrganizationsResponse,
+        )
+
+    def get_users_by_organization(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUsersByOrganizationResponse:
+        """Get all users of an organization."""
+        return self._get(
+            "/ee/user-organizations/users",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUsersByOrganizationResponse,
+        )
+
+    def update_user_organization(
+        self,
+        user_organization_uuid: str,
+        *,
+        role: UserRole,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationTable:
+        """
+        Updates user organization
+
+        Args:
+          role: User role enum.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_organization_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `user_organization_uuid` but received {user_organization_uuid!r}"
+            )
+        return self._patch(
+            f"/ee/user-organizations/{user_organization_uuid}",
+            body=maybe_transform(
+                {"role": role},
+                user_organization_update_user_organization_params.UserOrganizationUpdateUserOrganizationParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationTable,
+        )
+
+
+class AsyncUserOrganizationsResource(AsyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> AsyncUserOrganizationsResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        """
+        return AsyncUserOrganizationsResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncUserOrganizationsResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
+        """
+        return AsyncUserOrganizationsResourceWithStreamingResponse(self)
+
+    async def create_user_organization(
+        self,
+        *,
+        token: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationTable:
+        """
+        Create user organization
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/ee/user-organizations",
+            body=await async_maybe_transform(
+                {"token": token},
+                user_organization_create_user_organization_params.UserOrganizationCreateUserOrganizationParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationTable,
+        )
+
+    async def delete_user_organization(
+        self,
+        user_organization_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationDeleteUserOrganizationResponse:
+        """
+        Delete user organization by uuid
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_organization_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `user_organization_uuid` but received {user_organization_uuid!r}"
+            )
+        return await self._delete(
+            f"/ee/user-organizations/{user_organization_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationDeleteUserOrganizationResponse,
+        )
+
+    async def get_user_organizations(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUserOrganizationsResponse:
+        """Get all user organizations."""
+        return await self._get(
+            "/ee/user-organizations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUserOrganizationsResponse,
+        )
+
+    async def get_users_by_organization(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUsersByOrganizationResponse:
+        """Get all users of an organization."""
+        return await self._get(
+            "/ee/user-organizations/users",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUsersByOrganizationResponse,
+        )
+
+    async def update_user_organization(
+        self,
+        user_organization_uuid: str,
+        *,
+        role: UserRole,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationTable:
+        """
+        Updates user organization
+
+        Args:
+          role: User role enum.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_organization_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `user_organization_uuid` but received {user_organization_uuid!r}"
+            )
+        return await self._patch(
+            f"/ee/user-organizations/{user_organization_uuid}",
+            body=await async_maybe_transform(
+                {"role": role},
+                user_organization_update_user_organization_params.UserOrganizationUpdateUserOrganizationParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationTable,
+        )
+
+
+class UserOrganizationsResourceWithRawResponse:
+    def __init__(self, user_organizations: UserOrganizationsResource) -> None:
+        self._user_organizations = user_organizations
+
+        self.create_user_organization = to_raw_response_wrapper(
+            user_organizations.create_user_organization,
+        )
+        self.delete_user_organization = to_raw_response_wrapper(
+            user_organizations.delete_user_organization,
+        )
+        self.get_user_organizations = to_raw_response_wrapper(
+            user_organizations.get_user_organizations,
+        )
+        self.get_users_by_organization = to_raw_response_wrapper(
+            user_organizations.get_users_by_organization,
+        )
+        self.update_user_organization = to_raw_response_wrapper(
+            user_organizations.update_user_organization,
+        )
+
+
+class AsyncUserOrganizationsResourceWithRawResponse:
+    def __init__(self, user_organizations: AsyncUserOrganizationsResource) -> None:
+        self._user_organizations = user_organizations
+
+        self.create_user_organization = async_to_raw_response_wrapper(
+            user_organizations.create_user_organization,
+        )
+        self.delete_user_organization = async_to_raw_response_wrapper(
+            user_organizations.delete_user_organization,
+        )
+        self.get_user_organizations = async_to_raw_response_wrapper(
+            user_organizations.get_user_organizations,
+        )
+        self.get_users_by_organization = async_to_raw_response_wrapper(
+            user_organizations.get_users_by_organization,
+        )
+        self.update_user_organization = async_to_raw_response_wrapper(
+            user_organizations.update_user_organization,
+        )
+
+
+class UserOrganizationsResourceWithStreamingResponse:
+    def __init__(self, user_organizations: UserOrganizationsResource) -> None:
+        self._user_organizations = user_organizations
+
+        self.create_user_organization = to_streamed_response_wrapper(
+            user_organizations.create_user_organization,
+        )
+        self.delete_user_organization = to_streamed_response_wrapper(
+            user_organizations.delete_user_organization,
+        )
+        self.get_user_organizations = to_streamed_response_wrapper(
+            user_organizations.get_user_organizations,
+        )
+        self.get_users_by_organization = to_streamed_response_wrapper(
+            user_organizations.get_users_by_organization,
+        )
+        self.update_user_organization = to_streamed_response_wrapper(
+            user_organizations.update_user_organization,
+        )
+
+
+class AsyncUserOrganizationsResourceWithStreamingResponse:
+    def __init__(self, user_organizations: AsyncUserOrganizationsResource) -> None:
+        self._user_organizations = user_organizations
+
+        self.create_user_organization = async_to_streamed_response_wrapper(
+            user_organizations.create_user_organization,
+        )
+        self.delete_user_organization = async_to_streamed_response_wrapper(
+            user_organizations.delete_user_organization,
+        )
+        self.get_user_organizations = async_to_streamed_response_wrapper(
+            user_organizations.get_user_organizations,
+        )
+        self.get_users_by_organization = async_to_streamed_response_wrapper(
+            user_organizations.get_users_by_organization,
+        )
+        self.update_user_organization = async_to_streamed_response_wrapper(
+            user_organizations.update_user_organization,
+        )

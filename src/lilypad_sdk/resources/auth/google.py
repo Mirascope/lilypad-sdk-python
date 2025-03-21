@@ -17,7 +17,7 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...types.auth import google_handle_callback_params
+from ...types.auth import google_callback_params
 from ..._base_client import make_request_options
 from ...types.auth.user_public import UserPublic
 
@@ -31,7 +31,7 @@ class GoogleResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return GoogleResourceWithRawResponse(self)
 
@@ -40,11 +40,11 @@ class GoogleResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return GoogleResourceWithStreamingResponse(self)
 
-    def handle_callback(
+    def callback(
         self,
         *,
         code: str,
@@ -77,7 +77,7 @@ class GoogleResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform({"code": code}, google_handle_callback_params.GoogleHandleCallbackParams),
+                query=maybe_transform({"code": code}, google_callback_params.GoogleCallbackParams),
             ),
             cast_to=UserPublic,
         )
@@ -90,7 +90,7 @@ class AsyncGoogleResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return AsyncGoogleResourceWithRawResponse(self)
 
@@ -99,11 +99,11 @@ class AsyncGoogleResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return AsyncGoogleResourceWithStreamingResponse(self)
 
-    async def handle_callback(
+    async def callback(
         self,
         *,
         code: str,
@@ -136,9 +136,7 @@ class AsyncGoogleResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=await async_maybe_transform(
-                    {"code": code}, google_handle_callback_params.GoogleHandleCallbackParams
-                ),
+                query=await async_maybe_transform({"code": code}, google_callback_params.GoogleCallbackParams),
             ),
             cast_to=UserPublic,
         )
@@ -148,8 +146,8 @@ class GoogleResourceWithRawResponse:
     def __init__(self, google: GoogleResource) -> None:
         self._google = google
 
-        self.handle_callback = to_raw_response_wrapper(
-            google.handle_callback,
+        self.callback = to_raw_response_wrapper(
+            google.callback,
         )
 
 
@@ -157,8 +155,8 @@ class AsyncGoogleResourceWithRawResponse:
     def __init__(self, google: AsyncGoogleResource) -> None:
         self._google = google
 
-        self.handle_callback = async_to_raw_response_wrapper(
-            google.handle_callback,
+        self.callback = async_to_raw_response_wrapper(
+            google.callback,
         )
 
 
@@ -166,8 +164,8 @@ class GoogleResourceWithStreamingResponse:
     def __init__(self, google: GoogleResource) -> None:
         self._google = google
 
-        self.handle_callback = to_streamed_response_wrapper(
-            google.handle_callback,
+        self.callback = to_streamed_response_wrapper(
+            google.callback,
         )
 
 
@@ -175,6 +173,6 @@ class AsyncGoogleResourceWithStreamingResponse:
     def __init__(self, google: AsyncGoogleResource) -> None:
         self._google = google
 
-        self.handle_callback = async_to_streamed_response_wrapper(
-            google.handle_callback,
+        self.callback = async_to_streamed_response_wrapper(
+            google.callback,
         )

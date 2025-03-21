@@ -7,6 +7,14 @@ from datetime import datetime
 
 import httpx
 
+from .name import (
+    NameResource,
+    AsyncNameResource,
+    NameResourceWithRawResponse,
+    AsyncNameResourceWithRawResponse,
+    NameResourceWithStreamingResponse,
+    AsyncNameResourceWithStreamingResponse,
+)
 from .spans import (
     SpansResource,
     AsyncSpansResource,
@@ -49,6 +57,10 @@ __all__ = ["GenerationsResource", "AsyncGenerationsResource"]
 
 class GenerationsResource(SyncAPIResource):
     @cached_property
+    def name(self) -> NameResource:
+        return NameResource(self._client)
+
+    @cached_property
     def metadata(self) -> MetadataResource:
         return MetadataResource(self._client)
 
@@ -62,7 +74,7 @@ class GenerationsResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return GenerationsResourceWithRawResponse(self)
 
@@ -71,7 +83,7 @@ class GenerationsResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return GenerationsResourceWithStreamingResponse(self)
 
@@ -375,6 +387,10 @@ class GenerationsResource(SyncAPIResource):
 
 class AsyncGenerationsResource(AsyncAPIResource):
     @cached_property
+    def name(self) -> AsyncNameResource:
+        return AsyncNameResource(self._client)
+
+    @cached_property
     def metadata(self) -> AsyncMetadataResource:
         return AsyncMetadataResource(self._client)
 
@@ -388,7 +404,7 @@ class AsyncGenerationsResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
         return AsyncGenerationsResourceWithRawResponse(self)
 
@@ -397,7 +413,7 @@ class AsyncGenerationsResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
+        For more information, see https://www.github.com/stainless-sdks/lilypad-sdk-python#with_streaming_response
         """
         return AsyncGenerationsResourceWithStreamingResponse(self)
 
@@ -728,6 +744,10 @@ class GenerationsResourceWithRawResponse:
         )
 
     @cached_property
+    def name(self) -> NameResourceWithRawResponse:
+        return NameResourceWithRawResponse(self._generations.name)
+
+    @cached_property
     def metadata(self) -> MetadataResourceWithRawResponse:
         return MetadataResourceWithRawResponse(self._generations.metadata)
 
@@ -761,6 +781,10 @@ class AsyncGenerationsResourceWithRawResponse:
         self.retrieve_by_hash = async_to_raw_response_wrapper(
             generations.retrieve_by_hash,
         )
+
+    @cached_property
+    def name(self) -> AsyncNameResourceWithRawResponse:
+        return AsyncNameResourceWithRawResponse(self._generations.name)
 
     @cached_property
     def metadata(self) -> AsyncMetadataResourceWithRawResponse:
@@ -798,6 +822,10 @@ class GenerationsResourceWithStreamingResponse:
         )
 
     @cached_property
+    def name(self) -> NameResourceWithStreamingResponse:
+        return NameResourceWithStreamingResponse(self._generations.name)
+
+    @cached_property
     def metadata(self) -> MetadataResourceWithStreamingResponse:
         return MetadataResourceWithStreamingResponse(self._generations.metadata)
 
@@ -831,6 +859,10 @@ class AsyncGenerationsResourceWithStreamingResponse:
         self.retrieve_by_hash = async_to_streamed_response_wrapper(
             generations.retrieve_by_hash,
         )
+
+    @cached_property
+    def name(self) -> AsyncNameResourceWithStreamingResponse:
+        return AsyncNameResourceWithStreamingResponse(self._generations.name)
 
     @cached_property
     def metadata(self) -> AsyncMetadataResourceWithStreamingResponse:

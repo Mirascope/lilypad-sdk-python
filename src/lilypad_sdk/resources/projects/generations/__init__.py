@@ -1,5 +1,13 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from .name import (
+    NameResource,
+    AsyncNameResource,
+    NameResourceWithRawResponse,
+    AsyncNameResourceWithRawResponse,
+    NameResourceWithStreamingResponse,
+    AsyncNameResourceWithStreamingResponse,
+)
 from .spans import (
     SpansResource,
     AsyncSpansResource,
@@ -26,6 +34,12 @@ from .generations import (
 )
 
 __all__ = [
+    "NameResource",
+    "AsyncNameResource",
+    "NameResourceWithRawResponse",
+    "AsyncNameResourceWithRawResponse",
+    "NameResourceWithStreamingResponse",
+    "AsyncNameResourceWithStreamingResponse",
     "MetadataResource",
     "AsyncMetadataResource",
     "MetadataResourceWithRawResponse",
