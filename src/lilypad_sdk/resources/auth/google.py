@@ -17,7 +17,7 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...types.auth import google_callback_params
+from ...types.auth import google_handle_callback_params
 from ..._base_client import make_request_options
 from ...types.auth.user_public import UserPublic
 
@@ -44,7 +44,7 @@ class GoogleResource(SyncAPIResource):
         """
         return GoogleResourceWithStreamingResponse(self)
 
-    def callback(
+    def handle_callback(
         self,
         *,
         code: str,
@@ -77,7 +77,7 @@ class GoogleResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform({"code": code}, google_callback_params.GoogleCallbackParams),
+                query=maybe_transform({"code": code}, google_handle_callback_params.GoogleHandleCallbackParams),
             ),
             cast_to=UserPublic,
         )
@@ -103,7 +103,7 @@ class AsyncGoogleResource(AsyncAPIResource):
         """
         return AsyncGoogleResourceWithStreamingResponse(self)
 
-    async def callback(
+    async def handle_callback(
         self,
         *,
         code: str,
@@ -136,7 +136,9 @@ class AsyncGoogleResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=await async_maybe_transform({"code": code}, google_callback_params.GoogleCallbackParams),
+                query=await async_maybe_transform(
+                    {"code": code}, google_handle_callback_params.GoogleHandleCallbackParams
+                ),
             ),
             cast_to=UserPublic,
         )
@@ -146,8 +148,8 @@ class GoogleResourceWithRawResponse:
     def __init__(self, google: GoogleResource) -> None:
         self._google = google
 
-        self.callback = to_raw_response_wrapper(
-            google.callback,
+        self.handle_callback = to_raw_response_wrapper(
+            google.handle_callback,
         )
 
 
@@ -155,8 +157,8 @@ class AsyncGoogleResourceWithRawResponse:
     def __init__(self, google: AsyncGoogleResource) -> None:
         self._google = google
 
-        self.callback = async_to_raw_response_wrapper(
-            google.callback,
+        self.handle_callback = async_to_raw_response_wrapper(
+            google.handle_callback,
         )
 
 
@@ -164,8 +166,8 @@ class GoogleResourceWithStreamingResponse:
     def __init__(self, google: GoogleResource) -> None:
         self._google = google
 
-        self.callback = to_streamed_response_wrapper(
-            google.callback,
+        self.handle_callback = to_streamed_response_wrapper(
+            google.handle_callback,
         )
 
 
@@ -173,6 +175,6 @@ class AsyncGoogleResourceWithStreamingResponse:
     def __init__(self, google: AsyncGoogleResource) -> None:
         self._google = google
 
-        self.callback = async_to_streamed_response_wrapper(
-            google.callback,
+        self.handle_callback = async_to_streamed_response_wrapper(
+            google.handle_callback,
         )

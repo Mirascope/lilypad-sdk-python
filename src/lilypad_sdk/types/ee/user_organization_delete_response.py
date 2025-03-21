@@ -2,6 +2,6 @@
 
 from typing_extensions import TypeAlias
 
-__all__ = ["UserOrganizationDeleteUserOrganizationResponse"]
+__all__ = ["UserOrganizationDeleteResponse"]
 
-UserOrganizationDeleteUserOrganizationResponse: TypeAlias = bool
+UserOrganizationDeleteResponse: TypeAlias = bool

@@ -11,7 +11,7 @@ from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
 from lilypad_sdk.types.projects.generations import (
     SpanListResponse,
-    SpanGetAggregatesResponse,
+    SpanListAggregatesResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -74,18 +74,18 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get_aggregates(self, client: LilypadSDK) -> None:
-        span = client.projects.generations.spans.get_aggregates(
+    def test_method_list_aggregates(self, client: LilypadSDK) -> None:
+        span = client.projects.generations.spans.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
         )
-        assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+        assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get_aggregates(self, client: LilypadSDK) -> None:
-        response = client.projects.generations.spans.with_raw_response.get_aggregates(
+    def test_raw_response_list_aggregates(self, client: LilypadSDK) -> None:
+        response = client.projects.generations.spans.with_raw_response.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
@@ -94,12 +94,12 @@ class TestSpans:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         span = response.parse()
-        assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+        assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get_aggregates(self, client: LilypadSDK) -> None:
-        with client.projects.generations.spans.with_streaming_response.get_aggregates(
+    def test_streaming_response_list_aggregates(self, client: LilypadSDK) -> None:
+        with client.projects.generations.spans.with_streaming_response.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
@@ -108,22 +108,22 @@ class TestSpans:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             span = response.parse()
-            assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+            assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_get_aggregates(self, client: LilypadSDK) -> None:
+    def test_path_params_list_aggregates(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.generations.spans.with_raw_response.get_aggregates(
+            client.projects.generations.spans.with_raw_response.list_aggregates(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 time_frame="day",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
-            client.projects.generations.spans.with_raw_response.get_aggregates(
+            client.projects.generations.spans.with_raw_response.list_aggregates(
                 generation_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 time_frame="day",
@@ -187,18 +187,18 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
-        span = await async_client.projects.generations.spans.get_aggregates(
+    async def test_method_list_aggregates(self, async_client: AsyncLilypadSDK) -> None:
+        span = await async_client.projects.generations.spans.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
         )
-        assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+        assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.projects.generations.spans.with_raw_response.get_aggregates(
+    async def test_raw_response_list_aggregates(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.projects.generations.spans.with_raw_response.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
@@ -207,12 +207,12 @@ class TestAsyncSpans:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         span = await response.parse()
-        assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+        assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.projects.generations.spans.with_streaming_response.get_aggregates(
+    async def test_streaming_response_list_aggregates(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.projects.generations.spans.with_streaming_response.list_aggregates(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             time_frame="day",
@@ -221,22 +221,22 @@ class TestAsyncSpans:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             span = await response.parse()
-            assert_matches_type(SpanGetAggregatesResponse, span, path=["response"])
+            assert_matches_type(SpanListAggregatesResponse, span, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_get_aggregates(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_list_aggregates(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.generations.spans.with_raw_response.get_aggregates(
+            await async_client.projects.generations.spans.with_raw_response.list_aggregates(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 time_frame="day",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `generation_uuid` but received ''"):
-            await async_client.projects.generations.spans.with_raw_response.get_aggregates(
+            await async_client.projects.generations.spans.with_raw_response.list_aggregates(
                 generation_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 time_frame="day",

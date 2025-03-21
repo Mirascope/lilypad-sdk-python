@@ -19,16 +19,16 @@ class TestGoogle:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_callback(self, client: LilypadSDK) -> None:
-        google = client.auth.google.callback(
+    def test_method_handle_callback(self, client: LilypadSDK) -> None:
+        google = client.auth.google.handle_callback(
             code="code",
         )
         assert_matches_type(UserPublic, google, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_callback(self, client: LilypadSDK) -> None:
-        response = client.auth.google.with_raw_response.callback(
+    def test_raw_response_handle_callback(self, client: LilypadSDK) -> None:
+        response = client.auth.google.with_raw_response.handle_callback(
             code="code",
         )
 
@@ -39,8 +39,8 @@ class TestGoogle:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_callback(self, client: LilypadSDK) -> None:
-        with client.auth.google.with_streaming_response.callback(
+    def test_streaming_response_handle_callback(self, client: LilypadSDK) -> None:
+        with client.auth.google.with_streaming_response.handle_callback(
             code="code",
         ) as response:
             assert not response.is_closed
@@ -57,16 +57,16 @@ class TestAsyncGoogle:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_callback(self, async_client: AsyncLilypadSDK) -> None:
-        google = await async_client.auth.google.callback(
+    async def test_method_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+        google = await async_client.auth.google.handle_callback(
             code="code",
         )
         assert_matches_type(UserPublic, google, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_callback(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.auth.google.with_raw_response.callback(
+    async def test_raw_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.auth.google.with_raw_response.handle_callback(
             code="code",
         )
 
@@ -77,8 +77,8 @@ class TestAsyncGoogle:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_callback(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.auth.google.with_streaming_response.callback(
+    async def test_streaming_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.auth.google.with_streaming_response.handle_callback(
             code="code",
         ) as response:
             assert not response.is_closed

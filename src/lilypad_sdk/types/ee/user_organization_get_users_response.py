@@ -5,6 +5,6 @@ from typing_extensions import TypeAlias
 
 from ..auth.user_public import UserPublic
 
-__all__ = ["UserOrganizationGetUsersByOrganizationResponse"]
+__all__ = ["UserOrganizationGetUsersResponse"]
 
-UserOrganizationGetUsersByOrganizationResponse: TypeAlias = List[UserPublic]
+UserOrganizationGetUsersResponse: TypeAlias = List[UserPublic]

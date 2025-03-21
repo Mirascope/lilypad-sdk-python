@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Optional
 from typing_extensions import Required, TypedDict
 
-__all__ = ["EnvironmentDeployGenerationParams"]
+__all__ = ["EnvironmentDeployParams"]
 
 
-class EnvironmentDeployGenerationParams(TypedDict, total=False):
+class EnvironmentDeployParams(TypedDict, total=False):
     project_uuid: Required[str]
 
     generation_uuid: Required[str]

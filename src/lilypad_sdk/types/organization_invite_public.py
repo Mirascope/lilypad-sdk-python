@@ -3,8 +3,8 @@
 from typing import Optional
 from datetime import datetime
 
-from ..._models import BaseModel
-from ..auth.user_public import UserPublic
+from .._models import BaseModel
+from .auth.user_public import UserPublic
 
 __all__ = ["OrganizationInvitePublic"]
 

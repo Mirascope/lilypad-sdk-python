@@ -80,6 +80,14 @@ from .external_api_keys import (
     ExternalAPIKeysResourceWithStreamingResponse,
     AsyncExternalAPIKeysResourceWithStreamingResponse,
 )
+from .organizations_invites import (
+    OrganizationsInvitesResource,
+    AsyncOrganizationsInvitesResource,
+    OrganizationsInvitesResourceWithRawResponse,
+    AsyncOrganizationsInvitesResourceWithRawResponse,
+    OrganizationsInvitesResourceWithStreamingResponse,
+    AsyncOrganizationsInvitesResourceWithStreamingResponse,
+)
 
 __all__ = [
     "EeResource",
@@ -100,6 +108,12 @@ __all__ = [
     "AsyncProjectsResourceWithRawResponse",
     "ProjectsResourceWithStreamingResponse",
     "AsyncProjectsResourceWithStreamingResponse",
+    "OrganizationsInvitesResource",
+    "AsyncOrganizationsInvitesResource",
+    "OrganizationsInvitesResourceWithRawResponse",
+    "AsyncOrganizationsInvitesResourceWithRawResponse",
+    "OrganizationsInvitesResourceWithStreamingResponse",
+    "AsyncOrganizationsInvitesResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
