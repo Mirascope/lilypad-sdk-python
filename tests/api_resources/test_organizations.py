@@ -9,7 +9,7 @@ import pytest
 
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
-from lilypad_sdk.types import Organization
+from lilypad_sdk.types import OrganizationPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -21,7 +21,7 @@ class TestOrganizations:
     @parametrize
     def test_method_update(self, client: LilypadSDK) -> None:
         organization = client.organizations.update()
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -30,7 +30,7 @@ class TestOrganizations:
             license="license",
             name="name",
         )
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -40,7 +40,7 @@ class TestOrganizations:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organization = response.parse()
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -50,7 +50,7 @@ class TestOrganizations:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organization = response.parse()
-            assert_matches_type(Organization, organization, path=["response"])
+            assert_matches_type(OrganizationPublic, organization, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -62,7 +62,7 @@ class TestAsyncOrganizations:
     @parametrize
     async def test_method_update(self, async_client: AsyncLilypadSDK) -> None:
         organization = await async_client.organizations.update()
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -71,7 +71,7 @@ class TestAsyncOrganizations:
             license="license",
             name="name",
         )
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -81,7 +81,7 @@ class TestAsyncOrganizations:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organization = await response.parse()
-        assert_matches_type(Organization, organization, path=["response"])
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -91,6 +91,6 @@ class TestAsyncOrganizations:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organization = await response.parse()
-            assert_matches_type(Organization, organization, path=["response"])
+            assert_matches_type(OrganizationPublic, organization, path=["response"])
 
         assert cast(Any, response.is_closed) is True

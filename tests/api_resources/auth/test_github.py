@@ -19,16 +19,16 @@ class TestGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_handle_callback(self, client: LilypadSDK) -> None:
-        github = client.auth.github.handle_callback(
+    def test_method_callback(self, client: LilypadSDK) -> None:
+        github = client.auth.github.callback(
             code="code",
         )
         assert_matches_type(UserPublic, github, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_handle_callback(self, client: LilypadSDK) -> None:
-        response = client.auth.github.with_raw_response.handle_callback(
+    def test_raw_response_callback(self, client: LilypadSDK) -> None:
+        response = client.auth.github.with_raw_response.callback(
             code="code",
         )
 
@@ -39,8 +39,8 @@ class TestGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_handle_callback(self, client: LilypadSDK) -> None:
-        with client.auth.github.with_streaming_response.handle_callback(
+    def test_streaming_response_callback(self, client: LilypadSDK) -> None:
+        with client.auth.github.with_streaming_response.callback(
             code="code",
         ) as response:
             assert not response.is_closed
@@ -57,16 +57,16 @@ class TestAsyncGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
-        github = await async_client.auth.github.handle_callback(
+    async def test_method_callback(self, async_client: AsyncLilypadSDK) -> None:
+        github = await async_client.auth.github.callback(
             code="code",
         )
         assert_matches_type(UserPublic, github, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.auth.github.with_raw_response.handle_callback(
+    async def test_raw_response_callback(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.auth.github.with_raw_response.callback(
             code="code",
         )
 
@@ -77,8 +77,8 @@ class TestAsyncGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.auth.github.with_streaming_response.handle_callback(
+    async def test_streaming_response_callback(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.auth.github.with_streaming_response.callback(
             code="code",
         ) as response:
             assert not response.is_closed
