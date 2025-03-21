@@ -6,9 +6,9 @@ from typing_extensions import Required, TypedDict
 
 from .user_role import UserRole
 
-__all__ = ["UserOrganizationUpdateUserOrganizationParams"]
+__all__ = ["UserOrganizationUpdateParams"]
 
 
-class UserOrganizationUpdateUserOrganizationParams(TypedDict, total=False):
+class UserOrganizationUpdateParams(TypedDict, total=False):
     role: Required[UserRole]
     """User role enum."""

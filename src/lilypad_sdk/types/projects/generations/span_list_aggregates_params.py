@@ -6,10 +6,10 @@ from typing_extensions import Required, TypedDict
 
 from .time_frame import TimeFrame
 
-__all__ = ["SpanGetAggregatesParams"]
+__all__ = ["SpanListAggregatesParams"]
 
 
-class SpanGetAggregatesParams(TypedDict, total=False):
+class SpanListAggregatesParams(TypedDict, total=False):
     project_uuid: Required[str]
 
     time_frame: Required[TimeFrame]

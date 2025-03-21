@@ -6,9 +6,9 @@ from typing_extensions import Required, TypedDict
 
 from .generations.time_frame import TimeFrame
 
-__all__ = ["SpanGetAggregatesParams"]
+__all__ = ["SpanListAggregatesParams"]
 
 
-class SpanGetAggregatesParams(TypedDict, total=False):
+class SpanListAggregatesParams(TypedDict, total=False):
     time_frame: Required[TimeFrame]
     """Timeframe for aggregation"""

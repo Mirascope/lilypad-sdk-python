@@ -20,7 +20,7 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.ee.projects import environment_create_params, environment_deploy_generation_params
+from ....types.ee.projects import environment_create_params, environment_deploy_params
 from ....types.ee.projects.deployment_public import DeploymentPublic
 from ....types.ee.projects.generation_public import GenerationPublic
 from ....types.ee.projects.environment_public import EnvironmentPublic
@@ -202,7 +202,7 @@ class EnvironmentsResource(SyncAPIResource):
             cast_to=EnvironmentDeleteResponse,
         )
 
-    def deploy_generation(
+    def deploy(
         self,
         environment_uuid: str,
         *,
@@ -244,7 +244,7 @@ class EnvironmentsResource(SyncAPIResource):
                         "generation_uuid": generation_uuid,
                         "notes": notes,
                     },
-                    environment_deploy_generation_params.EnvironmentDeployGenerationParams,
+                    environment_deploy_params.EnvironmentDeployParams,
                 ),
             ),
             cast_to=DeploymentPublic,
@@ -322,7 +322,7 @@ class EnvironmentsResource(SyncAPIResource):
             cast_to=EnvironmentGetDeploymentHistoryResponse,
         )
 
-    def get_environment_generation(
+    def get_generation(
         self,
         environment_uuid: str,
         *,
@@ -530,7 +530,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
             cast_to=EnvironmentDeleteResponse,
         )
 
-    async def deploy_generation(
+    async def deploy(
         self,
         environment_uuid: str,
         *,
@@ -572,7 +572,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
                         "generation_uuid": generation_uuid,
                         "notes": notes,
                     },
-                    environment_deploy_generation_params.EnvironmentDeployGenerationParams,
+                    environment_deploy_params.EnvironmentDeployParams,
                 ),
             ),
             cast_to=DeploymentPublic,
@@ -650,7 +650,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
             cast_to=EnvironmentGetDeploymentHistoryResponse,
         )
 
-    async def get_environment_generation(
+    async def get_generation(
         self,
         environment_uuid: str,
         *,
@@ -703,8 +703,8 @@ class EnvironmentsResourceWithRawResponse:
         self.delete = to_raw_response_wrapper(
             environments.delete,
         )
-        self.deploy_generation = to_raw_response_wrapper(
-            environments.deploy_generation,
+        self.deploy = to_raw_response_wrapper(
+            environments.deploy,
         )
         self.get_active_deployment = to_raw_response_wrapper(
             environments.get_active_deployment,
@@ -712,8 +712,8 @@ class EnvironmentsResourceWithRawResponse:
         self.get_deployment_history = to_raw_response_wrapper(
             environments.get_deployment_history,
         )
-        self.get_environment_generation = to_raw_response_wrapper(
-            environments.get_environment_generation,
+        self.get_generation = to_raw_response_wrapper(
+            environments.get_generation,
         )
 
 
@@ -733,8 +733,8 @@ class AsyncEnvironmentsResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             environments.delete,
         )
-        self.deploy_generation = async_to_raw_response_wrapper(
-            environments.deploy_generation,
+        self.deploy = async_to_raw_response_wrapper(
+            environments.deploy,
         )
         self.get_active_deployment = async_to_raw_response_wrapper(
             environments.get_active_deployment,
@@ -742,8 +742,8 @@ class AsyncEnvironmentsResourceWithRawResponse:
         self.get_deployment_history = async_to_raw_response_wrapper(
             environments.get_deployment_history,
         )
-        self.get_environment_generation = async_to_raw_response_wrapper(
-            environments.get_environment_generation,
+        self.get_generation = async_to_raw_response_wrapper(
+            environments.get_generation,
         )
 
 
@@ -763,8 +763,8 @@ class EnvironmentsResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             environments.delete,
         )
-        self.deploy_generation = to_streamed_response_wrapper(
-            environments.deploy_generation,
+        self.deploy = to_streamed_response_wrapper(
+            environments.deploy,
         )
         self.get_active_deployment = to_streamed_response_wrapper(
             environments.get_active_deployment,
@@ -772,8 +772,8 @@ class EnvironmentsResourceWithStreamingResponse:
         self.get_deployment_history = to_streamed_response_wrapper(
             environments.get_deployment_history,
         )
-        self.get_environment_generation = to_streamed_response_wrapper(
-            environments.get_environment_generation,
+        self.get_generation = to_streamed_response_wrapper(
+            environments.get_generation,
         )
 
 
@@ -793,8 +793,8 @@ class AsyncEnvironmentsResourceWithStreamingResponse:
         self.delete = async_to_streamed_response_wrapper(
             environments.delete,
         )
-        self.deploy_generation = async_to_streamed_response_wrapper(
-            environments.deploy_generation,
+        self.deploy = async_to_streamed_response_wrapper(
+            environments.deploy,
         )
         self.get_active_deployment = async_to_streamed_response_wrapper(
             environments.get_active_deployment,
@@ -802,6 +802,6 @@ class AsyncEnvironmentsResourceWithStreamingResponse:
         self.get_deployment_history = async_to_streamed_response_wrapper(
             environments.get_deployment_history,
         )
-        self.get_environment_generation = async_to_streamed_response_wrapper(
-            environments.get_environment_generation,
+        self.get_generation = async_to_streamed_response_wrapper(
+            environments.get_generation,
         )

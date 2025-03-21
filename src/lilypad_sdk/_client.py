@@ -24,7 +24,16 @@ from ._utils import (
     get_async_library,
 )
 from ._version import __version__
-from .resources import spans, users, api_keys, settings, current_user, organizations, external_api_keys
+from .resources import (
+    spans,
+    users,
+    api_keys,
+    settings,
+    current_user,
+    organizations,
+    external_api_keys,
+    organizations_invites,
+)
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import APIStatusError, LilypadSDKError
 from ._base_client import (
@@ -52,6 +61,7 @@ class LilypadSDK(SyncAPIClient):
     ee: ee.EeResource
     api_keys: api_keys.APIKeysResource
     projects: projects.ProjectsResource
+    organizations_invites: organizations_invites.OrganizationsInvitesResource
     spans: spans.SpansResource
     auth: auth.AuthResource
     users: users.UsersResource
@@ -119,6 +129,7 @@ class LilypadSDK(SyncAPIClient):
         self.ee = ee.EeResource(self)
         self.api_keys = api_keys.APIKeysResource(self)
         self.projects = projects.ProjectsResource(self)
+        self.organizations_invites = organizations_invites.OrganizationsInvitesResource(self)
         self.spans = spans.SpansResource(self)
         self.auth = auth.AuthResource(self)
         self.users = users.UsersResource(self)
@@ -238,6 +249,7 @@ class AsyncLilypadSDK(AsyncAPIClient):
     ee: ee.AsyncEeResource
     api_keys: api_keys.AsyncAPIKeysResource
     projects: projects.AsyncProjectsResource
+    organizations_invites: organizations_invites.AsyncOrganizationsInvitesResource
     spans: spans.AsyncSpansResource
     auth: auth.AsyncAuthResource
     users: users.AsyncUsersResource
@@ -305,6 +317,7 @@ class AsyncLilypadSDK(AsyncAPIClient):
         self.ee = ee.AsyncEeResource(self)
         self.api_keys = api_keys.AsyncAPIKeysResource(self)
         self.projects = projects.AsyncProjectsResource(self)
+        self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResource(self)
         self.spans = spans.AsyncSpansResource(self)
         self.auth = auth.AsyncAuthResource(self)
         self.users = users.AsyncUsersResource(self)
@@ -425,6 +438,9 @@ class LilypadSDKWithRawResponse:
         self.ee = ee.EeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithRawResponse(client.api_keys)
         self.projects = projects.ProjectsResourceWithRawResponse(client.projects)
+        self.organizations_invites = organizations_invites.OrganizationsInvitesResourceWithRawResponse(
+            client.organizations_invites
+        )
         self.spans = spans.SpansResourceWithRawResponse(client.spans)
         self.auth = auth.AuthResourceWithRawResponse(client.auth)
         self.users = users.UsersResourceWithRawResponse(client.users)
@@ -439,6 +455,9 @@ class AsyncLilypadSDKWithRawResponse:
         self.ee = ee.AsyncEeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithRawResponse(client.api_keys)
         self.projects = projects.AsyncProjectsResourceWithRawResponse(client.projects)
+        self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResourceWithRawResponse(
+            client.organizations_invites
+        )
         self.spans = spans.AsyncSpansResourceWithRawResponse(client.spans)
         self.auth = auth.AsyncAuthResourceWithRawResponse(client.auth)
         self.users = users.AsyncUsersResourceWithRawResponse(client.users)
@@ -453,6 +472,9 @@ class LilypadSDKWithStreamedResponse:
         self.ee = ee.EeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithStreamingResponse(client.api_keys)
         self.projects = projects.ProjectsResourceWithStreamingResponse(client.projects)
+        self.organizations_invites = organizations_invites.OrganizationsInvitesResourceWithStreamingResponse(
+            client.organizations_invites
+        )
         self.spans = spans.SpansResourceWithStreamingResponse(client.spans)
         self.auth = auth.AuthResourceWithStreamingResponse(client.auth)
         self.users = users.UsersResourceWithStreamingResponse(client.users)
@@ -469,6 +491,9 @@ class AsyncLilypadSDKWithStreamedResponse:
         self.ee = ee.AsyncEeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithStreamingResponse(client.api_keys)
         self.projects = projects.AsyncProjectsResourceWithStreamingResponse(client.projects)
+        self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResourceWithStreamingResponse(
+            client.organizations_invites
+        )
         self.spans = spans.AsyncSpansResourceWithStreamingResponse(client.spans)
         self.auth = auth.AsyncAuthResourceWithStreamingResponse(client.auth)
         self.users = users.AsyncUsersResourceWithStreamingResponse(client.users)

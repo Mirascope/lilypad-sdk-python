@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-__all__ = ["UserOrganizationCreateUserOrganizationParams"]
+__all__ = ["GitHubHandleCallbackParams"]
 
 
-class UserOrganizationCreateUserOrganizationParams(TypedDict, total=False):
-    token: Required[str]
+class GitHubHandleCallbackParams(TypedDict, total=False):
+    code: Required[str]

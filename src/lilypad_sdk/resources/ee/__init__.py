@@ -32,14 +32,6 @@ from .user_organizations import (
     UserOrganizationsResourceWithStreamingResponse,
     AsyncUserOrganizationsResourceWithStreamingResponse,
 )
-from .organizations_invites import (
-    OrganizationsInvitesResource,
-    AsyncOrganizationsInvitesResource,
-    OrganizationsInvitesResourceWithRawResponse,
-    AsyncOrganizationsInvitesResourceWithRawResponse,
-    OrganizationsInvitesResourceWithStreamingResponse,
-    AsyncOrganizationsInvitesResourceWithStreamingResponse,
-)
 
 __all__ = [
     "ProjectsResource",
@@ -54,12 +46,6 @@ __all__ = [
     "AsyncOrganizationsResourceWithRawResponse",
     "OrganizationsResourceWithStreamingResponse",
     "AsyncOrganizationsResourceWithStreamingResponse",
-    "OrganizationsInvitesResource",
-    "AsyncOrganizationsInvitesResource",
-    "OrganizationsInvitesResourceWithRawResponse",
-    "AsyncOrganizationsInvitesResourceWithRawResponse",
-    "OrganizationsInvitesResourceWithStreamingResponse",
-    "AsyncOrganizationsInvitesResourceWithStreamingResponse",
     "UserOrganizationsResource",
     "AsyncUserOrganizationsResource",
     "UserOrganizationsResourceWithRawResponse",

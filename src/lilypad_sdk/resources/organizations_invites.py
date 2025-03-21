@@ -7,22 +7,22 @@ from datetime import datetime
 
 import httpx
 
-from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
-from ..._utils import (
+from ..types import organizations_invite_create_params
+from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._utils import (
     maybe_transform,
     async_maybe_transform,
 )
-from ..._compat import cached_property
-from ...types.ee import organizations_invite_create_organization_invite_params
-from ..._resource import SyncAPIResource, AsyncAPIResource
-from ..._response import (
+from .._compat import cached_property
+from .._resource import SyncAPIResource, AsyncAPIResource
+from .._response import (
     to_raw_response_wrapper,
     to_streamed_response_wrapper,
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ..._base_client import make_request_options
-from ...types.ee.organization_invite_public import OrganizationInvitePublic
+from .._base_client import make_request_options
+from ..types.organization_invite_public import OrganizationInvitePublic
 
 __all__ = ["OrganizationsInvitesResource", "AsyncOrganizationsInvitesResource"]
 
@@ -47,7 +47,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
         """
         return OrganizationsInvitesResourceWithStreamingResponse(self)
 
-    def create_organization_invite(
+    def create(
         self,
         *,
         email: str,
@@ -76,7 +76,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/ee/organizations-invites",
+            "/organizations-invites",
             body=maybe_transform(
                 {
                     "email": email,
@@ -86,7 +86,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
                     "organization_uuid": organization_uuid,
                     "resend_email_id": resend_email_id,
                 },
-                organizations_invite_create_organization_invite_params.OrganizationsInviteCreateOrganizationInviteParams,
+                organizations_invite_create_params.OrganizationsInviteCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
@@ -94,7 +94,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
             cast_to=OrganizationInvitePublic,
         )
 
-    def get_organization_invite(
+    def retrieve(
         self,
         invite_token: str,
         *,
@@ -120,7 +120,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
         if not invite_token:
             raise ValueError(f"Expected a non-empty value for `invite_token` but received {invite_token!r}")
         return self._get(
-            f"/ee/organizations-invites/{invite_token}",
+            f"/organizations-invites/{invite_token}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -148,7 +148,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
         """
         return AsyncOrganizationsInvitesResourceWithStreamingResponse(self)
 
-    async def create_organization_invite(
+    async def create(
         self,
         *,
         email: str,
@@ -177,7 +177,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/ee/organizations-invites",
+            "/organizations-invites",
             body=await async_maybe_transform(
                 {
                     "email": email,
@@ -187,7 +187,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
                     "organization_uuid": organization_uuid,
                     "resend_email_id": resend_email_id,
                 },
-                organizations_invite_create_organization_invite_params.OrganizationsInviteCreateOrganizationInviteParams,
+                organizations_invite_create_params.OrganizationsInviteCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
@@ -195,7 +195,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
             cast_to=OrganizationInvitePublic,
         )
 
-    async def get_organization_invite(
+    async def retrieve(
         self,
         invite_token: str,
         *,
@@ -221,7 +221,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
         if not invite_token:
             raise ValueError(f"Expected a non-empty value for `invite_token` but received {invite_token!r}")
         return await self._get(
-            f"/ee/organizations-invites/{invite_token}",
+            f"/organizations-invites/{invite_token}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -233,11 +233,11 @@ class OrganizationsInvitesResourceWithRawResponse:
     def __init__(self, organizations_invites: OrganizationsInvitesResource) -> None:
         self._organizations_invites = organizations_invites
 
-        self.create_organization_invite = to_raw_response_wrapper(
-            organizations_invites.create_organization_invite,
+        self.create = to_raw_response_wrapper(
+            organizations_invites.create,
         )
-        self.get_organization_invite = to_raw_response_wrapper(
-            organizations_invites.get_organization_invite,
+        self.retrieve = to_raw_response_wrapper(
+            organizations_invites.retrieve,
         )
 
 
@@ -245,11 +245,11 @@ class AsyncOrganizationsInvitesResourceWithRawResponse:
     def __init__(self, organizations_invites: AsyncOrganizationsInvitesResource) -> None:
         self._organizations_invites = organizations_invites
 
-        self.create_organization_invite = async_to_raw_response_wrapper(
-            organizations_invites.create_organization_invite,
+        self.create = async_to_raw_response_wrapper(
+            organizations_invites.create,
         )
-        self.get_organization_invite = async_to_raw_response_wrapper(
-            organizations_invites.get_organization_invite,
+        self.retrieve = async_to_raw_response_wrapper(
+            organizations_invites.retrieve,
         )
 
 
@@ -257,11 +257,11 @@ class OrganizationsInvitesResourceWithStreamingResponse:
     def __init__(self, organizations_invites: OrganizationsInvitesResource) -> None:
         self._organizations_invites = organizations_invites
 
-        self.create_organization_invite = to_streamed_response_wrapper(
-            organizations_invites.create_organization_invite,
+        self.create = to_streamed_response_wrapper(
+            organizations_invites.create,
         )
-        self.get_organization_invite = to_streamed_response_wrapper(
-            organizations_invites.get_organization_invite,
+        self.retrieve = to_streamed_response_wrapper(
+            organizations_invites.retrieve,
         )
 
 
@@ -269,9 +269,9 @@ class AsyncOrganizationsInvitesResourceWithStreamingResponse:
     def __init__(self, organizations_invites: AsyncOrganizationsInvitesResource) -> None:
         self._organizations_invites = organizations_invites
 
-        self.create_organization_invite = async_to_streamed_response_wrapper(
-            organizations_invites.create_organization_invite,
+        self.create = async_to_streamed_response_wrapper(
+            organizations_invites.create,
         )
-        self.get_organization_invite = async_to_streamed_response_wrapper(
-            organizations_invites.get_organization_invite,
+        self.retrieve = async_to_streamed_response_wrapper(
+            organizations_invites.retrieve,
         )
