@@ -9,8 +9,8 @@ import pytest
 
 from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
 from tests.utils import assert_matches_type
+from lilypad_sdk.types import OrganizationInvitePublic
 from lilypad_sdk._utils import parse_datetime
-from lilypad_sdk.types.ee import OrganizationInvitePublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -20,8 +20,8 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create_organization_invite(self, client: LilypadSDK) -> None:
-        organizations_invite = client.ee.organizations_invites.create_organization_invite(
+    def test_method_create(self, client: LilypadSDK) -> None:
+        organizations_invite = client.organizations_invites.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -29,8 +29,8 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create_organization_invite_with_all_params(self, client: LilypadSDK) -> None:
-        organizations_invite = client.ee.organizations_invites.create_organization_invite(
+    def test_method_create_with_all_params(self, client: LilypadSDK) -> None:
+        organizations_invite = client.organizations_invites.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             token="token",
@@ -42,8 +42,8 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_create_organization_invite(self, client: LilypadSDK) -> None:
-        response = client.ee.organizations_invites.with_raw_response.create_organization_invite(
+    def test_raw_response_create(self, client: LilypadSDK) -> None:
+        response = client.organizations_invites.with_raw_response.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -55,8 +55,8 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_create_organization_invite(self, client: LilypadSDK) -> None:
-        with client.ee.organizations_invites.with_streaming_response.create_organization_invite(
+    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+        with client.organizations_invites.with_streaming_response.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -70,16 +70,16 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get_organization_invite(self, client: LilypadSDK) -> None:
-        organizations_invite = client.ee.organizations_invites.get_organization_invite(
+    def test_method_retrieve(self, client: LilypadSDK) -> None:
+        organizations_invite = client.organizations_invites.retrieve(
             "invite_token",
         )
         assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get_organization_invite(self, client: LilypadSDK) -> None:
-        response = client.ee.organizations_invites.with_raw_response.get_organization_invite(
+    def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
+        response = client.organizations_invites.with_raw_response.retrieve(
             "invite_token",
         )
 
@@ -90,8 +90,8 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get_organization_invite(self, client: LilypadSDK) -> None:
-        with client.ee.organizations_invites.with_streaming_response.get_organization_invite(
+    def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
+        with client.organizations_invites.with_streaming_response.retrieve(
             "invite_token",
         ) as response:
             assert not response.is_closed
@@ -104,9 +104,9 @@ class TestOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_get_organization_invite(self, client: LilypadSDK) -> None:
+    def test_path_params_retrieve(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `invite_token` but received ''"):
-            client.ee.organizations_invites.with_raw_response.get_organization_invite(
+            client.organizations_invites.with_raw_response.retrieve(
                 "",
             )
 
@@ -116,8 +116,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        organizations_invite = await async_client.ee.organizations_invites.create_organization_invite(
+    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+        organizations_invite = await async_client.organizations_invites.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -125,8 +125,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create_organization_invite_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
-        organizations_invite = await async_client.ee.organizations_invites.create_organization_invite(
+    async def test_method_create_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+        organizations_invite = await async_client.organizations_invites.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             token="token",
@@ -138,8 +138,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.ee.organizations_invites.with_raw_response.create_organization_invite(
+    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.organizations_invites.with_raw_response.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -151,8 +151,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.ee.organizations_invites.with_streaming_response.create_organization_invite(
+    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.organizations_invites.with_streaming_response.create(
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -166,16 +166,16 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        organizations_invite = await async_client.ee.organizations_invites.get_organization_invite(
+    async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        organizations_invite = await async_client.organizations_invites.retrieve(
             "invite_token",
         )
         assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.ee.organizations_invites.with_raw_response.get_organization_invite(
+    async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.organizations_invites.with_raw_response.retrieve(
             "invite_token",
         )
 
@@ -186,8 +186,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.ee.organizations_invites.with_streaming_response.get_organization_invite(
+    async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.organizations_invites.with_streaming_response.retrieve(
             "invite_token",
         ) as response:
             assert not response.is_closed
@@ -200,8 +200,8 @@ class TestAsyncOrganizationsInvites:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_get_organization_invite(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_retrieve(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `invite_token` but received ''"):
-            await async_client.ee.organizations_invites.with_raw_response.get_organization_invite(
+            await async_client.organizations_invites.with_raw_response.retrieve(
                 "",
             )

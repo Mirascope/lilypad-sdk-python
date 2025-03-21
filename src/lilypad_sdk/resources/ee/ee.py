@@ -28,14 +28,6 @@ from .user_organizations import (
     UserOrganizationsResourceWithStreamingResponse,
     AsyncUserOrganizationsResourceWithStreamingResponse,
 )
-from .organizations_invites import (
-    OrganizationsInvitesResource,
-    AsyncOrganizationsInvitesResource,
-    OrganizationsInvitesResourceWithRawResponse,
-    AsyncOrganizationsInvitesResourceWithRawResponse,
-    OrganizationsInvitesResourceWithStreamingResponse,
-    AsyncOrganizationsInvitesResourceWithStreamingResponse,
-)
 
 __all__ = ["EeResource", "AsyncEeResource"]
 
@@ -48,10 +40,6 @@ class EeResource(SyncAPIResource):
     @cached_property
     def organizations(self) -> OrganizationsResource:
         return OrganizationsResource(self._client)
-
-    @cached_property
-    def organizations_invites(self) -> OrganizationsInvitesResource:
-        return OrganizationsInvitesResource(self._client)
 
     @cached_property
     def user_organizations(self) -> UserOrganizationsResource:
@@ -85,10 +73,6 @@ class AsyncEeResource(AsyncAPIResource):
     @cached_property
     def organizations(self) -> AsyncOrganizationsResource:
         return AsyncOrganizationsResource(self._client)
-
-    @cached_property
-    def organizations_invites(self) -> AsyncOrganizationsInvitesResource:
-        return AsyncOrganizationsInvitesResource(self._client)
 
     @cached_property
     def user_organizations(self) -> AsyncUserOrganizationsResource:
@@ -127,10 +111,6 @@ class EeResourceWithRawResponse:
         return OrganizationsResourceWithRawResponse(self._ee.organizations)
 
     @cached_property
-    def organizations_invites(self) -> OrganizationsInvitesResourceWithRawResponse:
-        return OrganizationsInvitesResourceWithRawResponse(self._ee.organizations_invites)
-
-    @cached_property
     def user_organizations(self) -> UserOrganizationsResourceWithRawResponse:
         return UserOrganizationsResourceWithRawResponse(self._ee.user_organizations)
 
@@ -146,10 +126,6 @@ class AsyncEeResourceWithRawResponse:
     @cached_property
     def organizations(self) -> AsyncOrganizationsResourceWithRawResponse:
         return AsyncOrganizationsResourceWithRawResponse(self._ee.organizations)
-
-    @cached_property
-    def organizations_invites(self) -> AsyncOrganizationsInvitesResourceWithRawResponse:
-        return AsyncOrganizationsInvitesResourceWithRawResponse(self._ee.organizations_invites)
 
     @cached_property
     def user_organizations(self) -> AsyncUserOrganizationsResourceWithRawResponse:
@@ -169,10 +145,6 @@ class EeResourceWithStreamingResponse:
         return OrganizationsResourceWithStreamingResponse(self._ee.organizations)
 
     @cached_property
-    def organizations_invites(self) -> OrganizationsInvitesResourceWithStreamingResponse:
-        return OrganizationsInvitesResourceWithStreamingResponse(self._ee.organizations_invites)
-
-    @cached_property
     def user_organizations(self) -> UserOrganizationsResourceWithStreamingResponse:
         return UserOrganizationsResourceWithStreamingResponse(self._ee.user_organizations)
 
@@ -188,10 +160,6 @@ class AsyncEeResourceWithStreamingResponse:
     @cached_property
     def organizations(self) -> AsyncOrganizationsResourceWithStreamingResponse:
         return AsyncOrganizationsResourceWithStreamingResponse(self._ee.organizations)
-
-    @cached_property
-    def organizations_invites(self) -> AsyncOrganizationsInvitesResourceWithStreamingResponse:
-        return AsyncOrganizationsInvitesResourceWithStreamingResponse(self._ee.organizations_invites)
 
     @cached_property
     def user_organizations(self) -> AsyncUserOrganizationsResourceWithStreamingResponse:

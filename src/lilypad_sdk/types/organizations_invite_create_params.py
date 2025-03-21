@@ -6,12 +6,12 @@ from typing import Union, Optional
 from datetime import datetime
 from typing_extensions import Required, Annotated, TypedDict
 
-from ..._utils import PropertyInfo
+from .._utils import PropertyInfo
 
-__all__ = ["OrganizationsInviteCreateOrganizationInviteParams"]
+__all__ = ["OrganizationsInviteCreateParams"]
 
 
-class OrganizationsInviteCreateOrganizationInviteParams(TypedDict, total=False):
+class OrganizationsInviteCreateParams(TypedDict, total=False):
     email: Required[str]
 
     invited_by: Required[str]

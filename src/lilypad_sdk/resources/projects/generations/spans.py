@@ -18,10 +18,10 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.projects.generations import TimeFrame, span_get_aggregates_params
+from ....types.projects.generations import TimeFrame, span_list_aggregates_params
 from ....types.projects.generations.time_frame import TimeFrame
 from ....types.projects.generations.span_list_response import SpanListResponse
-from ....types.projects.generations.span_get_aggregates_response import SpanGetAggregatesResponse
+from ....types.projects.generations.span_list_aggregates_response import SpanListAggregatesResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
 
@@ -82,7 +82,7 @@ class SpansResource(SyncAPIResource):
             cast_to=SpanListResponse,
         )
 
-    def get_aggregates(
+    def list_aggregates(
         self,
         generation_uuid: str,
         *,
@@ -94,7 +94,7 @@ class SpansResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanGetAggregatesResponse:
+    ) -> SpanListAggregatesResponse:
         """
         Get aggregated span by generation uuid.
 
@@ -120,9 +120,9 @@ class SpansResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform({"time_frame": time_frame}, span_get_aggregates_params.SpanGetAggregatesParams),
+                query=maybe_transform({"time_frame": time_frame}, span_list_aggregates_params.SpanListAggregatesParams),
             ),
-            cast_to=SpanGetAggregatesResponse,
+            cast_to=SpanListAggregatesResponse,
         )
 
 
@@ -182,7 +182,7 @@ class AsyncSpansResource(AsyncAPIResource):
             cast_to=SpanListResponse,
         )
 
-    async def get_aggregates(
+    async def list_aggregates(
         self,
         generation_uuid: str,
         *,
@@ -194,7 +194,7 @@ class AsyncSpansResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanGetAggregatesResponse:
+    ) -> SpanListAggregatesResponse:
         """
         Get aggregated span by generation uuid.
 
@@ -221,10 +221,10 @@ class AsyncSpansResource(AsyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=await async_maybe_transform(
-                    {"time_frame": time_frame}, span_get_aggregates_params.SpanGetAggregatesParams
+                    {"time_frame": time_frame}, span_list_aggregates_params.SpanListAggregatesParams
                 ),
             ),
-            cast_to=SpanGetAggregatesResponse,
+            cast_to=SpanListAggregatesResponse,
         )
 
 
@@ -235,8 +235,8 @@ class SpansResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             spans.list,
         )
-        self.get_aggregates = to_raw_response_wrapper(
-            spans.get_aggregates,
+        self.list_aggregates = to_raw_response_wrapper(
+            spans.list_aggregates,
         )
 
 
@@ -247,8 +247,8 @@ class AsyncSpansResourceWithRawResponse:
         self.list = async_to_raw_response_wrapper(
             spans.list,
         )
-        self.get_aggregates = async_to_raw_response_wrapper(
-            spans.get_aggregates,
+        self.list_aggregates = async_to_raw_response_wrapper(
+            spans.list_aggregates,
         )
 
 
@@ -259,8 +259,8 @@ class SpansResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             spans.list,
         )
-        self.get_aggregates = to_streamed_response_wrapper(
-            spans.get_aggregates,
+        self.list_aggregates = to_streamed_response_wrapper(
+            spans.list_aggregates,
         )
 
 
@@ -271,6 +271,6 @@ class AsyncSpansResourceWithStreamingResponse:
         self.list = async_to_streamed_response_wrapper(
             spans.list,
         )
-        self.get_aggregates = async_to_streamed_response_wrapper(
-            spans.get_aggregates,
+        self.list_aggregates = async_to_streamed_response_wrapper(
+            spans.list_aggregates,
         )

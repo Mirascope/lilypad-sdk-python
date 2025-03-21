@@ -234,8 +234,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_deploy_generation(self, client: LilypadSDK) -> None:
-        environment = client.ee.projects.environments.deploy_generation(
+    def test_method_deploy(self, client: LilypadSDK) -> None:
+        environment = client.ee.projects.environments.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -244,8 +244,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_deploy_generation_with_all_params(self, client: LilypadSDK) -> None:
-        environment = client.ee.projects.environments.deploy_generation(
+    def test_method_deploy_with_all_params(self, client: LilypadSDK) -> None:
+        environment = client.ee.projects.environments.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -255,8 +255,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_deploy_generation(self, client: LilypadSDK) -> None:
-        response = client.ee.projects.environments.with_raw_response.deploy_generation(
+    def test_raw_response_deploy(self, client: LilypadSDK) -> None:
+        response = client.ee.projects.environments.with_raw_response.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -269,8 +269,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_deploy_generation(self, client: LilypadSDK) -> None:
-        with client.ee.projects.environments.with_streaming_response.deploy_generation(
+    def test_streaming_response_deploy(self, client: LilypadSDK) -> None:
+        with client.ee.projects.environments.with_streaming_response.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -285,16 +285,16 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_deploy_generation(self, client: LilypadSDK) -> None:
+    def test_path_params_deploy(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.ee.projects.environments.with_raw_response.deploy_generation(
+            client.ee.projects.environments.with_raw_response.deploy(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.ee.projects.environments.with_raw_response.deploy_generation(
+            client.ee.projects.environments.with_raw_response.deploy(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -406,8 +406,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get_environment_generation(self, client: LilypadSDK) -> None:
-        environment = client.ee.projects.environments.get_environment_generation(
+    def test_method_get_generation(self, client: LilypadSDK) -> None:
+        environment = client.ee.projects.environments.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -415,8 +415,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get_environment_generation(self, client: LilypadSDK) -> None:
-        response = client.ee.projects.environments.with_raw_response.get_environment_generation(
+    def test_raw_response_get_generation(self, client: LilypadSDK) -> None:
+        response = client.ee.projects.environments.with_raw_response.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -428,8 +428,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get_environment_generation(self, client: LilypadSDK) -> None:
-        with client.ee.projects.environments.with_streaming_response.get_environment_generation(
+    def test_streaming_response_get_generation(self, client: LilypadSDK) -> None:
+        with client.ee.projects.environments.with_streaming_response.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -443,15 +443,15 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_get_environment_generation(self, client: LilypadSDK) -> None:
+    def test_path_params_get_generation(self, client: LilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.ee.projects.environments.with_raw_response.get_environment_generation(
+            client.ee.projects.environments.with_raw_response.get_generation(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.ee.projects.environments.with_raw_response.get_environment_generation(
+            client.ee.projects.environments.with_raw_response.get_generation(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
@@ -670,8 +670,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
-        environment = await async_client.ee.projects.environments.deploy_generation(
+    async def test_method_deploy(self, async_client: AsyncLilypadSDK) -> None:
+        environment = await async_client.ee.projects.environments.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -680,8 +680,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_deploy_generation_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
-        environment = await async_client.ee.projects.environments.deploy_generation(
+    async def test_method_deploy_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+        environment = await async_client.ee.projects.environments.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -691,8 +691,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.ee.projects.environments.with_raw_response.deploy_generation(
+    async def test_raw_response_deploy(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.ee.projects.environments.with_raw_response.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -705,8 +705,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.ee.projects.environments.with_streaming_response.deploy_generation(
+    async def test_streaming_response_deploy(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.ee.projects.environments.with_streaming_response.deploy(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -721,16 +721,16 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_deploy_generation(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_deploy(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.ee.projects.environments.with_raw_response.deploy_generation(
+            await async_client.ee.projects.environments.with_raw_response.deploy(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.ee.projects.environments.with_raw_response.deploy_generation(
+            await async_client.ee.projects.environments.with_raw_response.deploy(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -842,8 +842,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
-        environment = await async_client.ee.projects.environments.get_environment_generation(
+    async def test_method_get_generation(self, async_client: AsyncLilypadSDK) -> None:
+        environment = await async_client.ee.projects.environments.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -851,8 +851,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
-        response = await async_client.ee.projects.environments.with_raw_response.get_environment_generation(
+    async def test_raw_response_get_generation(self, async_client: AsyncLilypadSDK) -> None:
+        response = await async_client.ee.projects.environments.with_raw_response.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -864,8 +864,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
-        async with async_client.ee.projects.environments.with_streaming_response.get_environment_generation(
+    async def test_streaming_response_get_generation(self, async_client: AsyncLilypadSDK) -> None:
+        async with async_client.ee.projects.environments.with_streaming_response.get_generation(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -879,15 +879,15 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_get_environment_generation(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_get_generation(self, async_client: AsyncLilypadSDK) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.ee.projects.environments.with_raw_response.get_environment_generation(
+            await async_client.ee.projects.environments.with_raw_response.get_generation(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.ee.projects.environments.with_raw_response.get_environment_generation(
+            await async_client.ee.projects.environments.with_raw_response.get_generation(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
