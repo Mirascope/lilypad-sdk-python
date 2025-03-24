@@ -14,9 +14,9 @@ from types import FrameType
 import typer
 from rich import print
 
-from ...server.client import LilypadClient
-from ...server.settings import get_settings
+from ... import Lilypad
 from ._utils import get_and_create_config
+from ..._utils.settings import get_settings
 
 
 def _start_lilypad(project_dir: Path, port: int) -> subprocess.Popen:
@@ -45,7 +45,7 @@ def _start_lilypad(project_dir: Path, port: int) -> subprocess.Popen:
     return process
 
 
-def _wait_for_server(lilypad_client: LilypadClient) -> bool:
+def _wait_for_server(lilypad_client: Lilypad) -> bool:
     """Waits until the server is up and running.
 
     Args:
@@ -111,7 +111,7 @@ def local_command(
         data["port"] = new_port
     with open(config_path, "w") as f:
         json.dump(data, f, indent=4)
-    lilypad_client = LilypadClient()
+    lilypad_client = Lilypad()
     process = _start_lilypad(Path.cwd(), new_port)
 
     def signal_handler(sig: int, frame: FrameType | None) -> None:

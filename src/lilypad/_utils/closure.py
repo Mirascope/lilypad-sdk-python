@@ -698,7 +698,7 @@ class _DependencyCollector:
             for dist_name in dist_names:
                 # only >= 3.12 properly discovers this in testing due to structure
                 if dist_name == "lilypad":  # pragma: no cover
-                    dist_name = "python-lilypad"
+                    dist_name = "lilypad-sdk"
                 if dist_name not in installed_packages:  # pragma: no cover
                     continue
                 dist = installed_packages[dist_name]

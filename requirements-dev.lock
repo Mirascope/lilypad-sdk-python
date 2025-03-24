@@ -31,8 +31,9 @@ annotated-types==0.6.0
     # via pydantic
 anthropic==0.49.0
     # via lilypad-sdk
-anyio==4.4.0
+anyio==4.9.0
     # via anthropic
+    # via google-genai
     # via httpx
     # via lilypad-sdk
     # via openai
@@ -77,6 +78,8 @@ cloudpickle==3.1.1
     # via outlines
 colorlog==6.7.0
     # via nox
+coverage==7.7.1
+    # via pytest-cov
 deprecated==1.2.18
     # via opentelemetry-api
     # via opentelemetry-semantic-conventions
@@ -150,7 +153,7 @@ google-cloud-storage==2.19.0
 google-crc32c==1.7.0
     # via google-cloud-storage
     # via google-resumable-media
-google-genai==1.4.0
+google-genai==1.7.0
     # via lilypad-sdk
 google-generativeai==0.8.4
     # via lilypad-sdk
@@ -309,7 +312,7 @@ pyasn1==0.6.1
     # via rsa
 pyasn1-modules==0.4.1
     # via google-auth
-pydantic==2.10.3
+pydantic==2.10.6
     # via anthropic
     # via google-cloud-aiplatform
     # via google-genai
@@ -320,7 +323,7 @@ pydantic==2.10.3
     # via openai
     # via outlines
     # via pydantic-settings
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.8.1
     # via lilypad-sdk
@@ -328,10 +331,12 @@ pygments==2.18.0
     # via rich
 pyparsing==3.2.2
     # via httplib2
-pyright==1.1.392.post0
+pyright==1.1.397
 pytest==8.3.3
     # via pytest-asyncio
+    # via pytest-cov
 pytest-asyncio==0.24.0
+pytest-cov==6.0.0
 python-dateutil==2.8.2
     # via aiobotocore
     # via botocore
@@ -387,6 +392,7 @@ sympy==1.13.1
     # via torch
 time-machine==2.9.0
 tomli==2.0.2
+    # via coverage
     # via mypy
     # via pytest
 torch==2.6.0
