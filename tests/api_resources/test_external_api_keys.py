@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad_sdk.types import (
+from lilypad.types import (
     ExternalAPIKeyPublic,
     ExternalAPIKeyListResponse,
     ExternalAPIKeyDeleteResponse,
@@ -23,7 +23,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create(self, client: LilypadSDK) -> None:
+    def test_method_create(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.create(
             api_key="api_key",
             service_name="service_name",
@@ -32,7 +32,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_create(self, client: LilypadSDK) -> None:
+    def test_raw_response_create(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.create(
             api_key="api_key",
             service_name="service_name",
@@ -45,7 +45,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+    def test_streaming_response_create(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.create(
             api_key="api_key",
             service_name="service_name",
@@ -60,7 +60,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve(self, client: LilypadSDK) -> None:
+    def test_method_retrieve(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.retrieve(
             "service_name",
         )
@@ -68,7 +68,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve(self, client: LilypadSDK) -> None:
+    def test_raw_response_retrieve(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.retrieve(
             "service_name",
         )
@@ -80,7 +80,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve(self, client: LilypadSDK) -> None:
+    def test_streaming_response_retrieve(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.retrieve(
             "service_name",
         ) as response:
@@ -94,7 +94,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve(self, client: LilypadSDK) -> None:
+    def test_path_params_retrieve(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             client.external_api_keys.with_raw_response.retrieve(
                 "",
@@ -102,13 +102,13 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_list(self, client: LilypadSDK) -> None:
+    def test_method_list(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.list()
         assert_matches_type(ExternalAPIKeyListResponse, external_api_key, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_list(self, client: LilypadSDK) -> None:
+    def test_raw_response_list(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.list()
 
         assert response.is_closed is True
@@ -118,7 +118,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_list(self, client: LilypadSDK) -> None:
+    def test_streaming_response_list(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.list() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -130,7 +130,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete(self, client: LilypadSDK) -> None:
+    def test_method_delete(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.delete(
             "service_name",
         )
@@ -138,7 +138,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_delete(self, client: LilypadSDK) -> None:
+    def test_raw_response_delete(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.delete(
             "service_name",
         )
@@ -150,7 +150,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_delete(self, client: LilypadSDK) -> None:
+    def test_streaming_response_delete(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.delete(
             "service_name",
         ) as response:
@@ -164,7 +164,7 @@ class TestExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_delete(self, client: LilypadSDK) -> None:
+    def test_path_params_delete(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             client.external_api_keys.with_raw_response.delete(
                 "",
@@ -176,7 +176,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_create(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.create(
             api_key="api_key",
             service_name="service_name",
@@ -185,7 +185,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.create(
             api_key="api_key",
             service_name="service_name",
@@ -198,7 +198,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.create(
             api_key="api_key",
             service_name="service_name",
@@ -213,7 +213,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_retrieve(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.retrieve(
             "service_name",
         )
@@ -221,7 +221,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_retrieve(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.retrieve(
             "service_name",
         )
@@ -233,7 +233,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_retrieve(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.retrieve(
             "service_name",
         ) as response:
@@ -247,7 +247,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_retrieve(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             await async_client.external_api_keys.with_raw_response.retrieve(
                 "",
@@ -255,13 +255,13 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_list(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.list()
         assert_matches_type(ExternalAPIKeyListResponse, external_api_key, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_list(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.list()
 
         assert response.is_closed is True
@@ -271,7 +271,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_list(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.list() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -283,7 +283,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_delete(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.delete(
             "service_name",
         )
@@ -291,7 +291,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_delete(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.delete(
             "service_name",
         )
@@ -303,7 +303,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_delete(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.delete(
             "service_name",
         ) as response:
@@ -317,7 +317,7 @@ class TestAsyncExternalAPIKeys:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_delete(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             await async_client.external_api_keys.with_raw_response.delete(
                 "",
