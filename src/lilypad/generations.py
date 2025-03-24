@@ -654,7 +654,7 @@ def generation(
                     try:
                         generations_public = await async_lilypad_client.projects.generations.retrieve_by_hash(
                             generation_hash=closure.hash,
-                            project_uuid=settings.project_id,)
+                            project_uuid=settings.project_id)
                     except NotFoundError:
                         generations_public = await async_lilypad_client.projects.generations.create(
                             path_project_uuid=settings.project_id,
@@ -669,7 +669,10 @@ def generation(
                     return  generations_public, False
                 closure = Closure.from_fn(fn)
                 try:
-                    return await async_lilypad_client.projects.generations.name.retrieve_deployed(generation_name=closure.name, project_uuid=settings.project_id), True
+                    response = await async_lilypad_client.projects.generations.name.retrieve_deployed(
+                        generation_name=closure.name, project_uuid=settings.project_id
+                    )
+                    return response, True
                 except NotFoundError:
                     raise LilypadNotFoundError(f"Generation with name '{closure.name}' not found for environment")
 
