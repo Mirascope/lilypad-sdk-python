@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad_sdk.types.ee import (
+from lilypad.types.ee import (
     UserOrganizationTable,
     UserOrganizationListResponse,
     UserOrganizationDeleteResponse,
@@ -24,7 +24,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create(self, client: LilypadSDK) -> None:
+    def test_method_create(self, client: Lilypad) -> None:
         user_organization = client.ee.user_organizations.create(
             token="token",
         )
@@ -32,7 +32,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_create(self, client: LilypadSDK) -> None:
+    def test_raw_response_create(self, client: Lilypad) -> None:
         response = client.ee.user_organizations.with_raw_response.create(
             token="token",
         )
@@ -44,7 +44,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+    def test_streaming_response_create(self, client: Lilypad) -> None:
         with client.ee.user_organizations.with_streaming_response.create(
             token="token",
         ) as response:
@@ -58,7 +58,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update(self, client: LilypadSDK) -> None:
+    def test_method_update(self, client: Lilypad) -> None:
         user_organization = client.ee.user_organizations.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -67,7 +67,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_update(self, client: LilypadSDK) -> None:
+    def test_raw_response_update(self, client: Lilypad) -> None:
         response = client.ee.user_organizations.with_raw_response.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -80,7 +80,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_update(self, client: LilypadSDK) -> None:
+    def test_streaming_response_update(self, client: Lilypad) -> None:
         with client.ee.user_organizations.with_streaming_response.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -95,7 +95,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_update(self, client: LilypadSDK) -> None:
+    def test_path_params_update(self, client: Lilypad) -> None:
         with pytest.raises(
             ValueError, match=r"Expected a non-empty value for `user_organization_uuid` but received ''"
         ):
@@ -106,13 +106,13 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_list(self, client: LilypadSDK) -> None:
+    def test_method_list(self, client: Lilypad) -> None:
         user_organization = client.ee.user_organizations.list()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_list(self, client: LilypadSDK) -> None:
+    def test_raw_response_list(self, client: Lilypad) -> None:
         response = client.ee.user_organizations.with_raw_response.list()
 
         assert response.is_closed is True
@@ -122,7 +122,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_list(self, client: LilypadSDK) -> None:
+    def test_streaming_response_list(self, client: Lilypad) -> None:
         with client.ee.user_organizations.with_streaming_response.list() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -134,7 +134,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete(self, client: LilypadSDK) -> None:
+    def test_method_delete(self, client: Lilypad) -> None:
         user_organization = client.ee.user_organizations.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -142,7 +142,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_delete(self, client: LilypadSDK) -> None:
+    def test_raw_response_delete(self, client: Lilypad) -> None:
         response = client.ee.user_organizations.with_raw_response.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -154,7 +154,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_delete(self, client: LilypadSDK) -> None:
+    def test_streaming_response_delete(self, client: Lilypad) -> None:
         with client.ee.user_organizations.with_streaming_response.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -168,7 +168,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_delete(self, client: LilypadSDK) -> None:
+    def test_path_params_delete(self, client: Lilypad) -> None:
         with pytest.raises(
             ValueError, match=r"Expected a non-empty value for `user_organization_uuid` but received ''"
         ):
@@ -178,13 +178,13 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get_users(self, client: LilypadSDK) -> None:
+    def test_method_get_users(self, client: Lilypad) -> None:
         user_organization = client.ee.user_organizations.get_users()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get_users(self, client: LilypadSDK) -> None:
+    def test_raw_response_get_users(self, client: Lilypad) -> None:
         response = client.ee.user_organizations.with_raw_response.get_users()
 
         assert response.is_closed is True
@@ -194,7 +194,7 @@ class TestUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get_users(self, client: LilypadSDK) -> None:
+    def test_streaming_response_get_users(self, client: Lilypad) -> None:
         with client.ee.user_organizations.with_streaming_response.get_users() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -210,7 +210,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_create(self, async_client: AsyncLilypad) -> None:
         user_organization = await async_client.ee.user_organizations.create(
             token="token",
         )
@@ -218,7 +218,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.user_organizations.with_raw_response.create(
             token="token",
         )
@@ -230,7 +230,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.user_organizations.with_streaming_response.create(
             token="token",
         ) as response:
@@ -244,7 +244,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_update(self, async_client: AsyncLilypad) -> None:
         user_organization = await async_client.ee.user_organizations.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -253,7 +253,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_update(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.user_organizations.with_raw_response.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -266,7 +266,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_update(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.user_organizations.with_streaming_response.update(
             user_organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             role="owner",
@@ -281,7 +281,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_update(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(
             ValueError, match=r"Expected a non-empty value for `user_organization_uuid` but received ''"
         ):
@@ -292,13 +292,13 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_list(self, async_client: AsyncLilypad) -> None:
         user_organization = await async_client.ee.user_organizations.list()
         assert_matches_type(UserOrganizationListResponse, user_organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_list(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.user_organizations.with_raw_response.list()
 
         assert response.is_closed is True
@@ -308,7 +308,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_list(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_list(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.user_organizations.with_streaming_response.list() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -320,7 +320,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_delete(self, async_client: AsyncLilypad) -> None:
         user_organization = await async_client.ee.user_organizations.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -328,7 +328,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_delete(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.user_organizations.with_raw_response.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -340,7 +340,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_delete(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.user_organizations.with_streaming_response.delete(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -354,7 +354,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_delete(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_delete(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(
             ValueError, match=r"Expected a non-empty value for `user_organization_uuid` but received ''"
         ):
@@ -364,13 +364,13 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get_users(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_get_users(self, async_client: AsyncLilypad) -> None:
         user_organization = await async_client.ee.user_organizations.get_users()
         assert_matches_type(UserOrganizationGetUsersResponse, user_organization, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get_users(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_get_users(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.user_organizations.with_raw_response.get_users()
 
         assert response.is_closed is True
@@ -380,7 +380,7 @@ class TestAsyncUserOrganizations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get_users(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_get_users(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.user_organizations.with_streaming_response.get_users() as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

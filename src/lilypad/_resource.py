@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING
 import anyio
 
 if TYPE_CHECKING:
-    from ._client import LilypadSDK, AsyncLilypadSDK
+    from ._client import Lilypad, AsyncLilypad
 
 
 class SyncAPIResource:
-    _client: LilypadSDK
+    _client: Lilypad
 
-    def __init__(self, client: LilypadSDK) -> None:
+    def __init__(self, client: Lilypad) -> None:
         self._client = client
         self._get = client.get
         self._post = client.post
@@ -28,9 +28,9 @@ class SyncAPIResource:
 
 
 class AsyncAPIResource:
-    _client: AsyncLilypadSDK
+    _client: AsyncLilypad
 
-    def __init__(self, client: AsyncLilypadSDK) -> None:
+    def __init__(self, client: AsyncLilypad) -> None:
         self._client = client
         self._get = client.get
         self._post = client.post

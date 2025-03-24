@@ -16,11 +16,11 @@ before making any information public.
 ## Reporting Non-SDK Related Security Issues
 
 If you encounter security issues that are not directly related to SDKs but pertain to the services
-or products provided by Lilypad SDK please follow the respective company's security reporting guidelines.
+or products provided by Lilypad please follow the respective company's security reporting guidelines.
 
-### Lilypad SDK Terms and Policies
+### Lilypad Terms and Policies
 
-Please contact dev-feedback@lilypad-sdk.com for any questions or concerns regarding security of our services.
+Please contact support@mirascope.com for any questions or concerns regarding security of our services.
 
 ---
 

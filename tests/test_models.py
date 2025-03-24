@@ -7,9 +7,9 @@ import pytest
 import pydantic
 from pydantic import Field
 
-from lilypad_sdk._utils import PropertyInfo
-from lilypad_sdk._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
-from lilypad_sdk._models import BaseModel, construct_type
+from lilypad._utils import PropertyInfo
+from lilypad._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
+from lilypad._models import BaseModel, construct_type
 
 
 class BasicModel(BaseModel):

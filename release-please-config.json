@@ -61,6 +61,6 @@
   ],
   "release-type": "python",
   "extra-files": [
-    "src/lilypad_sdk/_version.py"
+    "src/lilypad/_version.py"
   ]
 }

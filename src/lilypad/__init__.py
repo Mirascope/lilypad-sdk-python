@@ -3,30 +3,20 @@
 from . import types
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
 from ._utils import file_from_path
-from ._client import (
-    Client,
-    Stream,
-    Timeout,
-    Transport,
-    LilypadSDK,
-    AsyncClient,
-    AsyncStream,
-    RequestOptions,
-    AsyncLilypadSDK,
-)
+from ._client import Client, Stream, Lilypad, Timeout, Transport, AsyncClient, AsyncStream, AsyncLilypad, RequestOptions
 from ._models import BaseModel
 from ._version import __title__, __version__
 from ._response import APIResponse as APIResponse, AsyncAPIResponse as AsyncAPIResponse
 from ._constants import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES, DEFAULT_CONNECTION_LIMITS
 from ._exceptions import (
     APIError,
+    LilypadError,
     ConflictError,
     NotFoundError,
     APIStatusError,
     RateLimitError,
     APITimeoutError,
     BadRequestError,
-    LilypadSDKError,
     APIConnectionError,
     AuthenticationError,
     InternalServerError,
@@ -47,7 +37,7 @@ __all__ = [
     "NotGiven",
     "NOT_GIVEN",
     "Omit",
-    "LilypadSDKError",
+    "LilypadError",
     "APIError",
     "APIStatusError",
     "APITimeoutError",
@@ -67,8 +57,8 @@ __all__ = [
     "AsyncClient",
     "Stream",
     "AsyncStream",
-    "LilypadSDK",
-    "AsyncLilypadSDK",
+    "Lilypad",
+    "AsyncLilypad",
     "file_from_path",
     "BaseModel",
     "DEFAULT_TIMEOUT",
@@ -83,12 +73,12 @@ _setup_logging()
 # Update the __module__ attribute for exported symbols so that
 # error messages point to this module instead of the module
 # it was originally defined in, e.g.
-# lilypad_sdk._exceptions.NotFoundError -> lilypad_sdk.NotFoundError
+# lilypad._exceptions.NotFoundError -> lilypad.NotFoundError
 __locals = locals()
 for __name in __all__:
     if not __name.startswith("__"):
         try:
-            __locals[__name].__module__ = "lilypad_sdk"
+            __locals[__name].__module__ = "lilypad"
         except (TypeError, AttributeError):
             # Some of our exported symbols are builtins which we can't set attributes for.
             pass

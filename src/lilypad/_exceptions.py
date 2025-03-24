@@ -18,11 +18,11 @@ __all__ = [
 ]
 
 
-class LilypadSDKError(Exception):
+class LilypadError(Exception):
     pass
 
 
-class APIError(LilypadSDKError):
+class APIError(LilypadError):
     message: str
     request: httpx.Request
 

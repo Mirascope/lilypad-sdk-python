@@ -35,7 +35,7 @@ from .resources import (
     organizations_invites,
 )
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError, LilypadSDKError
+from ._exceptions import LilypadError, APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
@@ -45,19 +45,10 @@ from .resources.ee import ee
 from .resources.auth import auth
 from .resources.projects import projects
 
-__all__ = [
-    "Timeout",
-    "Transport",
-    "ProxiesTypes",
-    "RequestOptions",
-    "LilypadSDK",
-    "AsyncLilypadSDK",
-    "Client",
-    "AsyncClient",
-]
+__all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Lilypad", "AsyncLilypad", "Client", "AsyncClient"]
 
 
-class LilypadSDK(SyncAPIClient):
+class Lilypad(SyncAPIClient):
     ee: ee.EeResource
     api_keys: api_keys.APIKeysResource
     projects: projects.ProjectsResource
@@ -69,8 +60,8 @@ class LilypadSDK(SyncAPIClient):
     organizations: organizations.OrganizationsResource
     external_api_keys: external_api_keys.ExternalAPIKeysResource
     settings: settings.SettingsResource
-    with_raw_response: LilypadSDKWithRawResponse
-    with_streaming_response: LilypadSDKWithStreamedResponse
+    with_raw_response: LilypadWithRawResponse
+    with_streaming_response: LilypadWithStreamedResponse
 
     # client options
     api_key: str
@@ -98,20 +89,20 @@ class LilypadSDK(SyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new synchronous LilypadSDK client instance.
+        """Construct a new synchronous Lilypad client instance.
 
         This automatically infers the `api_key` argument from the `LILYPAD_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
             api_key = os.environ.get("LILYPAD_API_KEY")
         if api_key is None:
-            raise LilypadSDKError(
+            raise LilypadError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_API_KEY environment variable"
             )
         self.api_key = api_key
 
         if base_url is None:
-            base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
+            base_url = os.environ.get("LILYPAD_BASE_URL")
         if base_url is None:
             base_url = f"/v0"
 
@@ -137,8 +128,8 @@ class LilypadSDK(SyncAPIClient):
         self.organizations = organizations.OrganizationsResource(self)
         self.external_api_keys = external_api_keys.ExternalAPIKeysResource(self)
         self.settings = settings.SettingsResource(self)
-        self.with_raw_response = LilypadSDKWithRawResponse(self)
-        self.with_streaming_response = LilypadSDKWithStreamedResponse(self)
+        self.with_raw_response = LilypadWithRawResponse(self)
+        self.with_streaming_response = LilypadWithStreamedResponse(self)
 
     @property
     @override
@@ -245,7 +236,7 @@ class LilypadSDK(SyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class AsyncLilypadSDK(AsyncAPIClient):
+class AsyncLilypad(AsyncAPIClient):
     ee: ee.AsyncEeResource
     api_keys: api_keys.AsyncAPIKeysResource
     projects: projects.AsyncProjectsResource
@@ -257,8 +248,8 @@ class AsyncLilypadSDK(AsyncAPIClient):
     organizations: organizations.AsyncOrganizationsResource
     external_api_keys: external_api_keys.AsyncExternalAPIKeysResource
     settings: settings.AsyncSettingsResource
-    with_raw_response: AsyncLilypadSDKWithRawResponse
-    with_streaming_response: AsyncLilypadSDKWithStreamedResponse
+    with_raw_response: AsyncLilypadWithRawResponse
+    with_streaming_response: AsyncLilypadWithStreamedResponse
 
     # client options
     api_key: str
@@ -286,20 +277,20 @@ class AsyncLilypadSDK(AsyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new async AsyncLilypadSDK client instance.
+        """Construct a new async AsyncLilypad client instance.
 
         This automatically infers the `api_key` argument from the `LILYPAD_API_KEY` environment variable if it is not provided.
         """
         if api_key is None:
             api_key = os.environ.get("LILYPAD_API_KEY")
         if api_key is None:
-            raise LilypadSDKError(
+            raise LilypadError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the LILYPAD_API_KEY environment variable"
             )
         self.api_key = api_key
 
         if base_url is None:
-            base_url = os.environ.get("LILYPAD_SDK_BASE_URL")
+            base_url = os.environ.get("LILYPAD_BASE_URL")
         if base_url is None:
             base_url = f"/v0"
 
@@ -325,8 +316,8 @@ class AsyncLilypadSDK(AsyncAPIClient):
         self.organizations = organizations.AsyncOrganizationsResource(self)
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResource(self)
         self.settings = settings.AsyncSettingsResource(self)
-        self.with_raw_response = AsyncLilypadSDKWithRawResponse(self)
-        self.with_streaming_response = AsyncLilypadSDKWithStreamedResponse(self)
+        self.with_raw_response = AsyncLilypadWithRawResponse(self)
+        self.with_streaming_response = AsyncLilypadWithStreamedResponse(self)
 
     @property
     @override
@@ -433,8 +424,8 @@ class AsyncLilypadSDK(AsyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class LilypadSDKWithRawResponse:
-    def __init__(self, client: LilypadSDK) -> None:
+class LilypadWithRawResponse:
+    def __init__(self, client: Lilypad) -> None:
         self.ee = ee.EeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithRawResponse(client.api_keys)
         self.projects = projects.ProjectsResourceWithRawResponse(client.projects)
@@ -450,8 +441,8 @@ class LilypadSDKWithRawResponse:
         self.settings = settings.SettingsResourceWithRawResponse(client.settings)
 
 
-class AsyncLilypadSDKWithRawResponse:
-    def __init__(self, client: AsyncLilypadSDK) -> None:
+class AsyncLilypadWithRawResponse:
+    def __init__(self, client: AsyncLilypad) -> None:
         self.ee = ee.AsyncEeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithRawResponse(client.api_keys)
         self.projects = projects.AsyncProjectsResourceWithRawResponse(client.projects)
@@ -467,8 +458,8 @@ class AsyncLilypadSDKWithRawResponse:
         self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
 
 
-class LilypadSDKWithStreamedResponse:
-    def __init__(self, client: LilypadSDK) -> None:
+class LilypadWithStreamedResponse:
+    def __init__(self, client: Lilypad) -> None:
         self.ee = ee.EeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithStreamingResponse(client.api_keys)
         self.projects = projects.ProjectsResourceWithStreamingResponse(client.projects)
@@ -486,8 +477,8 @@ class LilypadSDKWithStreamedResponse:
         self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
 
 
-class AsyncLilypadSDKWithStreamedResponse:
-    def __init__(self, client: AsyncLilypadSDK) -> None:
+class AsyncLilypadWithStreamedResponse:
+    def __init__(self, client: AsyncLilypad) -> None:
         self.ee = ee.AsyncEeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithStreamingResponse(client.api_keys)
         self.projects = projects.AsyncProjectsResourceWithStreamingResponse(client.projects)
@@ -505,6 +496,6 @@ class AsyncLilypadSDKWithStreamedResponse:
         self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
 
 
-Client = LilypadSDK
+Client = Lilypad
 
-AsyncClient = AsyncLilypadSDK
+AsyncClient = AsyncLilypad
