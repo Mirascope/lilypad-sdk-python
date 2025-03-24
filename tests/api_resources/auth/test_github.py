@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad_sdk.types.auth import UserPublic
+from lilypad.types.auth import UserPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -19,7 +19,7 @@ class TestGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_handle_callback(self, client: LilypadSDK) -> None:
+    def test_method_handle_callback(self, client: Lilypad) -> None:
         github = client.auth.github.handle_callback(
             code="code",
         )
@@ -27,7 +27,7 @@ class TestGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_handle_callback(self, client: LilypadSDK) -> None:
+    def test_raw_response_handle_callback(self, client: Lilypad) -> None:
         response = client.auth.github.with_raw_response.handle_callback(
             code="code",
         )
@@ -39,7 +39,7 @@ class TestGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_handle_callback(self, client: LilypadSDK) -> None:
+    def test_streaming_response_handle_callback(self, client: Lilypad) -> None:
         with client.auth.github.with_streaming_response.handle_callback(
             code="code",
         ) as response:
@@ -57,7 +57,7 @@ class TestAsyncGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_handle_callback(self, async_client: AsyncLilypad) -> None:
         github = await async_client.auth.github.handle_callback(
             code="code",
         )
@@ -65,7 +65,7 @@ class TestAsyncGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_handle_callback(self, async_client: AsyncLilypad) -> None:
         response = await async_client.auth.github.with_raw_response.handle_callback(
             code="code",
         )
@@ -77,7 +77,7 @@ class TestAsyncGitHub:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_handle_callback(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_handle_callback(self, async_client: AsyncLilypad) -> None:
         async with async_client.auth.github.with_streaming_response.handle_callback(
             code="code",
         ) as response:

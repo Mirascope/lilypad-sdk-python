@@ -8,15 +8,15 @@ from typing_extensions import Required, Annotated, TypedDict
 
 import pytest
 
-from lilypad_sdk._types import Base64FileInput
-from lilypad_sdk._utils import (
+from lilypad._types import Base64FileInput
+from lilypad._utils import (
     PropertyInfo,
     transform as _transform,
     parse_datetime,
     async_transform as _async_transform,
 )
-from lilypad_sdk._compat import PYDANTIC_V2
-from lilypad_sdk._models import BaseModel
+from lilypad._compat import PYDANTIC_V2
+from lilypad._models import BaseModel
 
 _T = TypeVar("_T")
 

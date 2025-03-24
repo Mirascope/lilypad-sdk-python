@@ -7,14 +7,14 @@ from typing import TYPE_CHECKING, Iterator, AsyncIterator
 import pytest
 from pytest_asyncio import is_async_test
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
 
 pytest.register_assert_rewrite("tests.utils")
 
-logging.getLogger("lilypad_sdk").setLevel(logging.DEBUG)
+logging.getLogger("lilypad").setLevel(logging.DEBUG)
 
 
 # automatically add `pytest.mark.asyncio()` to all of our async tests
@@ -32,20 +32,20 @@ api_key = "My API Key"
 
 
 @pytest.fixture(scope="session")
-def client(request: FixtureRequest) -> Iterator[LilypadSDK]:
+def client(request: FixtureRequest) -> Iterator[Lilypad]:
     strict = getattr(request, "param", True)
     if not isinstance(strict, bool):
         raise TypeError(f"Unexpected fixture parameter type {type(strict)}, expected {bool}")
 
-    with LilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=strict) as client:
+    with Lilypad(base_url=base_url, api_key=api_key, _strict_response_validation=strict) as client:
         yield client
 
 
 @pytest.fixture(scope="session")
-async def async_client(request: FixtureRequest) -> AsyncIterator[AsyncLilypadSDK]:
+async def async_client(request: FixtureRequest) -> AsyncIterator[AsyncLilypad]:
     strict = getattr(request, "param", True)
     if not isinstance(strict, bool):
         raise TypeError(f"Unexpected fixture parameter type {type(strict)}, expected {bool}")
 
-    async with AsyncLilypadSDK(base_url=base_url, api_key=api_key, _strict_response_validation=strict) as client:
+    async with AsyncLilypad(base_url=base_url, api_key=api_key, _strict_response_validation=strict) as client:
         yield client

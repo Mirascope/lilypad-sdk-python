@@ -1,8 +1,8 @@
-# Lilypad SDK Python API library
+# Lilypad Python API library
 
 [![PyPI version](https://img.shields.io/pypi/v/lilypad-sdk.svg)](https://pypi.org/project/lilypad-sdk/)
 
-The Lilypad SDK Python library provides convenient access to the Lilypad SDK REST API from any Python 3.8+
+The Lilypad Python library provides convenient access to the Lilypad REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
@@ -10,7 +10,7 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [docs.lilypad-sdk.com](https://docs.lilypad-sdk.com). The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [docs.mirascope.com](https://docs.mirascope.com/lilypad). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
@@ -25,9 +25,9 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
-client = LilypadSDK(
+client = Lilypad(
     api_key=os.environ.get("LILYPAD_API_KEY"),  # This is the default and can be omitted
 )
 
@@ -44,14 +44,14 @@ so that your API Key is not stored in source control.
 
 ## Async usage
 
-Simply import `AsyncLilypadSDK` instead of `LilypadSDK` and use `await` with each API call:
+Simply import `AsyncLilypad` instead of `Lilypad` and use `await` with each API call:
 
 ```python
 import os
 import asyncio
-from lilypad_sdk import AsyncLilypadSDK
+from lilypad import AsyncLilypad
 
-client = AsyncLilypadSDK(
+client = AsyncLilypad(
     api_key=os.environ.get("LILYPAD_API_KEY"),  # This is the default and can be omitted
 )
 
@@ -77,16 +77,16 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
 
-from lilypad_sdk.\_utils import parse_datetime
+from lilypad.\_utils import parse_datetime
 
 ## Nested params
 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
 
 ```python
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
-client = LilypadSDK()
+client = Lilypad()
 
 response = client.ee.projects.generations.run_playground(
     generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -131,30 +131,30 @@ print(response.generation)
 
 ## Handling errors
 
-When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `lilypad_sdk.APIConnectionError` is raised.
+When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `lilypad.APIConnectionError` is raised.
 
 When the API returns a non-success status code (that is, 4xx or 5xx
-response), a subclass of `lilypad_sdk.APIStatusError` is raised, containing `status_code` and `response` properties.
+response), a subclass of `lilypad.APIStatusError` is raised, containing `status_code` and `response` properties.
 
-All errors inherit from `lilypad_sdk.APIError`.
+All errors inherit from `lilypad.APIError`.
 
 ```python
-import lilypad_sdk
-from lilypad_sdk import LilypadSDK
+import lilypad
+from lilypad import Lilypad
 
-client = LilypadSDK()
+client = Lilypad()
 
 try:
     client.ee.projects.annotations.create(
         project_uuid="REPLACE_ME",
         body=[{}],
     )
-except lilypad_sdk.APIConnectionError as e:
+except lilypad.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
-except lilypad_sdk.RateLimitError as e:
+except lilypad.RateLimitError as e:
     print("A 429 status code was received; we should back off a bit.")
-except lilypad_sdk.APIStatusError as e:
+except lilypad.APIStatusError as e:
     print("Another non-200-range status code was received")
     print(e.status_code)
     print(e.response)
@@ -182,10 +182,10 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
 # Configure the default for all requests:
-client = LilypadSDK(
+client = Lilypad(
     # default is 2
     max_retries=0,
 )
@@ -203,16 +203,16 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/#fine-tuning-the-configuration) object:
 
 ```python
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
 # Configure the default for all requests:
-client = LilypadSDK(
+client = Lilypad(
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
-client = LilypadSDK(
+client = Lilypad(
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
@@ -233,10 +233,10 @@ Note that requests that time out are [retried twice by default](#retries).
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
 
-You can enable logging by setting the environment variable `LILYPAD_SDK_LOG` to `info`.
+You can enable logging by setting the environment variable `LILYPAD_LOG` to `info`.
 
 ```shell
-$ export LILYPAD_SDK_LOG=info
+$ export LILYPAD_LOG=info
 ```
 
 Or to `debug` for more verbose logging.
@@ -258,9 +258,9 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
-client = LilypadSDK()
+client = Lilypad()
 response = client.ee.projects.annotations.with_raw_response.create(
     project_uuid="REPLACE_ME",
     body=[{}],
@@ -271,9 +271,9 @@ annotation = response.parse()  # get the object that `ee.projects.annotations.cr
 print(annotation)
 ```
 
-These methods return an [`APIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad_sdk/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/Mirascope/lilypad-sdk-python/tree/main/src/lilypad/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -338,10 +338,10 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from lilypad_sdk import LilypadSDK, DefaultHttpxClient
+from lilypad import Lilypad, DefaultHttpxClient
 
-client = LilypadSDK(
-    # Or use the `LILYPAD_SDK_BASE_URL` env var
+client = Lilypad(
+    # Or use the `LILYPAD_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
         proxy="http://my.test.proxy.example.com",
@@ -361,9 +361,9 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from lilypad_sdk import LilypadSDK
+from lilypad import Lilypad
 
-with LilypadSDK() as client:
+with Lilypad() as client:
   # make requests here
   ...
 
@@ -389,8 +389,8 @@ If you've upgraded to the latest version but aren't seeing any new features you 
 You can determine the version that is being used at runtime with:
 
 ```py
-import lilypad_sdk
-print(lilypad_sdk.__version__)
+import lilypad
+print(lilypad.__version__)
 ```
 
 ## Requirements
