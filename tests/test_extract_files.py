@@ -4,8 +4,8 @@ from typing import Sequence
 
 import pytest
 
-from lilypad_sdk._types import FileTypes
-from lilypad_sdk._utils import extract_files
+from lilypad._types import FileTypes
+from lilypad._utils import extract_files
 
 
 def test_removes_files_from_input() -> None:

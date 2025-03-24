@@ -7,10 +7,10 @@ from typing import Any, cast
 
 import pytest
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad_sdk._utils import parse_datetime
-from lilypad_sdk.types.ee.projects import (
+from lilypad._utils import parse_datetime
+from lilypad.types.ee.projects import (
     GenerationGetAnnotationsResponse,
 )
 
@@ -22,7 +22,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get_annotations(self, client: LilypadSDK) -> None:
+    def test_method_get_annotations(self, client: Lilypad) -> None:
         generation = client.ee.projects.generations.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -31,7 +31,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get_annotations(self, client: LilypadSDK) -> None:
+    def test_raw_response_get_annotations(self, client: Lilypad) -> None:
         response = client.ee.projects.generations.with_raw_response.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -44,7 +44,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get_annotations(self, client: LilypadSDK) -> None:
+    def test_streaming_response_get_annotations(self, client: Lilypad) -> None:
         with client.ee.projects.generations.with_streaming_response.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -59,7 +59,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_get_annotations(self, client: LilypadSDK) -> None:
+    def test_path_params_get_annotations(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             client.ee.projects.generations.with_raw_response.get_annotations(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -74,7 +74,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_run_playground(self, client: LilypadSDK) -> None:
+    def test_method_run_playground(self, client: Lilypad) -> None:
         generation = client.ee.projects.generations.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -86,7 +86,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_run_playground_with_all_params(self, client: LilypadSDK) -> None:
+    def test_method_run_playground_with_all_params(self, client: Lilypad) -> None:
         generation = client.ee.projects.generations.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -129,7 +129,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_run_playground(self, client: LilypadSDK) -> None:
+    def test_raw_response_run_playground(self, client: Lilypad) -> None:
         response = client.ee.projects.generations.with_raw_response.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -145,7 +145,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_run_playground(self, client: LilypadSDK) -> None:
+    def test_streaming_response_run_playground(self, client: Lilypad) -> None:
         with client.ee.projects.generations.with_streaming_response.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -163,7 +163,7 @@ class TestGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_run_playground(self, client: LilypadSDK) -> None:
+    def test_path_params_run_playground(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             client.ee.projects.generations.with_raw_response.run_playground(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -188,7 +188,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get_annotations(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_get_annotations(self, async_client: AsyncLilypad) -> None:
         generation = await async_client.ee.projects.generations.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -197,7 +197,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get_annotations(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_get_annotations(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.projects.generations.with_raw_response.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -210,7 +210,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get_annotations(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_get_annotations(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.projects.generations.with_streaming_response.get_annotations(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -225,7 +225,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_get_annotations(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_get_annotations(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             await async_client.ee.projects.generations.with_raw_response.get_annotations(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -240,7 +240,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_run_playground(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_run_playground(self, async_client: AsyncLilypad) -> None:
         generation = await async_client.ee.projects.generations.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -252,7 +252,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_run_playground_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_run_playground_with_all_params(self, async_client: AsyncLilypad) -> None:
         generation = await async_client.ee.projects.generations.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -295,7 +295,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_run_playground(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_run_playground(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.projects.generations.with_raw_response.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -311,7 +311,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_run_playground(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_run_playground(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.projects.generations.with_streaming_response.run_playground(
             generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -329,7 +329,7 @@ class TestAsyncGenerations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_run_playground(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_run_playground(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             await async_client.ee.projects.generations.with_raw_response.run_playground(
                 generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",

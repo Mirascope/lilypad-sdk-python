@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
-from lilypad_sdk import LilypadSDK, AsyncLilypadSDK
+from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad_sdk.types.ee.projects import (
+from lilypad.types.ee.projects import (
     AnnotationPublic,
     AnnotationCreateResponse,
 )
@@ -22,7 +22,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create(self, client: LilypadSDK) -> None:
+    def test_method_create(self, client: Lilypad) -> None:
         annotation = client.ee.projects.annotations.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -31,7 +31,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_create(self, client: LilypadSDK) -> None:
+    def test_raw_response_create(self, client: Lilypad) -> None:
         response = client.ee.projects.annotations.with_raw_response.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -44,7 +44,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_create(self, client: LilypadSDK) -> None:
+    def test_streaming_response_create(self, client: Lilypad) -> None:
         with client.ee.projects.annotations.with_streaming_response.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -59,7 +59,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_create(self, client: LilypadSDK) -> None:
+    def test_path_params_create(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             client.ee.projects.annotations.with_raw_response.create(
                 project_uuid="",
@@ -68,7 +68,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update(self, client: LilypadSDK) -> None:
+    def test_method_update(self, client: Lilypad) -> None:
         annotation = client.ee.projects.annotations.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -77,7 +77,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update_with_all_params(self, client: LilypadSDK) -> None:
+    def test_method_update_with_all_params(self, client: Lilypad) -> None:
         annotation = client.ee.projects.annotations.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -91,7 +91,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_update(self, client: LilypadSDK) -> None:
+    def test_raw_response_update(self, client: Lilypad) -> None:
         response = client.ee.projects.annotations.with_raw_response.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -104,7 +104,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_update(self, client: LilypadSDK) -> None:
+    def test_streaming_response_update(self, client: Lilypad) -> None:
         with client.ee.projects.annotations.with_streaming_response.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -119,7 +119,7 @@ class TestAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_update(self, client: LilypadSDK) -> None:
+    def test_path_params_update(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             client.ee.projects.annotations.with_raw_response.update(
                 annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -138,7 +138,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_create(self, async_client: AsyncLilypad) -> None:
         annotation = await async_client.ee.projects.annotations.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -147,7 +147,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.projects.annotations.with_raw_response.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -160,7 +160,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.projects.annotations.with_streaming_response.create(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             body=[{}],
@@ -175,7 +175,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_create(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_create(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             await async_client.ee.projects.annotations.with_raw_response.create(
                 project_uuid="",
@@ -184,7 +184,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_update(self, async_client: AsyncLilypad) -> None:
         annotation = await async_client.ee.projects.annotations.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -193,7 +193,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_update_with_all_params(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_method_update_with_all_params(self, async_client: AsyncLilypad) -> None:
         annotation = await async_client.ee.projects.annotations.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -207,7 +207,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_raw_response_update(self, async_client: AsyncLilypad) -> None:
         response = await async_client.ee.projects.annotations.with_raw_response.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -220,7 +220,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_streaming_response_update(self, async_client: AsyncLilypad) -> None:
         async with async_client.ee.projects.annotations.with_streaming_response.update(
             annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -235,7 +235,7 @@ class TestAsyncAnnotations:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_update(self, async_client: AsyncLilypadSDK) -> None:
+    async def test_path_params_update(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             await async_client.ee.projects.annotations.with_raw_response.update(
                 annotation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
