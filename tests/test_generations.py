@@ -121,27 +121,21 @@ def sync_outer(param: str) -> str:
 @pytest.fixture
 def fake_closure_fixture():
     """Fixture that returns a fake Closure.from_code function."""
-
     def fake_closure_from_code(code: str, name: str, dependencies=None):
         class DummyClosure:
             def build_object(self):
                 return f"dummy_object_for_{name}"
-
         return DummyClosure()
-
     return fake_closure_from_code
 
 
 @pytest.fixture
 def fake_llm_call_fixture(dummy_call_response_instance):
     """Fixture that returns a fake llm.call function for sync branch."""
-
     def fake_llm_call(**kwargs):
         def inner(mirascope_prompt):
             return lambda *args, **kwargs: dummy_call_response_instance
-
         return inner
-
     return fake_llm_call
 
 
@@ -153,25 +147,21 @@ def patched_llm_call(fake_llm_call_fixture, monkeypatch):
 
 class DummyCallParams(BaseCallParams):
     """A dummy call params class."""
-
     pass
 
 
 class DummyMessageParam(BaseMessageParam):
     """A dummy message param class."""
-
     role: str
     content: Any
 
 
 class DummyMessageParamConverter(BaseMessageParamConverter):
     """Base class for converting message params to/from provider formats."""
-
     @staticmethod
     def to_provider(message_params: list[BaseMessageParam]) -> list[Any]:
         """Converts base message params -> provider-specific messages."""
         return []
-
     @staticmethod
     def from_provider(message_params: list[Any]) -> list[BaseMessageParam]:
         """Converts provider-specific messages -> Base message params."""
@@ -180,16 +170,13 @@ class DummyMessageParamConverter(BaseMessageParamConverter):
 
 class DummyTool(BaseTool):
     """A dummy tool class."""
-
     def call(self):
         """Call the tool."""
         ...
-
     @property
     def model_fields(self):  # pyright: ignore [reportIncompatibleVariableOverride]
         """Return a list of model fields."""
         return ["field1"]
-
     field1: str = "tool_field"
 
 
@@ -206,53 +193,43 @@ class DummyProviderCallResponse(
     ]
 ):
     """A dummy provider call response class."""
-
     _message_converter: type[DummyMessageParamConverter] = DummyMessageParamConverter
-
     @property
     def content(self) -> str:
         """Return the content of the response."""
         return "dummy_content"
-
     @property
     def finish_reasons(self) -> list[str] | None:
         """Return a list of finish reasons."""
         return ["finish"]
-
     @property
     def model(self) -> str | None:
         """Return the model of the response."""
         ...
-
     @property
     def id(self) -> str | None:
         """Return the ID of the response."""
         ...
-
     @property
     def usage(self) -> Any:
         """Return a dummy usage instance."""
         ...
-
     @property
     def input_tokens(self) -> int | float | None:
         """Should return the number of input tokens."""
         ...
-
     @property
     def output_tokens(self) -> int | float | None:
         """Should return the number of output tokens."""
         ...
-
     @property
     def cost(self) -> float | None:
         """Should return the cost of the response in dollars."""
-
+        ...
     @property
     def cached_tokens(self) -> int | None:
         """Returns the number of cached tokens."""
         pass
-
     @property
     def cost_metadata(self) -> CostMetadata:
         """Returns the cost of the response in dollars."""
@@ -261,55 +238,42 @@ class DummyProviderCallResponse(
             output_tokens=self.output_tokens,
             cached_tokens=self.cached_tokens,
         )
-
     @computed_field
     @cached_property
     def message_param(self) -> Any:
         """Return a dummy message param."""
         return BaseMessageParam(role="assistant", content="dummy_content")
-
     @computed_field
     @cached_property
     def tools(self) -> list[DummyTool] | None:
         """Return a list of dummy tools."""
         return [DummyTool()]
-
     @computed_field
     @cached_property
     def tool(self) -> DummyTool | None:
         """Return a dummy tool."""
         return DummyTool()
-
     @classmethod
-    def tool_message_params(  # pyright: ignore [reportIncompatibleMethodOverride]
-        cls, tools_and_outputs: list[tuple[DummyTool, str]]
-    ) -> list[Any]:
+    def tool_message_params(cls, tools_and_outputs: list[tuple[DummyTool, str]]) -> list[Any]:
         """Return a list of tool message params."""
         ...
-
     @property
     def common_finish_reasons(self) -> list[FinishReason] | None:
         """Return a list of finish reasons."""
         return cast(list[FinishReason], self.finish_reasons)
-
     @property
-    def common_message_param(self):  # pyright: ignore [reportIncompatibleMethodOverride]
+    def common_message_param(self):
         """Return a dummy message param."""
         return BaseMessageParam(role="assistant", content="common_message")
-
     @property
     def common_user_message_param(self):
         """Return a dummy user message param."""
         return BaseMessageParam(role="user", content="common_user_message")
-
     @property
     def common_usage(self):
         """Return a dummy usage instance."""
         ...
-
-    def common_construct_message_param(
-        self, tool_calls: list[Any] | None, content: str | None
-    ):
+    def common_construct_message_param(self, tool_calls: list[Any] | None, content: str | None):
         """Return a dummy CallResponse instance."""
         ...
 
@@ -337,13 +301,10 @@ def dummy_call_response_instance():
 @pytest.fixture
 def fake_llm_call_async_fixture(dummy_call_response_instance: CallResponse):
     """Fixture that returns a fake llm.call function for async branch."""
-
     def fake_llm_call_async(**kwargs):
         def inner(mirascope_prompt):
             return lambda *args, **kwargs: dummy_call_response_instance
-
         return inner
-
     return fake_llm_call_async
 
 
@@ -359,63 +320,48 @@ async def async_outer(param: str) -> str:
     return "async outer"
 
 
-def fake_mirascope_middleware_sync(
-    generation, arg_values, is_async, prompt_template, span_context_holder
-):
+def fake_mirascope_middleware_sync(generation, arg_values, is_async, prompt_template, span_context_holder):
     """Simulate a synchronous mirascope middleware returning a dummy result."""
-
     def middleware(fn):
         def wrapped(*args, **kwargs):
             return "managed sync result"
-
         return wrapped
-
     return middleware
 
 
-def fake_mirascope_middleware_async(
-    generation, arg_values, is_async, prompt_template, span_context_holder
-):
+def fake_mirascope_middleware_async(generation, arg_values, is_async, prompt_template, span_context_holder):
     """Simulate an asynchronous mirascope middleware returning a dummy result."""
-
     def middleware(fn):
         async def wrapped(*args, **kwargs):
             return "managed async result"
-
         return wrapped
-
     return middleware
 
 
 def fake_llm_call(**kwargs):
     """Fake llm.call which ignores its arguments and returns a dummy callable."""
-
     def inner(mirascope_prompt):
         return lambda *args, **kwargs: dummy_call_response_instance
-
     return inner
 
 
 def fake_llm_call_async(**kwargs):
     """Fake llm.call which ignores its arguments and returns a dummy callable."""
-
     def inner(mirascope_prompt):
         return lambda *args, **kwargs: "managed async result"
-
     return inner
 
 
-def test_sync_managed_generation(
-    dummy_generation_instance: GenerationPublic, dummy_call_response_instance
-):
+def test_sync_managed_generation(dummy_generation_instance: GenerationPublic, dummy_call_response_instance):
     """Test that a synchronous function decorated with @generation(managed=True)
     follows the mirascope branch.
     """
+    # Create a mock Lilypad instance with the required projects attribute
+    mock_lilypad = MagicMock()
+    mock_lilypad.projects.generations.name.retrieve_deployed.return_value = dummy_generation_instance
+
     with (
-        patch(
-            "lilypad.Lilypad.projects.generations.name.retrieve_deployed",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.Lilypad", return_value=mock_lilypad),
         patch("lilypad.generations.llm.call") as mock_llm_call,
     ):
         mock_mirascope_call = MagicMock()
@@ -437,17 +383,16 @@ def test_sync_managed_generation(
 
 
 @pytest.mark.asyncio
-async def test_async_managed_generation(
-    dummy_generation_instance: GenerationPublic, dummy_call_response_instance
-):
-    """Test that a asynchronous function decorated with @generation(managed=True)
+async def test_async_managed_generation(dummy_generation_instance: GenerationPublic, dummy_call_response_instance):
+    """Test that an asynchronous function decorated with @generation(managed=True)
     follows the mirascope branch.
     """
+    # Create a mock AsyncLilypad instance with the required projects attribute
+    mock_async_lilypad = MagicMock()
+    mock_async_lilypad.projects.generations.name.retrieve_deployed.return_value = dummy_generation_instance
+
     with (
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.name.retrieve_deployed",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.AsyncLilypad", return_value=mock_async_lilypad),
         patch("lilypad.generations.llm.call") as mock_llm_call,
     ):
         mock_mirascope_call = MagicMock()
@@ -470,20 +415,16 @@ async def test_async_managed_generation(
 
 def test_sync_mirascope_attr(dummy_generation_instance: GenerationPublic):
     """Test that a synchronous function with __mirascope_call__ set follows the mirascope branch."""
-
     def base_sync(param: str) -> str:
         return "should not be used"
-
     base_sync.__mirascope_call__ = True  # pyright: ignore [reportFunctionMemberAccess]
+
+    mock_lilypad = MagicMock()
+    mock_lilypad.projects.generations.name.retrieve_by_version.return_value = dummy_generation_instance
+
     with (
-        patch(
-            "lilypad.generations.create_mirascope_middleware",
-            side_effect=fake_mirascope_middleware_sync,
-        ),
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.name.retrieve_by_version",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.create_mirascope_middleware", side_effect=fake_mirascope_middleware_sync),
+        patch("lilypad.generations.Lilypad", return_value=mock_lilypad),
         patch("lilypad.generations.llm.call", side_effect=fake_llm_call),
     ):
         decorated = generation()(base_sync)
@@ -494,20 +435,16 @@ def test_sync_mirascope_attr(dummy_generation_instance: GenerationPublic):
 @pytest.mark.asyncio
 async def test_async_mirascope_attr(dummy_generation_instance: GenerationPublic):
     """Test that an asynchronous function with __mirascope_call__ set follows the mirascope branch."""
-
     async def base_async(param: str) -> str:
         return "should not be used"
-
     base_async.__mirascope_call__ = True  # pyright: ignore [reportFunctionMemberAccess]
+
+    mock_async_lilypad = MagicMock()
+    mock_async_lilypad.projects.generations.name.retrieve_by_version.return_value = dummy_generation_instance
+
     with (
-        patch(
-            "lilypad.generations.create_mirascope_middleware",
-            side_effect=fake_mirascope_middleware_async,
-        ),
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.name.retrieve_by_version",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.create_mirascope_middleware", side_effect=fake_mirascope_middleware_async),
+        patch("lilypad.generations.AsyncLilypad", return_value=mock_async_lilypad),
         patch("lilypad.generations.llm.call", side_effect=fake_llm_call),
     ):
         decorated = generation()(base_async)
@@ -519,7 +456,6 @@ def test_nested_order_sync(dummy_generation_instance: GenerationPublic):
     """Test that nested synchronous spans are assigned order values in the call order.
     Expected order: outer span should have order 1, inner spans should have subsequent orders.
     """
-
     @generation()
     def inner1(param: str) -> str:
         return "inner1 result"
@@ -534,10 +470,10 @@ def test_nested_order_sync(dummy_generation_instance: GenerationPublic):
         b = inner2("dummy")
         return f"outer {a} {b}"
 
-    with patch(
-        "lilypad.generations.Lilypad..projects.generations.retrieve_by_hash",
-        return_value=dummy_generation_instance,
-    ):
+    mock_lilypad = MagicMock()
+    mock_lilypad.projects.generations.retrieve_by_hash.return_value = dummy_generation_instance
+
+    with patch("lilypad.generations.Lilypad", return_value=mock_lilypad):
         result = outer("dummy")
         assert result == "outer inner1 result inner2 result"
 
@@ -547,7 +483,6 @@ async def test_nested_order_async(dummy_generation_instance: GenerationPublic):
     """Test that nested asynchronous spans are assigned order values in the call order.
     Expected order: outer span, then inner1, then inner2.
     """
-
     @generation()
     async def async_inner1(param: str) -> str:
         return "async inner1"
@@ -562,10 +497,10 @@ async def test_nested_order_async(dummy_generation_instance: GenerationPublic):
         b = await async_inner2("dummy")
         return f"async outer {a} {b}"
 
-    with patch(
-        "lilypad.generations.Lilypad.projects.generations.retrieve_by_hash",
-        return_value=dummy_generation_instance,
-    ):
+    mock_async_lilypad = MagicMock()
+    mock_async_lilypad.projects.generations.retrieve_by_hash.return_value = dummy_generation_instance
+
+    with patch("lilypad.generations.AsyncLilypad", return_value=mock_async_lilypad):
         result = await async_outer("dummy")
         assert result == "async outer async inner1 async inner2"
 
@@ -575,21 +510,15 @@ def test_version_sync(dummy_generation_instance: GenerationPublic):
     This forces a specific version and ensures that the correct generation is used.
     """
     forced_version = 2  # Use an integer version as forced version.
+    mock_lilypad = MagicMock()
+    mock_get_ver = MagicMock(return_value=dummy_generation_instance)
+    mock_lilypad.projects.generations.name.retrieve_by_version = mock_get_ver
+    mock_lilypad.projects.generations.retrieve_by_hash.return_value = dummy_generation_instance
+
     with (
-        patch(
-            "lilypad.generations.Lilypad.get_generation_by_version",
-            return_value=dummy_generation_instance,
-        ) as mock_get_ver,
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.retrieve_by_hash",
-            return_value=dummy_generation_instance,
-        ),
-        patch(
-            "lilypad.generations.SubprocessSandboxRunner",
-        ) as mock_runner,
-        patch(
-            "lilypad._utils.license._validate_license_with_client",
-        ),
+        patch("lilypad.generations.Lilypad", return_value=mock_lilypad),
+        patch("lilypad.generations.SubprocessSandboxRunner") as mock_runner,
+        patch("lilypad._utils.license._validate_license_with_client"),
     ):
         mock_runner.return_value.execute_function.return_value = "sync outer"
         versioned_func = sync_outer.version(forced_version)
@@ -614,21 +543,14 @@ async def test_version_async(dummy_generation_instance: GenerationPublic):
     This forces a specific version and ensures that the correct generation is used.
     """
     forced_version = 2  # Use an integer version as forced version.
+    mock_async_lilypad = MagicMock()
+    mock_get_ver = MagicMock(return_value=dummy_generation_instance)
+    mock_async_lilypad.projects.generations.name.retrieve_by_version = mock_get_ver
+
     with (
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.retrieve_by_hash",
-            return_value=dummy_generation_instance,
-        ) as mock_get_ver,
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.retrieve_by_hash",
-            return_value=dummy_generation_instance,
-        ),
-        patch(
-            "lilypad.generations.SubprocessSandboxRunner",
-        ) as mock_runner,
-        patch(
-            "lilypad._utils.license._validate_license_with_client",
-        ),
+        patch("lilypad.generations.AsyncLilypad", return_value=mock_async_lilypad),
+        patch("lilypad.generations.SubprocessSandboxRunner") as mock_runner,
+        patch("lilypad._utils.license._validate_license_with_client"),
     ):
         mock_runner.return_value.execute_function.return_value = "sync outer"
         versioned_func = async_outer.version(forced_version)
@@ -647,98 +569,69 @@ async def test_version_async(dummy_generation_instance: GenerationPublic):
         )
 
 
-def test_build_mirascope_call_async(
-    dummy_generation_instance: GenerationPublic, patched_llm_call_async
-):
+def test_build_mirascope_call_async(dummy_generation_instance: GenerationPublic, patched_llm_call_async):
     """Test _build_mirascope_call branch async call."""
     dummy_generation_instance.prompt_template = "dummy_template"
-
     async def dummy_fn():
         return None
-
     result = _build_mirascope_call(dummy_generation_instance, dummy_fn)
     assert result().content == "dummy_content"  # pyright: ignore [reportAttributeAccessIssue]
 
 
-def test_build_mirascope_call_sync(
-    dummy_generation_instance: GenerationPublic, patched_llm_call
-):
+def test_build_mirascope_call_sync(dummy_generation_instance: GenerationPublic, patched_llm_call):
     """Test _build_mirascope_call branch sync call."""
     dummy_generation_instance.prompt_template = "dummy_template"
-
     def dummy_fn():
         return None
-
     result = _build_mirascope_call(dummy_generation_instance, dummy_fn)
     assert result().content == "dummy_content"
 
 
-def test_wrap_mode_sync_non_managed(
-    dummy_generation_instance: GenerationPublic, dummy_call_response_instance
-):
+def test_wrap_mode_sync_non_managed(dummy_generation_instance: GenerationPublic, dummy_call_response_instance):
     """Test that a synchronous function decorated with @generation(mode=GenerationMode.WRAP, managed=False)
     returns a Generation object wrapping the original output.
     """
-
     @generation(mode=GenerationMode.WRAP)
     def wrap_sync(param: str) -> str:
         return "sync wrap test"
-
+    mock_lilypad = MagicMock()
+    mock_lilypad.projects.generations.retrieve_by_hash.return_value = dummy_generation_instance
     with (
-        patch(
-            "lilypad.generations.create_mirascope_middleware",
-            side_effect=fake_mirascope_middleware_sync,
-        ),
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.retrieve_by_has",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.create_mirascope_middleware", side_effect=fake_mirascope_middleware_sync),
+        patch("lilypad.generations.Lilypad", return_value=mock_lilypad),
         patch("lilypad.generations.llm.call", side_effect=fake_llm_call),
     ):
         result = wrap_sync("test")
-
     assert isinstance(result, Generation)
     assert result.output == "sync wrap test"
 
 
 @pytest.mark.asyncio
-async def test_wrap_mode_async_non_managed(
-    dummy_generation_instance: GenerationPublic, dummy_call_response_instance
-):
+async def test_wrap_mode_async_non_managed(dummy_generation_instance: GenerationPublic, dummy_call_response_instance):
     """Test that an asynchronous function decorated with @generation(mode=GenerationMode.WRAP, managed=False)
     returns a Generation object wrapping the original output.
     """
-
     @generation(mode=GenerationMode.WRAP)
     async def wrap_async(param: str) -> str:
         return "async wrap test"
-
+    mock_async_lilypad = MagicMock()
+    mock_async_lilypad.projects.generations.name.retrieve_by_version.return_value = dummy_generation_instance
     with (
-        patch(
-            "lilypad.generations.create_mirascope_middleware",
-            side_effect=fake_mirascope_middleware_async,
-        ),
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.name.retrieve_by_version",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.create_mirascope_middleware", side_effect=fake_mirascope_middleware_async),
+        patch("lilypad.generations.AsyncLilypad", return_value=mock_async_lilypad),
         patch("lilypad.generations.llm.call", side_effect=fake_llm_call),
     ):
         result = await wrap_async("test")
-
     assert isinstance(result, Generation)
     assert result.output == "async wrap test"
 
 
-def test_build_mirascope_call_invalid_model(
-    dummy_generation_instance: GenerationPublic,
-):
+def test_build_mirascope_call_invalid_model(dummy_generation_instance: GenerationPublic):
     """Test that _build_mirascope_call raises ValueError when the GenerationPublic instance is missing model or provider."""
     invalid_gen = dummy_generation_instance.model_copy()
     invalid_gen.model = None
     with pytest.raises(ValueError, match="Managed generation requires `model`"):
         _build_mirascope_call(invalid_gen, lambda: None)
-
     # Now test with a missing provider.
     invalid_gen = dummy_generation_instance.model_copy()
     invalid_gen.provider = None
@@ -749,23 +642,16 @@ def test_build_mirascope_call_invalid_model(
 def test_trace_with_base_model(dummy_generation_instance: GenerationPublic):
     """Test that if a function returns a Pydantic BaseModel, the generation decorator converts it to a string."""
     from pydantic import BaseModel
-
     class DummyModel(BaseModel):
         value: str
-
     @generation()
     def model_sync(param: str) -> DummyModel:
         return DummyModel(value="model output")
-
+    mock_lilypad = MagicMock()
+    mock_lilypad.projects.generations.name.retrieve_by_version.return_value = dummy_generation_instance
     with (
-        patch(
-            "lilypad.generations.create_mirascope_middleware",
-            side_effect=fake_mirascope_middleware_sync,
-        ),
-        patch(
-            "lilypad.generations.Lilypad.projects.generations.name.retrieve_by_version",
-            return_value=dummy_generation_instance,
-        ),
+        patch("lilypad.generations.create_mirascope_middleware", side_effect=fake_mirascope_middleware_sync),
+        patch("lilypad.generations.Lilypad", return_value=mock_lilypad),
         patch("lilypad.generations.llm.call", side_effect=fake_llm_call),
     ):
         result = model_sync("test")
