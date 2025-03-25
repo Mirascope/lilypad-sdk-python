@@ -51,7 +51,7 @@ class SpansResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> object:
         """
-        Stream generation.
+        Stream function.
 
         Args:
           extra_headers: Send extra headers
@@ -108,7 +108,7 @@ class AsyncSpansResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> object:
         """
-        Stream generation.
+        Stream function.
 
         Args:
           extra_headers: Send extra headers

@@ -24,22 +24,6 @@ from .annotations import (
     AnnotationsResourceWithStreamingResponse,
     AsyncAnnotationsResourceWithStreamingResponse,
 )
-from .generations import (
-    GenerationsResource,
-    AsyncGenerationsResource,
-    GenerationsResourceWithRawResponse,
-    AsyncGenerationsResourceWithRawResponse,
-    GenerationsResourceWithStreamingResponse,
-    AsyncGenerationsResourceWithStreamingResponse,
-)
-from .environments import (
-    EnvironmentsResource,
-    AsyncEnvironmentsResource,
-    EnvironmentsResourceWithRawResponse,
-    AsyncEnvironmentsResourceWithRawResponse,
-    EnvironmentsResourceWithStreamingResponse,
-    AsyncEnvironmentsResourceWithStreamingResponse,
-)
 
 __all__ = [
     "AnnotationsResource",
@@ -48,24 +32,12 @@ __all__ = [
     "AsyncAnnotationsResourceWithRawResponse",
     "AnnotationsResourceWithStreamingResponse",
     "AsyncAnnotationsResourceWithStreamingResponse",
-    "GenerationsResource",
-    "AsyncGenerationsResource",
-    "GenerationsResourceWithRawResponse",
-    "AsyncGenerationsResourceWithRawResponse",
-    "GenerationsResourceWithStreamingResponse",
-    "AsyncGenerationsResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
     "AsyncSpansResourceWithRawResponse",
     "SpansResourceWithStreamingResponse",
     "AsyncSpansResourceWithStreamingResponse",
-    "EnvironmentsResource",
-    "AsyncEnvironmentsResource",
-    "EnvironmentsResourceWithRawResponse",
-    "AsyncEnvironmentsResourceWithRawResponse",
-    "EnvironmentsResourceWithStreamingResponse",
-    "AsyncEnvironmentsResourceWithStreamingResponse",
     "ProjectsResource",
     "AsyncProjectsResource",
     "ProjectsResourceWithRawResponse",
