@@ -25,6 +25,7 @@ from collections.abc import Callable, Coroutine, Generator
 from mirascope import llm
 from mirascope.core import prompt_template
 from mirascope.core.base import CommonCallParams
+from opentelemetry.trace import get_tracer
 from opentelemetry.util.types import AttributeValue
 from mirascope.core.base.types import Provider
 from mirascope.llm.call_response import CallResponse
@@ -39,9 +40,10 @@ from ._utils import (
     jsonable_encoder,
     inspect_arguments,
     create_mirascope_middleware,
+    get_qualified_name,
 )
 from .stream import Stream
-from .traces import TraceDecorator, _trace, _get_batch_span_processor
+from .traces import TraceDecorator, _get_batch_span_processor, _TraceAttribute, span_order_context, _set_span_attributes
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .messages import Message
@@ -467,6 +469,55 @@ def _build_generation_call(
             return sandbox_runner.execute_function(closure, *args, **kwargs)
 
         return sync_wrapper
+
+def _trace(
+    trace_type: str,
+    trace_attribute: _TraceAttribute,
+) -> TraceDecorator:
+    @overload
+    def decorator(
+        fn: Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
+
+    @overload
+    def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
+
+    def decorator(
+        fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
+        if fn_is_async(fn):
+
+            @wraps(fn)
+            async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                    _set_span_attributes(trace_type, span, trace_attribute, is_async=True) as result_holder,
+                ):
+                    output = await fn(*args, **kwargs)
+                    result_holder.set_result(output)
+
+                return output  # pyright: ignore [reportReturnType]
+
+            return inner_async
+
+        else:
+
+            @wraps(fn)
+            def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                    _set_span_attributes(trace_type, span, trace_attribute, is_async=False) as result_holder,
+                ):
+                    output = fn(*args, **kwargs)
+                    result_holder.set_result(output)
+                return output  # pyright: ignore [reportReturnType]
+
+            return inner
+
+    return decorator
+
 
 
 _ArgTypes: typing.TypeAlias = dict[str, str]

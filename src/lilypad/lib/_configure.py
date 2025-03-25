@@ -125,6 +125,7 @@ def configure(
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
+    auto_llm: bool = False
 ) -> None:
     """Initialize the OpenTelemetry instrumentation for Lilypad and configure log outputs.
 
@@ -151,6 +152,10 @@ def configure(
     processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
+
+    if not auto_llm:
+        return
+
     if importlib.util.find_spec("openai") is not None:
         from lilypad.lib._opentelemetry import OpenAIInstrumentor
 
