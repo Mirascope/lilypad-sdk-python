@@ -17,7 +17,7 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ...types.auth import github_handle_callback_params
+from ...types.auth import github_callback_params
 from ..._base_client import make_request_options
 from ...types.auth.user_public import UserPublic
 
@@ -44,7 +44,7 @@ class GitHubResource(SyncAPIResource):
         """
         return GitHubResourceWithStreamingResponse(self)
 
-    def handle_callback(
+    def callback(
         self,
         *,
         code: str,
@@ -77,7 +77,7 @@ class GitHubResource(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=maybe_transform({"code": code}, github_handle_callback_params.GitHubHandleCallbackParams),
+                query=maybe_transform({"code": code}, github_callback_params.GitHubCallbackParams),
             ),
             cast_to=UserPublic,
         )
@@ -103,7 +103,7 @@ class AsyncGitHubResource(AsyncAPIResource):
         """
         return AsyncGitHubResourceWithStreamingResponse(self)
 
-    async def handle_callback(
+    async def callback(
         self,
         *,
         code: str,
@@ -136,9 +136,7 @@ class AsyncGitHubResource(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
-                query=await async_maybe_transform(
-                    {"code": code}, github_handle_callback_params.GitHubHandleCallbackParams
-                ),
+                query=await async_maybe_transform({"code": code}, github_callback_params.GitHubCallbackParams),
             ),
             cast_to=UserPublic,
         )
@@ -148,8 +146,8 @@ class GitHubResourceWithRawResponse:
     def __init__(self, github: GitHubResource) -> None:
         self._github = github
 
-        self.handle_callback = to_raw_response_wrapper(
-            github.handle_callback,
+        self.callback = to_raw_response_wrapper(
+            github.callback,
         )
 
 
@@ -157,8 +155,8 @@ class AsyncGitHubResourceWithRawResponse:
     def __init__(self, github: AsyncGitHubResource) -> None:
         self._github = github
 
-        self.handle_callback = async_to_raw_response_wrapper(
-            github.handle_callback,
+        self.callback = async_to_raw_response_wrapper(
+            github.callback,
         )
 
 
@@ -166,8 +164,8 @@ class GitHubResourceWithStreamingResponse:
     def __init__(self, github: GitHubResource) -> None:
         self._github = github
 
-        self.handle_callback = to_streamed_response_wrapper(
-            github.handle_callback,
+        self.callback = to_streamed_response_wrapper(
+            github.callback,
         )
 
 
@@ -175,6 +173,6 @@ class AsyncGitHubResourceWithStreamingResponse:
     def __init__(self, github: AsyncGitHubResource) -> None:
         self._github = github
 
-        self.handle_callback = async_to_streamed_response_wrapper(
-            github.handle_callback,
+        self.callback = async_to_streamed_response_wrapper(
+            github.callback,
         )

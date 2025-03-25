@@ -3,5 +3,5 @@
 from __future__ import annotations
 
 from .user_public import UserPublic as UserPublic
-from .github_handle_callback_params import GitHubHandleCallbackParams as GitHubHandleCallbackParams
-from .google_handle_callback_params import GoogleHandleCallbackParams as GoogleHandleCallbackParams
+from .github_callback_params import GitHubCallbackParams as GitHubCallbackParams
+from .google_callback_params import GoogleCallbackParams as GoogleCallbackParams

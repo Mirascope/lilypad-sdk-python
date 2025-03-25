@@ -9,4 +9,4 @@ __all__ = ["TraceListResponse"]
 
 TraceListResponse: TypeAlias = List["SpanPublic"]
 
-from .generations.span_public import SpanPublic
+from .functions.span_public import SpanPublic

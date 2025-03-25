@@ -64,6 +64,14 @@ from .current_user import (
     CurrentUserResourceWithStreamingResponse,
     AsyncCurrentUserResourceWithStreamingResponse,
 )
+from .environments import (
+    EnvironmentsResource,
+    AsyncEnvironmentsResource,
+    EnvironmentsResourceWithRawResponse,
+    AsyncEnvironmentsResourceWithRawResponse,
+    EnvironmentsResourceWithStreamingResponse,
+    AsyncEnvironmentsResourceWithStreamingResponse,
+)
 from .organizations import (
     OrganizationsResource,
     AsyncOrganizationsResource,
@@ -150,6 +158,12 @@ __all__ = [
     "AsyncExternalAPIKeysResourceWithRawResponse",
     "ExternalAPIKeysResourceWithStreamingResponse",
     "AsyncExternalAPIKeysResourceWithStreamingResponse",
+    "EnvironmentsResource",
+    "AsyncEnvironmentsResource",
+    "EnvironmentsResourceWithRawResponse",
+    "AsyncEnvironmentsResourceWithRawResponse",
+    "EnvironmentsResourceWithStreamingResponse",
+    "AsyncEnvironmentsResourceWithStreamingResponse",
     "SettingsResource",
     "AsyncSettingsResource",
     "SettingsResourceWithRawResponse",

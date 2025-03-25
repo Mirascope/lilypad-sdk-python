@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from typing import Dict, Union, Optional
+from datetime import datetime
+
 import httpx
 
 from .spans import (
@@ -20,7 +23,11 @@ from .traces import (
     TracesResourceWithStreamingResponse,
     AsyncTracesResourceWithStreamingResponse,
 )
-from ...types import project_create_params, project_update_params
+from ...types import (
+    project_create_params,
+    project_update_params,
+    project_create_versioned_function_params,
+)
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from ..._utils import (
     maybe_transform,
@@ -34,15 +41,37 @@ from ..._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
+from .environments import (
+    EnvironmentsResource,
+    AsyncEnvironmentsResource,
+    EnvironmentsResourceWithRawResponse,
+    AsyncEnvironmentsResourceWithRawResponse,
+    EnvironmentsResourceWithStreamingResponse,
+    AsyncEnvironmentsResourceWithStreamingResponse,
+)
 from ..._base_client import make_request_options
+from .functions.functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
 from ...types.project_public import ProjectPublic
 from ...types.project_list_response import ProjectListResponse
 from ...types.project_delete_response import ProjectDeleteResponse
+from ...types.projects.functions.function_public import FunctionPublic
+from ...types.projects.functions.common_call_params_param import CommonCallParamsParam
 
 __all__ = ["ProjectsResource", "AsyncProjectsResource"]
 
 
 class ProjectsResource(SyncAPIResource):
+    @cached_property
+    def functions(self) -> FunctionsResource:
+        return FunctionsResource(self._client)
+
     @cached_property
     def spans(self) -> SpansResource:
         return SpansResource(self._client)
@@ -50,6 +79,10 @@ class ProjectsResource(SyncAPIResource):
     @cached_property
     def traces(self) -> TracesResource:
         return TracesResource(self._client)
+
+    @cached_property
+    def environments(self) -> EnvironmentsResource:
+        return EnvironmentsResource(self._client)
 
     @cached_property
     def with_raw_response(self) -> ProjectsResourceWithRawResponse:
@@ -222,8 +255,92 @@ class ProjectsResource(SyncAPIResource):
             cast_to=ProjectDeleteResponse,
         )
 
+    def create_versioned_function(
+        self,
+        path_project_uuid: str,
+        *,
+        code: str,
+        hash: str,
+        name: str,
+        signature: str,
+        archived: Union[str, datetime, None] | NotGiven = NOT_GIVEN,
+        arg_types: Dict[str, str] | NotGiven = NOT_GIVEN,
+        call_params: CommonCallParamsParam | NotGiven = NOT_GIVEN,
+        custom_id: Optional[str] | NotGiven = NOT_GIVEN,
+        dependencies: Dict[str, project_create_versioned_function_params.Dependencies] | NotGiven = NOT_GIVEN,
+        is_versioned: Optional[bool] | NotGiven = NOT_GIVEN,
+        model: Optional[str] | NotGiven = NOT_GIVEN,
+        body_project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
+        prompt_template: Optional[str] | NotGiven = NOT_GIVEN,
+        provider: Optional[str] | NotGiven = NOT_GIVEN,
+        version_num: Optional[int] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> FunctionPublic:
+        """
+        Create a managed function.
+
+        Args:
+          call_params: Common parameters shared across LLM providers.
+
+              Note: Each provider may handle these parameters differently or not support them
+              at all. Please check provider-specific documentation for parameter support and
+              behavior.
+
+              Attributes: temperature: Controls randomness in the output (0.0 to 1.0).
+              max_tokens: Maximum number of tokens to generate. top_p: Nucleus sampling
+              parameter (0.0 to 1.0). frequency_penalty: Penalizes frequent tokens (-2.0 to
+              2.0). presence_penalty: Penalizes tokens based on presence (-2.0 to 2.0). seed:
+              Random seed for reproducibility. stop: Stop sequence(s) to end generation.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
+        return self._post(
+            f"/projects/{path_project_uuid}/versioned-functions",
+            body=maybe_transform(
+                {
+                    "code": code,
+                    "hash": hash,
+                    "name": name,
+                    "signature": signature,
+                    "archived": archived,
+                    "arg_types": arg_types,
+                    "call_params": call_params,
+                    "custom_id": custom_id,
+                    "dependencies": dependencies,
+                    "is_versioned": is_versioned,
+                    "model": model,
+                    "body_project_uuid": body_project_uuid,
+                    "prompt_template": prompt_template,
+                    "provider": provider,
+                    "version_num": version_num,
+                },
+                project_create_versioned_function_params.ProjectCreateVersionedFunctionParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=FunctionPublic,
+        )
+
 
 class AsyncProjectsResource(AsyncAPIResource):
+    @cached_property
+    def functions(self) -> AsyncFunctionsResource:
+        return AsyncFunctionsResource(self._client)
+
     @cached_property
     def spans(self) -> AsyncSpansResource:
         return AsyncSpansResource(self._client)
@@ -231,6 +348,10 @@ class AsyncProjectsResource(AsyncAPIResource):
     @cached_property
     def traces(self) -> AsyncTracesResource:
         return AsyncTracesResource(self._client)
+
+    @cached_property
+    def environments(self) -> AsyncEnvironmentsResource:
+        return AsyncEnvironmentsResource(self._client)
 
     @cached_property
     def with_raw_response(self) -> AsyncProjectsResourceWithRawResponse:
@@ -403,6 +524,86 @@ class AsyncProjectsResource(AsyncAPIResource):
             cast_to=ProjectDeleteResponse,
         )
 
+    async def create_versioned_function(
+        self,
+        path_project_uuid: str,
+        *,
+        code: str,
+        hash: str,
+        name: str,
+        signature: str,
+        archived: Union[str, datetime, None] | NotGiven = NOT_GIVEN,
+        arg_types: Dict[str, str] | NotGiven = NOT_GIVEN,
+        call_params: CommonCallParamsParam | NotGiven = NOT_GIVEN,
+        custom_id: Optional[str] | NotGiven = NOT_GIVEN,
+        dependencies: Dict[str, project_create_versioned_function_params.Dependencies] | NotGiven = NOT_GIVEN,
+        is_versioned: Optional[bool] | NotGiven = NOT_GIVEN,
+        model: Optional[str] | NotGiven = NOT_GIVEN,
+        body_project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
+        prompt_template: Optional[str] | NotGiven = NOT_GIVEN,
+        provider: Optional[str] | NotGiven = NOT_GIVEN,
+        version_num: Optional[int] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> FunctionPublic:
+        """
+        Create a managed function.
+
+        Args:
+          call_params: Common parameters shared across LLM providers.
+
+              Note: Each provider may handle these parameters differently or not support them
+              at all. Please check provider-specific documentation for parameter support and
+              behavior.
+
+              Attributes: temperature: Controls randomness in the output (0.0 to 1.0).
+              max_tokens: Maximum number of tokens to generate. top_p: Nucleus sampling
+              parameter (0.0 to 1.0). frequency_penalty: Penalizes frequent tokens (-2.0 to
+              2.0). presence_penalty: Penalizes tokens based on presence (-2.0 to 2.0). seed:
+              Random seed for reproducibility. stop: Stop sequence(s) to end generation.
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not path_project_uuid:
+            raise ValueError(f"Expected a non-empty value for `path_project_uuid` but received {path_project_uuid!r}")
+        return await self._post(
+            f"/projects/{path_project_uuid}/versioned-functions",
+            body=await async_maybe_transform(
+                {
+                    "code": code,
+                    "hash": hash,
+                    "name": name,
+                    "signature": signature,
+                    "archived": archived,
+                    "arg_types": arg_types,
+                    "call_params": call_params,
+                    "custom_id": custom_id,
+                    "dependencies": dependencies,
+                    "is_versioned": is_versioned,
+                    "model": model,
+                    "body_project_uuid": body_project_uuid,
+                    "prompt_template": prompt_template,
+                    "provider": provider,
+                    "version_num": version_num,
+                },
+                project_create_versioned_function_params.ProjectCreateVersionedFunctionParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=FunctionPublic,
+        )
+
 
 class ProjectsResourceWithRawResponse:
     def __init__(self, projects: ProjectsResource) -> None:
@@ -423,6 +624,13 @@ class ProjectsResourceWithRawResponse:
         self.delete = to_raw_response_wrapper(
             projects.delete,
         )
+        self.create_versioned_function = to_raw_response_wrapper(
+            projects.create_versioned_function,
+        )
+
+    @cached_property
+    def functions(self) -> FunctionsResourceWithRawResponse:
+        return FunctionsResourceWithRawResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> SpansResourceWithRawResponse:
@@ -431,6 +639,10 @@ class ProjectsResourceWithRawResponse:
     @cached_property
     def traces(self) -> TracesResourceWithRawResponse:
         return TracesResourceWithRawResponse(self._projects.traces)
+
+    @cached_property
+    def environments(self) -> EnvironmentsResourceWithRawResponse:
+        return EnvironmentsResourceWithRawResponse(self._projects.environments)
 
 
 class AsyncProjectsResourceWithRawResponse:
@@ -452,6 +664,13 @@ class AsyncProjectsResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             projects.delete,
         )
+        self.create_versioned_function = async_to_raw_response_wrapper(
+            projects.create_versioned_function,
+        )
+
+    @cached_property
+    def functions(self) -> AsyncFunctionsResourceWithRawResponse:
+        return AsyncFunctionsResourceWithRawResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> AsyncSpansResourceWithRawResponse:
@@ -460,6 +679,10 @@ class AsyncProjectsResourceWithRawResponse:
     @cached_property
     def traces(self) -> AsyncTracesResourceWithRawResponse:
         return AsyncTracesResourceWithRawResponse(self._projects.traces)
+
+    @cached_property
+    def environments(self) -> AsyncEnvironmentsResourceWithRawResponse:
+        return AsyncEnvironmentsResourceWithRawResponse(self._projects.environments)
 
 
 class ProjectsResourceWithStreamingResponse:
@@ -481,6 +704,13 @@ class ProjectsResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             projects.delete,
         )
+        self.create_versioned_function = to_streamed_response_wrapper(
+            projects.create_versioned_function,
+        )
+
+    @cached_property
+    def functions(self) -> FunctionsResourceWithStreamingResponse:
+        return FunctionsResourceWithStreamingResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> SpansResourceWithStreamingResponse:
@@ -489,6 +719,10 @@ class ProjectsResourceWithStreamingResponse:
     @cached_property
     def traces(self) -> TracesResourceWithStreamingResponse:
         return TracesResourceWithStreamingResponse(self._projects.traces)
+
+    @cached_property
+    def environments(self) -> EnvironmentsResourceWithStreamingResponse:
+        return EnvironmentsResourceWithStreamingResponse(self._projects.environments)
 
 
 class AsyncProjectsResourceWithStreamingResponse:
@@ -510,6 +744,13 @@ class AsyncProjectsResourceWithStreamingResponse:
         self.delete = async_to_streamed_response_wrapper(
             projects.delete,
         )
+        self.create_versioned_function = async_to_streamed_response_wrapper(
+            projects.create_versioned_function,
+        )
+
+    @cached_property
+    def functions(self) -> AsyncFunctionsResourceWithStreamingResponse:
+        return AsyncFunctionsResourceWithStreamingResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> AsyncSpansResourceWithStreamingResponse:
@@ -518,3 +759,7 @@ class AsyncProjectsResourceWithStreamingResponse:
     @cached_property
     def traces(self) -> AsyncTracesResourceWithStreamingResponse:
         return AsyncTracesResourceWithStreamingResponse(self._projects.traces)
+
+    @cached_property
+    def environments(self) -> AsyncEnvironmentsResourceWithStreamingResponse:
+        return AsyncEnvironmentsResourceWithStreamingResponse(self._projects.environments)

@@ -6,10 +6,10 @@ from datetime import datetime
 from .._models import BaseModel
 from .auth.user_public import UserPublic
 
-__all__ = ["OrganizationInvitePublic"]
+__all__ = ["OrganizationInvite"]
 
 
-class OrganizationInvitePublic(BaseModel):
+class OrganizationInvite(BaseModel):
     email: str
 
     invited_by: str
