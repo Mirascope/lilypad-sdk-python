@@ -9,7 +9,7 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types import OrganizationInvitePublic
+from lilypad.types import OrganizationInvite
 from lilypad._utils import parse_datetime
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -25,7 +25,7 @@ class TestOrganizationsInvites:
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -38,7 +38,7 @@ class TestOrganizationsInvites:
             organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             resend_email_id="resend_email_id",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -51,7 +51,7 @@ class TestOrganizationsInvites:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organizations_invite = response.parse()
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -64,7 +64,7 @@ class TestOrganizationsInvites:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organizations_invite = response.parse()
-            assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -74,7 +74,7 @@ class TestOrganizationsInvites:
         organizations_invite = client.organizations_invites.retrieve(
             "invite_token",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -86,7 +86,7 @@ class TestOrganizationsInvites:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organizations_invite = response.parse()
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -98,7 +98,7 @@ class TestOrganizationsInvites:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organizations_invite = response.parse()
-            assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -121,7 +121,7 @@ class TestAsyncOrganizationsInvites:
             email="x",
             invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -134,7 +134,7 @@ class TestAsyncOrganizationsInvites:
             organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             resend_email_id="resend_email_id",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -147,7 +147,7 @@ class TestAsyncOrganizationsInvites:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organizations_invite = await response.parse()
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -160,7 +160,7 @@ class TestAsyncOrganizationsInvites:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organizations_invite = await response.parse()
-            assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -170,7 +170,7 @@ class TestAsyncOrganizationsInvites:
         organizations_invite = await async_client.organizations_invites.retrieve(
             "invite_token",
         )
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -182,7 +182,7 @@ class TestAsyncOrganizationsInvites:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         organizations_invite = await response.parse()
-        assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -194,7 +194,7 @@ class TestAsyncOrganizationsInvites:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             organizations_invite = await response.parse()
-            assert_matches_type(OrganizationInvitePublic, organizations_invite, path=["response"])
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

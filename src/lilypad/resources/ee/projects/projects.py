@@ -10,6 +10,14 @@ from .spans import (
     SpansResourceWithStreamingResponse,
     AsyncSpansResourceWithStreamingResponse,
 )
+from .functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
 from ...._compat import cached_property
 from .annotations import (
     AnnotationsResource,
@@ -28,6 +36,10 @@ class ProjectsResource(SyncAPIResource):
     @cached_property
     def annotations(self) -> AnnotationsResource:
         return AnnotationsResource(self._client)
+
+    @cached_property
+    def functions(self) -> FunctionsResource:
+        return FunctionsResource(self._client)
 
     @cached_property
     def spans(self) -> SpansResource:
@@ -57,6 +69,10 @@ class AsyncProjectsResource(AsyncAPIResource):
     @cached_property
     def annotations(self) -> AsyncAnnotationsResource:
         return AsyncAnnotationsResource(self._client)
+
+    @cached_property
+    def functions(self) -> AsyncFunctionsResource:
+        return AsyncFunctionsResource(self._client)
 
     @cached_property
     def spans(self) -> AsyncSpansResource:
@@ -91,6 +107,10 @@ class ProjectsResourceWithRawResponse:
         return AnnotationsResourceWithRawResponse(self._projects.annotations)
 
     @cached_property
+    def functions(self) -> FunctionsResourceWithRawResponse:
+        return FunctionsResourceWithRawResponse(self._projects.functions)
+
+    @cached_property
     def spans(self) -> SpansResourceWithRawResponse:
         return SpansResourceWithRawResponse(self._projects.spans)
 
@@ -102,6 +122,10 @@ class AsyncProjectsResourceWithRawResponse:
     @cached_property
     def annotations(self) -> AsyncAnnotationsResourceWithRawResponse:
         return AsyncAnnotationsResourceWithRawResponse(self._projects.annotations)
+
+    @cached_property
+    def functions(self) -> AsyncFunctionsResourceWithRawResponse:
+        return AsyncFunctionsResourceWithRawResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> AsyncSpansResourceWithRawResponse:
@@ -117,6 +141,10 @@ class ProjectsResourceWithStreamingResponse:
         return AnnotationsResourceWithStreamingResponse(self._projects.annotations)
 
     @cached_property
+    def functions(self) -> FunctionsResourceWithStreamingResponse:
+        return FunctionsResourceWithStreamingResponse(self._projects.functions)
+
+    @cached_property
     def spans(self) -> SpansResourceWithStreamingResponse:
         return SpansResourceWithStreamingResponse(self._projects.spans)
 
@@ -128,6 +156,10 @@ class AsyncProjectsResourceWithStreamingResponse:
     @cached_property
     def annotations(self) -> AsyncAnnotationsResourceWithStreamingResponse:
         return AsyncAnnotationsResourceWithStreamingResponse(self._projects.annotations)
+
+    @cached_property
+    def functions(self) -> AsyncFunctionsResourceWithStreamingResponse:
+        return AsyncFunctionsResourceWithStreamingResponse(self._projects.functions)
 
     @cached_property
     def spans(self) -> AsyncSpansResourceWithStreamingResponse:

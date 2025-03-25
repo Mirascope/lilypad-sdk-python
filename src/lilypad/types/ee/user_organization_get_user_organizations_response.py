@@ -5,6 +5,6 @@ from typing_extensions import TypeAlias
 
 from .user_organization_table import UserOrganizationTable
 
-__all__ = ["UserOrganizationListResponse"]
+__all__ = ["UserOrganizationGetUserOrganizationsResponse"]
 
-UserOrganizationListResponse: TypeAlias = List[UserOrganizationTable]
+UserOrganizationGetUserOrganizationsResponse: TypeAlias = List[UserOrganizationTable]

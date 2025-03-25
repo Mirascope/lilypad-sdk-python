@@ -19,8 +19,8 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.projects import span_list_aggregates_params
-from ...types.projects.generations import TimeFrame
-from ...types.projects.generations.time_frame import TimeFrame
+from ...types.projects.functions import TimeFrame
+from ...types.projects.functions.time_frame import TimeFrame
 from ...types.projects.span_list_aggregates_response import SpanListAggregatesResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
