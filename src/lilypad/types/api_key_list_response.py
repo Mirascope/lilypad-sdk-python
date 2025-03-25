@@ -7,7 +7,7 @@ from typing_extensions import TypeAlias
 from .._models import BaseModel
 from .project_public import ProjectPublic
 from .auth.user_public import UserPublic
-from .ee.projects.environment_public import EnvironmentPublic
+from .environment_public import EnvironmentPublic
 
 __all__ = ["APIKeyListResponse", "APIKeyListResponseItem"]
 

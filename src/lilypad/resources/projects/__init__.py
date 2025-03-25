@@ -24,8 +24,30 @@ from .projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
+from .functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
+from .environments import (
+    EnvironmentsResource,
+    AsyncEnvironmentsResource,
+    EnvironmentsResourceWithRawResponse,
+    AsyncEnvironmentsResourceWithRawResponse,
+    EnvironmentsResourceWithStreamingResponse,
+    AsyncEnvironmentsResourceWithStreamingResponse,
+)
 
 __all__ = [
+    "FunctionsResource",
+    "AsyncFunctionsResource",
+    "FunctionsResourceWithRawResponse",
+    "AsyncFunctionsResourceWithRawResponse",
+    "FunctionsResourceWithStreamingResponse",
+    "AsyncFunctionsResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
@@ -38,6 +60,12 @@ __all__ = [
     "AsyncTracesResourceWithRawResponse",
     "TracesResourceWithStreamingResponse",
     "AsyncTracesResourceWithStreamingResponse",
+    "EnvironmentsResource",
+    "AsyncEnvironmentsResource",
+    "EnvironmentsResourceWithRawResponse",
+    "AsyncEnvironmentsResourceWithRawResponse",
+    "EnvironmentsResourceWithStreamingResponse",
+    "AsyncEnvironmentsResourceWithStreamingResponse",
     "ProjectsResource",
     "AsyncProjectsResource",
     "ProjectsResourceWithRawResponse",

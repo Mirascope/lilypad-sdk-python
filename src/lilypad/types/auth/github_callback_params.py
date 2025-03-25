@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-__all__ = ["GitHubHandleCallbackParams"]
+__all__ = ["GitHubCallbackParams"]
 
 
-class GitHubHandleCallbackParams(TypedDict, total=False):
+class GitHubCallbackParams(TypedDict, total=False):
     code: Required[str]
