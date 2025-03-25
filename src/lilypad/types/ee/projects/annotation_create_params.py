@@ -20,7 +20,7 @@ class Body(TypedDict, total=False):
 
     data: Optional[object]
 
-    generation_uuid: Optional[str]
+    function_uuid: Optional[str]
 
     label: Optional[Label]
     """Label enum"""

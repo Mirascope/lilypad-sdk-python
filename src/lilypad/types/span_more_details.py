@@ -94,7 +94,7 @@ class SpanMoreDetails(BaseModel):
 
     events: Optional[List[Event]] = None
 
-    generation_uuid: Optional[str] = None
+    function_uuid: Optional[str] = None
 
     input_tokens: Optional[float] = None
 
