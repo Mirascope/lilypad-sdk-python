@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 from datetime import datetime
 from typing_extensions import Literal
 
 from ...._compat import PYDANTIC_V2
 from ...._models import BaseModel
+from .function_public import FunctionPublic
 from ...ee.projects.label import Label
 from ...ee.projects.evaluation_type import EvaluationType
-from ...ee.projects.common_call_params import CommonCallParams
 
-__all__ = ["SpanPublic", "Annotation", "Function", "FunctionDependencies"]
+__all__ = ["SpanPublic", "Annotation"]
 
 
 class Annotation(BaseModel):
@@ -41,58 +41,6 @@ class Annotation(BaseModel):
     uuid: Optional[str] = None
 
 
-class FunctionDependencies(BaseModel):
-    extras: Optional[List[str]] = None
-
-    version: str
-
-
-class Function(BaseModel):
-    code: str
-
-    hash: str
-
-    name: str
-
-    signature: str
-
-    uuid: str
-
-    archived: Optional[datetime] = None
-
-    arg_types: Optional[Dict[str, str]] = None
-
-    call_params: Optional[CommonCallParams] = None
-    """Common parameters shared across LLM providers.
-
-    Note: Each provider may handle these parameters differently or not support them
-    at all. Please check provider-specific documentation for parameter support and
-    behavior.
-
-    Attributes: temperature: Controls randomness in the output (0.0 to 1.0).
-    max_tokens: Maximum number of tokens to generate. top_p: Nucleus sampling
-    parameter (0.0 to 1.0). frequency_penalty: Penalizes frequent tokens (-2.0 to
-    2.0). presence_penalty: Penalizes tokens based on presence (-2.0 to 2.0). seed:
-    Random seed for reproducibility. stop: Stop sequence(s) to end generation.
-    """
-
-    custom_id: Optional[str] = None
-
-    dependencies: Optional[Dict[str, FunctionDependencies]] = None
-
-    is_versioned: Optional[bool] = None
-
-    model: Optional[str] = None
-
-    project_uuid: Optional[str] = None
-
-    prompt_template: Optional[str] = None
-
-    provider: Optional[str] = None
-
-    version_num: Optional[int] = None
-
-
 class SpanPublic(BaseModel):
     annotations: List[Annotation]
 
@@ -117,7 +65,7 @@ class SpanPublic(BaseModel):
 
     duration_ms: Optional[float] = None
 
-    function: Optional[Function] = None
+    function: Optional[FunctionPublic] = None
     """Function public model."""
 
     function_uuid: Optional[str] = None
@@ -139,10 +87,6 @@ class SpanPublic(BaseModel):
 if PYDANTIC_V2:
     SpanPublic.model_rebuild()
     Annotation.model_rebuild()
-    Function.model_rebuild()
-    FunctionDependencies.model_rebuild()
 else:
     SpanPublic.update_forward_refs()  # type: ignore
     Annotation.update_forward_refs()  # type: ignore
-    Function.update_forward_refs()  # type: ignore
-    FunctionDependencies.update_forward_refs()  # type: ignore

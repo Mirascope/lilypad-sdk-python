@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-__all__ = ["GoogleHandleCallbackParams"]
+__all__ = ["GoogleCallbackParams"]
 
 
-class GoogleHandleCallbackParams(TypedDict, total=False):
+class GoogleCallbackParams(TypedDict, total=False):
     code: Required[str]

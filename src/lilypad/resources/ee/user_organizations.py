@@ -21,9 +21,9 @@ from ..._response import (
 from ..._base_client import make_request_options
 from ...types.ee.user_role import UserRole
 from ...types.ee.user_organization_table import UserOrganizationTable
-from ...types.ee.user_organization_list_response import UserOrganizationListResponse
 from ...types.ee.user_organization_delete_response import UserOrganizationDeleteResponse
 from ...types.ee.user_organization_get_users_response import UserOrganizationGetUsersResponse
+from ...types.ee.user_organization_get_user_organizations_response import UserOrganizationGetUserOrganizationsResponse
 
 __all__ = ["UserOrganizationsResource", "AsyncUserOrganizationsResource"]
 
@@ -119,25 +119,6 @@ class UserOrganizationsResource(SyncAPIResource):
             cast_to=UserOrganizationTable,
         )
 
-    def list(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserOrganizationListResponse:
-        """Get all user organizations."""
-        return self._get(
-            "/ee/user-organizations",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=UserOrganizationListResponse,
-        )
-
     def delete(
         self,
         user_organization_uuid: str,
@@ -171,6 +152,25 @@ class UserOrganizationsResource(SyncAPIResource):
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=UserOrganizationDeleteResponse,
+        )
+
+    def get_user_organizations(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUserOrganizationsResponse:
+        """Get all user organizations."""
+        return self._get(
+            "/ee/user-organizations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUserOrganizationsResponse,
         )
 
     def get_users(
@@ -288,25 +288,6 @@ class AsyncUserOrganizationsResource(AsyncAPIResource):
             cast_to=UserOrganizationTable,
         )
 
-    async def list(
-        self,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserOrganizationListResponse:
-        """Get all user organizations."""
-        return await self._get(
-            "/ee/user-organizations",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=UserOrganizationListResponse,
-        )
-
     async def delete(
         self,
         user_organization_uuid: str,
@@ -342,6 +323,25 @@ class AsyncUserOrganizationsResource(AsyncAPIResource):
             cast_to=UserOrganizationDeleteResponse,
         )
 
+    async def get_user_organizations(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserOrganizationGetUserOrganizationsResponse:
+        """Get all user organizations."""
+        return await self._get(
+            "/ee/user-organizations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserOrganizationGetUserOrganizationsResponse,
+        )
+
     async def get_users(
         self,
         *,
@@ -372,11 +372,11 @@ class UserOrganizationsResourceWithRawResponse:
         self.update = to_raw_response_wrapper(
             user_organizations.update,
         )
-        self.list = to_raw_response_wrapper(
-            user_organizations.list,
-        )
         self.delete = to_raw_response_wrapper(
             user_organizations.delete,
+        )
+        self.get_user_organizations = to_raw_response_wrapper(
+            user_organizations.get_user_organizations,
         )
         self.get_users = to_raw_response_wrapper(
             user_organizations.get_users,
@@ -393,11 +393,11 @@ class AsyncUserOrganizationsResourceWithRawResponse:
         self.update = async_to_raw_response_wrapper(
             user_organizations.update,
         )
-        self.list = async_to_raw_response_wrapper(
-            user_organizations.list,
-        )
         self.delete = async_to_raw_response_wrapper(
             user_organizations.delete,
+        )
+        self.get_user_organizations = async_to_raw_response_wrapper(
+            user_organizations.get_user_organizations,
         )
         self.get_users = async_to_raw_response_wrapper(
             user_organizations.get_users,
@@ -414,11 +414,11 @@ class UserOrganizationsResourceWithStreamingResponse:
         self.update = to_streamed_response_wrapper(
             user_organizations.update,
         )
-        self.list = to_streamed_response_wrapper(
-            user_organizations.list,
-        )
         self.delete = to_streamed_response_wrapper(
             user_organizations.delete,
+        )
+        self.get_user_organizations = to_streamed_response_wrapper(
+            user_organizations.get_user_organizations,
         )
         self.get_users = to_streamed_response_wrapper(
             user_organizations.get_users,
@@ -435,11 +435,11 @@ class AsyncUserOrganizationsResourceWithStreamingResponse:
         self.update = async_to_streamed_response_wrapper(
             user_organizations.update,
         )
-        self.list = async_to_streamed_response_wrapper(
-            user_organizations.list,
-        )
         self.delete = async_to_streamed_response_wrapper(
             user_organizations.delete,
+        )
+        self.get_user_organizations = async_to_streamed_response_wrapper(
+            user_organizations.get_user_organizations,
         )
         self.get_users = async_to_streamed_response_wrapper(
             user_organizations.get_users,

@@ -30,6 +30,7 @@ from .resources import (
     api_keys,
     settings,
     current_user,
+    environments,
     organizations,
     external_api_keys,
     organizations_invites,
@@ -59,6 +60,7 @@ class Lilypad(SyncAPIClient):
     current_user: current_user.CurrentUserResource
     organizations: organizations.OrganizationsResource
     external_api_keys: external_api_keys.ExternalAPIKeysResource
+    environments: environments.EnvironmentsResource
     settings: settings.SettingsResource
     with_raw_response: LilypadWithRawResponse
     with_streaming_response: LilypadWithStreamedResponse
@@ -127,6 +129,7 @@ class Lilypad(SyncAPIClient):
         self.current_user = current_user.CurrentUserResource(self)
         self.organizations = organizations.OrganizationsResource(self)
         self.external_api_keys = external_api_keys.ExternalAPIKeysResource(self)
+        self.environments = environments.EnvironmentsResource(self)
         self.settings = settings.SettingsResource(self)
         self.with_raw_response = LilypadWithRawResponse(self)
         self.with_streaming_response = LilypadWithStreamedResponse(self)
@@ -247,6 +250,7 @@ class AsyncLilypad(AsyncAPIClient):
     current_user: current_user.AsyncCurrentUserResource
     organizations: organizations.AsyncOrganizationsResource
     external_api_keys: external_api_keys.AsyncExternalAPIKeysResource
+    environments: environments.AsyncEnvironmentsResource
     settings: settings.AsyncSettingsResource
     with_raw_response: AsyncLilypadWithRawResponse
     with_streaming_response: AsyncLilypadWithStreamedResponse
@@ -315,6 +319,7 @@ class AsyncLilypad(AsyncAPIClient):
         self.current_user = current_user.AsyncCurrentUserResource(self)
         self.organizations = organizations.AsyncOrganizationsResource(self)
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResource(self)
+        self.environments = environments.AsyncEnvironmentsResource(self)
         self.settings = settings.AsyncSettingsResource(self)
         self.with_raw_response = AsyncLilypadWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadWithStreamedResponse(self)
@@ -438,6 +443,7 @@ class LilypadWithRawResponse:
         self.current_user = current_user.CurrentUserResourceWithRawResponse(client.current_user)
         self.organizations = organizations.OrganizationsResourceWithRawResponse(client.organizations)
         self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
+        self.environments = environments.EnvironmentsResourceWithRawResponse(client.environments)
         self.settings = settings.SettingsResourceWithRawResponse(client.settings)
 
 
@@ -455,6 +461,7 @@ class AsyncLilypadWithRawResponse:
         self.current_user = current_user.AsyncCurrentUserResourceWithRawResponse(client.current_user)
         self.organizations = organizations.AsyncOrganizationsResourceWithRawResponse(client.organizations)
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
+        self.environments = environments.AsyncEnvironmentsResourceWithRawResponse(client.environments)
         self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
 
 
@@ -474,6 +481,7 @@ class LilypadWithStreamedResponse:
         self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithStreamingResponse(
             client.external_api_keys
         )
+        self.environments = environments.EnvironmentsResourceWithStreamingResponse(client.environments)
         self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
 
 
@@ -493,6 +501,7 @@ class AsyncLilypadWithStreamedResponse:
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithStreamingResponse(
             client.external_api_keys
         )
+        self.environments = environments.AsyncEnvironmentsResourceWithStreamingResponse(client.environments)
         self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
 
 

@@ -16,6 +16,14 @@ from .projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
+from .functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
 from .annotations import (
     AnnotationsResource,
     AsyncAnnotationsResource,
@@ -32,6 +40,12 @@ __all__ = [
     "AsyncAnnotationsResourceWithRawResponse",
     "AnnotationsResourceWithStreamingResponse",
     "AsyncAnnotationsResourceWithStreamingResponse",
+    "FunctionsResource",
+    "AsyncFunctionsResource",
+    "FunctionsResourceWithRawResponse",
+    "AsyncFunctionsResourceWithRawResponse",
+    "FunctionsResourceWithStreamingResponse",
+    "AsyncFunctionsResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
