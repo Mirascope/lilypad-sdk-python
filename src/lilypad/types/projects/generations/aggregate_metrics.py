@@ -13,7 +13,7 @@ class AggregateMetrics(BaseModel):
 
     end_date: Optional[datetime] = None
 
-    generation_uuid: Optional[str] = None
+    function_uuid: Optional[str] = None
 
     span_count: int
 

@@ -13,7 +13,6 @@ from .project_update_params import ProjectUpdateParams as ProjectUpdateParams
 from .api_key_create_response import APIKeyCreateResponse as APIKeyCreateResponse
 from .api_key_delete_response import APIKeyDeleteResponse as APIKeyDeleteResponse
 from .external_api_key_public import ExternalAPIKeyPublic as ExternalAPIKeyPublic
-from .generation_create_param import GenerationCreateParam as GenerationCreateParam
 from .project_delete_response import ProjectDeleteResponse as ProjectDeleteResponse
 from .user_update_keys_params import UserUpdateKeysParams as UserUpdateKeysParams
 from .setting_retrieve_response import SettingRetrieveResponse as SettingRetrieveResponse
@@ -23,6 +22,3 @@ from .external_api_key_create_params import ExternalAPIKeyCreateParams as Extern
 from .external_api_key_list_response import ExternalAPIKeyListResponse as ExternalAPIKeyListResponse
 from .external_api_key_delete_response import ExternalAPIKeyDeleteResponse as ExternalAPIKeyDeleteResponse
 from .organizations_invite_create_params import OrganizationsInviteCreateParams as OrganizationsInviteCreateParams
-from .project_create_managed_generation_params import (
-    ProjectCreateManagedGenerationParams as ProjectCreateManagedGenerationParams,
-)

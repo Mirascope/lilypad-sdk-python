@@ -24,22 +24,8 @@ from .projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
-from .generations import (
-    GenerationsResource,
-    AsyncGenerationsResource,
-    GenerationsResourceWithRawResponse,
-    AsyncGenerationsResourceWithRawResponse,
-    GenerationsResourceWithStreamingResponse,
-    AsyncGenerationsResourceWithStreamingResponse,
-)
 
 __all__ = [
-    "GenerationsResource",
-    "AsyncGenerationsResource",
-    "GenerationsResourceWithRawResponse",
-    "AsyncGenerationsResourceWithRawResponse",
-    "GenerationsResourceWithStreamingResponse",
-    "AsyncGenerationsResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
