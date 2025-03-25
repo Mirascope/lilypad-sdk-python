@@ -15,8 +15,8 @@ from mirascope.core import BaseMessageParam, openai, prompt_template
 from openai.types.chat import ChatCompletionUserMessageParam
 from google.generativeai.generative_models import GenerativeModel
 
-import tests._utils.closure.closure_test_functions.other
-import tests._utils.closure.closure_test_functions.other as cloth
+import tests.lib._utils.closure.closure_test_functions.other
+import tests.lib._utils.closure.closure_test_functions.other as cloth
 from lilypad.lib._utils import Closure
 
 from . import other, other as oth
