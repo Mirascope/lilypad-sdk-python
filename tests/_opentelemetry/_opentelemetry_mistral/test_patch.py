@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from opentelemetry.trace import StatusCode
 
-from lilypad._opentelemetry._opentelemetry_mistral.patch import (
+from lilypad.lib._opentelemetry._opentelemetry_mistral.patch import (
     mistral_complete_async_patch,
     mistral_complete_patch,
     mistral_stream_async_patch,

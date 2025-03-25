@@ -11,8 +11,8 @@ import PIL.WebPImagePlugin
 import pytest
 from pydantic import BaseModel
 
-from lilypad._utils import encode_gemini_part
-from lilypad._utils.middleware import (
+from lilypad.lib._utils import encode_gemini_part
+from lilypad.lib._utils.middleware import (
     _get_custom_context_manager,
     _handle_call_response,
     _handle_call_response_async,
@@ -193,7 +193,7 @@ def test_handle_call_response_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         _handle_call_response(result, fn, span)
         mock_set_attrs.assert_called_once_with(result, span)
@@ -205,7 +205,7 @@ def test_handle_call_response_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         _handle_call_response(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -219,7 +219,7 @@ def test_handle_stream_with_span():
     call_response = MagicMock()
     stream.construct_call_response.return_value = call_response
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         _handle_stream(stream, fn, span)
         mock_set_attrs.assert_called_once_with(call_response, span)
@@ -231,7 +231,7 @@ def test_handle_stream_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         _handle_stream(stream, fn, span)
         mock_set_attrs.assert_not_called()
@@ -243,7 +243,7 @@ def test_handle_response_model_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         _handle_response_model(result, fn, span)
         mock_set_attrs.assert_called_once_with(result, span)
@@ -255,7 +255,7 @@ def test_handle_response_model_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         _handle_response_model(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -268,7 +268,7 @@ def test_handle_structured_stream_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         _handle_structured_stream(result, fn, span)
         mock_set_attrs.assert_called_once_with(result.constructed_response_model, span)
@@ -280,7 +280,7 @@ def test_handle_structured_stream_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         _handle_structured_stream(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -293,7 +293,7 @@ async def test_handle_call_response_async_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         await _handle_call_response_async(result, fn, span)
         mock_set_attrs.assert_called_once_with(result, span)
@@ -306,7 +306,7 @@ async def test_handle_call_response_async_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         await _handle_call_response_async(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -321,7 +321,7 @@ async def test_handle_stream_async_with_span():
     call_response = MagicMock()
     stream.construct_call_response.return_value = call_response
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         await _handle_stream_async(stream, fn, span)
         mock_set_attrs.assert_called_once_with(call_response, span)
@@ -334,7 +334,7 @@ async def test_handle_stream_async_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_call_response_attributes"
+        "lilypad.lib._utils.middleware._set_call_response_attributes"
     ) as mock_set_attrs:
         await _handle_stream_async(stream, fn, span)
         mock_set_attrs.assert_not_called()
@@ -347,7 +347,7 @@ async def test_handle_response_model_async_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         await _handle_response_model_async(result, fn, span)
         mock_set_attrs.assert_called_once_with(result, span)
@@ -360,7 +360,7 @@ async def test_handle_response_model_async_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         await _handle_response_model_async(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -374,7 +374,7 @@ async def test_handle_structured_stream_async_with_span():
     fn = MagicMock()
     span = MagicMock()
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         await _handle_structured_stream_async(result, fn, span)
         mock_set_attrs.assert_called_once_with(result.constructed_response_model, span)
@@ -387,7 +387,7 @@ async def test_handle_structured_stream_async_without_span():
     fn = MagicMock()
     span = None
     with patch(
-        "lilypad._utils.middleware._set_response_model_attributes"
+        "lilypad.lib._utils.middleware._set_response_model_attributes"
     ) as mock_set_attrs:
         await _handle_structured_stream_async(result, fn, span)
         mock_set_attrs.assert_not_called()
@@ -411,7 +411,7 @@ def test_get_custom_context_manager():
     span = MagicMock()
     tracer.start_as_current_span.return_value.__enter__.return_value = span
     project_uuid = UUID("123e4567-e89b-12d3-a456-426614174000")
-    with patch("lilypad._utils.middleware.get_tracer", return_value=tracer):
+    with patch("lilypad.lib._utils.middleware.get_tracer", return_value=tracer):
         arg_values = {"param": "value"}
         context_manager_factory = _get_custom_context_manager(
             generation, arg_values, is_async, prompt_template, project_uuid
@@ -442,9 +442,9 @@ def test_create_mirascope_middleware():
 
     with (
         patch(
-            "lilypad._utils.middleware.middleware_factory"
+            "lilypad.lib._utils.middleware.middleware_factory"
         ) as mock_middleware_factory,
-        patch("lilypad._utils.middleware._get_custom_context_manager") as mock_get_cm,
+        patch("lilypad.lib._utils.middleware._get_custom_context_manager") as mock_get_cm,
     ):
         mock_get_cm.return_value = "custom_context_manager"
 

@@ -2,8 +2,8 @@
 
 import pytest
 
-from lilypad._utils.call_safely import call_safely
-from lilypad.exceptions import LilypadException
+from lilypad.lib._utils.call_safely import call_safely
+from lilypad.lib.exceptions import LilypadException
 
 
 def test_call_safely() -> None:

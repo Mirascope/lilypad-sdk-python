@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
-from lilypad._opentelemetry._opentelemetry_google_genai.utils import (
+from lilypad.lib._opentelemetry._opentelemetry_google_genai.utils import (
     get_llm_request_attributes,
     set_content_event,
     set_response_attributes,

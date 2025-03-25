@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from opentelemetry.trace import StatusCode
 
-from lilypad._opentelemetry._opentelemetry_vertex.patch import (
+from lilypad.lib._opentelemetry._opentelemetry_vertex.patch import (
     vertex_generate_content,
     vertex_generate_content_async,
 )

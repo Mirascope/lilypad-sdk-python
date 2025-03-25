@@ -8,7 +8,7 @@ from openai.types.chat import ChatCompletionMessage, ChatCompletionMessageToolCa
 from openai.types.chat.chat_completion_message_tool_call import Function
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
-from lilypad._opentelemetry._opentelemetry_openai.utils import (
+from lilypad.lib._opentelemetry._opentelemetry_openai.utils import (
     OpenAIChunkHandler,
     OpenAIMetadata,
     default_openai_cleanup,
