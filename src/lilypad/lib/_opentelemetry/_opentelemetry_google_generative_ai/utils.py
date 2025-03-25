@@ -1,12 +1,12 @@
-import base64
 import json
+import base64
 from io import BytesIO
 from typing import Any, TypedDict
 
 import PIL.WebPImagePlugin
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import (
     ChoiceBuffer,
@@ -45,9 +45,7 @@ class GeminiChunkHandler:
                 buffers[candidate.index].append_text_content(part.text)
 
 
-def default_gemini_cleanup(
-    span: Span, metadata: GeminiMetadata, buffers: list[ChoiceBuffer]
-) -> None:
+def default_gemini_cleanup(span: Span, metadata: GeminiMetadata, buffers: list[ChoiceBuffer]) -> None:
     """Default Gemini cleanup handler"""
     attributes: dict[str, AttributeValue] = {}
     if response_model := metadata.get("response_model"):
@@ -80,22 +78,15 @@ def get_llm_request_attributes(
     attributes = {
         gen_ai_attributes.GEN_AI_OPERATION_NAME: operation_name,
         gen_ai_attributes.GEN_AI_SYSTEM: "gemini",
-        gen_ai_attributes.GEN_AI_REQUEST_MODEL: kwargs.get("model")
-        or get_gemini_model_name(client_instance),
+        gen_ai_attributes.GEN_AI_REQUEST_MODEL: kwargs.get("model") or get_gemini_model_name(client_instance),
         gen_ai_attributes.GEN_AI_REQUEST_TEMPERATURE: kwargs.get("temperature"),
         gen_ai_attributes.GEN_AI_REQUEST_TOP_P: kwargs.get("p") or kwargs.get("top_p"),
         gen_ai_attributes.GEN_AI_REQUEST_TOP_K: kwargs.get("top_k"),
         gen_ai_attributes.GEN_AI_REQUEST_MAX_TOKENS: kwargs.get("max_output_tokens"),
         gen_ai_attributes.GEN_AI_REQUEST_STOP_SEQUENCES: kwargs.get("stop_sequences"),
-        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get(
-            "presence_penalty"
-        ),
-        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get(
-            "frequency_penalty"
-        ),
-        gen_ai_attributes.GEN_AI_OPENAI_REQUEST_RESPONSE_FORMAT: kwargs.get(
-            "response_schema"
-        ),
+        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get("presence_penalty"),
+        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get("frequency_penalty"),
+        gen_ai_attributes.GEN_AI_OPENAI_REQUEST_RESPONSE_FORMAT: kwargs.get("response_schema"),
     }
 
     set_server_address_and_port(client_instance, attributes)
@@ -113,9 +104,7 @@ def get_tool_calls(parts: list[Any]) -> list[dict[str, Any]]:
                 tool_call_dict["function"]["name"] = name
 
                 if hasattr(tool_call, "args"):
-                    tool_call_dict["function"]["arguments"] = dict(
-                        tool_call.args.items()
-                    )
+                    tool_call_dict["function"]["arguments"] = dict(tool_call.args.items())
 
             calls.append(tool_call_dict)
     return calls
@@ -138,9 +127,7 @@ def set_content_event(span: Span, content: Any) -> None:
                 )
             elif isinstance(part, PIL.WebPImagePlugin.WebPImageFile):
                 buffered = BytesIO()
-                part.save(
-                    buffered, format="WEBP"
-                )  # Use "WEBP" to maintain the original format
+                part.save(buffered, format="WEBP")  # Use "WEBP" to maintain the original format
                 img_bytes = buffered.getvalue()
                 content.append(
                     {
@@ -172,9 +159,7 @@ def get_candidate_event(candidate: Any) -> dict[str, AttributeValue]:
             message_dict["tool_calls"] = tool_calls
         attributes["message"] = json.dumps(message_dict)
         attributes["index"] = candidate.index
-        attributes["finish_reason"] = (
-            candidate.finish_reason if candidate.finish_reason is not None else "none"
-        )
+        attributes["finish_reason"] = candidate.finish_reason if candidate.finish_reason is not None else "none"
     return attributes
 
 
@@ -195,12 +180,8 @@ def set_response_attributes(span: Span, response: Any, client_instance: Any) -> 
     if id := getattr(response, "id", None):
         attributes[gen_ai_attributes.GEN_AI_RESPONSE_ID] = id
     if usage := getattr(response, "usage_metadata", None):
-        attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = (
-            usage.prompt_token_count
-        )
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            usage.candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = usage.prompt_token_count
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = usage.candidates_token_count
 
     span.set_attributes(attributes)
 
@@ -240,9 +221,7 @@ def set_stream(span: Span, stream: Any, client_instance: Any) -> None:
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)
 
 
@@ -272,7 +251,5 @@ async def set_stream_async(span: Span, stream: Any, client_instance: Any) -> Non
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)

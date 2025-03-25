@@ -6,6 +6,7 @@ import pytest
 
 api_key = "My API Key"
 
+
 def pytest_configure(config: pytest.Config):
     """Configure pytest."""
     os.environ["LILYPAD_ENVIRONMENT"] = "test"

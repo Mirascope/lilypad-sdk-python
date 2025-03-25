@@ -16,10 +16,10 @@
 import json
 from typing import Any, TypedDict
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+from pydantic import BaseModel
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
-from pydantic import BaseModel
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer
 
@@ -70,9 +70,7 @@ class OpenAIChunkHandler:
                     buffers[choice.index].append_tool_call(tool_call)
 
 
-def default_openai_cleanup(
-    span: Span, metadata: OpenAIMetadata, buffers: list[ChoiceBuffer]
-) -> None:
+def default_openai_cleanup(span: Span, metadata: OpenAIMetadata, buffers: list[ChoiceBuffer]) -> None:
     """Default OpenAI cleanup handler"""
     attributes: dict[str, AttributeValue] = {}
     if response_model := metadata.get("response_model"):
@@ -149,9 +147,7 @@ def get_tool_calls(message: dict | BaseModel) -> list[dict[str, Any]] | None:
 
 
 def set_message_event(span: Span, message: dict) -> None:
-    attributes = {
-        gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.OPENAI.value
-    }
+    attributes = {gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.OPENAI.value}
     role = message.get("role", "")
     if content := message.get("content"):
         if not isinstance(content, str):
@@ -189,9 +185,7 @@ def get_choice_event(choice: Any) -> dict[str, AttributeValue]:
 
 
 def set_response_attributes(span: Span, response: Any) -> None:
-    attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: response.model
-    }
+    attributes: dict[str, AttributeValue] = {gen_ai_attributes.GEN_AI_RESPONSE_MODEL: response.model}
     if choices := getattr(response, "choices", None):
         finish_reasons = []
         for choice in choices:
@@ -210,7 +204,5 @@ def set_response_attributes(span: Span, response: Any) -> None:
 
     if usage := getattr(response, "usage", None):
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = usage.prompt_tokens
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            usage.completion_tokens
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = usage.completion_tokens
     span.set_attributes(attributes)

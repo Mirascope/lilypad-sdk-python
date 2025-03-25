@@ -1,11 +1,11 @@
-from collections.abc import Collection
 from typing import Any
+from collections.abc import Collection
 
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.instrumentation.utils import unwrap
-from opentelemetry.semconv.schemas import Schemas
-from opentelemetry.trace import get_tracer
 from wrapt import wrap_function_wrapper
+from opentelemetry.trace import get_tracer
+from opentelemetry.semconv.schemas import Schemas
+from opentelemetry.instrumentation.utils import unwrap
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
 from .patch import generate_content, generate_content_async
 
@@ -37,9 +37,7 @@ class GoogleGenerativeAIInstrumentor(BaseInstrumentor):
     def _uninstrument(self, **kwargs: Any) -> None:
         import google.generativeai
 
-        unwrap(
-            google.generativeai.generative_models.GenerativeModel, "generate_content"
-        )
+        unwrap(google.generativeai.generative_models.GenerativeModel, "generate_content")
         unwrap(
             google.generativeai.generative_models.GenerativeModel,
             "generate_content_async",

@@ -1,9 +1,9 @@
 from typing import Any
 
 from mistralai import CompletionChunk, CompletionEvent
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer
 
@@ -16,9 +16,7 @@ class MistralMetadata(dict):
 
 
 class MistralChunkHandler:
-    def extract_metadata(
-        self, event: CompletionEvent, metadata: MistralMetadata
-    ) -> None:
+    def extract_metadata(self, event: CompletionEvent, metadata: MistralMetadata) -> None:
         chunk: CompletionChunk = event.data
         metadata["response_model"] = chunk.model
         if chunk.usage:
@@ -28,9 +26,7 @@ class MistralChunkHandler:
             if usage.completion_tokens:
                 metadata["completion_tokens"] = usage.completion_tokens
 
-    def process_chunk(
-        self, event: CompletionEvent, buffers: list[ChoiceBuffer]
-    ) -> None:
+    def process_chunk(self, event: CompletionEvent, buffers: list[ChoiceBuffer]) -> None:
         chunk: CompletionChunk = event.data
         for choice in chunk.choices:
             while len(buffers) <= choice.index:
@@ -41,9 +37,7 @@ class MistralChunkHandler:
                 buffers[choice.index].append_text_content(content)  # pyright: ignore [reportArgumentType, reportAttributeAccessIssue]
 
 
-def default_mistral_cleanup(
-    span: Span, metadata: MistralMetadata, buffers: list[ChoiceBuffer]
-) -> None:
+def default_mistral_cleanup(span: Span, metadata: MistralMetadata, buffers: list[ChoiceBuffer]) -> None:
     # Called when the stream ends to finalize attributes and events
     attributes: dict[str, AttributeValue] = {}
     if response_model := metadata.get("response_model"):

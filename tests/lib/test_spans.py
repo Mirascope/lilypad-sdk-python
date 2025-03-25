@@ -1,9 +1,9 @@
 """Unit tests for the span() context manager and related functionality."""
 
 import json
-from collections.abc import Generator
-from contextlib import AbstractContextManager
 from typing import Any
+from contextlib import AbstractContextManager
+from collections.abc import Generator
 
 import pytest
 
@@ -116,13 +116,8 @@ def test_basic_sync_span() -> None:
     assert "timestamp" in dummy.attributes
     info_events = [e for e in dummy.events if e[0] == "info"]
     debug_events = [e for e in dummy.events if e[0] == "debug"]
-    assert any(
-        "hello" in event[1].get(f"{event[0]}.message", "") for event in info_events
-    )
-    assert any(
-        "debug message" in event[1].get(f"{event[0]}.message", "")
-        for event in debug_events
-    )
+    assert any("hello" in event[1].get(f"{event[0]}.message", "") for event in info_events)
+    assert any("debug message" in event[1].get(f"{event[0]}.message", "") for event in debug_events)
     custom_value = dummy.attributes.get("custom")
     assert custom_value == json.dumps({"nested": [1, 2, 3]})
     s.finish()
@@ -222,9 +217,7 @@ def test_dummy_span_record_exception_directly() -> None:
     dummy_exception = ValueError("direct test error")
     span_instance.record_exception(dummy_exception)
 
-    exception_events = [
-        event for event in span_instance.events if event[0] == "exception"
-    ]
+    exception_events = [event for event in span_instance.events if event[0] == "exception"]
     assert len(exception_events) == 1
 
     attrs = exception_events[0][1]

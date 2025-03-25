@@ -14,7 +14,7 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
 )
 
-from .. import Lilypad
+from .._client import Lilypad
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
 from ..types.projects.generations import SpanPublic
@@ -22,6 +22,7 @@ from ..types.projects.generations import SpanPublic
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
 TraceCreateResponseAdapter = TypeAdapter(TraceCreateResponse)
+
 
 class _JSONSpanExporter(SpanExporter):
     """A custom span exporter that sends spans to a custom endpoint as JSON."""
@@ -54,9 +55,10 @@ class _JSONSpanExporter(SpanExporter):
         span_data = [self._span_to_dict(span) for span in spans]
 
         try:
-            raw_response = self.client.projects.traces.create(project_uuid=self.settings.project_id, extra_body=span_data)
+            raw_response = self.client.projects.traces.create(
+                project_uuid=self.settings.project_id, extra_body=span_data
+            )
             response_spans = TraceCreateResponseAdapter.validate_python(raw_response)
-            print(type(response_spans[0]))
             if len(response_spans) > 0:
                 for response_span in response_spans:
                     self.pretty_print_display_names(response_span)
@@ -101,9 +103,7 @@ class _JSONSpanExporter(SpanExporter):
             "events": [
                 {
                     "name": event.name,
-                    "attributes": dict(event.attributes.items())
-                    if event.attributes
-                    else {},
+                    "attributes": dict(event.attributes.items()) if event.attributes else {},
                     "timestamp": event.timestamp,
                 }
                 for event in span.events
@@ -159,10 +159,7 @@ def configure(
         from lilypad.lib._opentelemetry import AnthropicInstrumentor
 
         AnthropicInstrumentor().instrument()
-    if (
-        importlib.util.find_spec("azure") is not None
-        and importlib.util.find_spec("azure.ai.inference") is not None
-    ):
+    if importlib.util.find_spec("azure") is not None and importlib.util.find_spec("azure.ai.inference") is not None:
         from lilypad.lib._opentelemetry import AzureInstrumentor
 
         AzureInstrumentor().instrument()

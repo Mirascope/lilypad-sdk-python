@@ -2,23 +2,22 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 from typing import Any
-
-from botocore.eventstream import EventStream
-from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from collections.abc import Callable, Awaitable
 from typing_extensions import ParamSpec
 
-from .._utils import AsyncStreamWrapper, StreamWrapper
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
+from botocore.eventstream import EventStream
+from opentelemetry.semconv.attributes import error_attributes
 
 from .utils import (
-    BedrockChunkHandler,
     BedrockMetadata,
+    BedrockChunkHandler,
     default_bedrock_cleanup,
-    get_bedrock_llm_request_attributes,
     set_bedrock_message_event,
+    get_bedrock_llm_request_attributes,
 )
+from .._utils import StreamWrapper, AsyncStreamWrapper
 
 P = ParamSpec("P")
 
@@ -90,15 +89,11 @@ def make_api_call_patch(
                 except Exception as err:
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     if span.is_recording():
-                        span.set_attribute(
-                            error_attributes.ERROR_TYPE, type(err).__qualname__
-                        )
+                        span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                     span.end()
                     raise
         elif operation_name == "ConverseStream":
-            span_name = (
-                f"chat_stream {span_attrs.get('gen_ai.request.model', 'unknown')}"
-            )
+            span_name = f"chat_stream {span_attrs.get('gen_ai.request.model', 'unknown')}"
             with tracer.start_as_current_span(
                 name=span_name,
                 kind=SpanKind.CLIENT,
@@ -131,9 +126,7 @@ def make_api_call_patch(
                 except Exception as err:
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     if span.is_recording():
-                        span.set_attribute(
-                            error_attributes.ERROR_TYPE, type(err).__qualname__
-                        )
+                        span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                     span.end()
                     raise
         return wrapped(*args, **kwargs)
@@ -177,15 +170,11 @@ def make_api_call_async_patch(
                 except Exception as err:
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     if span.is_recording():
-                        span.set_attribute(
-                            error_attributes.ERROR_TYPE, type(err).__qualname__
-                        )
+                        span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                     span.end()
                     raise
         elif operation_name == "ConverseStream":
-            span_name = (
-                f"chat_stream {span_attrs.get('gen_ai.request.model', 'unknown')}"
-            )
+            span_name = f"chat_stream {span_attrs.get('gen_ai.request.model', 'unknown')}"
             with tracer.start_as_current_span(
                 name=span_name,
                 kind=SpanKind.CLIENT,
@@ -218,9 +207,7 @@ def make_api_call_async_patch(
                 except Exception as err:
                     span.set_status(Status(StatusCode.ERROR, str(err)))
                     if span.is_recording():
-                        span.set_attribute(
-                            error_attributes.ERROR_TYPE, type(err).__qualname__
-                        )
+                        span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                     span.end()
                     raise
         return await wrapped(*args, **kwargs)

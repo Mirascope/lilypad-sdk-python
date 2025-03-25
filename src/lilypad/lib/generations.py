@@ -20,10 +20,8 @@ from typing import (
 from functools import wraps
 from contextlib import contextmanager
 from contextvars import Token, ContextVar
-from http.client import NOT_FOUND
 from collections.abc import Callable, Coroutine, Generator
 
-from httpx import HTTPStatusError
 from mirascope import llm
 from mirascope.core import prompt_template
 from mirascope.core.base import CommonCallParams
@@ -31,7 +29,6 @@ from opentelemetry.util.types import AttributeValue
 from mirascope.core.base.types import Provider
 from mirascope.llm.call_response import CallResponse
 
-from .. import Lilypad, AsyncLilypad, NotFoundError
 from ._utils import (
     Closure,
     ArgTypes,
@@ -46,8 +43,10 @@ from ._utils import (
 from .stream import Stream
 from .traces import TraceDecorator, _trace, _get_batch_span_processor
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
+from .._client import Lilypad, AsyncLilypad
 from .messages import Message
 from .exceptions import LilypadNotFoundError
+from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ._utils.middleware import SpanContextHolder
 from ..types.ee.projects import GenerationPublic
@@ -109,14 +108,10 @@ class Generation(Generic[T]):
 
 GenerationDecorator: TypeAlias = TraceDecorator
 
-current_generation: ContextVar[GenerationPublic | None] = ContextVar(
-    "current_generation", default=None
-)
+current_generation: ContextVar[GenerationPublic | None] = ContextVar("current_generation", default=None)
 
 # Type definitions for decorator registry
-FunctionInfo: TypeAlias = tuple[
-    str, str, int, str
-]  # (file_path, function_name, line_number, module_name)
+FunctionInfo: TypeAlias = tuple[str, str, int, str]  # (file_path, function_name, line_number, module_name)
 DecoratorRegistry: TypeAlias = dict[str, list[FunctionInfo]]
 
 # Globals for decorator registry
@@ -166,9 +161,7 @@ def register_decorated_function(decorator_name: str, fn: Callable[..., Any]) -> 
             _DECORATOR_REGISTRY[decorator_name] = []
 
         # Store (file_path, function_name, line_number, module_name)
-        _DECORATOR_REGISTRY[decorator_name].append(
-            (abs_path, function_name, lineno, module_name)
-        )
+        _DECORATOR_REGISTRY[decorator_name].append((abs_path, function_name, lineno, module_name))
     except (TypeError, OSError):
         # Handle cases where inspect might fail (e.g., built-in functions)
         pass
@@ -207,9 +200,7 @@ class SyncGenerationFunction(Protocol[_P, _R_CO]):
 class AsyncGenerationFunction(Protocol[_P, _R_CO]):
     """Protocol for the `generation` decorator return type."""
 
-    def __call__(
-        self, *args: _P.args, **kwargs: _P.kwargs
-    ) -> Coroutine[Any, Any, _R_CO]:
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> Coroutine[Any, Any, _R_CO]:
         """Protocol for the `generation` decorator return type."""
         ...
 
@@ -241,9 +232,7 @@ class SyncGenerationWrapFunction(Protocol[_P, _R]):
 class AsyncGenerationWrapFunction(Protocol[_P, _R]):
     """Protocol for the `generation` decorator return type with wrap mode."""
 
-    def __call__(
-        self, *args: _P.args, **kwargs: _P.kwargs
-    ) -> Coroutine[Any, Any, Generation[_R]]:
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> Coroutine[Any, Any, Generation[_R]]:
         """Protocol for the `generation` decorator return type."""
         ...
 
@@ -283,16 +272,11 @@ class ManagedGenerationVersioningDecorator(Protocol):
     ) -> AsyncGenerationFunction[_P, Message | Stream]: ...
 
     @overload
-    def __call__(
-        self, fn: Callable[_P, _R]
-    ) -> SyncGenerationFunction[_P, Message | Stream]: ...
+    def __call__(self, fn: Callable[_P, _R]) -> SyncGenerationFunction[_P, Message | Stream]: ...
 
     def __call__(
         self, fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
-    ) -> (
-        SyncGenerationFunction[_P, Message | Stream]
-        | AsyncGenerationFunction[_P, Message | Stream]
-    ):
+    ) -> SyncGenerationFunction[_P, Message | Stream] | AsyncGenerationFunction[_P, Message | Stream]:
         """Protocol `call` definition for `generation` decorator return type."""
         ...
 
@@ -324,16 +308,11 @@ class ManagedGenerationVersioningWrapDecorator(Protocol):
     ) -> AsyncGenerationWrapFunction[_P, Message | Stream]: ...
 
     @overload
-    def __call__(
-        self, fn: Callable[_P, _R]
-    ) -> SyncGenerationWrapFunction[_P, Message | Stream]: ...
+    def __call__(self, fn: Callable[_P, _R]) -> SyncGenerationWrapFunction[_P, Message | Stream]: ...
 
     def __call__(
         self, fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
-    ) -> (
-        SyncGenerationWrapFunction[_P, Message | Stream]
-        | AsyncGenerationWrapFunction[_P, Message | Stream]
-    ):
+    ) -> SyncGenerationWrapFunction[_P, Message | Stream] | AsyncGenerationWrapFunction[_P, Message | Stream]:
         """Protocol `call` definition for `generation` decorator return type."""
         ...
 
@@ -378,9 +357,7 @@ def _construct_trace_attributes(
         "lilypad.generation.arg_types": json.dumps(generation.arg_types),
         "lilypad.generation.arg_values": json.dumps(jsonable_arg_values),
         "lilypad.generation.prompt_template": "",
-        "lilypad.generation.version": generation.version_num
-        if generation.version_num
-        else -1,
+        "lilypad.generation.version": generation.version_num if generation.version_num else -1,
     }
 
 
@@ -416,9 +393,7 @@ def _build_mirascope_call(
 def _build_mirascope_call(
     generation_public: GenerationPublic,
     fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
-) -> (
-    Callable[_P, Message | Stream] | Callable[_P, Coroutine[Any, Any, Message | Stream]]
-):
+) -> Callable[_P, Message | Stream] | Callable[_P, Coroutine[Any, Any, Message | Stream]]:
     """Build a Mirascope call object."""
     mirascope_prompt = prompt_template(generation_public.prompt_template)(fn)  # pyright: ignore [reportCallIssue, reportArgumentType]
 
@@ -435,9 +410,7 @@ def _build_mirascope_call(
     )(mirascope_prompt)
 
     @wraps(mirascope_call)
-    def inner(
-        *args: _P.args, **kwargs: _P.kwargs
-    ) -> Message | Coroutine[Any, Any, Message | Stream] | Stream:
+    def inner(*args: _P.args, **kwargs: _P.kwargs) -> Message | Coroutine[Any, Any, Message | Stream] | Stream:
         result = mirascope_call(*args, **kwargs)
         if fn_is_async(mirascope_call):
 
@@ -476,8 +449,7 @@ def _build_generation_call(
         signature=generation.signature,
         hash=generation.hash,
         dependencies={
-            name: cast(DependencyInfo, dependency.model_dump())
-            for name, dependency in generation.dependencies.items()
+            name: cast(DependencyInfo, dependency.model_dump()) for name, dependency in generation.dependencies.items()
         }
         if generation.dependencies
         else {},
@@ -583,56 +555,42 @@ def generation(
         settings = get_settings()
         if fn_is_async(fn):
             async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+
             def _create_inner_async(
                 get_generation: Callable[
                     [ArgTypes],
                     Coroutine[Any, Any, tuple[GenerationPublic, _GenerationIsManaged]],
                 ],
                 sandbox_runner: SandboxRunner | None = None,
-            ) -> (
-                Callable[_P, Coroutine[Any, Any, _R]]
-                | Callable[_P, Coroutine[Any, Any, Generation[_R]]]
-            ):
+            ) -> Callable[_P, Coroutine[Any, Any, _R]] | Callable[_P, Coroutine[Any, Any, Generation[_R]]]:
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
-                async def _inner_async(
-                    *args: _P.args, **kwargs: _P.kwargs
-                ) -> _R | Generation[_R]:
+                async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R | Generation[_R]:
                     arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
                     generation_, managed_prompt_template = await get_generation(arg_types)
                     with _generation_context(generation_):
                         if not is_mirascope_call:
                             decorator_inner = _trace(
                                 "generation",
-                                _construct_trace_attributes(
-                                    generation=generation_, arg_values=arg_values
-                                ),
+                                _construct_trace_attributes(generation=generation_, arg_values=arg_values),
                             )
                             if managed_prompt_template:
-                                result = await _build_generation_call(
-                                    generation_, True, sandbox_runner
-                                )(*args, **kwargs)
+                                result = await _build_generation_call(generation_, True, sandbox_runner)(
+                                    *args, **kwargs
+                                )
                             else:
                                 result = await decorator_inner(fn)(*args, **kwargs)
-                            output, trace_id, span_id = (
-                                result
-                                if isinstance(result, tuple)
-                                else (result, None, None)
-                            )
+                            output, trace_id, span_id = result if isinstance(result, tuple) else (result, None, None)
                         else:
                             span_context_holder = SpanContextHolder()
                             decorator_inner = create_mirascope_middleware(
                                 generation_,
                                 arg_values,
                                 True,
-                                generation_.prompt_template
-                                if managed_prompt_template
-                                else prompt_template_value,
+                                generation_.prompt_template if managed_prompt_template else prompt_template_value,
                                 span_context_holder=span_context_holder,
                             )
                             output = await decorator_inner(  # pyright: ignore [reportReturnType]
-                                _build_mirascope_call(generation_, fn)
-                                if managed_prompt_template
-                                else fn
+                                _build_mirascope_call(generation_, fn) if managed_prompt_template else fn
                             )(*args, **kwargs)
                             if span_context := span_context_holder.span_context:
                                 span_id = span_context.span_id
@@ -653,20 +611,22 @@ def generation(
                     closure = Closure.from_fn(fn)
                     try:
                         generations_public = await async_lilypad_client.projects.generations.retrieve_by_hash(
-                            generation_hash=closure.hash,
-                            project_uuid=settings.project_id)
+                            generation_hash=closure.hash, project_uuid=settings.project_id
+                        )
                     except NotFoundError:
-                        generations_public = await async_lilypad_client.projects.generations.create(
-                            path_project_uuid=settings.project_id,
-                            code=closure.code,
-                            signature=closure.signature,
-                            name=closure.name,
-                            hash=closure.hash,
-                            dependencies=closure.dependencies,
-                            arg_types=arg_types,
-                            custom_id=custom_id,
-                        ),
-                    return  generations_public, False
+                        generations_public = (
+                            await async_lilypad_client.projects.generations.create(
+                                path_project_uuid=settings.project_id,
+                                code=closure.code,
+                                signature=closure.signature,
+                                name=closure.name,
+                                hash=closure.hash,
+                                dependencies=closure.dependencies,
+                                arg_types=arg_types,
+                                custom_id=custom_id,
+                            ),
+                        )
+                    return generations_public, False
                 closure = Closure.from_fn(fn)
                 try:
                     response = await async_lilypad_client.projects.generations.name.retrieve_deployed(
@@ -684,11 +644,12 @@ def generation(
             ) -> Callable[_P, Coroutine[Any, Any, _R]] | Callable[_P, Coroutine[Any, Any, Generation[_R]]]:
                 closure = Closure.from_fn(fn)
                 try:
-                    specific_version_generation = await async_lilypad_client.projects.generations.name.retrieve_by_version(
-                        version_num=forced_version,
-                        project_uuid=settings.project_id,
-                        generation_name=closure.name,
-
+                    specific_version_generation = (
+                        await async_lilypad_client.projects.generations.name.retrieve_by_version(
+                            version_num=forced_version,
+                            project_uuid=settings.project_id,
+                            generation_name=closure.name,
+                        )
                     )
                 except NotFoundError:
                     raise ValueError(f"Generation version {forced_version} not found for function: {fn.__name__}")
@@ -708,9 +669,7 @@ def generation(
             lilypad_client = Lilypad(api_key=settings.api_key)
 
             def _create_inner_sync(
-                get_generation: Callable[
-                    [ArgTypes], tuple[GenerationPublic, _GenerationIsManaged]
-                ],
+                get_generation: Callable[[ArgTypes], tuple[GenerationPublic, _GenerationIsManaged]],
                 sandbox_runner: SandboxRunner | None = None,
             ) -> Callable[_P, _R] | Callable[_P, Generation[_R]]:
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
@@ -721,36 +680,24 @@ def generation(
                         if not is_mirascope_call:
                             decorator_inner = _trace(
                                 "generation",
-                                _construct_trace_attributes(
-                                    generation=generation_, arg_values=arg_values
-                                ),
+                                _construct_trace_attributes(generation=generation_, arg_values=arg_values),
                             )
                             if managed_prompt_template:
-                                result = _build_generation_call(
-                                    generation_, False, sandbox_runner
-                                )(*args, **kwargs)
+                                result = _build_generation_call(generation_, False, sandbox_runner)(*args, **kwargs)
                             else:
                                 result = decorator_inner(fn)(*args, **kwargs)
-                            output, trace_id, span_id = (
-                                result
-                                if isinstance(result, tuple)
-                                else (result, None, None)
-                            )
+                            output, trace_id, span_id = result if isinstance(result, tuple) else (result, None, None)
                         else:
                             span_context_holder = SpanContextHolder()
                             decorator_inner = create_mirascope_middleware(
                                 generation_,
                                 arg_values,
                                 False,
-                                generation_.prompt_template
-                                if managed_prompt_template
-                                else prompt_template_value,
+                                generation_.prompt_template if managed_prompt_template else prompt_template_value,
                                 span_context_holder=span_context_holder,
                             )
                             output = decorator_inner(
-                                _build_mirascope_call(generation_, fn)
-                                if managed_prompt_template
-                                else fn
+                                _build_mirascope_call(generation_, fn) if managed_prompt_template else fn
                             )(*args, **kwargs)
                             if span_context := span_context_holder.span_context:
                                 span_id = span_context.span_id
@@ -775,15 +722,15 @@ def generation(
                         )
                     except NotFoundError:
                         generations_public = lilypad_client.projects.generations.create(
-                                path_project_uuid=settings.project_id,
-                                code=closure.code,
-                                signature=closure.signature,
-                                name=closure.name,
-                                hash=closure.hash,
-                                dependencies=closure.dependencies,
-                                arg_types=arg_types,
-                                custom_id=custom_id,
-                            )
+                            path_project_uuid=settings.project_id,
+                            code=closure.code,
+                            signature=closure.signature,
+                            name=closure.name,
+                            hash=closure.hash,
+                            dependencies=closure.dependencies,
+                            arg_types=arg_types,
+                            custom_id=custom_id,
+                        )
                     return generations_public, False
                 closure = Closure.from_fn(fn)
                 try:
@@ -801,12 +748,10 @@ def generation(
             ) -> Callable[_P, _R] | Callable[_P, Generation[_R]]:
                 closure = Closure.from_fn(fn)
                 try:
-                    specific_version_generation = (
-                        lilypad_client.projects.generations.name.retrieve_by_version(
-                            version_num=forced_version,
-                            project_uuid=settings.project_id,
-                            generation_name=closure.name,
-                        )
+                    specific_version_generation = lilypad_client.projects.generations.name.retrieve_by_version(
+                        version_num=forced_version,
+                        project_uuid=settings.project_id,
+                        generation_name=closure.name,
                     )
                 except NotFoundError:
                     raise ValueError(f"Generation version {forced_version} not found for function: {fn.__name__}")

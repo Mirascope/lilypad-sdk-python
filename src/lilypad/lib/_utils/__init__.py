@@ -1,16 +1,16 @@
 """Utilities for the `lilypad` module."""
 
-from .call_safely import call_safely
-from .closure import Closure, DependencyInfo, get_qualified_name
 from .config import load_config
-from .fn_is_async import fn_is_async
+from .closure import Closure, DependencyInfo, get_qualified_name
 from .functions import (
     ArgTypes,
     ArgValues,
-    inspect_arguments,
     jsonable_encoder,
+    inspect_arguments,
 )
-from .middleware import create_mirascope_middleware, encode_gemini_part
+from .middleware import encode_gemini_part, create_mirascope_middleware
+from .call_safely import call_safely
+from .fn_is_async import fn_is_async
 
 __all__ = [
     "ArgTypes",

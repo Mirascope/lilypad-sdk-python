@@ -1,18 +1,16 @@
-import base64
 import json
+import base64
 from io import BytesIO
 from typing import Any
 
 import PIL
 import PIL.WebPImagePlugin
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 
-def get_llm_request_attributes(
-    kwargs: dict[str, Any], instance: Any
-) -> dict[str, AttributeValue]:
+def get_llm_request_attributes(kwargs: dict[str, Any], instance: Any) -> dict[str, AttributeValue]:
     """Extracts common request attributes from kwargs and instance.
 
     Sets default operation name, system, and model name.
@@ -49,18 +47,14 @@ def get_tool_calls(parts: list[Any]) -> list[dict[str, Any]]:
                 tool_call_dict["function"]["name"] = name
 
                 if hasattr(tool_call, "args"):
-                    tool_call_dict["function"]["arguments"] = dict(
-                        tool_call.args.items()
-                    )
+                    tool_call_dict["function"]["arguments"] = dict(tool_call.args.items())
 
             calls.append(tool_call_dict)
     return calls
 
 
 def set_content_event(span: Span, content: Any) -> None:
-    attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_SYSTEM: "google_genai"
-    }
+    attributes: dict[str, AttributeValue] = {gen_ai_attributes.GEN_AI_SYSTEM: "google_genai"}
     role = content.get("role", "")
     parts = content.get("parts")
     content = []
@@ -76,9 +70,7 @@ def set_content_event(span: Span, content: Any) -> None:
                 )
             elif isinstance(part, PIL.WebPImagePlugin.WebPImageFile):
                 buffered = BytesIO()
-                part.save(
-                    buffered, format="WEBP"
-                )  # Use "WEBP" to maintain the original format
+                part.save(buffered, format="WEBP")  # Use "WEBP" to maintain the original format
                 img_bytes = buffered.getvalue()
                 content.append(
                     {
@@ -99,9 +91,7 @@ def set_content_event(span: Span, content: Any) -> None:
 
 
 def get_candidate_event(candidate: Any) -> dict[str, AttributeValue]:
-    attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_SYSTEM: "google_genai"
-    }
+    attributes: dict[str, AttributeValue] = {gen_ai_attributes.GEN_AI_SYSTEM: "google_genai"}
     if content := candidate.content:
         message_dict = {
             "role": content.role,
@@ -112,26 +102,18 @@ def get_candidate_event(candidate: Any) -> dict[str, AttributeValue]:
             message_dict["tool_calls"] = tool_calls
         attributes["message"] = json.dumps(message_dict)
         attributes["index"] = candidate.index
-        attributes["finish_reason"] = (
-            candidate.finish_reason.value
-            if candidate.finish_reason is not None
-            else "none"
-        )
+        attributes["finish_reason"] = candidate.finish_reason.value if candidate.finish_reason is not None else "none"
     return attributes
 
 
 def set_response_attributes(span: Span, response: Any) -> None:
     attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(
-            response, "model_version", "unknown"
-        )
+        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(response, "model_version", "unknown")
     }
     if candidates := getattr(response, "candidates", None):
         finish_reasons = []
         for candidate in candidates:
-            finish_reason = (
-                candidate.finish_reason.value if candidate.finish_reason else "none"
-            )
+            finish_reason = candidate.finish_reason.value if candidate.finish_reason else "none"
             choice_attributes = get_candidate_event(candidate)
             span.add_event(
                 "gen_ai.choice",
@@ -142,21 +124,15 @@ def set_response_attributes(span: Span, response: Any) -> None:
     if id := getattr(response, "id", None):
         attributes[gen_ai_attributes.GEN_AI_RESPONSE_ID] = id
     if usage := getattr(response, "usage_metadata", None):
-        attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = (
-            usage.prompt_token_count
-        )
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            usage.candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = usage.prompt_token_count
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = usage.candidates_token_count
 
     span.set_attributes(attributes)
 
 
 def set_stream(span: Span, stream: Any, instance: Any) -> None:
     attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(
-            instance, "model_version", "unknown"
-        )
+        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(instance, "model_version", "unknown")
     }
     finish_reasons = []
     prompt_token_count = 0
@@ -164,11 +140,7 @@ def set_stream(span: Span, stream: Any, instance: Any) -> None:
     for chunk in stream:
         if candidates := getattr(chunk, "candidates", None):
             for candidate in candidates:
-                finish_reason = (
-                    candidate.finish_reason.value
-                    if candidate.finish_reason
-                    else "none",
-                )
+                finish_reason = (candidate.finish_reason.value if candidate.finish_reason else "none",)
                 choice_attributes = get_candidate_event(candidate)
                 span.add_event(
                     "gen_ai.choice",
@@ -181,23 +153,17 @@ def set_stream(span: Span, stream: Any, instance: Any) -> None:
             prompt_token_count += usage.prompt_token_count or 0
             candidates_token_count += usage.candidates_token_count or 0
 
-    attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = (
-        finish_reasons[0] if finish_reasons else "none"
-    )
+    attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = finish_reasons[0] if finish_reasons else "none"
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)
 
 
 async def set_stream_async(span: Any, stream: Any, instance: Any) -> None:
     attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(
-            instance, "model_version", "unknown"
-        )
+        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: getattr(instance, "model_version", "unknown")
     }
     finish_reasons = []
     prompt_token_count = 0
@@ -205,11 +171,7 @@ async def set_stream_async(span: Any, stream: Any, instance: Any) -> None:
     async for chunk in stream:
         if candidates := getattr(chunk, "candidates", None):
             for candidate in candidates:
-                finish_reason = (
-                    candidate.finish_reason.value
-                    if candidate.finish_reason
-                    else "none",
-                )
+                finish_reason = (candidate.finish_reason.value if candidate.finish_reason else "none",)
                 choice_attributes = get_candidate_event(candidate)
                 span.add_event(
                     "gen_ai.choice",
@@ -222,13 +184,9 @@ async def set_stream_async(span: Any, stream: Any, instance: Any) -> None:
             prompt_token_count += usage.prompt_token_count or 0
             candidates_token_count += usage.candidates_token_count or 0
 
-    attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = (
-        finish_reasons[0] if finish_reasons else "none"
-    )
+    attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = finish_reasons[0] if finish_reasons else "none"
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)

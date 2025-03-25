@@ -1,15 +1,15 @@
 """The `local` command to run `lilypad` locally."""
 
-import contextlib
-import json
 import os
-import signal
-import subprocess
 import sys
+import json
 import time
-from importlib.resources import files
-from pathlib import Path
+import signal
+import contextlib
+import subprocess
 from types import FrameType
+from pathlib import Path
+from importlib.resources import files
 
 import typer
 from rich import print
@@ -88,9 +88,7 @@ def _terminate_process(process: subprocess.Popen) -> None:
 
 
 def local_command(
-    port: str | None = typer.Option(
-        default=None, help="Port to run the FastAPI server on."
-    ),
+    port: str | None = typer.Option(default=None, help="Port to run the FastAPI server on."),
 ) -> None:
     """Run `lilypad` locally.
 

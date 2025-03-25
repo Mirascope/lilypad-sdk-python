@@ -1,7 +1,6 @@
 import inspect
-from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any, TypeVar
-
+from collections.abc import Callable, Awaitable, Coroutine
 from typing_extensions import TypeIs
 
 _R = TypeVar("_R")

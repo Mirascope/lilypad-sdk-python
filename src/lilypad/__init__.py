@@ -1,6 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from . import types
+from .lib import Message, span, tool, trace, configure, generation
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, Stream, Lilypad, Timeout, Transport, AsyncClient, AsyncStream, AsyncLilypad, RequestOptions
@@ -26,12 +27,6 @@ from ._exceptions import (
 )
 from ._base_client import DefaultHttpxClient, DefaultAsyncHttpxClient
 from ._utils._logs import setup_logging as _setup_logging
-from .lib import configure
-from .lib import generation
-from .lib import Message
-from .lib import span
-from .lib import tool
-from .lib import trace
 
 __all__ = [
     "configure",

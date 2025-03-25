@@ -3,31 +3,29 @@
 from __future__ import annotations
 
 import ast
-import hashlib
-import importlib.metadata
-import importlib.util
-import inspect
-import site
-import subprocess
 import sys
+import site
+import hashlib
+import inspect
 import tempfile
-from collections.abc import Callable
-from functools import cached_property, lru_cache
-from pathlib import Path
-from textwrap import dedent
+import subprocess
+import importlib.util
+import importlib.metadata
 from types import ModuleType
 from typing import Any, TypeVar, cast
+from pathlib import Path
+from textwrap import dedent
+from functools import lru_cache, cached_property  # noqa: TID251
+from collections.abc import Callable
+from typing_extensions import TypedDict
 
 import libcst as cst
 import libcst.matchers as m
 from libcst import MaybeSentinel
-from packaging.requirements import Requirement
 from pydantic import BaseModel
-from typing_extensions import TypedDict
+from packaging.requirements import Requirement
 
-_BaseCompoundStatementT = TypeVar(
-    "_BaseCompoundStatementT", bound=cst.BaseCompoundStatement
-)
+_BaseCompoundStatementT = TypeVar("_BaseCompoundStatementT", bound=cst.BaseCompoundStatement)
 
 
 class DependencyInfo(TypedDict):
@@ -56,10 +54,7 @@ def _is_third_party(module: ModuleType, site_packages: set[str]) -> bool:
         module.__name__ == "lilypad"  # always consider lilypad as third-party
         or module.__name__ in sys.stdlib_module_names
         or module_file is None
-        or any(
-            str(Path(module_file).resolve()).startswith(site_pkg)
-            for site_pkg in site_packages
-        )
+        or any(str(Path(module_file).resolve()).startswith(site_pkg) for site_pkg in site_packages)
     )
 
 
@@ -87,9 +82,7 @@ class _RemoveDocstringTransformer(cst.CSTTransformer):
         if stmts:
             first_stmt = stmts[0]
             # Check if the first statement is a single string-literal line
-            if m.matches(
-                first_stmt, m.SimpleStatementLine(body=[m.Expr(value=m.SimpleString())])
-            ):
+            if m.matches(first_stmt, m.SimpleStatementLine(body=[m.Expr(value=m.SimpleString())])):
                 # Remove the docstring
                 stmts.pop(0)
 
@@ -109,9 +102,7 @@ class _RemoveDocstringTransformer(cst.CSTTransformer):
         new_body = body.with_changes(body=stmts)
         return node.with_changes(body=new_body)
 
-    def leave_FunctionDef(
-        self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef
-    ) -> cst.FunctionDef:
+    def leave_FunctionDef(self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef) -> cst.FunctionDef:
         if self.exclude_fn_body:
             stmts = cst.Expr(
                 value=cst.Ellipsis(
@@ -124,9 +115,7 @@ class _RemoveDocstringTransformer(cst.CSTTransformer):
 
         return self._remove_first_docstring(updated_node)
 
-    def leave_ClassDef(
-        self, original_node: cst.ClassDef, updated_node: cst.ClassDef
-    ) -> cst.ClassDef:
+    def leave_ClassDef(self, original_node: cst.ClassDef, updated_node: cst.ClassDef) -> cst.ClassDef:
         if self.exclude_fn_body:
             # Replace entire body with a single 'pass'
             pass_stmt = cst.SimpleStatementLine([cst.Pass()])
@@ -204,15 +193,9 @@ class _ImportCollector(ast.NodeVisitor):
             module_name = name.name.split(".")[0]
             module = __import__(module_name)
             import_name = name.asname or module_name
-            is_used = import_name in self.used_names or any(
-                u.startswith(f"{import_name}.") for u in self.used_names
-            )
+            is_used = import_name in self.used_names or any(u.startswith(f"{import_name}.") for u in self.used_names)
             if is_used:
-                import_stmt = (
-                    f"import {name.name} as {name.asname}"
-                    if name.asname
-                    else f"import {name.name}"
-                )
+                import_stmt = f"import {name.name} as {name.asname}" if name.asname else f"import {name.name}"
                 if name.asname:
                     self.alias_map[name.asname] = import_stmt
 
@@ -225,17 +208,13 @@ class _ImportCollector(ast.NodeVisitor):
         if not (module := node.module):
             return
         try:
-            is_third_party = _is_third_party(
-                __import__(module.split(".")[0]), self.site_packages
-            )
+            is_third_party = _is_third_party(__import__(module.split(".")[0]), self.site_packages)
         except ImportError:
             module = "." * node.level + module
             is_third_party = False
         for name in node.names:
             import_name = name.asname or name.name
-            is_used = import_name in self.used_names or any(
-                u.startswith(f"{import_name}.") for u in self.used_names
-            )
+            is_used = import_name in self.used_names or any(u.startswith(f"{import_name}.") for u in self.used_names)
             if is_used:
                 if name.asname:
                     import_stmt = f"from {module} import {name.name} as {name.asname}"
@@ -267,9 +246,7 @@ class _LocalAssignmentCollector(ast.NodeVisitor):
 class _GlobalAssignmentCollector(ast.NodeVisitor):
     def __init__(self, used_names: list[str], source: str) -> None:
         self.used_names = used_names
-        self.source = (
-            source  # Original module source code for preserving literal formatting
-        )
+        self.source = source  # Original module source code for preserving literal formatting
         self.assignments: list[str] = []
         self.current_function = None
         self.current_class = None  # Track class context
@@ -339,9 +316,7 @@ def _extract_types(annotation: Any) -> set[type]:
 
 
 class _DefinitionCollector(ast.NodeVisitor):
-    def __init__(
-        self, module: ModuleType, used_names: list[str], site_packages: set[str]
-    ) -> None:
+    def __init__(self, module: ModuleType, used_names: list[str], site_packages: set[str]) -> None:
         self.module = module
         self.used_names = used_names
         self.site_packages = site_packages
@@ -388,17 +363,13 @@ class _DefinitionCollector(ast.NodeVisitor):
                             self.definitions_to_include.append(candidate)
             # Process methods within the class.
             for item in node.body:
-                if isinstance(item, ast.FunctionDef) and (
-                    definition := getattr(class_def, item.name, None)
-                ):
+                if isinstance(item, ast.FunctionDef) and (definition := getattr(class_def, item.name, None)):
                     self.definitions_to_analyze.append(definition)
         self.generic_visit(node)
 
     def _process_name_or_attribute(self, node: ast.AST) -> None:
         if isinstance(node, ast.Name):
-            if (obj := getattr(self.module, node.id, None)) and hasattr(
-                obj, "__name__"
-            ):
+            if (obj := getattr(self.module, node.id, None)) and hasattr(obj, "__name__"):
                 self.definitions_to_include.append(obj)
         elif isinstance(node, ast.Attribute):
             names = []
@@ -462,9 +433,7 @@ class _QualifiedNameRewriter(cst.CSTTransformer):
 
         return list(reversed(names))
 
-    def leave_Attribute(
-        self, original_node: cst.Attribute, updated_node: cst.Attribute
-    ) -> cst.Name | cst.Attribute:
+    def leave_Attribute(self, original_node: cst.Attribute, updated_node: cst.Attribute) -> cst.Name | cst.Attribute:
         """Process attribute access expressions and potentially simplify them.
 
         Args:
@@ -548,9 +517,7 @@ class _DependencyCollector:
         self.assignments: list[str] = []
         self.source_code: list[str] = []
         self.visited_functions: set[str] = set()
-        self.site_packages: set[str] = {
-            str(Path(p).resolve()) for p in site.getsitepackages()
-        }
+        self.site_packages: set[str] = {str(Path(p).resolve()) for p in site.getsitepackages()}
         self._last_import_collector: _ImportCollector | None = None
 
     def _collect_assignments_and_imports(
@@ -567,9 +534,7 @@ class _DependencyCollector:
         # Collect parameter names from dependency functions.
         parameter_names = _collect_parameter_names(fn_tree)
 
-        global_assignment_collector = _GlobalAssignmentCollector(
-            used_names, module_source
-        )
+        global_assignment_collector = _GlobalAssignmentCollector(used_names, module_source)
         global_assignment_collector.visit(module_tree)
 
         for global_assignment in global_assignment_collector.assignments:
@@ -591,16 +556,12 @@ class _DependencyCollector:
 
             name_collector = _NameCollector()
             name_collector.visit(tree)
-            import_collector = _ImportCollector(
-                name_collector.used_names, self.site_packages
-            )
+            import_collector = _ImportCollector(name_collector.used_names, self.site_packages)
             import_collector.visit(module_tree)
             self.imports.update(import_collector.imports)
             self.user_defined_imports.update(import_collector.user_defined_imports)
 
-    def _collect_imports_and_source_code(
-        self, definition: Callable[..., Any] | type, include_source: bool
-    ) -> None:
+    def _collect_imports_and_source_code(self, definition: Callable[..., Any] | type, include_source: bool) -> None:
         try:
             if isinstance(definition, property):
                 if definition.fget is None:
@@ -609,18 +570,12 @@ class _DependencyCollector:
 
             elif isinstance(definition, cached_property):
                 definition = definition.func
-            elif (
-                hasattr(definition, "func")
-                and getattr(definition, "__name__", None) is None
-            ):
+            elif hasattr(definition, "func") and getattr(definition, "__name__", None) is None:
                 definition = definition.func  # pyright: ignore [reportFunctionMemberAccess]
 
             # For methods, if __qualname__ contains a dot, does not include "<locals>" (global)
             # or if it is local (contains "<locals>"), capture the entire class.
-            if (
-                "." in definition.__qualname__
-                and inspect.getmodule(definition) is not None
-            ):
+            if "." in definition.__qualname__ and inspect.getmodule(definition) is not None:
                 try:
                     source = get_class_source_from_method(definition)
                 except ValueError:
@@ -650,9 +605,7 @@ class _DependencyCollector:
             import_collector = _ImportCollector(used_names, self.site_packages)
             import_collector.visit(module_tree)
             new_imports: set[str] = {
-                import_stmt
-                for import_stmt in import_collector.imports
-                if import_stmt not in source
+                import_stmt for import_stmt in import_collector.imports if import_stmt not in source
             }
             self.imports.update(new_imports)
             self.fn_internal_imports.update(import_collector.imports - new_imports)
@@ -663,12 +616,8 @@ class _DependencyCollector:
                     source = source.replace(user_defined_import, "")
                 self.source_code.insert(0, source)
 
-            self._collect_assignments_and_imports(
-                fn_tree, module_tree, used_names, module_source
-            )
-            definition_collector = _DefinitionCollector(
-                module, used_names, self.site_packages
-            )
+            self._collect_assignments_and_imports(fn_tree, module_tree, used_names, module_source)
+            definition_collector = _DefinitionCollector(module, used_names, self.site_packages)
             definition_collector.visit(fn_tree)
             for collected_definition in definition_collector.definitions_to_include:
                 self._collect_imports_and_source_code(collected_definition, True)
@@ -678,13 +627,9 @@ class _DependencyCollector:
         except (OSError, TypeError):  # pragma: no cover
             pass
 
-    def _collect_required_dependencies(
-        self, imports: set[str]
-    ) -> dict[str, DependencyInfo]:
+    def _collect_required_dependencies(self, imports: set[str]) -> dict[str, DependencyInfo]:
         stdlib_modules = set(sys.stdlib_module_names)
-        installed_packages = {
-            dist.name: dist for dist in importlib.metadata.distributions()
-        }
+        installed_packages = {dist.name: dist for dist in importlib.metadata.distributions()}
         import_to_dist = importlib.metadata.packages_distributions()
 
         dependencies = {}
@@ -705,14 +650,8 @@ class _DependencyCollector:
                 extras = []
                 for extra in dist.metadata.get_all("Provides-Extra", []):
                     extra_reqs = dist.requires or []
-                    extra_deps = [
-                        Requirement(r).name
-                        for r in extra_reqs
-                        if f"extra == '{extra}'" in r
-                    ]
-                    if extra_deps and all(
-                        dep in installed_packages for dep in extra_deps
-                    ):
+                    extra_deps = [Requirement(r).name for r in extra_reqs if f"extra == '{extra}'" in r]
+                    if extra_deps and all(dep in installed_packages for dep in extra_deps):
                         extras.append(extra)
 
                 dependencies[dist.name] = {
@@ -738,9 +677,7 @@ class _DependencyCollector:
             elif isinstance(value, ast.AST):
                 cls._map_child_to_parent(child_to_parent, value, node)
 
-    def collect(
-        self, fn: Callable[..., Any]
-    ) -> tuple[list[str], list[str], list[str], dict[str, DependencyInfo]]:
+    def collect(self, fn: Callable[..., Any]) -> tuple[list[str], list[str], list[str], dict[str, DependencyInfo]]:
         """Returns the imports and source code for a function and its dependencies."""
         self._collect_imports_and_source_code(fn, True)
 
@@ -783,9 +720,7 @@ class _DependencyCollector:
             new_tree = tree.visit(rewriter)
             source_code.append(new_tree.code)
 
-        required_dependencies = self._collect_required_dependencies(
-            self.imports | self.fn_internal_imports
-        )
+        required_dependencies = self._collect_required_dependencies(self.imports | self.fn_internal_imports)
 
         return (
             list(self.imports),

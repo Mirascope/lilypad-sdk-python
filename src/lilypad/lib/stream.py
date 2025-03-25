@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator, Generator
 from typing import TYPE_CHECKING
+from collections.abc import Generator, AsyncGenerator
 
 from mirascope.llm.stream import Stream as _Stream
 
-from .message_chunk import MessageChunk
 from .tools import Tool
+from .message_chunk import MessageChunk
 
 if TYPE_CHECKING:
     from . import Message

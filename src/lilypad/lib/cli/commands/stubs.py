@@ -1,33 +1,34 @@
 """Stubs command for generating type stubs for functions decorated with lilypad.lib.generation."""
 
-import ast
-import importlib
-import inspect
-import json
 import os
+import ast
 import sys
+import json
+import inspect
+import importlib
+from typing import Any, TypeAlias
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, TypeAlias
 
 import typer
 from rich import print
-from rich.console import Console
+from pydantic import TypeAdapter
 from rich.table import Table
+from rich.console import Console
 
 from lilypad import Lilypad
-from lilypad.lib._utils.settings import get_settings
 from lilypad.types.ee.projects import GenerationPublic
-from ..._utils import load_config
-from ..._utils.closure import _run_ruff, Closure
+from lilypad.lib._utils.settings import get_settings
+from lilypad.types.projects.generations import NameRetrieveByNameResponse
+
 from ...generations import (
     clear_registry,
-    disable_recording,
     enable_recording,
+    disable_recording,
     get_decorated_functions,
 )
-from pydantic import TypeAdapter
-from lilypad.types.projects.generations import NameRetrieveByNameResponse
+from ..._utils.closure import Closure, _run_ruff
+
 app = typer.Typer()
 console = Console()
 DEBUG: bool = False
@@ -36,20 +37,14 @@ FilePath: TypeAlias = str
 ModulePath: TypeAlias = str
 FunctionInfo: TypeAlias = tuple[str, str, int, str]
 
-DEFAULT_DIRECTORY: Path = typer.Argument(
-    Path("."), help="Directory to scan for decorated functions."
-)
+DEFAULT_DIRECTORY: Path = typer.Argument(Path("."), help="Directory to scan for decorated functions.")
 DEFAULT_EXCLUDE: list[str] | None = typer.Option(
     None, "--exclude", "-e", help="Comma-separated list of directories to exclude."
 )
-DEFAULT_VERBOSE: bool = typer.Option(
-    False, "--verbose", "-v", help="Show verbose output."
-)
+DEFAULT_VERBOSE: bool = typer.Option(False, "--verbose", "-v", help="Show verbose output.")
 
 
-def _find_python_files(
-    directory: str, exclude_dirs: set[str] | None = None
-) -> list[FilePath]:
+def _find_python_files(directory: str, exclude_dirs: set[str] | None = None) -> list[FilePath]:
     if exclude_dirs is None:
         exclude_dirs = {
             "venv",
@@ -70,9 +65,7 @@ def _find_python_files(
     return python_files
 
 
-def _module_path_from_file(
-    file_path: FilePath, base_dir: str | None = None
-) -> ModulePath:
+def _module_path_from_file(file_path: FilePath, base_dir: str | None = None) -> ModulePath:
     rel_path = os.path.relpath(file_path, base_dir) if base_dir else file_path
     if rel_path.endswith(".py"):
         rel_path = rel_path[:-3]
@@ -92,14 +85,10 @@ def _normalize_signature(signature_text: str) -> str:
     # Return only the function definition line (ignoring import lines and decorators)
     lines = signature_text.splitlines()
     func_lines = [
-        line.strip()
-        for line in lines
-        if line.strip().startswith("def ") or line.strip().startswith("async def ")
+        line.strip() for line in lines if line.strip().startswith("def ") or line.strip().startswith("async def ")
     ]
     if not func_lines:
-        func_lines = [
-            line.strip() for line in lines if not line.strip().startswith("@")
-        ]
+        func_lines = [line.strip() for line in lines if not line.strip().startswith("@")]
     normalized = " ".join(func_lines).strip()
     if normalized.endswith("..."):
         normalized = normalized[:-3] + " pass"
@@ -157,9 +146,7 @@ def _parse_parameters_from_signature(signature_text: str) -> list[str]:
                 kwarg_str += f": {annotation}"
             params.append(kwarg_str)
         if DEBUG:
-            print(
-                f"[DEBUG] Parsed parameters from normalized signature:\n{normalized}\n=> {params}"
-            )
+            print(f"[DEBUG] Parsed parameters from normalized signature:\n{normalized}\n=> {params}")
         return params
     except Exception as e:
         if DEBUG:
@@ -208,9 +195,7 @@ def _merge_parameters(signature_text: str, arg_types_val: Any) -> list[str]:
         else:
             merged.append(f"{name}: {new_type}")
     if DEBUG:
-        print(
-            f"[DEBUG] Merged parameters for signature:\n{signature_text}\narg_types: {arg_types_val}\n=> {merged}"
-        )
+        print(f"[DEBUG] Merged parameters for signature:\n{signature_text}\narg_types: {arg_types_val}\n=> {merged}")
     return merged
 
 
@@ -224,9 +209,7 @@ def _parse_return_type(signature_text: str) -> str:
         else:
             ret = "Any"
         if DEBUG:
-            print(
-                f"[DEBUG] Parsed return type from normalized signature: {normalized} => {ret}"
-            )
+            print(f"[DEBUG] Parsed return type from normalized signature: {normalized} => {ret}")
         return ret
     except Exception as e:
         if DEBUG:
@@ -241,15 +224,11 @@ def _format_return_type(ret_type: str, is_async: bool) -> str:
 def _extract_parameter_types(merged_params: list[str]) -> list[str]:
     types = [_extract_type_from_param(param) for param in merged_params]
     if DEBUG:
-        print(
-            f"[DEBUG] Extracted parameter types from merged params: {merged_params} => {types}"
-        )
+        print(f"[DEBUG] Extracted parameter types from merged params: {merged_params} => {types}")
     return types
 
 
-def _generate_protocol_stub_content(
-    func_name: str, versions: list[GenerationPublic], is_async: bool
-) -> str:
+def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPublic], is_async: bool) -> str:
     if not versions:
         return ""
     sorted_versions = sorted(versions, key=lambda v: v.version_num or 0)
@@ -268,13 +247,10 @@ def _generate_protocol_stub_content(
         )
         params_str = ", ".join(merged_params)
         ret_type = _parse_return_type(version.signature)
-        ret_type_formatted = (
-            f"Coroutine[Any, Any, {ret_type}]" if is_async else ret_type
-        )
+        ret_type_formatted = f"Coroutine[Any, Any, {ret_type}]" if is_async else ret_type
         version_class_name = f"{class_name}Version{version.version_num}"
         ver_proto = (
-            f"class {version_class_name}(Protocol):\n"
-            f"    def __call__(self, {params_str}) -> {ret_type_formatted}: ..."
+            f"class {version_class_name}(Protocol):\n    def __call__(self, {params_str}) -> {ret_type_formatted}: ..."
         )
         version_protocols.append(ver_proto)
         _extract_parameter_types(merged_params)
@@ -284,9 +260,7 @@ def _generate_protocol_stub_content(
             f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox_runner: SandboxRunner | None = None) -> {version_class_name}: ..."
         )
         version_overloads.append(overload)
-    main_ret_type = (
-        f"Coroutine[Any, Any, {ret_type_latest}]" if is_async else ret_type_latest
-    )
+    main_ret_type = f"Coroutine[Any, Any, {ret_type_latest}]" if is_async else ret_type_latest
     main_call = f"    def __call__(self) -> {main_ret_type}: ..."
     base_version = (
         f"    @classmethod  # type: ignore[misc]\n"
@@ -323,6 +297,8 @@ class {class_name}(Protocol):
 
 
 NameRetrieveByNameAdapter = TypeAdapter(NameRetrieveByNameResponse)
+
+
 def stubs_command(
     directory: Path = DEFAULT_DIRECTORY,
     exclude: list[str] | None = DEFAULT_EXCLUDE,
@@ -348,9 +324,7 @@ def stubs_command(
         for dir_name in item.split(","):
             exclude_dirs.add(dir_name.strip())
     dir_str: str = str(directory.absolute())
-    with console.status(
-        "Scanning for functions decorated with [bold]lilypad.lib.generation[/bold]..."
-    ):
+    with console.status("Scanning for functions decorated with [bold]lilypad.lib.generation[/bold]..."):
         python_files: list[FilePath] = _find_python_files(dir_str, exclude_dirs)
         if not python_files:
             print(f"No Python files found in {dir_str}")
@@ -375,43 +349,32 @@ def stubs_command(
     if not functions:
         print(f"No functions found with decorator [bold]{decorator_name}[/bold]")
         return
-    print(
-        f"\nFound [bold green]{len(functions)}[/bold green] function(s) with decorator [bold]{decorator_name}[/bold]"
-    )
+    print(f"\nFound [bold green]{len(functions)}[/bold green] function(s) with decorator [bold]{decorator_name}[/bold]")
     table = Table(show_header=True)
     table.add_column("Source File", style="cyan")
     table.add_column("Functions", style="green")
     table.add_column("Versions", style="yellow")
     file_stub_map: dict[str, list[str]] = {}
     file_func_map: dict[str, list[str]] = {}
-    for file_path, function_name, _lineno, module_name in sorted(
-        functions, key=lambda x: x[0]
-    ):
+    for file_path, function_name, _lineno, module_name in sorted(functions, key=lambda x: x[0]):
         try:
             mod = importlib.import_module(module_name)
             fn = getattr(mod, function_name)
             is_async = inspect.iscoroutinefunction(fn)
         except Exception as e:
-            print(
-                f"[red]Error retrieving function {function_name} from {module_name}: {e}[/red]"
-            )
+            print(f"[red]Error retrieving function {function_name} from {module_name}: {e}[/red]")
             continue
         closure = Closure.from_fn(fn)
         try:
-            with console.status(
-                f"Fetching versions for [bold]{function_name}[/bold]..."
-            ):
-
-                raw_response = client.projects.generations.name.retrieve_by_name(generation_name=closure.name, project_uuid=settings.project_id)
+            with console.status(f"Fetching versions for [bold]{function_name}[/bold]..."):
+                raw_response = client.projects.generations.name.retrieve_by_name(
+                    generation_name=closure.name, project_uuid=settings.project_id
+                )
                 versions = NameRetrieveByNameAdapter.validate_python(raw_response)
             if not versions:
                 print(f"[yellow]No versions found for {function_name}[/yellow]")
                 continue
-            stub_content = _run_ruff(
-                dedent(
-                    _generate_protocol_stub_content(function_name, versions, is_async)
-                )
-            ).strip()
+            stub_content = _run_ruff(dedent(_generate_protocol_stub_content(function_name, versions, is_async))).strip()
             file_stub_map.setdefault(file_path, []).append(stub_content)
             file_func_map.setdefault(file_path, []).append(function_name)
             table.add_row(file_path, function_name, str(len(versions)))

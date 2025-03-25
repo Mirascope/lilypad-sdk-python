@@ -1,21 +1,21 @@
-from collections.abc import Awaitable, Callable
 from typing import Any, ParamSpec
+from collections.abc import Callable, Awaitable
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
 from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .utils import (
-    AnthropicChunkHandler,
     AnthropicMetadata,
-    default_anthropic_cleanup,
-    get_llm_request_attributes,
+    AnthropicChunkHandler,
     set_message_event,
     set_response_attributes,
+    default_anthropic_cleanup,
+    get_llm_request_attributes,
 )
 from .._utils import (
-    AsyncStreamWrapper,
     StreamWrapper,
+    AsyncStreamWrapper,
 )
 
 P = ParamSpec("P")
@@ -61,9 +61,7 @@ def chat_completions_create(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 
@@ -110,9 +108,7 @@ def chat_completions_create_async(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 

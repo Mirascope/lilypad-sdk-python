@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection
-from contextlib import suppress
 from typing import Any
+from contextlib import suppress
+from collections.abc import Collection
 
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.instrumentation.utils import unwrap
-from opentelemetry.semconv.schemas import Schemas
-from opentelemetry.trace import get_tracer
 from wrapt import wrap_function_wrapper
+from opentelemetry.trace import get_tracer
+from opentelemetry.semconv.schemas import Schemas
+from opentelemetry.instrumentation.utils import unwrap
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
 from .patch import (
     model_generate,
@@ -40,18 +40,14 @@ class OutlinesInstrumentor(BaseInstrumentor):
             "ExLlamaV2Model.generate",
             model_generate(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.exllamav2", "ExLlamaV2Model", "generate")
-        )
+        _patched_targets.append(("outlines.models.exllamav2", "ExLlamaV2Model", "generate"))
 
         wrap_function_wrapper(
             "outlines.models.exllamav2",
             "ExLlamaV2Model.stream",
             model_generate_stream(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.exllamav2", "ExLlamaV2Model", "stream")
-        )
+        _patched_targets.append(("outlines.models.exllamav2", "ExLlamaV2Model", "stream"))
 
         # LlamaCpp
         wrap_function_wrapper(
@@ -104,18 +100,14 @@ class OutlinesInstrumentor(BaseInstrumentor):
             "Transformers.generate",
             model_generate(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.transformers", "Transformers", "generate")
-        )
+        _patched_targets.append(("outlines.models.transformers", "Transformers", "generate"))
 
         wrap_function_wrapper(
             "outlines.models.transformers",
             "Transformers.stream",
             model_generate_stream(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.transformers", "Transformers", "stream")
-        )
+        _patched_targets.append(("outlines.models.transformers", "Transformers", "stream"))
 
         # TransformersVision
         wrap_function_wrapper(
@@ -123,18 +115,14 @@ class OutlinesInstrumentor(BaseInstrumentor):
             "TransformersVision.generate",
             model_generate(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.transformers_vision", "TransformersVision", "generate")
-        )
+        _patched_targets.append(("outlines.models.transformers_vision", "TransformersVision", "generate"))
 
         wrap_function_wrapper(
             "outlines.models.transformers_vision",
             "TransformersVision.stream",
             model_generate_stream(tracer),
         )
-        _patched_targets.append(
-            ("outlines.models.transformers_vision", "TransformersVision", "stream")
-        )
+        _patched_targets.append(("outlines.models.transformers_vision", "TransformersVision", "stream"))
 
         # VLLM
         wrap_function_wrapper(

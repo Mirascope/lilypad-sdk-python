@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from typing_extensions import TypedDict
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
-from typing_extensions import TypedDict
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer
 
@@ -64,9 +64,7 @@ class BedrockChunkHandler:
                 buffers[index].append_text_content(text_fragment)
 
 
-def default_bedrock_cleanup(
-    span: Span, metadata: BedrockMetadata, buffers: list[ChoiceBuffer]
-) -> None:
+def default_bedrock_cleanup(span: Span, metadata: BedrockMetadata, buffers: list[ChoiceBuffer]) -> None:
     """Cleanup function to set final bedrock usage info and produce choice events."""
     attributes: dict[str, AttributeValue] = {}
     if (resp_model := metadata.get("response_model")) and isinstance(resp_model, str):

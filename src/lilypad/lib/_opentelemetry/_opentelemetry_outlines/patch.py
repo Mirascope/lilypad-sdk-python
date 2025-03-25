@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Coroutine, Generator
 from typing import Any
-
-from opentelemetry.trace import SpanKind, Status, StatusCode
+from collections.abc import Callable, Coroutine, Generator
 from typing_extensions import ParamSpec
 
+from opentelemetry.trace import Status, SpanKind, StatusCode
+
 from .utils import (
-    extract_arguments,
-    extract_generation_attributes,
     record_prompts,
-    record_stop_sequences,
     set_choice_event,
+    extract_arguments,
+    record_stop_sequences,
+    extract_generation_attributes,
 )
 
 P = ParamSpec("P")
@@ -30,12 +30,10 @@ def model_generate(
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> Any:
-        prompts, generation_parameters, sampling_parameters, model_name = (
-            extract_arguments(wrapped, instance, args, kwargs)
+        prompts, generation_parameters, sampling_parameters, model_name = extract_arguments(
+            wrapped, instance, args, kwargs
         )
-        attributes = extract_generation_attributes(
-            generation_parameters, sampling_parameters, model_name
-        )
+        attributes = extract_generation_attributes(generation_parameters, sampling_parameters, model_name)
         span_name = f"outlines.generate {model_name}"
 
         with tracer.start_as_current_span(
@@ -73,12 +71,10 @@ def model_generate_stream(
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> Any:
-        prompts, generation_parameters, sampling_parameters, model_name = (
-            extract_arguments(wrapped, instance, args, kwargs)
+        prompts, generation_parameters, sampling_parameters, model_name = extract_arguments(
+            wrapped, instance, args, kwargs
         )
-        attributes = extract_generation_attributes(
-            generation_parameters, sampling_parameters, model_name
-        )
+        attributes = extract_generation_attributes(generation_parameters, sampling_parameters, model_name)
         span_name = f"outlines.stream {model_name}"
 
         with tracer.start_as_current_span(
@@ -122,9 +118,7 @@ def model_generate_stream(
 
 def model_generate_async(
     tracer: Any,
-) -> Callable[
-    [Callable[P, Any], Any, tuple[Any, ...], dict[str, Any]], Coroutine[Any, Any, Any]
-]:
+) -> Callable[[Callable[P, Any], Any, tuple[Any, ...], dict[str, Any]], Coroutine[Any, Any, Any]]:
     """Wrapper for async methods like async def generate_chat(...)"""
 
     async def traced_method(
@@ -133,12 +127,10 @@ def model_generate_async(
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> Any:
-        prompts, generation_parameters, sampling_parameters, model_name = (
-            extract_arguments(wrapped, instance, args, kwargs)
+        prompts, generation_parameters, sampling_parameters, model_name = extract_arguments(
+            wrapped, instance, args, kwargs
         )
-        attributes = extract_generation_attributes(
-            generation_parameters, sampling_parameters, model_name
-        )
+        attributes = extract_generation_attributes(generation_parameters, sampling_parameters, model_name)
         span_name = f"outlines.generate_async {model_name}"
 
         with tracer.start_as_current_span(

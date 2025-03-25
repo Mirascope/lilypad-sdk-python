@@ -24,9 +24,7 @@ class SandboxRunner(ABC):
     @classmethod
     def _is_async_func(cls, closure: Closure) -> bool:
         lines = closure.signature.splitlines()
-        return any(
-            line.strip() for line in lines if line.strip().startswith("async def ")
-        )
+        return any(line.strip() for line in lines if line.strip().startswith("async def "))
 
     @classmethod
     def _generate_async_run(cls, closure: Closure, *args: Any, **kwargs: Any) -> str:
