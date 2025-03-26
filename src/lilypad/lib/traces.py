@@ -167,6 +167,12 @@ class SyncVersionedFunction(Protocol[_P, _R_CO]):
         """Protocol for the `VersionFunction` decorator return type."""
         ...
 
+    def remote(
+        self,
+        sandbox_runner: SandboxRunner | None = None,
+    ) -> _R_CO:
+        """Protocol for the `VersionFunction` decorator return type."""
+        ...
 
 class AsyncVersionedFunction(Protocol[_P, _R_CO]):
     """Protocol for the `VersionFunction` decorator return type."""
@@ -183,57 +189,12 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
         """Protocol for the `VersionFunction` decorator return type."""
         ...
 
-
-#
-# class SyncVersionFunctionWrapFunction(Protocol[_P, _R]):
-#     """Protocol for the `VersionFunction` decorator return type with wrap mode."""
-#
-#     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> SyncVersionedFunction[_R]:
-#         """Protocol for the `VersionedFunction` decorator return type."""
-#         ...
-#
-#     def version(
-#         self,
-#         forced_version: int,
-#         sandbox_runner: SandboxRunner | None = None,
-#     ) -> Callable[_P, SyncVersionedFunction[_R]]:
-#         """Protocol for the `VersionedFunction` decorator return type."""
-#         ...
-#
-#
-# class AsyncGenerationWrapFunction(Protocol[_P, _R]):
-#     """Protocol for the `VersionedFunction` decorator return type with wrap mode."""
-#
-#     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> Coroutine[Any, Any, AsyncVersionedFunction[_R]]:
-#         """Protocol for the `VersionedFunction` decorator return type."""
-#         ...
-#
-#     def version(
-#         self,
-#         forced_version: int,
-#         sandbox_runner: SandboxRunner | None = None,
-#     ) -> Coroutine[Any, Any, Callable[_P, Coroutine[Any, Any, AsyncVersionedFunction[_R]]]]:
-#         """Protocol for the `VersionedFunction` decorator return type."""
-#         ...
-
-#
-# class VersioningDecorator(Protocol[_P, _R]):
-#     """Protocol for the `VersionFunctionWrapFunction` decorator return type."""
-#
-#     @overload
-#     def __call__(  # pyright: ignore [reportOverlappingOverload]
-#         self, fn: Callable[_P, Coroutine[Any, Any, _R]]
-#     ) -> AsyncGenerationWrapFunction[_P, _R]: ...
-#
-#     @overload
-#     def __call__(self, fn: Callable[_P, _R]) -> SyncVersionFunctionWrapFunction[_P, _R]: ...
-#
-#     def __call__(
-#         self, fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
-#     ) -> SyncVersionFunctionWrapFunction[_P, _R] | AsyncGenerationWrapFunction[_P, _R]:
-#         """Protocol `call` definition for `VersionFunctionWrapFunction` decorator return type."""
-#         ...
-
+    def remote(
+        self,
+        sandbox_runner: SandboxRunner | None = None,
+       ) -> Coroutine[Any, Any, _R_CO]:
+        """Protocol for the `VersionFunction` decorator return type."""
+        ...
 
 class TraceDecoratedFunctionWithContext(Protocol[_P, _R]):
     """Protocol for the `VersioningDecorator` decorator return type."""
@@ -382,6 +343,10 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
         | Callable[_P, _R]
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
+
+        if _RECORDING_ENABLED and versioning == "automatic":
+            register_decorated_function("lilypad.lib.trace", fn)
+
         signature = inspect.signature(fn)
         closure = Closure.from_fn(fn)
 
