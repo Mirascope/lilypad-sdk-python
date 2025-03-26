@@ -230,6 +230,15 @@ def _extract_parameter_types(merged_params: list[str]) -> list[str]:
     return types
 
 
+def _get_deployed_version(versions: list[FunctionPublic]) -> FunctionPublic:
+    """Return the deployed version from the list, choosing the highest version
+    that is not archived; if none is found, return the last version."""
+    for v in sorted(versions, key=lambda v: v.version_num or 0, reverse=True):
+        if not getattr(v, "archived", None):
+            return v
+    return versions[-1]
+
+
 def _generate_protocol_stub_content(func_name: str, versions: list[FunctionPublic], is_async: bool) -> str:
     if not versions:
         return ""
@@ -264,7 +273,7 @@ def _generate_protocol_stub_content(func_name: str, versions: list[FunctionPubli
             f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox: SandboxRunner | None = None) -> {version_class_name}: ..."
         )
         version_overloads.append(overload)
-    # Generate the main protocol __call__ signature from the latest version's parameters
+    # For the main protocol, use the latest version for __call__
     latest_params = (
         _merge_parameters(latest_version.signature, latest_version.arg_types)
         if latest_version.arg_types
@@ -275,7 +284,19 @@ def _generate_protocol_stub_content(func_name: str, versions: list[FunctionPubli
         main_call = f"    def __call__(self, {params_str_latest}) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
     else:
         main_call = f"    def __call__(self) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
-    main_remote = f"    def remote(self, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
+    # For remote, use the deployed function's signature
+    deployed_version = _get_deployed_version(versions)
+    deployed_params = (
+        _merge_parameters(deployed_version.signature, deployed_version.arg_types)
+        if deployed_version.arg_types
+        else _parse_parameters_from_signature(deployed_version.signature)
+    )
+    deployed_params_str = ", ".join(deployed_params)
+    deployed_return_type = _parse_return_type(deployed_version.signature)
+    if deployed_params_str:
+        main_remote = f"    def remote(self, {deployed_params_str}, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + deployed_return_type + ']') if is_async else deployed_return_type}: ..."
+    else:
+        main_remote = f"    def remote(self, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + deployed_return_type + ']') if is_async else deployed_return_type}: ..."
     base_version = (
         f"    @classmethod  # type: ignore[misc]\n"
         f"    def version(cls, forced_version: int, sandbox: SandboxRunner | None = None) -> Callable[..., "
