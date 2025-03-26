@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.0-alpha.3 (2025-03-26)
+
+Full Changelog: [v0.1.0-alpha.2...v0.1.0-alpha.3](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.2...v0.1.0-alpha.3)
+
+### Features
+
+* feat: add unittest ([14d0909](https://github.com/Mirascope/lilypad-sdk-python/commit/14d0909d1bd73e867e7c9d19eca48cfb913b205c))
+* feat: fix lint ([8a90eda](https://github.com/Mirascope/lilypad-sdk-python/commit/8a90edaa5f1147f9c381f1e375585012aac2a453))
+* feat: fix list response ([3b93c96](https://github.com/Mirascope/lilypad-sdk-python/commit/3b93c961696ae901d33bd5c1843b9c844fb898ec))
+* feat: fix unittest ([2cac573](https://github.com/Mirascope/lilypad-sdk-python/commit/2cac57344d9aff47a42ed34f8b19eb2f8b7378b0))
+* feat: fix unittest ([84217a5](https://github.com/Mirascope/lilypad-sdk-python/commit/84217a5e862a9f01b16b508519eace80827c0ae8))
+* feat: fix unittest ([2094079](https://github.com/Mirascope/lilypad-sdk-python/commit/2094079447135beaf411fba984c3041d26509e65))
+* feat: fix unittest ([1e011b1](https://github.com/Mirascope/lilypad-sdk-python/commit/1e011b1cbafe6fc407a26df172a9335fb7b163d2))
+* feat: fix unittest ([5e969bf](https://github.com/Mirascope/lilypad-sdk-python/commit/5e969bf2f9ff2886a7e99e683317a1505975268a))
+* feat: fix unittest ([a645dbc](https://github.com/Mirascope/lilypad-sdk-python/commit/a645dbc7a4362f05f8a3a40bf64d698927c6c15d))
+* feat: fix unittest ([fe60494](https://github.com/Mirascope/lilypad-sdk-python/commit/fe6049484bf2e1684c65a6c5dc98607ac290ffde))
+* feat: fix unittest ([765a25a](https://github.com/Mirascope/lilypad-sdk-python/commit/765a25ad49aacfe327f4b53e5abfb62bae18ae0e))
+* feat: Migrate lilypad client ([a182cda](https://github.com/Mirascope/lilypad-sdk-python/commit/a182cdabd45340ee64084d8d14b2b10f50ea5c92))
+* feat: remove ignore skip flag for the broken test ([2430b40](https://github.com/Mirascope/lilypad-sdk-python/commit/2430b4069a9a715b7957c51154fc8b44dc4678ee))
+
 ## 0.1.0-alpha.2 (2025-03-25)
 
 Full Changelog: [v0.1.0-alpha.1...v0.1.0-alpha.2](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.1...v0.1.0-alpha.2)
