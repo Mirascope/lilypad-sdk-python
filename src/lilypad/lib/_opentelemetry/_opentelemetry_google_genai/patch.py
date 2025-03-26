@@ -1,15 +1,15 @@
-from collections.abc import AsyncGenerator, Awaitable, Callable
 from typing import Any, ParamSpec
+from collections.abc import Callable, Awaitable, AsyncGenerator
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
 from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .utils import (
-    get_llm_request_attributes,
+    set_stream,
     set_content_event,
     set_response_attributes,
-    set_stream,
+    get_llm_request_attributes,
 )
 
 P = ParamSpec("P")
@@ -57,9 +57,7 @@ def generate_content(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 
@@ -106,27 +104,17 @@ def generate_content_async(
                             if candidates:
                                 for candidate in candidates:
                                     finish_reason = (
-                                        candidate.finish_reason.value
-                                        if candidate.finish_reason
-                                        else "none",
+                                        candidate.finish_reason.value if candidate.finish_reason else "none",
                                     )
                                     event_attrs = {
                                         "candidate_index": candidate.index or 0,
                                         "finish_reason": finish_reason,
                                     }
-                                    span.add_event(
-                                        "gen_ai.candidate", attributes=event_attrs
-                                    )
+                                    span.add_event("gen_ai.candidate", attributes=event_attrs)
                                     finish_reasons.append(finish_reason)
                             yield chunk
                         if finish_reasons:
-                            span.set_attributes(
-                                {
-                                    gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS: finish_reasons[
-                                        0
-                                    ]
-                                }
-                            )
+                            span.set_attributes({gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS: finish_reasons[0]})
 
                     # Return a new async generator that wraps the original stream.
                     async def final_wrapper() -> AsyncGenerator[Any, Any]:
@@ -144,9 +132,7 @@ def generate_content_async(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 

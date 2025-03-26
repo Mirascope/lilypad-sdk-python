@@ -32,12 +32,13 @@ try:
     import PIL
     import PIL.WebPImagePlugin
 except ImportError:
+
     class PIL:
         class WebPImagePlugin:
             class WebPImageFile:
-
                 def save(self, *args, **kwargs):
                     raise NotImplementedError("Pillow is not installed. Please install Pillow to use this feature.")
+
 
 class SpanContextHolder:
     def __init__(self) -> None:
@@ -74,9 +75,7 @@ def _get_custom_context_manager(
             jsonable_arg_values[arg_name] = serialized_arg_value
         with tracer.start_as_current_span(f"{fn.__name__}") as span:
             attributes: dict[str, AttributeValue] = {
-                "lilypad.project_uuid": str(new_project_uuid)
-                if new_project_uuid
-                else "",
+                "lilypad.project_uuid": str(new_project_uuid) if new_project_uuid else "",
                 "lilypad.type": "generation",
                 "lilypad.generation.uuid": str(generation.uuid),
                 "lilypad.generation.name": fn.__name__,
@@ -85,9 +84,7 @@ def _get_custom_context_manager(
                 "lilypad.generation.arg_types": json.dumps(generation.arg_types),
                 "lilypad.generation.arg_values": json.dumps(jsonable_arg_values),
                 "lilypad.generation.prompt_template": prompt_template or "",
-                "lilypad.generation.version": generation.version_num
-                if generation.version_num
-                else -1,
+                "lilypad.generation.version": generation.version_num if generation.version_num else -1,
                 "lilypad.is_async": is_async,
             }
             span.set_attributes(attributes)
@@ -125,9 +122,7 @@ def _serialize_proto_data(data: list[dict]) -> str:
     for item in data:
         serialized_item = item.copy()
         if "parts" in item:
-            serialized_item["parts"] = [
-                encode_gemini_part(part) for part in item["parts"]
-            ]
+            serialized_item["parts"] = [encode_gemini_part(part) for part in item["parts"]]
         serializable_data.append(serialized_item)
 
     return json.dumps(serializable_data)
@@ -173,9 +168,7 @@ def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span) 
     span.set_attributes(attributes)
 
 
-def _handle_call_response(
-    result: mb.BaseCallResponse, fn: Callable, span: Span | None
-) -> None:
+def _handle_call_response(result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
     _set_call_response_attributes(result, span)
@@ -188,53 +181,41 @@ def _handle_stream(stream: mb.BaseStream, fn: Callable, span: Span | None) -> No
     _set_call_response_attributes(call_response, span)
 
 
-def _handle_response_model(
-    result: BaseModel | mb.BaseType, fn: Callable, span: Span | None
-) -> None:
+def _handle_response_model(result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
 
     _set_response_model_attributes(result, span)
 
 
-def _handle_structured_stream(
-    result: mb.BaseStructuredStream, fn: Callable, span: Span | None
-) -> None:
+def _handle_structured_stream(result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
 
     _set_response_model_attributes(result.constructed_response_model, span)
 
 
-async def _handle_call_response_async(
-    result: mb.BaseCallResponse, fn: Callable, span: Span | None
-) -> None:
+async def _handle_call_response_async(result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
 
     _set_call_response_attributes(result, span)
 
 
-async def _handle_stream_async(
-    stream: mb.BaseStream, fn: Callable, span: Span | None
-) -> None:
+async def _handle_stream_async(stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
     call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
     _set_call_response_attributes(call_response, span)
 
 
-async def _handle_response_model_async(
-    result: BaseModel | mb.BaseType, fn: Callable, span: Span | None
-) -> None:
+async def _handle_response_model_async(result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
     _set_response_model_attributes(result, span)
 
 
-async def _handle_structured_stream_async(
-    result: mb.BaseStructuredStream, fn: Callable, span: Span | None
-) -> None:
+async def _handle_structured_stream_async(result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
     if span is None:
         return
     _set_response_model_attributes(result.constructed_response_model, span)

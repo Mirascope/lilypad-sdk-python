@@ -1,9 +1,9 @@
 import json
 from typing import Any, TypedDict
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer, set_server_address_and_port
 
@@ -41,24 +41,20 @@ class AnthropicChunkHandler:
 
         if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
             buffers[chunk.index].append_text_content(chunk.delta.text)
-        if (
-            chunk.type == "content_block_delta"
-            and chunk.delta.type == "input_json_delta"
-        ) and hasattr(chunk.delta, "tool_call"):
+        if (chunk.type == "content_block_delta" and chunk.delta.type == "input_json_delta") and hasattr(
+            chunk.delta, "tool_call"
+        ):
             tool_call = chunk.delta.tool_call
             buffers[chunk.index].append_tool_call(tool_call)
 
-        if (
-            chunk.type == "content_block_delta"
-            and chunk.delta.type == "input_json_delta"
-        ) and hasattr(chunk.delta, "partial_json"):
+        if (chunk.type == "content_block_delta" and chunk.delta.type == "input_json_delta") and hasattr(
+            chunk.delta, "partial_json"
+        ):
             # TODO: Handle partial_json
             ...
 
 
-def default_anthropic_cleanup(
-    span: Span, metadata: AnthropicMetadata, buffers: list[ChoiceBuffer]
-) -> None:
+def default_anthropic_cleanup(span: Span, metadata: AnthropicMetadata, buffers: list[ChoiceBuffer]) -> None:
     """Default Anthropic cleanup handler."""
     attributes: dict[str, AttributeValue] = {}
     if model := metadata.get("model"):
@@ -115,15 +111,9 @@ def get_llm_request_attributes(
         gen_ai_attributes.GEN_AI_REQUEST_TOP_K: kwargs.get("top_k"),
         gen_ai_attributes.GEN_AI_REQUEST_MAX_TOKENS: kwargs.get("max_tokens"),
         gen_ai_attributes.GEN_AI_REQUEST_STOP_SEQUENCES: kwargs.get("stop_sequences"),
-        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get(
-            "presence_penalty"
-        ),
-        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get(
-            "frequency_penalty"
-        ),
-        gen_ai_attributes.GEN_AI_OPENAI_REQUEST_RESPONSE_FORMAT: kwargs.get(
-            "response_format"
-        ),
+        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get("presence_penalty"),
+        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get("frequency_penalty"),
+        gen_ai_attributes.GEN_AI_OPENAI_REQUEST_RESPONSE_FORMAT: kwargs.get("response_format"),
         gen_ai_attributes.GEN_AI_OPENAI_REQUEST_SEED: kwargs.get("seed"),
     }
 
@@ -160,9 +150,7 @@ def get_tool_calls(messages: list[Any]) -> list[dict[str, Any]]:
 
 
 def set_message_event(span: Span, message: Any) -> None:
-    attributes = {
-        gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.ANTHROPIC.value
-    }
+    attributes = {gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.ANTHROPIC.value}
     role = message.get("role")
     if content := message.get("content"):
         if not isinstance(content, str):
@@ -193,9 +181,7 @@ def get_message_event(message: Any) -> dict[str, AttributeValue]:
 
 
 def set_response_attributes(span: Span, response: Any) -> None:
-    attributes: dict[str, AttributeValue] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: response.model
-    }
+    attributes: dict[str, AttributeValue] = {gen_ai_attributes.GEN_AI_RESPONSE_MODEL: response.model}
     if content_list := response.content:
         for content in content_list:
             choice_attributes = get_message_event(content)
@@ -207,9 +193,7 @@ def set_response_attributes(span: Span, response: Any) -> None:
                     "finish_reason": response.stop_reason or "error",
                 },
             )
-        attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = [
-            response.stop_reason or "error"
-        ]
+        attributes[gen_ai_attributes.GEN_AI_RESPONSE_FINISH_REASONS] = [response.stop_reason or "error"]
     if id := response.id:
         attributes[gen_ai_attributes.GEN_AI_RESPONSE_ID] = id
 

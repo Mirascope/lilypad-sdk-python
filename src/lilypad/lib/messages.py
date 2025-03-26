@@ -2,8 +2,8 @@
 
 from functools import cached_property
 
-from mirascope.llm.call_response import CallResponse
 from pydantic import computed_field
+from mirascope.llm.call_response import CallResponse
 
 from .tools import Tool
 

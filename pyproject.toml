@@ -46,7 +46,6 @@ Repository = "https://github.com/Mirascope/lilypad-sdk-python"
 managed = true
 # version pins are in requirements-dev.lock
 dev-dependencies = [
-    "mypy",
     "respx",
     "pytest>=8.3.2",
     "pyright>=1.1.397",
@@ -86,11 +85,8 @@ format = { chain = [
 
 typecheck = { chain = [
   "typecheck:pyright",
-  "typecheck:mypy"
 ]}
 "typecheck:pyright" = "pyright"
-"typecheck:verify-types" = "pyright --verifytypes lilypad --ignoreexternal"
-"typecheck:mypy" = "mypy ."
 
 [build-system]
 requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
@@ -111,7 +107,6 @@ include = [
   "/*.json",
   "/*.lock",
   "/*.md",
-  "/mypy.ini",
   "/noxfile.py",
   "bin/*",
   "examples/*",
@@ -171,12 +166,16 @@ filterwarnings = [
 # there are a couple of flags that are still disabled by
 # default in strict mode as they are experimental and niche.
 typeCheckingMode = "strict"
-pythonVersion = "3.8"
+pythonVersion = "3.10"
 
 exclude = [
     "_dev",
     ".venv",
     ".nox",
+    "tests",
+    "src/lilypad/lib",
+    "src/lilypad/_models.py",
+    "src/lilypad/_utils/_typing.py",
 ]
 
 reportImplicitOverride = true
@@ -187,7 +186,7 @@ reportPrivateUsage = false
 [tool.ruff]
 line-length = 120
 output-format = "grouped"
-target-version = "py37"
+target-version = "py310"
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -236,4 +235,6 @@ known-first-party = ["lilypad", "tests"]
 "bin/**.py" = ["T201", "T203"]
 "scripts/**.py" = ["T201", "T203"]
 "tests/**.py" = ["T201", "T203"]
+"tests/lib/**.py" = ["ARG", "F401"]
 "examples/**.py" = ["T201", "T203"]
+"src/lilypad/lib/**.py" = ["ARG", "F401", "B904", "TC004", "B904"]

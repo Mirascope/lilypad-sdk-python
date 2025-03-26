@@ -1,34 +1,34 @@
 """Utilities for Python functions"""
 
-import dataclasses
-import datetime
-import inspect
 import types
-from collections import defaultdict, deque
-from collections.abc import Callable
-from decimal import Decimal
-from enum import Enum
-from ipaddress import (
-    IPv4Address,
-    IPv4Interface,
-    IPv4Network,
-    IPv6Address,
-    IPv6Interface,
-    IPv6Network,
-)
-from pathlib import Path, PurePath
+import inspect
+import datetime
+import dataclasses
 from re import Pattern
+from enum import Enum
+from uuid import UUID
 from types import GeneratorType
 from typing import (
     Any,
+    Union,
+    TypeVar,
     ParamSpec,
     TypeAlias,
-    TypeVar,
-    Union,
     get_args,
     get_origin,
 )
-from uuid import UUID
+from decimal import Decimal
+from pathlib import Path, PurePath
+from ipaddress import (
+    IPv4Address,
+    IPv4Network,
+    IPv6Address,
+    IPv6Network,
+    IPv4Interface,
+    IPv6Interface,
+)
+from collections import deque, defaultdict
+from collections.abc import Callable
 
 from pydantic import BaseModel
 
@@ -64,11 +64,7 @@ def _get_type_str(type_hint: Any) -> str:
 
     # Handle Optional types (from both syntaxes)
     args = get_args(type_hint)
-    if (
-        (origin is Union or origin is types.UnionType)
-        and len(args) == 2
-        and type(None) in args
-    ):
+    if (origin is Union or origin is types.UnionType) and len(args) == 2 and type(None) in args:
         other_type = next(arg for arg in args if arg is not type(None))
         return f"Optional[{_get_type_str(other_type)}]"
 
@@ -89,9 +85,7 @@ ArgTypes: TypeAlias = dict[str, str]
 ArgValues: TypeAlias = dict[str, Any]
 
 
-def inspect_arguments(
-    fn: Callable, *args: Any, **kwargs: Any
-) -> tuple[ArgTypes, ArgValues]:
+def inspect_arguments(fn: Callable, *args: Any, **kwargs: Any) -> tuple[ArgTypes, ArgValues]:
     """Inspect a function's arguments and their values.
     Returns type information and values for all arguments.
     """
@@ -175,9 +169,7 @@ def generate_encoders_by_class_tuples(
     type_encoder_map: dict[Any, Callable[[Any], Any]],
 ) -> dict[Callable[[Any], Any], tuple[Any, ...]]:
     """Generate a mapping of encoder functions to tuples of types they can handle"""
-    encoders_by_class_tuples: dict[Callable[[Any], Any], tuple[Any, ...]] = defaultdict(
-        tuple
-    )
+    encoders_by_class_tuples: dict[Callable[[Any], Any], tuple[Any, ...]] = defaultdict(tuple)
     for type_, encoder in type_encoder_map.items():
         encoders_by_class_tuples[encoder] += (type_,)
     return encoders_by_class_tuples
@@ -328,11 +320,7 @@ def jsonable_encoder(
 
         for key, value in obj.items():
             if (
-                (
-                    not sqlalchemy_safe
-                    or (not isinstance(key, str))
-                    or (not key.startswith("_sa"))
-                )
+                (not sqlalchemy_safe or (not isinstance(key, str)) or (not key.startswith("_sa")))
                 and (value is not None or not exclude_none)
                 and key in allowed_keys
             ):

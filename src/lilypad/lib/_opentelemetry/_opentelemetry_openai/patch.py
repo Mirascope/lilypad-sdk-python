@@ -13,27 +13,27 @@
 # limitations under the License.
 #
 # Modifications copyright (C) 2024 Mirascope
-from collections.abc import Awaitable, Callable
 from typing import Any, ParamSpec
+from collections.abc import Callable, Awaitable
 
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
+from opentelemetry.util.types import AttributeValue
+from opentelemetry.semconv.attributes import error_attributes
 from opentelemetry.semconv._incubating.attributes import (
     gen_ai_attributes,
     server_attributes,
 )
-from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
-from opentelemetry.util.types import AttributeValue
 
 from .utils import (
-    OpenAIChunkHandler,
     OpenAIMetadata,
-    default_openai_cleanup,
+    OpenAIChunkHandler,
     set_message_event,
+    default_openai_cleanup,
     set_response_attributes,
 )
 from .._utils import (
-    AsyncStreamWrapper,
     StreamWrapper,
+    AsyncStreamWrapper,
     set_server_address_and_port,
 )
 
@@ -56,12 +56,8 @@ def get_llm_request_attributes(
         gen_ai_attributes.GEN_AI_REQUEST_TEMPERATURE: kwargs.get("temperature"),
         gen_ai_attributes.GEN_AI_REQUEST_TOP_P: kwargs.get("p") or kwargs.get("top_p"),
         gen_ai_attributes.GEN_AI_REQUEST_MAX_TOKENS: kwargs.get("max_tokens"),
-        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get(
-            "presence_penalty"
-        ),
-        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get(
-            "frequency_penalty"
-        ),
+        gen_ai_attributes.GEN_AI_REQUEST_PRESENCE_PENALTY: kwargs.get("presence_penalty"),
+        gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY: kwargs.get("frequency_penalty"),
         gen_ai_attributes.GEN_AI_OPENAI_REQUEST_RESPONSE_FORMAT: response_format,
         gen_ai_attributes.GEN_AI_OPENAI_REQUEST_SEED: kwargs.get("seed"),
     }
@@ -72,9 +68,7 @@ def get_llm_request_attributes(
     attributes[gen_ai_attributes.GEN_AI_SYSTEM] = system
 
     service_tier = kwargs.get("service_tier")
-    attributes[gen_ai_attributes.GEN_AI_OPENAI_RESPONSE_SERVICE_TIER] = (
-        service_tier if service_tier != "auto" else None
-    )
+    attributes[gen_ai_attributes.GEN_AI_OPENAI_RESPONSE_SERVICE_TIER] = service_tier if service_tier != "auto" else None
 
     # filter out None values
     return {k: v for k, v in attributes.items() if v is not None}
@@ -122,9 +116,7 @@ def _sync_wrapper(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 
@@ -173,9 +165,7 @@ def _async_wrapper(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 

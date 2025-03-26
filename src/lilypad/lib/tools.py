@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, TypeVar, ParamSpec
 from collections.abc import Callable
-from typing import Any, ParamSpec, TypeVar
 
 from mirascope.core import BaseTool
 from mirascope.llm.tool import Tool as _Tool

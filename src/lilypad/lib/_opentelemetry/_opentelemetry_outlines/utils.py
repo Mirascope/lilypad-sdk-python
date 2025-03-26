@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-import inspect
 import json
-from collections.abc import Callable
+import inspect
 from typing import Any, ParamSpec, cast
+from collections.abc import Callable
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
-from opentelemetry.trace import Span
 from pydantic import BaseModel
+from opentelemetry.trace import Span
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 P = ParamSpec("P")
 
 
-def get_fn_args(
-    fn: Callable, args: tuple[object, ...], kwargs: dict[str, Any]
-) -> dict[str, Any]:
+def get_fn_args(fn: Callable, args: tuple[object, ...], kwargs: dict[str, Any]) -> dict[str, Any]:
     """Returns the `args` and `kwargs` as a dictionary bound by `fn`'s signature."""
     signature = inspect.signature(fn)
     bound_args = signature.bind_partial(*args, **kwargs)

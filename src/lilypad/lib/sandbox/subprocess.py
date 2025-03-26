@@ -1,14 +1,14 @@
 """Subprocess sandbox runner."""
 
-import json
 import os
-import subprocess
+import json
 import tempfile
-from pathlib import Path
+import subprocess
 from typing import Any
+from pathlib import Path
 
-from .._utils import Closure
 from . import SandboxRunner
+from .._utils import Closure
 
 
 class SubprocessSandboxRunner(SandboxRunner):
@@ -23,9 +23,7 @@ class SubprocessSandboxRunner(SandboxRunner):
     def execute_function(self, closure: Closure, *args: Any, **kwargs: Any) -> str:
         """Execute the function in the sandbox."""
         script = self.generate_script(closure, *args, **kwargs)
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".py", delete=False
-        ) as tmp_file:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp_file:
             tmp_file.write(script)
             tmp_path = Path(tmp_file.name)
         try:
@@ -38,11 +36,7 @@ class SubprocessSandboxRunner(SandboxRunner):
             )
             return json.loads(result.stdout.strip())
         except subprocess.CalledProcessError as e:
-            error_message = (
-                f"Process exited with non-zero status.\n"
-                f"Stdout: {e.stdout}\n"
-                f"Stderr: {e.stderr}"
-            )
+            error_message = f"Process exited with non-zero status.\nStdout: {e.stdout}\nStderr: {e.stderr}"
             raise RuntimeError(error_message)
         finally:
             tmp_path.unlink()

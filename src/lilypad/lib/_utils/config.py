@@ -1,9 +1,9 @@
 """Utilities for handling configuration."""
 
-import json
 import os
-from pathlib import Path
+import json
 from typing import Any
+from pathlib import Path
 
 
 def load_config() -> dict[str, Any]:

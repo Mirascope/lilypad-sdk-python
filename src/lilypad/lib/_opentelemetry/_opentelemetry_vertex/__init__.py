@@ -1,12 +1,12 @@
-from collections.abc import Collection
 from typing import Any
-
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.instrumentation.utils import unwrap
-from opentelemetry.semconv.schemas import Schemas
-from opentelemetry.trace import get_tracer
+from collections.abc import Collection
 from typing_extensions import ParamSpec, TypedDict
+
 from wrapt import wrap_function_wrapper
+from opentelemetry.trace import get_tracer
+from opentelemetry.semconv.schemas import Schemas
+from opentelemetry.instrumentation.utils import unwrap
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
 from lilypad.lib._opentelemetry._opentelemetry_vertex.patch import (
     vertex_generate_content,

@@ -16,16 +16,16 @@
 # Modifications copyright (C) 2024 Mirascope
 
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator, Callable, Iterator
-from typing import Any, Generic, Protocol, TypeVar
+from typing import Any, Generic, TypeVar, Protocol
 from urllib.parse import urlparse
+from collections.abc import Callable, Iterator, AsyncIterator
 
 from httpx import URL
+from opentelemetry.trace import Status, StatusCode
+from opentelemetry.semconv.attributes import error_attributes
 from opentelemetry.semconv._incubating.attributes import (
     server_attributes,
 )
-from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import Status, StatusCode
 
 T = TypeVar("T")
 ChunkType = TypeVar("ChunkType", contravariant=True)
@@ -64,9 +64,7 @@ class ChoiceBuffer:
             self.tool_calls_buffers.append(None)
 
         if not self.tool_calls_buffers[idx]:
-            self.tool_calls_buffers[idx] = ToolCallBuffer(
-                self.index, tool_call.id, tool_call.function.name
-            )
+            self.tool_calls_buffers[idx] = ToolCallBuffer(self.index, tool_call.id, tool_call.function.name)
         self.tool_calls_buffers[idx].append_arguments(tool_call.function.arguments)
 
 
@@ -130,9 +128,7 @@ class StreamWrapper(BaseStreamWrapper[StreamProtocol]):
         try:
             if exc_type is not None:
                 self.span.set_status(Status(StatusCode.ERROR, str(exc_val)))
-                self.span.set_attribute(
-                    error_attributes.ERROR_TYPE, exc_type.__qualname__
-                )
+                self.span.set_attribute(error_attributes.ERROR_TYPE, exc_type.__qualname__)
         finally:
             self.cleanup()
         return False
@@ -154,9 +150,7 @@ class StreamWrapper(BaseStreamWrapper[StreamProtocol]):
             raise
         except Exception as error:
             self.span.set_status(Status(StatusCode.ERROR, str(error)))
-            self.span.set_attribute(
-                error_attributes.ERROR_TYPE, type(error).__qualname__
-            )
+            self.span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
             self.cleanup()
             raise
 
@@ -170,9 +164,7 @@ class AsyncStreamWrapper(BaseStreamWrapper[AsyncStreamProtocol]):
         try:
             if exc_type is not None:
                 self.span.set_status(Status(StatusCode.ERROR, str(exc_val)))
-                self.span.set_attribute(
-                    error_attributes.ERROR_TYPE, exc_type.__qualname__
-                )
+                self.span.set_attribute(error_attributes.ERROR_TYPE, exc_type.__qualname__)
         finally:
             self.cleanup()
         return False
@@ -194,9 +186,7 @@ class AsyncStreamWrapper(BaseStreamWrapper[AsyncStreamProtocol]):
             raise
         except Exception as error:
             self.span.set_status(Status(StatusCode.ERROR, str(error)))
-            self.span.set_attribute(
-                error_attributes.ERROR_TYPE, type(error).__qualname__
-            )
+            self.span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
             self.cleanup()
             raise
 
@@ -212,9 +202,7 @@ class ToolCallBuffer:
         self.arguments.append(arguments)
 
 
-def set_server_address_and_port(
-    client_instance: Any, attributes: dict[str, Any]
-) -> None:
+def set_server_address_and_port(client_instance: Any, attributes: dict[str, Any]) -> None:
     base_client = getattr(client_instance, "_client", None)
     base_url = getattr(base_client, "base_url", None)
     if not base_url:

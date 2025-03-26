@@ -1,7 +1,7 @@
 """Utils for the CLI commands."""
 
-import json
 import os
+import json
 from typing import Any
 
 

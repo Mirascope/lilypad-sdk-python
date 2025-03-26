@@ -1,15 +1,15 @@
-from collections.abc import Awaitable, Callable
 from typing import Any
-
-from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from collections.abc import Callable, Awaitable
 from typing_extensions import ParamSpec
 
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
+from opentelemetry.semconv.attributes import error_attributes
+
 from .utils import (
-    get_vertex_llm_request_attributes,
-    set_vertex_response_attributes,
     set_vertex_stream,
     set_vertex_stream_async,
+    set_vertex_response_attributes,
+    get_vertex_llm_request_attributes,
 )
 
 P = ParamSpec("P")
@@ -45,9 +45,7 @@ def vertex_generate_content(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 
@@ -84,9 +82,7 @@ def vertex_generate_content_async(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 

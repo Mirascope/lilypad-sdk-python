@@ -1,13 +1,13 @@
-from collections.abc import Collection
 from typing import Any
+from collections.abc import Collection
 
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.instrumentation.utils import unwrap
-from opentelemetry.semconv.schemas import Schemas
-from opentelemetry.trace import get_tracer
 from wrapt import wrap_function_wrapper
+from opentelemetry.trace import get_tracer
+from opentelemetry.semconv.schemas import Schemas
+from opentelemetry.instrumentation.utils import unwrap
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
-from .patch import make_api_call_async_patch, make_api_call_patch
+from .patch import make_api_call_patch, make_api_call_async_patch
 
 
 class BedrockInstrumentor(BaseInstrumentor):
@@ -27,9 +27,7 @@ class BedrockInstrumentor(BaseInstrumentor):
         )
 
         # Patch _make_api_call of BaseClient
-        wrap_function_wrapper(
-            "botocore.client", "BaseClient._make_api_call", make_api_call_patch(tracer)
-        )
+        wrap_function_wrapper("botocore.client", "BaseClient._make_api_call", make_api_call_patch(tracer))
         wrap_function_wrapper(
             "aiobotocore.client",
             "AioBaseClient._make_api_call",
@@ -37,8 +35,8 @@ class BedrockInstrumentor(BaseInstrumentor):
         )
 
     def _uninstrument(self, **kwargs: Any) -> None:
-        import aiobotocore.client
         import botocore.client
+        import aiobotocore.client
 
         unwrap(botocore.client.BaseClient, "_make_api_call")
         unwrap(aiobotocore.client.AioBaseClient, "_make_api_call")

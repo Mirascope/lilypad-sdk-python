@@ -1,7 +1,7 @@
 from typing import Any
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import Span
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 
 def get_vertex_model_name(instance: Any) -> str:
@@ -12,9 +12,7 @@ def get_vertex_model_name(instance: Any) -> str:
     return llm_model
 
 
-def get_vertex_llm_request_attributes(
-    kwargs: dict[str, Any], instance: Any
-) -> dict[str, Any]:
+def get_vertex_llm_request_attributes(kwargs: dict[str, Any], instance: Any) -> dict[str, Any]:
     attributes: dict[str, Any] = {
         gen_ai_attributes.GEN_AI_OPERATION_NAME: "chat",
         gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.VERTEX_AI,
@@ -59,9 +57,7 @@ def get_vertex_llm_request_attributes(
             attributes[gen_ai_attributes.GEN_AI_REQUEST_FREQUENCY_PENALTY] = freq_pen
 
         # Stop sequences
-        if _raw_generation_config := getattr(
-            generation_config, "_raw_generation_config", None
-        ):
+        if _raw_generation_config := getattr(generation_config, "_raw_generation_config", None):
             stop_seqs = _raw_generation_config.stop_sequences  # pyright: ignore [reportAttributeAccessIssue]
             if stop_seqs:
                 attributes[gen_ai_attributes.GEN_AI_REQUEST_STOP_SEQUENCES] = stop_seqs
@@ -74,9 +70,7 @@ def get_vertex_llm_request_attributes(
 
 
 def get_vertex_candidate_event(candidate: Any) -> dict[str, Any]:
-    attributes: dict[str, Any] = {
-        gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.VERTEX_AI
-    }
+    attributes: dict[str, Any] = {gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.VERTEX_AI}
     message_dict = {
         "role": candidate.content.role if candidate.content else "assistant",
     }
@@ -112,9 +106,7 @@ def get_vertex_candidate_event(candidate: Any) -> dict[str, Any]:
 
 
 def set_vertex_response_attributes(span: Span, response: Any, instance: Any) -> None:
-    attributes: dict[str, Any] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)
-    }
+    attributes: dict[str, Any] = {gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)}
 
     candidates = getattr(response, "candidates", None)
     finish_reasons = []
@@ -139,9 +131,7 @@ def set_vertex_response_attributes(span: Span, response: Any, instance: Any) -> 
 
 
 def set_vertex_stream(span: Span, stream: Any, instance: Any) -> None:
-    attributes: dict[str, Any] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)
-    }
+    attributes: dict[str, Any] = {gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)}
     finish_reasons = []
     prompt_token_count = 0
     candidates_token_count = 0
@@ -161,16 +151,12 @@ def set_vertex_stream(span: Span, stream: Any, instance: Any) -> None:
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)
 
 
 async def set_vertex_stream_async(span: Span, stream: Any, instance: Any) -> None:
-    attributes: dict[str, Any] = {
-        gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)
-    }
+    attributes: dict[str, Any] = {gen_ai_attributes.GEN_AI_RESPONSE_MODEL: get_vertex_model_name(instance)}
     finish_reasons = []
     prompt_token_count = 0
     candidates_token_count = 0
@@ -190,7 +176,5 @@ async def set_vertex_stream_async(span: Span, stream: Any, instance: Any) -> Non
     if prompt_token_count > 0:
         attributes[gen_ai_attributes.GEN_AI_USAGE_INPUT_TOKENS] = prompt_token_count
     if candidates_token_count > 0:
-        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = (
-            candidates_token_count
-        )
+        attributes[gen_ai_attributes.GEN_AI_USAGE_OUTPUT_TOKENS] = candidates_token_count
     span.set_attributes(attributes)

@@ -14,20 +14,20 @@
 #
 # Modifications copyright (C) 2024 Mirascope
 
-from collections.abc import Collection
 from typing import Any
+from collections.abc import Collection
 
-from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
-from opentelemetry.instrumentation.utils import unwrap
-from opentelemetry.semconv.schemas import Schemas
-from opentelemetry.trace import get_tracer
 from wrapt import wrap_function_wrapper
+from opentelemetry.trace import get_tracer
+from opentelemetry.semconv.schemas import Schemas
+from opentelemetry.instrumentation.utils import unwrap
+from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 
 from .patch import (
-    chat_completions_create,
-    chat_completions_create_async,
     chat_completions_parse,
+    chat_completions_create,
     chat_completions_parse_async,
+    chat_completions_create_async,
 )
 
 

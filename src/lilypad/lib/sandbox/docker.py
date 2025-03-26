@@ -3,13 +3,13 @@
 import io
 import json
 import tarfile
-from contextlib import suppress
 from typing import Any
+from contextlib import suppress
 
 import docker
 
-from .._utils import Closure
 from . import SandboxRunner
+from .._utils import Closure
 
 _DEFAULT_IMAGE = "ghcr.io/astral-sh/uv:python3.10-alpine"
 
@@ -61,9 +61,7 @@ class DockerSandboxRunner(SandboxRunner):
                 demux=True,
             )
             if exit_code:
-                raise RuntimeError(
-                    f"Error running code in Docker container: {stderr.decode('utf-8').strip()}"
-                )
+                raise RuntimeError(f"Error running code in Docker container: {stderr.decode('utf-8').strip()}")
             return json.loads(stdout.decode("utf-8").strip())
         finally:
             if container:

@@ -2,7 +2,8 @@
 
 from typing import Literal
 
-from httpx import TimeoutException, HTTPError, RequestError
+from httpx import HTTPError, RequestError, TimeoutException
+
 
 class LicenseError(Exception):
     """Custom exception for license-related errors"""

@@ -35,9 +35,7 @@ class Span:
         self._order_cm = span_order_context(self._span)
         self._order_cm.__enter__()
 
-        self.metadata(
-            timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat()
-        )
+        self.metadata(timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat())
         return self
 
     def __exit__(

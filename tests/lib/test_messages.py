@@ -5,22 +5,22 @@ from typing import Any
 
 import jiter
 import pytest
+from pydantic import computed_field
 from mirascope.core import base as mb
-from mirascope.core.base import _utils as mb_utils
-from mirascope.core.base.call_response import _BaseToolT
-from mirascope.core.base.tool import BaseTool
-from mirascope.core.base.types import CostMetadata
-from mirascope.core.openai import OpenAICallParams
-from mirascope.core.openai.call_response import OpenAICallResponse
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionMessage,
     ChatCompletionMessageToolCall,
     ChatCompletionToolMessageParam,
 )
-from openai.types.chat.chat_completion import Choice
-from pydantic import computed_field
+from mirascope.core.base import _utils as mb_utils
 from pydantic.json_schema import SkipJsonSchema
+from mirascope.core.openai import OpenAICallParams
+from mirascope.core.base.tool import BaseTool
+from mirascope.core.base.types import CostMetadata
+from mirascope.core.base.call_response import _BaseToolT
+from openai.types.chat.chat_completion import Choice
+from mirascope.core.openai.call_response import OpenAICallResponse
 
 from lilypad.lib.messages import Message
 
@@ -39,9 +39,7 @@ class MockResponse(
 ):
     """Mock response for testing"""
 
-    _message_converter: type[mb_utils.BaseMessageParamConverter] = (
-        mb_utils.BaseMessageParamConverter
-    )
+    _message_converter: type[mb_utils.BaseMessageParamConverter] = mb_utils.BaseMessageParamConverter
 
     @property
     def content(self) -> str:  # pyright: ignore [reportReturnType]

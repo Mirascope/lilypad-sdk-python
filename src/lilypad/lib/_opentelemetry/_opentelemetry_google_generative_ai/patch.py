@@ -1,16 +1,16 @@
-from collections.abc import Awaitable, Callable
 from typing import Any, ParamSpec
+from collections.abc import Callable, Awaitable
 
-from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
 from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .utils import (
-    get_llm_request_attributes,
-    set_content_event,
-    set_response_attributes,
     set_stream,
     set_stream_async,
+    set_content_event,
+    set_response_attributes,
+    get_llm_request_attributes,
 )
 
 P = ParamSpec("P")
@@ -50,9 +50,7 @@ def generate_content(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 
@@ -93,9 +91,7 @@ def generate_content_async(
             except Exception as error:
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(error).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(error).__qualname__)
                 span.end()
                 raise
 

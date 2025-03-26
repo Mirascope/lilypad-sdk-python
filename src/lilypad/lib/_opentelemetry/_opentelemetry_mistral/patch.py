@@ -1,18 +1,17 @@
-from collections.abc import Awaitable, Callable
 from typing import Any
-
-from opentelemetry.semconv.attributes import error_attributes
-from opentelemetry.trace import SpanKind, Status, StatusCode, Tracer
+from collections.abc import Callable, Awaitable
 from typing_extensions import ParamSpec
 
-from .._utils import AsyncStreamWrapper, StreamWrapper
+from opentelemetry.trace import Status, Tracer, SpanKind, StatusCode
+from opentelemetry.semconv.attributes import error_attributes
 
 from .utils import (
-    MistralChunkHandler,
     MistralMetadata,
+    MistralChunkHandler,
     default_mistral_cleanup,
     get_mistral_llm_request_attributes,
 )
+from .._utils import StreamWrapper, AsyncStreamWrapper
 
 P = ParamSpec("P")
 
@@ -37,9 +36,7 @@ def mistral_complete_patch(
             except Exception as err:
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(err).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                 span.end()
                 raise
 
@@ -67,9 +64,7 @@ def mistral_complete_async_patch(
             except Exception as err:
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(err).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                 span.end()
                 raise
 
@@ -86,9 +81,7 @@ def mistral_stream_patch(
         kwargs: dict[str, Any],
     ) -> Any:
         span_attributes = get_mistral_llm_request_attributes(kwargs)
-        span_name = (
-            f"chat_stream {span_attributes.get('gen_ai.request.model', 'unknown')}"
-        )
+        span_name = f"chat_stream {span_attributes.get('gen_ai.request.model', 'unknown')}"
         with tracer.start_as_current_span(
             name=span_name,
             kind=SpanKind.CLIENT,
@@ -109,9 +102,7 @@ def mistral_stream_patch(
             except Exception as err:
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(err).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                 span.end()
                 raise
 
@@ -128,9 +119,7 @@ def mistral_stream_async_patch(
         kwargs: dict[str, Any],
     ) -> Any:
         span_attributes = get_mistral_llm_request_attributes(kwargs)
-        span_name = (
-            f"chat_stream {span_attributes.get('gen_ai.request.model', 'unknown')}"
-        )
+        span_name = f"chat_stream {span_attributes.get('gen_ai.request.model', 'unknown')}"
         with tracer.start_as_current_span(
             name=span_name,
             kind=SpanKind.CLIENT,
@@ -151,9 +140,7 @@ def mistral_stream_async_patch(
             except Exception as err:
                 span.set_status(Status(StatusCode.ERROR, str(err)))
                 if span.is_recording():
-                    span.set_attribute(
-                        error_attributes.ERROR_TYPE, type(err).__qualname__
-                    )
+                    span.set_attribute(error_attributes.ERROR_TYPE, type(err).__qualname__)
                 span.end()
                 raise
 
