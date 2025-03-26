@@ -192,7 +192,6 @@ class TestLilypad:
             copy_param = copy_signature.parameters.get(name)
             assert copy_param is not None, f"copy() signature is missing the {name} param"
 
-    @pytest.mark.skip(reason="This test is broken.")
     def test_copy_build_request(self) -> None:
         options = FinalRequestOptions(method="get", url="/foo")
 
@@ -967,7 +966,6 @@ class TestAsyncLilypad:
             copy_param = copy_signature.parameters.get(name)
             assert copy_param is not None, f"copy() signature is missing the {name} param"
 
-    @pytest.mark.skip(reason="This test is broken.")
     def test_copy_build_request(self) -> None:
         options = FinalRequestOptions(method="get", url="/foo")
 
