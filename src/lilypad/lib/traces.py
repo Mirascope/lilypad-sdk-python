@@ -10,11 +10,15 @@ import threading
 from typing import (
     TYPE_CHECKING,
     Any,
+    List,
+    Generic,
     Literal,
     TypeVar,
+    Optional,
     Protocol,
     ParamSpec,
     TypeAlias,
+    TypedDict,
     overload,
 )
 from functools import wraps
@@ -38,19 +42,88 @@ from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
+from ..types.ee.projects import Label, EvaluationType, annotation_create_params
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 _R_CO = TypeVar("_R_CO", covariant=True)
+_T = TypeVar("_T")
 
 if TYPE_CHECKING:
     from ..lib import spans
 
 TRACE_TYPE = "trace"
-VERSIONING_MODE: TypeAlias = Literal["automatic"]
-
 
 logger = logging.getLogger(__name__)
+
+
+class Annotation(BaseModel):
+    data: dict[str, Any] | None
+
+    label: Label | None
+
+    reasoning: str | None
+
+    type: EvaluationType | None
+
+
+class _TraceBase(Generic[_T]):
+    """
+    Base class for the Trace wrapper.
+    """
+
+    def __init__(self, response: _T, span_uuid: str | None = None, function_uuid: str | None = None) -> None:
+        self.response: _T = response
+        self.span_uuid: str = span_uuid
+        self.function_uuid: str = function_uuid
+
+    def _create_body(
+        self, project_id: str, annotation: Annotation | list[Annotation]
+    ) -> list[annotation_create_params.Body]:
+        if not isinstance(annotation, list):
+            annotation = [annotation]
+        return [
+            annotation_create_params.Body(
+                data=annotation.data,
+                function_uuid=self.function_uuid,
+                span_uuid=self.span_uuid,
+                label=annotation.label,
+                reasoning=annotation.reasoning,
+                type=annotation.type,
+                project_uuid=project_id,
+            )
+            for annotation in annotation
+        ]
+
+
+class Trace(_TraceBase[_T]):
+    """
+    A simple trace wrapper that holds the original function's response and allows annotating the trace.
+    """
+
+    def annotate(self, annotation: Annotation | list[Annotation]) -> None:
+        """
+        Annotate the trace with the given annotation.
+        """
+        settings = get_settings()
+        lilypad_client = Lilypad(api_key=settings.api_key)
+        body = self._create_body(settings.project_id, annotation)
+        lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
+
+
+class AsyncTrace(_TraceBase[_T]):
+    """
+    A simple trace wrapper that holds the original function's response and allows annotating the trace.
+    """
+
+    async def annotate(self, annotation: Annotation | list[Annotation]) -> None:
+        """
+        Annotate the trace with the given annotation.
+        """
+        settings = get_settings()
+        async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+        body = self._create_body(settings.project_id, annotation)
+        await async_lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
@@ -236,6 +309,34 @@ class TraceDecorator(Protocol):
         ...
 
 
+class WrappedTraceDecorator(Protocol):
+    """Protocol for the `WrappedTraceDecorator` decorator return type."""
+
+    @overload
+    def __call__(
+        self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+    ) -> Callable[_P, Coroutine[Any, Any, Trace[_R]]]: ...
+
+    @overload
+    def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, _R]) -> Callable[_P, Trace[_R]]: ...
+
+    @overload
+    def __call__(self, fn: Callable[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, Trace[_R]]]: ...
+
+    @overload
+    def __call__(self, fn: Callable[_P, _R]) -> Callable[_P, Trace[_R]]: ...
+
+    def __call__(
+        self,
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+        | TraceDecoratedFunctionWithContext[_P, _R]
+        | Callable[_P, _R]
+        | Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> Callable[_P, Trace[_R]] | Callable[_P, Coroutine[Any, Any, Trace[_R]]]:
+        """Protocol `call` definition for `VersioningDecorator` decorator return type."""
+        ...
+
+
 class VersionedFunctionTraceDecorator(Protocol):
     """Protocol for the `VersionedFunction` decorator return type."""
 
@@ -260,6 +361,34 @@ class VersionedFunctionTraceDecorator(Protocol):
         | Callable[_P, _R]
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> AsyncVersionedFunction[_P, _R] | SyncVersionedFunction[_P, _R]:
+        """Protocol `call` definition for `VersionedFunction` decorator return type."""
+        ...
+
+
+class WrappedVersionedFunctionTraceDecorator(Protocol):
+    """Protocol for the `WrappedVersionedFunctionTraceDecorator` decorator return type."""
+
+    @overload
+    def __call__(
+        self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+    ) -> AsyncVersionedFunction[_P, Trace[_R]]: ...
+
+    @overload
+    def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, _R]) -> SyncVersionedFunction[_P, Trace[_R]]: ...
+
+    @overload
+    def __call__(self, fn: Callable[_P, Coroutine[Any, Any, _R]]) -> AsyncVersionedFunction[_P, Trace[_R]]: ...
+
+    @overload
+    def __call__(self, fn: Callable[_P, _R]) -> SyncVersionedFunction[_P, Trace[_R]]: ...
+
+    def __call__(
+        self,
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+        | TraceDecoratedFunctionWithContext[_P, _R]
+        | Callable[_P, _R]
+        | Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> AsyncVersionedFunction[_P, Trace[_R]] | SyncVersionedFunction[_P, Trace[_R]]:
         """Protocol `call` definition for `VersionedFunction` decorator return type."""
         ...
 
@@ -313,20 +442,28 @@ def _construct_trace_attributes(
 
 
 @overload
-def trace(versioning: None = None) -> TraceDecorator: ...
+def trace(versioning: None = None, mode: None = None) -> TraceDecorator: ...
 
 
 @overload
-def trace(versioning: Literal["automatic"]) -> VersionedFunctionTraceDecorator: ...
+def trace(versioning: Literal["automatic"], mode: None = None) -> VersionedFunctionTraceDecorator: ...
 
 
-def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | VersionedFunctionTraceDecorator:
+@overload
+def trace(versioning: None, mode: Literal["wrap"]) -> WrappedTraceDecorator: ...
+
+
+@overload
+def trace(versioning: Literal["automatic"], mode: Literal["wrap"]) -> WrappedVersionedFunctionTraceDecorator: ...
+
+
+def trace(
+    versioning: Literal["automatic"] | None = None, mode: Literal["wrap"] | None = None
+) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
     The decorated function will trace and log automatically.
-
-    Returns:
-        TraceDecorator: The `trace` decorator return protocol.
+    If mode="wrap" is set, the function will return a Trace[_R] object with a 'response' property containing the original function's response and an 'annotate' method.
     """
 
     @overload
@@ -378,11 +515,11 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
                     try:
-                        await async_lilypad_client.projects.functions.retrieve_by_hash(
+                        function = await async_lilypad_client.projects.functions.retrieve_by_hash(
                             project_uuid=settings.project_id, function_hash=closure.hash
                         )
                     except NotFoundError:
-                        await async_lilypad_client.projects.functions.create(
+                        function = await async_lilypad_client.projects.functions.create(
                             path_project_uuid=settings.project_id,
                             code=closure.code,
                             hash=closure.hash,
@@ -395,6 +532,9 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
                         output = await fn(*args, **kwargs)
                         result_holder.set_result(output)
+                    span_id = span.get_span_context().span_id
+                if mode == "wrap":
+                    return AsyncTrace(response=output, span_uuid=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -470,7 +610,12 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                return sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                result = sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                if mode == "wrap":
+                    return AsyncTrace(
+                        response=result,
+                    )
+                return result
 
             inner_async.remote = _deployed_version_async
             return inner_async
@@ -494,11 +639,11 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     settings = get_settings()
                     lilypad_client = Lilypad(api_key=settings.api_key)
                     try:
-                        lilypad_client.projects.functions.retrieve_by_hash(
+                        function = lilypad_client.projects.functions.retrieve_by_hash(
                             project_uuid=settings.project_id, function_hash=closure.hash
                         )
                     except NotFoundError:
-                        lilypad_client.projects.functions.create(
+                        function = lilypad_client.projects.functions.create(
                             path_project_uuid=settings.project_id,
                             code=closure.code,
                             hash=closure.hash,
@@ -512,6 +657,9 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
+                    span_id = span.get_span_context().span_id
+                if mode == "wrap":
+                    return Trace(response=output, span_uuid=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -557,9 +705,7 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
 
             inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
-            async def _deployed_version(
-                *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
-            ) -> _R:
+            def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
 
@@ -587,7 +733,10 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                return sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                result = sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                if mode == "wrap":
+                    return Trace(response=result)
+                return result
 
             inner.remote = _deployed_version
             return inner
