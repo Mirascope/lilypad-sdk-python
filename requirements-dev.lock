@@ -10,95 +10,455 @@
 #   universal: false
 
 -e file:.
+aioboto3==14.1.0
+    # via lilypad-sdk
+aiobotocore==2.21.1
+    # via aioboto3
+aiofiles==24.1.0
+    # via aioboto3
+aiohappyeyeballs==2.6.1
+    # via aiohttp
+aiohttp==3.11.14
+    # via aiobotocore
+    # via lilypad-sdk
+aioitertools==0.12.0
+    # via aiobotocore
+aiosignal==1.3.2
+    # via aiohttp
+airportsdata==20250224
+    # via outlines
 annotated-types==0.6.0
     # via pydantic
-anyio==4.4.0
+anthropic==0.49.0
+    # via lilypad-sdk
+anyio==4.9.0
+    # via anthropic
+    # via google-genai
     # via httpx
     # via lilypad-sdk
+    # via openai
 argcomplete==3.1.2
     # via nox
+async-timeout==5.0.1
+    # via aiohttp
+attrs==25.3.0
+    # via aiohttp
+    # via jsonschema
+    # via referencing
+azure-ai-inference==1.0.0b9
+    # via lilypad-sdk
+azure-core==1.32.0
+    # via azure-ai-inference
+boto3==1.37.1
+    # via aiobotocore
+    # via lilypad-sdk
+boto3-stubs==1.37.18
+    # via lilypad-sdk
+botocore==1.37.1
+    # via aiobotocore
+    # via boto3
+    # via s3transfer
+botocore-stubs==1.37.18
+    # via boto3-stubs
+    # via types-aioboto3
+    # via types-aiobotocore
+cachetools==5.5.2
+    # via google-auth
 certifi==2023.7.22
     # via httpcore
     # via httpx
+    # via requests
+cfgv==3.4.0
+    # via pre-commit
+charset-normalizer==3.4.1
+    # via requests
+click==8.1.8
+    # via typer
+cloudpickle==3.1.1
+    # via outlines
 colorlog==6.7.0
     # via nox
+coverage==7.7.1
+    # via pytest-cov
+deprecated==1.2.18
+    # via opentelemetry-api
+    # via opentelemetry-semantic-conventions
 dirty-equals==0.6.0
+diskcache==5.6.3
+    # via outlines
 distlib==0.3.7
     # via virtualenv
 distro==1.8.0
+    # via anthropic
     # via lilypad-sdk
+    # via openai
+docker==7.1.0
+    # via lilypad-sdk
+docstring-parser==0.16
+    # via google-cloud-aiplatform
+    # via mirascope
+eval-type-backport==0.2.2
+    # via mistralai
 exceptiongroup==1.2.2
     # via anyio
     # via pytest
 filelock==3.12.4
+    # via torch
     # via virtualenv
+frozenlist==1.5.0
+    # via aiohttp
+    # via aiosignal
+fsspec==2025.3.0
+    # via torch
+genson==1.3.0
+    # via outlines
+google-ai-generativelanguage==0.6.15
+    # via google-generativeai
+google-api-core==2.24.2
+    # via google-ai-generativelanguage
+    # via google-api-python-client
+    # via google-cloud-aiplatform
+    # via google-cloud-bigquery
+    # via google-cloud-core
+    # via google-cloud-resource-manager
+    # via google-cloud-storage
+    # via google-generativeai
+google-api-python-client==2.165.0
+    # via google-generativeai
+google-auth==2.38.0
+    # via google-ai-generativelanguage
+    # via google-api-core
+    # via google-api-python-client
+    # via google-auth-httplib2
+    # via google-cloud-aiplatform
+    # via google-cloud-bigquery
+    # via google-cloud-core
+    # via google-cloud-resource-manager
+    # via google-cloud-storage
+    # via google-genai
+    # via google-generativeai
+google-auth-httplib2==0.2.0
+    # via google-api-python-client
+google-cloud-aiplatform==1.85.0
+    # via lilypad-sdk
+google-cloud-bigquery==3.30.0
+    # via google-cloud-aiplatform
+google-cloud-core==2.4.3
+    # via google-cloud-bigquery
+    # via google-cloud-storage
+google-cloud-resource-manager==1.14.2
+    # via google-cloud-aiplatform
+google-cloud-storage==2.19.0
+    # via google-cloud-aiplatform
+google-crc32c==1.7.0
+    # via google-cloud-storage
+    # via google-resumable-media
+google-genai==1.7.0
+    # via lilypad-sdk
+google-generativeai==0.8.4
+    # via lilypad-sdk
+google-resumable-media==2.7.2
+    # via google-cloud-bigquery
+    # via google-cloud-storage
+googleapis-common-protos==1.69.2
+    # via google-api-core
+    # via grpc-google-iam-v1
+    # via grpcio-status
+grpc-google-iam-v1==0.14.2
+    # via google-cloud-resource-manager
+grpcio==1.71.0
+    # via google-api-core
+    # via googleapis-common-protos
+    # via grpc-google-iam-v1
+    # via grpcio-status
+grpcio-status==1.71.0
+    # via google-api-core
 h11==0.14.0
     # via httpcore
 httpcore==1.0.2
     # via httpx
+httplib2==0.22.0
+    # via google-api-python-client
+    # via google-auth-httplib2
 httpx==0.28.1
+    # via anthropic
+    # via google-genai
     # via lilypad-sdk
+    # via mistralai
+    # via openai
     # via respx
+identify==2.6.9
+    # via pre-commit
 idna==3.4
     # via anyio
     # via httpx
+    # via requests
+    # via yarl
 importlib-metadata==7.0.0
+    # via opentelemetry-api
 iniconfig==2.0.0
     # via pytest
+interegular==0.3.3
+    # via outlines
+    # via outlines-core
+iso3166==2.1.1
+    # via outlines
+isodate==0.7.2
+    # via azure-ai-inference
+jinja2==3.1.6
+    # via outlines
+    # via torch
+jiter==0.9.0
+    # via anthropic
+    # via mirascope
+    # via openai
+jmespath==1.0.1
+    # via aiobotocore
+    # via boto3
+    # via botocore
+jsonschema==4.23.0
+    # via outlines
+    # via outlines-core
+jsonschema-specifications==2024.10.1
+    # via jsonschema
+lark==1.2.2
+    # via outlines
+libcst==1.7.0
+    # via lilypad-sdk
 markdown-it-py==3.0.0
     # via rich
+markupsafe==3.0.2
+    # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
+mirascope==1.22.1
+    # via lilypad-sdk
+mistralai==1.6.0
+    # via lilypad-sdk
+mpmath==1.3.0
+    # via sympy
+multidict==6.2.0
+    # via aiobotocore
+    # via aiohttp
+    # via yarl
 mypy==1.14.1
+mypy-boto3-bedrock-runtime==1.37.7
+    # via boto3-stubs
 mypy-extensions==1.0.0
     # via mypy
 nest-asyncio==1.6.0
+    # via outlines
+networkx==3.4.2
+    # via torch
 nodeenv==1.8.0
+    # via pre-commit
     # via pyright
 nox==2023.4.22
+numpy==2.2.4
+    # via outlines
+    # via shapely
+openai==1.68.2
+    # via lilypad-sdk
+opentelemetry-api==1.31.1
+    # via lilypad-sdk
+    # via opentelemetry-instrumentation
+    # via opentelemetry-sdk
+    # via opentelemetry-semantic-conventions
+opentelemetry-instrumentation==0.52b1
+    # via lilypad-sdk
+opentelemetry-sdk==1.31.1
+    # via lilypad-sdk
+opentelemetry-semantic-conventions==0.52b1
+    # via opentelemetry-instrumentation
+    # via opentelemetry-sdk
+outlines==0.2.1
+    # via lilypad-sdk
+outlines-core==0.1.26
+    # via outlines
 packaging==23.2
+    # via google-cloud-aiplatform
+    # via google-cloud-bigquery
     # via nox
+    # via opentelemetry-instrumentation
     # via pytest
+pillow==10.4.0
+    # via lilypad-sdk
 platformdirs==3.11.0
     # via virtualenv
 pluggy==1.5.0
     # via pytest
-pydantic==2.10.3
+pre-commit==4.2.0
+    # via outlines
+propcache==0.3.0
+    # via aiohttp
+    # via yarl
+proto-plus==1.26.1
+    # via google-ai-generativelanguage
+    # via google-api-core
+    # via google-cloud-aiplatform
+    # via google-cloud-resource-manager
+protobuf==5.29.4
+    # via google-ai-generativelanguage
+    # via google-api-core
+    # via google-cloud-aiplatform
+    # via google-cloud-resource-manager
+    # via google-generativeai
+    # via googleapis-common-protos
+    # via grpc-google-iam-v1
+    # via grpcio-status
+    # via proto-plus
+pyasn1==0.6.1
+    # via pyasn1-modules
+    # via rsa
+pyasn1-modules==0.4.1
+    # via google-auth
+pydantic==2.10.6
+    # via anthropic
+    # via google-cloud-aiplatform
+    # via google-genai
+    # via google-generativeai
     # via lilypad-sdk
-pydantic-core==2.27.1
+    # via mirascope
+    # via mistralai
+    # via openai
+    # via outlines
+    # via pydantic-settings
+pydantic-core==2.27.2
     # via pydantic
+pydantic-settings==2.8.1
+    # via lilypad-sdk
 pygments==2.18.0
     # via rich
-pyright==1.1.392.post0
+pyparsing==3.2.2
+    # via httplib2
+pyright==1.1.397
 pytest==8.3.3
     # via pytest-asyncio
+    # via pytest-cov
 pytest-asyncio==0.24.0
+pytest-cov==6.0.0
 python-dateutil==2.8.2
+    # via aiobotocore
+    # via botocore
+    # via google-cloud-bigquery
+    # via mistralai
     # via time-machine
+python-dotenv==1.0.1
+    # via pydantic-settings
 pytz==2023.3.post1
     # via dirty-equals
+pyyaml==6.0.2
+    # via libcst
+    # via pre-commit
+referencing==0.36.2
+    # via jsonschema
+    # via jsonschema-specifications
+    # via outlines
+requests==2.32.3
+    # via azure-core
+    # via docker
+    # via google-api-core
+    # via google-cloud-bigquery
+    # via google-cloud-storage
+    # via google-genai
+    # via outlines
 respx==0.22.0
 rich==13.7.1
+    # via lilypad-sdk
+    # via typer
+rpds-py==0.23.1
+    # via jsonschema
+    # via referencing
+rsa==4.9
+    # via google-auth
 ruff==0.9.4
+s3transfer==0.11.3
+    # via boto3
 setuptools==68.2.2
     # via nodeenv
+shapely==2.0.7
+    # via google-cloud-aiplatform
+shellingham==1.5.4
+    # via typer
 six==1.16.0
+    # via azure-core
     # via python-dateutil
 sniffio==1.3.0
+    # via anthropic
     # via anyio
     # via lilypad-sdk
+    # via openai
+sympy==1.13.1
+    # via torch
 time-machine==2.9.0
 tomli==2.0.2
+    # via coverage
     # via mypy
     # via pytest
-typing-extensions==4.12.2
-    # via anyio
+torch==2.6.0
+    # via outlines
+tqdm==4.67.1
+    # via google-generativeai
+    # via openai
+    # via outlines
+typer==0.15.2
     # via lilypad-sdk
+types-aioboto3==14.1.0
+    # via lilypad-sdk
+types-aiobotocore==2.21.1
+    # via types-aioboto3
+types-aiobotocore-bedrock-runtime==2.21.1
+    # via types-aioboto3
+types-awscrt==0.24.2
+    # via botocore-stubs
+types-s3transfer==0.11.4
+    # via boto3-stubs
+    # via types-aioboto3
+typing-extensions==4.12.2
+    # via anthropic
+    # via anyio
+    # via azure-ai-inference
+    # via azure-core
+    # via boto3-stubs
+    # via google-cloud-aiplatform
+    # via google-genai
+    # via google-generativeai
+    # via lilypad-sdk
+    # via mirascope
+    # via multidict
     # via mypy
+    # via mypy-boto3-bedrock-runtime
+    # via openai
+    # via opentelemetry-sdk
+    # via outlines
     # via pydantic
     # via pydantic-core
     # via pyright
+    # via referencing
+    # via torch
+    # via typer
+    # via types-aioboto3
+    # via types-aiobotocore
+    # via types-aiobotocore-bedrock-runtime
+    # via typing-inspection
+typing-inspection==0.4.0
+    # via mistralai
+uritemplate==4.1.1
+    # via google-api-python-client
+urllib3==2.3.0
+    # via botocore
+    # via docker
+    # via requests
 virtualenv==20.24.5
     # via nox
+    # via pre-commit
+websockets==14.2
+    # via google-genai
+wrapt==1.17.2
+    # via aiobotocore
+    # via deprecated
+    # via opentelemetry-instrumentation
+yarl==1.18.3
+    # via aiohttp
 zipp==3.17.0
     # via importlib-metadata
