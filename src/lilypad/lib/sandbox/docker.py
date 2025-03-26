@@ -3,12 +3,13 @@
 import io
 import json
 import tarfile
-from typing import Any
+from typing import Any, cast
 from contextlib import suppress
 
 import docker
 
 from . import SandboxRunner
+from .runner import Result
 from .._utils import Closure
 
 _DEFAULT_IMAGE = "ghcr.io/astral-sh/uv:python3.10-alpine"
@@ -38,9 +39,16 @@ class DockerSandboxRunner(SandboxRunner):
         stream.seek(0)
         return stream
 
-    def execute_function(self, closure: Closure, *args: Any, **kwargs: Any) -> str:
+    def execute_function(
+        self,
+        closure: Closure,
+        extra_result: dict[str, str] | None = None,
+        extra_imports: list[str] | None = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Result:
         """Execute the function in the sandbox."""
-        script = self.generate_script(closure, *args, **kwargs)
+        script = self.generate_script(closure, *args, extra_result=extra_result, extra_imports=extra_imports, **kwargs)
         client = docker.from_env()
         container = None
         try:
@@ -62,7 +70,7 @@ class DockerSandboxRunner(SandboxRunner):
             )
             if exit_code:
                 raise RuntimeError(f"Error running code in Docker container: {stderr.decode('utf-8').strip()}")
-            return json.loads(stdout.decode("utf-8").strip())
+            return cast(Result, json.loads(stdout.decode("utf-8").strip()))
         finally:
             if container:
                 with suppress(Exception):
