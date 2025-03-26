@@ -88,13 +88,13 @@ from lilypad import Lilypad
 
 client = Lilypad()
 
-response = client.ee.projects.generations.run_playground(
-    generation_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+response = client.ee.projects.functions.run_playground(
+    function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
     project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
     arg_values={"foo": 0},
     model="model",
     provider="openai",
-    generation={
+    function={
         "code": "code",
         "hash": "hash",
         "name": "x",
@@ -117,8 +117,7 @@ response = client.ee.projects.generations.run_playground(
                 "version": "version",
             }
         },
-        "is_default": True,
-        "is_managed": True,
+        "is_versioned": True,
         "model": "model",
         "project_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         "prompt_template": "prompt_template",
@@ -126,7 +125,7 @@ response = client.ee.projects.generations.run_playground(
         "version_num": 0,
     },
 )
-print(response.generation)
+print(response.function)
 ```
 
 ## Handling errors

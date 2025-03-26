@@ -16,6 +16,14 @@ from .projects import (
     ProjectsResourceWithStreamingResponse,
     AsyncProjectsResourceWithStreamingResponse,
 )
+from .functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
 from .annotations import (
     AnnotationsResource,
     AsyncAnnotationsResource,
@@ -23,22 +31,6 @@ from .annotations import (
     AsyncAnnotationsResourceWithRawResponse,
     AnnotationsResourceWithStreamingResponse,
     AsyncAnnotationsResourceWithStreamingResponse,
-)
-from .generations import (
-    GenerationsResource,
-    AsyncGenerationsResource,
-    GenerationsResourceWithRawResponse,
-    AsyncGenerationsResourceWithRawResponse,
-    GenerationsResourceWithStreamingResponse,
-    AsyncGenerationsResourceWithStreamingResponse,
-)
-from .environments import (
-    EnvironmentsResource,
-    AsyncEnvironmentsResource,
-    EnvironmentsResourceWithRawResponse,
-    AsyncEnvironmentsResourceWithRawResponse,
-    EnvironmentsResourceWithStreamingResponse,
-    AsyncEnvironmentsResourceWithStreamingResponse,
 )
 
 __all__ = [
@@ -48,24 +40,18 @@ __all__ = [
     "AsyncAnnotationsResourceWithRawResponse",
     "AnnotationsResourceWithStreamingResponse",
     "AsyncAnnotationsResourceWithStreamingResponse",
-    "GenerationsResource",
-    "AsyncGenerationsResource",
-    "GenerationsResourceWithRawResponse",
-    "AsyncGenerationsResourceWithRawResponse",
-    "GenerationsResourceWithStreamingResponse",
-    "AsyncGenerationsResourceWithStreamingResponse",
+    "FunctionsResource",
+    "AsyncFunctionsResource",
+    "FunctionsResourceWithRawResponse",
+    "AsyncFunctionsResourceWithRawResponse",
+    "FunctionsResourceWithStreamingResponse",
+    "AsyncFunctionsResourceWithStreamingResponse",
     "SpansResource",
     "AsyncSpansResource",
     "SpansResourceWithRawResponse",
     "AsyncSpansResourceWithRawResponse",
     "SpansResourceWithStreamingResponse",
     "AsyncSpansResourceWithStreamingResponse",
-    "EnvironmentsResource",
-    "AsyncEnvironmentsResource",
-    "EnvironmentsResourceWithRawResponse",
-    "AsyncEnvironmentsResourceWithRawResponse",
-    "EnvironmentsResourceWithStreamingResponse",
-    "AsyncEnvironmentsResourceWithStreamingResponse",
     "ProjectsResource",
     "AsyncProjectsResource",
     "ProjectsResourceWithRawResponse",

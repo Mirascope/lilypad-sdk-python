@@ -13,7 +13,7 @@ __all__ = ["AnnotationPublic"]
 class AnnotationPublic(BaseModel):
     assigned_to: Optional[str] = None
 
-    generation_uuid: str
+    function_uuid: str
 
     project_uuid: str
 

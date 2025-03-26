@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from .._models import BaseModel
-from .ee.projects.generation_public import GenerationPublic
+from .projects.functions.function_public import FunctionPublic
 
 __all__ = ["ProjectPublic"]
 
@@ -16,4 +16,4 @@ class ProjectPublic(BaseModel):
 
     uuid: str
 
-    generations: Optional[List[GenerationPublic]] = None
+    functions: Optional[List[FunctionPublic]] = None

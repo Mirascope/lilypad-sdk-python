@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from .deployment_public import DeploymentPublic as DeploymentPublic
 from .trace_list_response import TraceListResponse as TraceListResponse
 from .trace_create_response import TraceCreateResponse as TraceCreateResponse
-from .generation_create_params import GenerationCreateParams as GenerationCreateParams
-from .generation_list_response import GenerationListResponse as GenerationListResponse
-from .generation_update_params import GenerationUpdateParams as GenerationUpdateParams
-from .generation_archive_response import GenerationArchiveResponse as GenerationArchiveResponse
+from .function_create_params import FunctionCreateParams as FunctionCreateParams
+from .function_list_response import FunctionListResponse as FunctionListResponse
+from .environment_deploy_params import EnvironmentDeployParams as EnvironmentDeployParams
+from .function_archive_response import FunctionArchiveResponse as FunctionArchiveResponse
 from .span_list_aggregates_params import SpanListAggregatesParams as SpanListAggregatesParams
 from .span_list_aggregates_response import SpanListAggregatesResponse as SpanListAggregatesResponse
-from .generation_archive_by_name_response import GenerationArchiveByNameResponse as GenerationArchiveByNameResponse
+from .function_archive_by_name_response import FunctionArchiveByNameResponse as FunctionArchiveByNameResponse
+from .environment_retrieve_deployment_history_response import (
+    EnvironmentRetrieveDeploymentHistoryResponse as EnvironmentRetrieveDeploymentHistoryResponse,
+)

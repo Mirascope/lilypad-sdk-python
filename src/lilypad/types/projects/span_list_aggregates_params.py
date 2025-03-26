@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-from .generations.time_frame import TimeFrame
+from .functions.time_frame import TimeFrame
 
 __all__ = ["SpanListAggregatesParams"]
 
