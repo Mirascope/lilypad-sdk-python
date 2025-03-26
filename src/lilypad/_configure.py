@@ -12,23 +12,25 @@ from opentelemetry.sdk.trace.export import (
     SpanExporter,
     SpanExportResult,
 )
+from pydantic import TypeAdapter
 from rich.logging import RichHandler
 
 from . import Lilypad
 from ._utils import load_config
 from ._utils.settings import get_settings
+from .types.projects import TraceCreateResponse
 from .types.projects.generations import SpanPublic
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
+TraceCreateResponseAdapter = TypeAdapter(TraceCreateResponse)
 
 class _JSONSpanExporter(SpanExporter):
     """A custom span exporter that sends spans to a custom endpoint as JSON."""
 
     def __init__(self) -> None:
         """Initialize the exporter with the custom endpoint URL."""
-        config = load_config()
-
+        self.settings = get_settings()
         self.client = Lilypad()
         self.log = logging.getLogger(__name__)
 
@@ -52,10 +54,11 @@ class _JSONSpanExporter(SpanExporter):
     def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
         """Convert spans to a list of JSON serializable dictionaries"""
         span_data = [self._span_to_dict(span) for span in spans]
-        json_data = json.dumps(span_data)
 
         try:
-            response_spans = self.client.post_traces(data=json_data)
+            raw_response = self.client.projects.traces.create(project_uuid=self.settings.project_id, extra_body=span_data)
+            response_spans = TraceCreateResponseAdapter.validate_python(raw_response)
+            print(type(response_spans[0]))
             if len(response_spans) > 0:
                 for response_span in response_spans:
                     self.pretty_print_display_names(response_span)

@@ -598,7 +598,7 @@ def generation(
                     *args: _P.args, **kwargs: _P.kwargs
                 ) -> _R | Generation[_R]:
                     arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                    generation_, managed_prompt_template = get_generation(arg_types)
+                    generation_, managed_prompt_template = await get_generation(arg_types)
                     with _generation_context(generation_):
                         if not is_mirascope_call:
                             decorator_inner = _trace(
@@ -771,8 +771,7 @@ def generation(
                             project_uuid=settings.project_id,
                         )
                     except NotFoundError:
-                        generations_public = (
-                            lilypad_client.projects.generations.create(
+                        generations_public = lilypad_client.projects.generations.create(
                                 path_project_uuid=settings.project_id,
                                 code=closure.code,
                                 signature=closure.signature,
@@ -781,8 +780,7 @@ def generation(
                                 dependencies=closure.dependencies,
                                 arg_types=arg_types,
                                 custom_id=custom_id,
-                            ),
-                        )
+                            )
                     return generations_public, False
                 closure = Closure.from_fn(fn)
                 try:
