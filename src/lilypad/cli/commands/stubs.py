@@ -15,6 +15,9 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 
+from lilypad import Lilypad
+from lilypad._utils.settings import get_settings
+from lilypad.types.ee.projects import GenerationPublic
 from ..._utils import load_config
 from ..._utils.closure import _run_ruff
 from ...generations import (
@@ -23,7 +26,6 @@ from ...generations import (
     enable_recording,
     get_decorated_functions,
 )
-from ...server.client import GenerationPublic, LilypadClient
 
 app = typer.Typer()
 console = Console()
@@ -364,8 +366,8 @@ def stubs_command(
             disable_recording()
             clear_registry()
             sys.path.pop(0)
-    config = load_config()
-    client = LilypadClient(token=config.get("token", None))
+    settings = get_settings()
+    client = Lilypad(api_key=settings.api_key)
     decorator_name = "lilypad.generation"
     functions = results.get(decorator_name, [])
     if not functions:

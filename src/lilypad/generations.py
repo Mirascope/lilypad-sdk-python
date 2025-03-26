@@ -31,7 +31,7 @@ from opentelemetry.util.types import AttributeValue
 from mirascope.core.base.types import Provider
 from mirascope.llm.call_response import CallResponse
 
-from . import Lilypad, AsyncLilypad
+from . import Lilypad, AsyncLilypad, NotFoundError
 from ._utils import (
     Closure,
     ArgTypes,
@@ -371,7 +371,7 @@ def _construct_trace_attributes(
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {
-        "lilypad.generation.uuid": str(generation.uuid),
+        "lilypad.generation.uuid": generation.uuid,
         "lilypad.generation.name": generation.name,
         "lilypad.generation.signature": generation.signature,
         "lilypad.generation.code": generation.code,
@@ -655,9 +655,7 @@ def generation(
                         generations_public = await async_lilypad_client.projects.generations.retrieve_by_hash(
                             generation_hash=closure.hash,
                             project_uuid=settings.project_id,)
-                    except HTTPStatusError as e:
-                        if e.response.status_code != NOT_FOUND:
-                            raise e
+                    except NotFoundError:
                         generations_public = await async_lilypad_client.projects.generations.create(
                             path_project_uuid=settings.project_id,
                             code=closure.code,
@@ -672,9 +670,7 @@ def generation(
                 closure = Closure.from_fn(fn)
                 try:
                     return await async_lilypad_client.projects.generations.name.retrieve_deployed(generation_name=closure.name, project_uuid=settings.project_id), True
-                except HTTPStatusError as e:
-                    if e.response.status_code != NOT_FOUND:
-                        raise e
+                except NotFoundError:
                     raise LilypadNotFoundError(f"Generation with name '{closure.name}' not found for environment")
 
             inner_async = _create_inner_async(_get_active_version_async)
@@ -691,9 +687,7 @@ def generation(
                         generation_name=closure.name,
 
                     )
-                except HTTPStatusError as e:
-                    if e.response.status_code != NOT_FOUND:
-                        raise e
+                except NotFoundError:
                     raise ValueError(f"Generation version {forced_version} not found for function: {fn.__name__}")
 
                 async def _get_specific_version(
@@ -776,9 +770,7 @@ def generation(
                             generation_hash=closure.hash,
                             project_uuid=settings.project_id,
                         )
-                    except HTTPStatusError as e:
-                        if e.response.status_code != NOT_FOUND:
-                            raise e
+                    except NotFoundError:
                         generations_public = (
                             lilypad_client.projects.generations.create(
                                 path_project_uuid=settings.project_id,
@@ -797,9 +789,7 @@ def generation(
                     return lilypad_client.projects.generations.name.retrieve_deployed(
                         generation_name=closure.name, project_uuid=settings.project_id
                     ), True
-                except HTTPStatusError as e:
-                    if e.response.status_code != NOT_FOUND:
-                        raise e
+                except NotFoundError:
                     raise LilypadNotFoundError(f"Generation with name '{closure.name}' not found for environment")
 
             inner = _create_inner_sync(_get_active_version)
@@ -817,9 +807,7 @@ def generation(
                             generation_name=closure.name,
                         )
                     )
-                except HTTPStatusError as e:
-                    if e.response.status_code != NOT_FOUND:
-                        raise e
+                except NotFoundError:
                     raise ValueError(f"Generation version {forced_version} not found for function: {fn.__name__}")
 
                 def _get_specific_version(
