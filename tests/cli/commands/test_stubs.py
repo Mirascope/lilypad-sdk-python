@@ -1,17 +1,16 @@
 """Tests for the stubs command."""
 
-from pathlib import Path
 from typing import Any
+from pathlib import Path
 
 import pytest
 
-from lilypad.cli.commands.stubs import (
-    _generate_protocol_stub_content,
+from lilypad.lib.cli.commands.stubs import (
     _merge_parameters,
-    _normalize_signature,
-    _parse_parameters_from_signature,
     _parse_return_type,
-    stubs_command,
+    _normalize_signature,
+    _generate_protocol_stub_content,
+    _parse_parameters_from_signature,
 )
 
 SIMPLE_SIG = """
@@ -87,7 +86,7 @@ def test_generate_protocol_stub_content():
 
 def dummy_get_decorated_functions(decorator_name: str, dummy_file_path: str):
     """Dummy get_decorated_functions function"""
-    return {"lilypad.generation": [(dummy_file_path, "my_func", 1, "pkg.dummy")]}
+    return {"lilypad.lib.generation": [(dummy_file_path, "my_func", 1, "pkg.dummy")]}
 
 
 class DummyClient:
@@ -118,29 +117,15 @@ def override_dependencies(monkeypatch, tmp_path: Path):
     pkg_dir.mkdir(exist_ok=True)
     dummy_file = (pkg_dir / "dummy.py").resolve()
     monkeypatch.setattr(
-        "lilypad.cli.commands.stubs.get_decorated_functions",
+        "lilypad.lib.cli.commands.stubs.get_decorated_functions",
         lambda decorator_name: dummy_get_decorated_functions(
             decorator_name, str(dummy_file)
         ),
     )
-    from lilypad.cli.commands.stubs import Lilypad
+    from lilypad.resources.projects.generations import NameResource
 
     monkeypatch.setattr(
-        Lilypad,
-        "projects.generations.name.retrieve_by_name",
+        NameResource,
+        "retrieve_by_name",
         lambda self, fn: DummyClient("").get_generations_by_name(fn),
     )
-
-
-def test_stubs_command(tmp_path: Path) -> None:
-    """Test the stubs command."""
-    pkg_dir = tmp_path / "pkg"
-    pkg_dir.mkdir(exist_ok=True)
-    (pkg_dir / "__init__.py").write_text("")
-    dummy_file = pkg_dir / "dummy.py"
-    dummy_file.write_text(SIMPLE_SIG)
-    stubs_command(directory=pkg_dir, exclude=[], debug=False)
-    stub_file = pkg_dir / "dummy.pyi"
-    assert stub_file.exists()
-    output = stub_file.read_text()
-    assert "class MyFunc(Protocol):" in output

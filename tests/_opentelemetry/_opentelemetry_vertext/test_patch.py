@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from opentelemetry.trace import Status, StatusCode
 
-from lilypad._opentelemetry._opentelemetry_google_generative_ai.patch import (
+from lilypad.lib._opentelemetry._opentelemetry_google_generative_ai.patch import (
     generate_content,
     generate_content_async,
 )

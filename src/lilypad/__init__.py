@@ -26,12 +26,12 @@ from ._exceptions import (
 )
 from ._base_client import DefaultHttpxClient, DefaultAsyncHttpxClient
 from ._utils._logs import setup_logging as _setup_logging
-from ._configure import configure
-from .generations import generation
-from .messages import Message
-from .spans import span
-from .tools import tool
-from .traces import trace
+from .lib import configure
+from .lib import generation
+from .lib import Message
+from .lib import span
+from .lib import tool
+from .lib import trace
 
 __all__ = [
     "configure",

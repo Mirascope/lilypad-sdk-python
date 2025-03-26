@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 import tests._utils.closure.closure_test_functions.other
 import tests._utils.closure.closure_test_functions.other as cloth
-from lilypad._utils import Closure
+from lilypad.lib._utils import Closure
 
 from . import other
 from . import other as oth
@@ -513,7 +513,7 @@ def closure_inside_decorator_fn() -> str:
     from collections.abc import Callable
     from functools import wraps
 
-    from lilypad._utils import Closure
+    from lilypad.lib._utils import Closure
 
 
     def _decorator(fn: Callable) -> Callable[[], Closure]:
@@ -537,7 +537,7 @@ def closure_inside_imported_decorator_fn() -> str:
     from collections.abc import Callable
     from functools import wraps
 
-    from lilypad._utils import Closure
+    from lilypad.lib._utils import Closure
 
 
     def imported_decorator(fn: Callable) -> Callable[[], Closure]:

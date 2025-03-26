@@ -7,7 +7,7 @@ import pytest
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 from opentelemetry.trace import StatusCode
 
-from lilypad._opentelemetry._opentelemetry_azure.patch import (
+from lilypad.lib._opentelemetry._opentelemetry_azure.patch import (
     chat_completions_complete,
     chat_completions_complete_async,
 )

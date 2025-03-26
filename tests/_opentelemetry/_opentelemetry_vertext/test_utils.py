@@ -5,7 +5,7 @@ from unittest.mock import Mock, PropertyMock
 import pytest
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
-from lilypad._opentelemetry._opentelemetry_google_generative_ai.utils import (
+from lilypad.lib._opentelemetry._opentelemetry_google_generative_ai.utils import (
     get_candidate_event,
     get_gemini_model_name,
     get_llm_request_attributes,

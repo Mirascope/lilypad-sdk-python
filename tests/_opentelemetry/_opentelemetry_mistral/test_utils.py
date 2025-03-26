@@ -5,13 +5,13 @@ from unittest.mock import Mock
 import pytest
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
-from lilypad._opentelemetry._opentelemetry_mistral.utils import (
+from lilypad.lib._opentelemetry._opentelemetry_mistral.utils import (
     MistralChunkHandler,
     MistralMetadata,
     default_mistral_cleanup,
     get_mistral_llm_request_attributes,
 )
-from lilypad._opentelemetry._utils import ChoiceBuffer
+from lilypad.lib._opentelemetry._utils import ChoiceBuffer
 
 
 @pytest.fixture

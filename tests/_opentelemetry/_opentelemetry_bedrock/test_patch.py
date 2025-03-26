@@ -4,7 +4,7 @@ import pytest
 from botocore.eventstream import EventStream
 from opentelemetry.trace import StatusCode
 
-from lilypad._opentelemetry._opentelemetry_bedrock.patch import (
+from lilypad.lib._opentelemetry._opentelemetry_bedrock.patch import (
     make_api_call_async_patch,
     make_api_call_patch,
 )

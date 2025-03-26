@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from lilypad._opentelemetry._opentelemetry_vertex.utils import (
+from lilypad.lib._opentelemetry._opentelemetry_vertex.utils import (
     get_vertex_llm_request_attributes,
     set_vertex_response_attributes,
     set_vertex_stream,
