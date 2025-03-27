@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import json
 import inspect
+import logging
 import threading
 from typing import (
     TYPE_CHECKING,
@@ -47,6 +48,9 @@ if TYPE_CHECKING:
 
 TRACE_TYPE = "trace"
 VERSIONING_MODE: TypeAlias = Literal["automatic"]
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
@@ -174,6 +178,7 @@ class SyncVersionedFunction(Protocol[_P, _R_CO]):
         """Protocol for the `VersionFunction` decorator return type."""
         ...
 
+
 class AsyncVersionedFunction(Protocol[_P, _R_CO]):
     """Protocol for the `VersionFunction` decorator return type."""
 
@@ -192,9 +197,10 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
     def remote(
         self,
         sandbox_runner: SandboxRunner | None = None,
-       ) -> Coroutine[Any, Any, _R_CO]:
+    ) -> Coroutine[Any, Any, _R_CO]:
         """Protocol for the `VersionFunction` decorator return type."""
         ...
+
 
 class TraceDecoratedFunctionWithContext(Protocol[_P, _R]):
     """Protocol for the `VersioningDecorator` decorator return type."""
@@ -343,7 +349,6 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
         | Callable[_P, _R]
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
-
         if _RECORDING_ENABLED and versioning == "automatic":
             register_decorated_function("lilypad.lib.trace", fn)
 
@@ -372,10 +377,9 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     settings = get_settings()
                     async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
-
                     try:
                         await async_lilypad_client.projects.functions.retrieve_by_hash(
-                            project_uuid=settings.project_id,function_hash=closure.hash
+                            project_uuid=settings.project_id, function_hash=closure.hash
                         )
                     except NotFoundError:
                         await async_lilypad_client.projects.functions.create(
@@ -403,28 +407,30 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
-
                 try:
                     versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=closure.name,
                     )
+                    versioned_function_closure = Closure(
+                        name=versioned_function.name,
+                        code=versioned_function.code,
+                        signature=versioned_function.signature,
+                        hash=versioned_function.hash,
+                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                        if versioned_function.dependencies is not None
+                        else {},
+                    )
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
+                except Exception as e:
+                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
+                    logger.warning(f"Running the function locally as Fallback")
+                    versioned_function = closure
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
-
-                versioned_function_closure = Closure(
-                    name=versioned_function.name,
-                    code=versioned_function.code,
-                    signature=versioned_function.signature,
-                    hash=versioned_function.hash,
-                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
-                    if versioned_function.dependencies is not None
-                    else {},
-                )
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
@@ -440,28 +446,31 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
-
                 try:
                     deployed_function = await async_lilypad_client.projects.functions.name.retrieve_deployed(
                         project_uuid=settings.project_id,
                         function_name=closure.name,
                     )
+                    deployed_function_closure = Closure(
+                        name=deployed_function.name,
+                        code=deployed_function.code,
+                        signature=deployed_function.signature,
+                        hash=deployed_function.hash,
+                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                        if deployed_function.dependencies is not None
+                        else {},
+                    )
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
+                except Exception as e:
+                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
+                    logger.warning(f"Running the function locally as Fallback")
+                    deployed_function_closure = closure
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(
-                    name=deployed_function.name,
-                    code=deployed_function.code,
-                    signature=deployed_function.signature,
-                    hash=deployed_function.hash,
-                    dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
-                    if deployed_function.dependencies is not None
-                    else {},
-                )
-                return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+                return sandbox.execute_function(deployed_function_closure, *args, **kwargs)
 
             inner_async.remote = _deployed_version_async
             return inner_async
@@ -486,7 +495,7 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     lilypad_client = Lilypad(api_key=settings.api_key)
                     try:
                         lilypad_client.projects.functions.retrieve_by_hash(
-                            project_uuid=settings.project_id,function_hash=closure.hash
+                            project_uuid=settings.project_id, function_hash=closure.hash
                         )
                     except NotFoundError:
                         lilypad_client.projects.functions.create(
@@ -515,28 +524,30 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
 
-                closure = Closure.from_fn(fn)
                 try:
                     versioned_function = lilypad_client.projects.functions.name.retrieve_by_version(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=closure.name,
                     )
+                    versioned_function_closure = Closure(
+                        name=versioned_function.name,
+                        code=versioned_function.code,
+                        signature=versioned_function.signature,
+                        hash=versioned_function.hash,
+                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                        if versioned_function.dependencies is not None
+                        else {},
+                    )
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
+                except Exception as e:
+                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
+                    logger.warning(f"Running the function locally as Fallback")
+                    versioned_function_closure = closure
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
-
-                versioned_function_closure = Closure(
-                    name=versioned_function.name,
-                    code=versioned_function.code,
-                    signature=versioned_function.signature,
-                    hash=versioned_function.hash,
-                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
-                    if versioned_function.dependencies is not None
-                    else {},
-                )
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
@@ -552,29 +563,31 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
 
-                closure = Closure.from_fn(fn)
                 try:
                     deployed_function = lilypad_client.projects.functions.name.retrieve_deployed(
                         project_uuid=settings.project_id,
                         function_name=closure.name,
                     )
+                    deployed_function = Closure(
+                        name=deployed_function.name,
+                        code=deployed_function.code,
+                        signature=deployed_function.signature,
+                        hash=deployed_function.hash,
+                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                        if deployed_function.dependencies is not None
+                        else {},
+                    )
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
+                except Exception as e:
+                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
+                    logger.warning(f"Running the function locally as Fallback")
+                    deployed_function_closure = closure
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(
-                    name=deployed_function.name,
-                    code=deployed_function.code,
-                    signature=deployed_function.signature,
-                    hash=deployed_function.hash,
-                    dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
-                    if deployed_function.dependencies is not None
-                    else {},
-                )
-
-                return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+                return sandbox.execute_function(deployed_function_closure, *args, **kwargs)
 
             inner.remote = _deployed_version
             return inner
