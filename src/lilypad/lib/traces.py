@@ -557,7 +557,7 @@ def trace(
             async def _specific_function_version_async(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
-            ) -> Callable[_P, Coroutine[Any, Any, _R]]:
+            ) -> Callable[_P, _R]:
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
@@ -587,7 +587,7 @@ def trace(
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
-                async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
@@ -697,7 +697,7 @@ def trace(
             def _specific_function_version(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
-            ) -> Callable[_P, Coroutine[Any, Any, _R]]:
+            ) -> Callable[_P, _R]:
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
 
