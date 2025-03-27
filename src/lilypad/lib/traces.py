@@ -413,16 +413,15 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                             project_uuid=settings.project_id,function_hash=closure.hash
                         )
                     except NotFoundError:
-                        await async_lilypad_client.projects.create_versioned_function(
+                        await async_lilypad_client.projects.functions.create(
                             path_project_uuid=settings.project_id,
                             code=closure.code,
-                            signature=closure.signature,
-                            name=closure.name,
                             hash=closure.hash,
-                            dependencies=closure.dependencies,
+                            name=closure.name,
+                            signature=closure.signature,
                             arg_types=arg_types,
+                            dependencies=closure.dependencies,
                             is_versioned=True,
-                            prompt_template="dummy",
                         )
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
                         output = await fn(*args, **kwargs)
@@ -457,14 +456,16 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     code=versioned_function.code,
                     signature=versioned_function.signature,
                     hash=versioned_function.hash,
-                    dependencies=versioned_function.dependencies or {},
+                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                    if versioned_function.dependencies is not None
+                    else {},
                 )
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
 
-                return decorator(_inner_async)
+                return _inner_async
 
             inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
@@ -491,7 +492,9 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     code=deployed_function.code,
                     signature=deployed_function.signature,
                     hash=deployed_function.hash,
-                    dependencies=deployed_function.dependencies or {},
+                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                    if versioned_function.dependencies is not None
+                    else {},
                 )
                 return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
 
@@ -521,16 +524,15 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                             project_uuid=settings.project_id,function_hash=closure.hash
                         )
                     except NotFoundError:
-                        lilypad_client.projects.create_versioned_function(
+                        lilypad_client.projects.functions.create(
                             path_project_uuid=settings.project_id,
                             code=closure.code,
-                            signature=closure.signature,
-                            name=closure.name,
                             hash=closure.hash,
-                            dependencies=closure.dependencies,
+                            name=closure.name,
+                            signature=closure.signature,
                             arg_types=arg_types,
+                            dependencies=closure.dependencies,
                             is_versioned=True,
-                            prompt_template="dummy",
                         )
 
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:

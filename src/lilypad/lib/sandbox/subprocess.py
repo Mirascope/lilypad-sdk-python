@@ -28,7 +28,7 @@ class SubprocessSandboxRunner(SandboxRunner):
             tmp_path = Path(tmp_file.name)
         try:
             result = subprocess.run(
-                ["uv", "run", str(tmp_path)],
+                ["uv", "run", "--no-project", str(tmp_path)],
                 check=True,
                 capture_output=True,
                 text=True,
