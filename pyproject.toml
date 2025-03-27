@@ -126,7 +126,7 @@ pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
 replacement = '[\1](https://github.com/Mirascope/lilypad-sdk-python/tree/main/\g<2>)'
 
 [project.scripts]
-lilypad = "lilypad.cli.main:app"
+lilypad = "lilypad.lib.cli.main:app"
 
 [project.optional-dependencies]
 cli = [

@@ -173,10 +173,6 @@ def configure(
             from lilypad.lib._opentelemetry import GoogleGenAIInstrumentor
 
             GoogleGenAIInstrumentor().instrument()
-        # if importlib.util.find_spec("google.generativeai") is not None:
-        #     from lilypad.lib._opentelemetry import GoogleGenerativeAIInstrumentor
-        #
-        #     GoogleGenerativeAIInstrumentor().instrument()
     if importlib.util.find_spec("botocore") is not None:
         from lilypad.lib._opentelemetry import BedrockInstrumentor
 
@@ -189,7 +185,3 @@ def configure(
         from lilypad.lib._opentelemetry import OutlinesInstrumentor
 
         OutlinesInstrumentor().instrument()
-    # if importlib.util.find_spec("vertexai") is not None:
-    #     from lilypad.lib._opentelemetry import VertexAIInstrumentor
-    #
-    #     VertexAIInstrumentor().instrument()
