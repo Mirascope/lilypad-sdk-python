@@ -1,4 +1,4 @@
-"""Stubs command for generating type stubs for functions decorated with lilypad.lib.generation."""
+"""Stubs command for generating type stubs for functions decorated with lilypad.lib.trace."""
 
 import os
 import ast
@@ -17,11 +17,10 @@ from rich.table import Table
 from rich.console import Console
 
 from lilypad import Lilypad
-from lilypad.types.ee.projects import GenerationPublic
 from lilypad.lib._utils.settings import get_settings
-from lilypad.types.projects.generations import NameRetrieveByNameResponse
+from lilypad.types.projects.functions import NameRetrieveByNameResponse, FunctionPublic
 
-from ...generations import (
+from ...traces import (
     clear_registry,
     enable_recording,
     disable_recording,
@@ -145,6 +144,9 @@ def _parse_parameters_from_signature(signature_text: str) -> list[str]:
                     annotation = "Any"
                 kwarg_str += f": {annotation}"
             params.append(kwarg_str)
+        # Remove the first parameter if it is 'trace_ctx'
+        if params and params[0].split(":")[0].strip() == "trace_ctx":
+            params = params[1:]
         if DEBUG:
             print(f"[DEBUG] Parsed parameters from normalized signature:\n{normalized}\n=> {params}")
         return params
@@ -228,7 +230,7 @@ def _extract_parameter_types(merged_params: list[str]) -> list[str]:
     return types
 
 
-def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPublic], is_async: bool) -> str:
+def _generate_protocol_stub_content(func_name: str, versions: list[FunctionPublic], is_async: bool) -> str:
     if not versions:
         return ""
     sorted_versions = sorted(versions, key=lambda v: v.version_num or 0)
@@ -250,21 +252,33 @@ def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPub
         ret_type_formatted = f"Coroutine[Any, Any, {ret_type}]" if is_async else ret_type
         version_class_name = f"{class_name}Version{version.version_num}"
         ver_proto = (
-            f"class {version_class_name}(Protocol):\n    def __call__(self, {params_str}) -> {ret_type_formatted}: ..."
+            f"class {version_class_name}(Protocol):\n"
+            f"    def __call__(self, {params_str}) -> {ret_type_formatted}: ...\n"
+            f"    def remote(self, sandbox: SandboxRunner | None = None) -> {ret_type_formatted}: ..."
         )
         version_protocols.append(ver_proto)
         _extract_parameter_types(merged_params)
         overload = (
             f"    @classmethod\n"
             f"    @overload\n"
-            f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox_runner: SandboxRunner | None = None) -> {version_class_name}: ..."
+            f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox: SandboxRunner | None = None) -> {version_class_name}: ..."
         )
         version_overloads.append(overload)
-    main_ret_type = f"Coroutine[Any, Any, {ret_type_latest}]" if is_async else ret_type_latest
-    main_call = f"    def __call__(self) -> {main_ret_type}: ..."
+    # Generate the main protocol __call__ signature from the latest version's parameters
+    latest_params = (
+        _merge_parameters(latest_version.signature, latest_version.arg_types)
+        if latest_version.arg_types
+        else _parse_parameters_from_signature(latest_version.signature)
+    )
+    params_str_latest = ", ".join(latest_params)
+    if params_str_latest:
+        main_call = f"    def __call__(self, {params_str_latest}) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
+    else:
+        main_call = f"    def __call__(self) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
+    main_remote = f"    def remote(self, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ..."
     base_version = (
         f"    @classmethod  # type: ignore[misc]\n"
-        f"    def version(cls, forced_version: int, sandbox_runner: SandboxRunner | None = None) -> Callable[..., "
+        f"    def version(cls, forced_version: int, sandbox: SandboxRunner | None = None) -> Callable[..., "
         f"{'Coroutine[Any, Any, Any]' if is_async else 'Any'}]: ..."
     )
     header_types = (
@@ -284,12 +298,13 @@ from lilypad.lib.sandbox import SandboxRunner
 class {class_name}(Protocol):
 
 {main_call}
+{main_remote}
 
 {joined_overloads}
 
 {base_version}
 
-{func_name} = {class_name}
+{func_name}: {class_name}
 """
     if DEBUG:
         print(f"[DEBUG] Generated stub content for function '{func_name}':\n{content}")
@@ -324,7 +339,7 @@ def stubs_command(
         for dir_name in item.split(","):
             exclude_dirs.add(dir_name.strip())
     dir_str: str = str(directory.absolute())
-    with console.status("Scanning for functions decorated with [bold]lilypad.lib.generation[/bold]..."):
+    with console.status("Scanning for functions decorated with [bold]lilypad.lib.trace[/bold]..."):
         python_files: list[FilePath] = _find_python_files(dir_str, exclude_dirs)
         if not python_files:
             print(f"No Python files found in {dir_str}")
@@ -337,14 +352,14 @@ def stubs_command(
             for file_path in python_files:
                 module_path: ModulePath = _module_path_from_file(file_path, parent_dir)
                 _import_module_safely(module_path)
-            results = get_decorated_functions("lilypad.lib.generation")
+            results = get_decorated_functions("lilypad.lib.trace")
         finally:
             disable_recording()
             clear_registry()
             sys.path.pop(0)
     settings = get_settings()
     client = Lilypad(api_key=settings.api_key)
-    decorator_name = "lilypad.lib.generation"
+    decorator_name = "lilypad.lib.trace"
     functions = results.get(decorator_name, [])
     if not functions:
         print(f"No functions found with decorator [bold]{decorator_name}[/bold]")
@@ -367,8 +382,8 @@ def stubs_command(
         closure = Closure.from_fn(fn)
         try:
             with console.status(f"Fetching versions for [bold]{function_name}[/bold]..."):
-                raw_response = client.projects.generations.name.retrieve_by_name(
-                    generation_name=closure.name, project_uuid=settings.project_id
+                raw_response = client.projects.functions.name.retrieve_by_name(
+                    function_name=closure.name, project_uuid=settings.project_id
                 )
                 versions = NameRetrieveByNameAdapter.validate_python(raw_response)
             if not versions:
@@ -405,7 +420,7 @@ def stubs_command(
             "# This file was auto-generated by lilypad stubs command",
             f"from typing import {merged_imports_str}",
             "from lilypad.lib.sandbox import SandboxRunner",
-            "",
+            "from lilypad.lib.spans import Span",
         ]
         content_parts = []
         for stub in stubs:
