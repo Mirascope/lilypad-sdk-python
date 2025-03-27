@@ -5,7 +5,6 @@ import importlib.util
 from collections.abc import Sequence
 
 from pydantic import TypeAdapter
-from rich.logging import RichHandler
 from opentelemetry import trace
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import (
@@ -18,6 +17,11 @@ from .._client import Lilypad
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
 from ..types.projects.functions import SpanPublic
+
+try:
+    from rich.logging import RichHandler as LogHandler
+except ImportError:
+    from logging import StreamHandler as LogHandler
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
@@ -138,7 +142,7 @@ def configure(
     if not log_handlers:
         if log_handlers is None:
             log_handlers = []
-        log_handlers.append(RichHandler())
+        log_handlers.append(LogHandler())
     for log_handler in log_handlers:
         log_handler.setFormatter(logging.Formatter(log_format))
         logger.addHandler(log_handler)
