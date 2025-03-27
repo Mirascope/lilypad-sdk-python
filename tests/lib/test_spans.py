@@ -182,35 +182,6 @@ def test_metadata_serialization() -> None:
     assert dummy.attributes.get("dict") == json.dumps({"a": 1})
 
 
-def test_nested_spans_order(monkeypatch) -> None:
-    """Test that nested spans are assigned correct order attributes."""
-    order_counter = 0
-
-    def fake_span_order_context(span: DummySpan) -> Any:
-        nonlocal order_counter
-        order_counter += 1
-
-        class DummyOrderCM:
-            def __enter__(self) -> None: ...
-
-            def __exit__(
-                self,
-                exc_type: type[BaseException] | None,
-                exc_val: BaseException | None,
-                exc_tb: Any,
-            ) -> None:
-                pass
-
-        return DummyOrderCM()
-
-    monkeypatch.setattr("lilypad.lib.spans.span_order_context", fake_span_order_context)
-    with span("outer"):
-        with span("inner1"):
-            pass
-        with span("inner2"):
-            pass
-
-
 def test_dummy_span_record_exception_directly() -> None:
     """Test that DummySpan.record_exception records an exception event correctly when called directly."""
     span_instance = DummySpan("direct exception test")
