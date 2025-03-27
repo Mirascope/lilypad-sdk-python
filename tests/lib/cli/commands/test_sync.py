@@ -1,11 +1,11 @@
-"""Tests for the stubs command."""
+"""Tests for the sync command."""
 
 from typing import Any
 from pathlib import Path
 
 import pytest
 
-from lilypad.lib.cli.commands.stubs import (
+from lilypad.lib.cli.commands.sync import (
     _merge_parameters,
     _parse_return_type,
     _normalize_signature,
@@ -112,15 +112,15 @@ class DummyClient:
 
 @pytest.fixture(autouse=True)
 def override_dependencies(monkeypatch, tmp_path: Path):
-    """Override dependencies for the stubs command."""
+    """Override dependencies for the sync command."""
     pkg_dir = tmp_path / "pkg"
     pkg_dir.mkdir(exist_ok=True)
     dummy_file = (pkg_dir / "dummy.py").resolve()
     monkeypatch.setattr(
-        "lilypad.lib.cli.commands.stubs.get_decorated_functions",
+        "lilypad.lib.cli.commands.sync.get_decorated_functions",
         lambda decorator_name: dummy_get_decorated_functions(decorator_name, str(dummy_file)),
     )
-    from lilypad.resources.projects.generations import NameResource
+    from lilypad.resources.projects.functions import NameResource
 
     monkeypatch.setattr(
         NameResource,
