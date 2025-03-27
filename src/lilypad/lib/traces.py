@@ -427,12 +427,12 @@ def _set_span_attributes(
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
-    span._span.set_attributes(span_attribute)
+    span.opentelemetry_span.set_attributes(span_attribute)
     result_holder = _ResultHolder()
     yield result_holder
     original_output = result_holder.result
     output_for_span = original_output.model_dump() if isinstance(original_output, BaseModel) else original_output
-    span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
+    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
 
 
 def _construct_trace_attributes(
@@ -667,6 +667,8 @@ def trace(
                         )
 
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
+                        print(f"args: {args}")
+                        print(f"kwargs: {kwargs}")
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id

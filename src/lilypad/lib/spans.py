@@ -132,6 +132,11 @@ class Span:
         """Return the span ID."""
         return self._span.get_span_context().span_id
 
+    @property
+    def opentelemetry_span(self) -> OTSpan | None:
+        """Return the underlying OpenTelemetry span."""
+        return self._span
+
 def span(name: str) -> Span:
     """Convenience function to create a Span context manager."""
     return Span(name)
