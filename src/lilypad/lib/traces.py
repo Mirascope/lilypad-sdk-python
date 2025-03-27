@@ -24,6 +24,8 @@ from opentelemetry.trace import Span, get_tracer, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from .._exceptions import NotFoundError
+from .._client import Lilypad, AsyncLilypad
 from ._utils import (
     Closure,
     call_safely,
@@ -32,7 +34,7 @@ from ._utils import (
     inspect_arguments,
     get_qualified_name,
 )
-from .sandbox import SandboxRunner
+from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from ._utils.settings import get_settings
 
 _P = ParamSpec("_P")
@@ -336,7 +338,7 @@ def _construct_trace_attributes(
 
 
 @overload
-def trace(versioning: None) -> TraceDecorator: ...
+def trace(versioning: None = None) -> TraceDecorator: ...
 
 @overload
 def trace(versioning: Literal["automatic"]) -> VersionedFunctionTraceDecorator: ...
@@ -349,149 +351,191 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
     Returns:
         TraceDecorator: The `trace` decorator return protocol.
     """
-    if versioning is None:
-        @overload
-        def decorator(fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
 
-        @overload
-        def decorator(fn: TraceDecoratedFunctionWithContext[_P, _R]) -> Callable[_P, _R]: ...
+    @overload
+    def decorator(
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]],
+    ) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
 
-        @overload
-        def decorator(fn: Callable[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
+    @overload
+    def decorator(fn: TraceDecoratedFunctionWithContext[_P, _R]) -> Callable[_P, _R]: ...
 
-        @overload
-        def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
+    @overload
+    def decorator(fn: Callable[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
 
-        def decorator(
-            fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
-                | TraceDecoratedFunctionWithContext[_P, _R]
-                | Callable[_P, _R]
-                | Callable[_P, Coroutine[Any, Any, _R]],
-        ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
-            signature = inspect.signature(fn)
+    @overload
+    def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
 
-            if fn_is_async(fn):
+    def decorator(
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+        | TraceDecoratedFunctionWithContext[_P, _R]
+        | Callable[_P, _R]
+        | Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
+        signature = inspect.signature(fn)
 
-                @call_safely(fn)
-                async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    bound_args = signature.bind_partial(*args, **kwargs)
+        if fn_is_async(fn):
 
-                    with (
-                        get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                        span_order_context(span),
-                    ):
-                        if "trace_ctx" in bound_args.arguments:
-                            args = tuple((span, *args))
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        arg_values.pop("trace_ctx", None)
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        trace_attribute = _construct_trace_attributes(
-                            arg_types=arg_types,
-                            arg_values=arg_values,
-                        )
-                        with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
-                            output = await fn(*args, **kwargs)
-                            result_holder.set_result(output)
-                    return output  # pyright: ignore [reportReturnType]
+            @call_safely(fn)
+            async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                bound_args = signature.bind_partial(*args, **kwargs)
 
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                ):
+                    if "trace_ctx" in bound_args.arguments:
+                        args = tuple((span, *args))
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    arg_values.pop("trace_ctx", None)
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    trace_attribute = _construct_trace_attributes(
+                        arg_types=arg_types,
+                        arg_values=arg_values,
+                    )
+                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
+                        output = await fn(*args, **kwargs)
+                        result_holder.set_result(output)
+                return output  # pyright: ignore [reportReturnType]
+
+            if versioning is None:
                 return inner_async
 
-            else:
 
-                @call_safely(fn)
-                def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    bound_args = signature.bind_partial(*args, **kwargs)
-                    with (
-                        get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                        span_order_context(span),
-                    ):
-                        if "trace_ctx" in bound_args.arguments:
-                            args = tuple((span, *args))
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        arg_values.pop("trace_ctx", None)
-                        trace_attribute = _construct_trace_attributes(
-                            arg_types=arg_types,
-                            arg_values=arg_values,
+            async def _specific_function_version_async(
+                forced_version: int,
+                sandbox: SandboxRunner | None = None,
+            ) -> Callable[_P, Coroutine[Any, Any, _R]]:
+                settings = get_settings()
+                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+
+                closure = Closure.from_fn(fn)
+                try:
+                    versioned_function = (
+                        await async_lilypad_client.projects.functions.name.retrieve_by_version(
+                            version_num=forced_version,
+                            project_uuid=settings.project_id,
+                            function_name=closure.name,
                         )
-                        with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
-                            output = fn(*args, **kwargs)
-                            result_holder.set_result(output)
-                    return output  # pyright: ignore [reportReturnType]
+                    )
+                except NotFoundError:
+                    raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
+
+                if sandbox is None:
+                    sandbox = SubprocessSandboxRunner(os.environ.copy())
+
+                versioned_function_closure = Closure(name=versioned_function.name, code=versioned_function.code, signature=versioned_function.signature,hash=versioned_function.hash, dependencies=versioned_function.dependencies or {})
+
+                @call_safely(fn)  # pyright: ignore [reportArgumentType]
+                async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                    return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+
+                return decorator(_inner_async)
+            inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
+
+            async def _deployed_version_async(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
+                settings = get_settings()
+                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+
+                closure = Closure.from_fn(fn)
+                try:
+                    deployed_function = (
+                        await async_lilypad_client.projects.functions.name.retrieve_deployed(
+                            project_uuid=settings.project_id,
+                            function_name=closure.name,
+                        )
+                    )
+                except NotFoundError:
+                    raise ValueError(f"Deployed function version is not found : {fn.__name__}")
+
+                if sandbox is None:
+                    sandbox = SubprocessSandboxRunner(os.environ.copy())
+
+                versioned_function_closure = Closure(name=deployed_function.name, code=deployed_function.code, signature=deployed_function.signature,hash=deployed_function.hash, dependencies=deployed_function.dependencies or {})
+                return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+            inner_async.remote = _deployed_version_async
+            return inner_async
+        else:
+
+            @call_safely(fn)
+            def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                bound_args = signature.bind_partial(*args, **kwargs)
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                ):
+                    if "trace_ctx" in bound_args.arguments:
+                        args = tuple((span, *args))
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    arg_values.pop("trace_ctx", None)
+                    trace_attribute = _construct_trace_attributes(
+                        arg_types=arg_types,
+                        arg_values=arg_values,
+                    )
+                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
+                        output = fn(*args, **kwargs)
+                        result_holder.set_result(output)
+                return output  # pyright: ignore [reportReturnType]
+
+            if versioning is None:
                 return inner  # pyright: ignore [reportReturnType]
 
-        return decorator
+            def _specific_function_version(
+                forced_version: int,
+                sandbox: SandboxRunner | None = None,
+            ) -> Callable[_P, Coroutine[Any, Any, _R]]:
+                settings = get_settings()
+                lilypad_client = Lilypad(api_key=settings.api_key)
 
-    else:
-        @overload
-        def decorator(
-            fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
-        ) -> AsyncVersionedFunction[_P, _R]: ...
-
-        @overload
-        def decorator(fn: TraceDecoratedFunctionWithContext[_P, _R]) -> SyncVersionedFunction[_P, _R]: ...
-
-        @overload
-        def decorator(fn: Callable[_P, Coroutine[Any, Any, _R]]) -> AsyncVersionedFunction[_P, _R]: ...
-
-        @overload
-        def decorator(fn: Callable[_P, _R]) -> SyncVersionedFunction[_P, _R]: ...
-
-        def decorator(
-                fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
-                    | TraceDecoratedFunctionWithContext[_P, _R]
-                    | Callable[_P, _R]
-                    | Callable[_P, Coroutine[Any, Any, _R]],
-        ) -> AsyncVersionedFunction[_P, _R] | SyncVersionedFunction[_P, _R]:
-            signature = inspect.signature(fn)
-            # TODO: Implement versioning logic
-            if fn_is_async(fn):
-
-                @call_safely(fn)
-                async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    bound_args = signature.bind_partial(*args, **kwargs)
-
-                    with (
-                        get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                        span_order_context(span),
-                    ):
-                        if "trace_ctx" in bound_args.arguments:
-                            args = tuple((span, *args))
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        arg_values.pop("trace_ctx", None)
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        trace_attribute = _construct_trace_attributes(
-                            arg_types=arg_types,
-                            arg_values=arg_values,
+                closure = Closure.from_fn(fn)
+                try:
+                    versioned_function = (
+                         lilypad_client.projects.functions.name.retrieve_by_version(
+                            version_num=forced_version,
+                            project_uuid=settings.project_id,
+                            function_name=closure.name,
                         )
-                        with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
-                            output = await fn(*args, **kwargs)
-                            result_holder.set_result(output)
-                    return output  # pyright: ignore [reportReturnType]
+                    )
+                except NotFoundError:
+                    raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
 
-                return inner_async
+                if sandbox is None:
+                    sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-            else:
+                versioned_function_closure = Closure(name=versioned_function.name, code=versioned_function.code, signature=versioned_function.signature,hash=versioned_function.hash, dependencies=versioned_function.dependencies or {})
 
-                @call_safely(fn)
-                def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    bound_args = signature.bind_partial(*args, **kwargs)
-                    with (
-                        get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                        span_order_context(span),
-                    ):
-                        if "trace_ctx" in bound_args.arguments:
-                            args = tuple((span, *args))
-                        arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                        arg_values.pop("trace_ctx", None)
-                        trace_attribute = _construct_trace_attributes(
-                            arg_types=arg_types,
-                            arg_values=arg_values,
+                @call_safely(fn)  # pyright: ignore [reportArgumentType]
+                def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+                    return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+
+                return decorator(_inner)
+
+            inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
+
+            async def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
+                settings = get_settings()
+                lilypad_client = Lilypad(api_key=settings.api_key)
+
+                closure = Closure.from_fn(fn)
+                try:
+                    deployed_function = (
+                        lilypad_client.projects.functions.name.retrieve_deployed(
+                            project_uuid=settings.project_id,
+                            function_name=closure.name,
                         )
-                        with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
-                            output = fn(*args, **kwargs)
-                            result_holder.set_result(output)
-                    return output  # pyright: ignore [reportReturnType]
-                return inner  # pyright: ignore [reportReturnType]
+                    )
+                except NotFoundError:
+                    raise ValueError(f"Deployed function version is not found : {fn.__name__}")
 
-        return decorator
+                if sandbox is None:
+                    sandbox = SubprocessSandboxRunner(os.environ.copy())
+
+                versioned_function_closure = Closure(name=deployed_function.name, code=deployed_function.code, signature=deployed_function.signature,hash=deployed_function.hash, dependencies=deployed_function.dependencies or {})
+                return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+
+            inner.remote = _deployed_version
+            return inner
+
+
+    return decorator
 

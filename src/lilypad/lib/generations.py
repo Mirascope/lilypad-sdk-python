@@ -51,7 +51,9 @@ from .exceptions import LilypadNotFoundError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ._utils.middleware import SpanContextHolder
-from ..types.ee.projects import GenerationPublic
+
+# TODO: To avoid import errors, we should update this file.
+from ..types.projects.functions.function_public import FunctionPublic as  GenerationPublic
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")

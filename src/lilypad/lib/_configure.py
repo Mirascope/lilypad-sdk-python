@@ -17,7 +17,7 @@ from opentelemetry.sdk.trace.export import (
 from .._client import Lilypad
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
-from ..types.projects.generations import SpanPublic
+from ..types.projects.functions import SpanPublic
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
