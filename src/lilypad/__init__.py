@@ -1,7 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from . import types
-from .lib import Message, span, tool, trace, configure, generation
+from .lib import Message, RemoteFunctionError, span, tool, trace, configure
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, Stream, Lilypad, Timeout, Transport, AsyncClient, AsyncStream, AsyncLilypad, RequestOptions
@@ -30,8 +30,8 @@ from ._utils._logs import setup_logging as _setup_logging
 
 __all__ = [
     "configure",
-    "generation",
     "Message",
+    "RemoteFunctionError",
     "span",
     "tool",
     "trace",
