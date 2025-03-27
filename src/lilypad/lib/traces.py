@@ -568,7 +568,7 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                         project_uuid=settings.project_id,
                         function_name=closure.name,
                     )
-                    deployed_function = Closure(
+                    deployed_function_closure = Closure(
                         name=deployed_function.name,
                         code=deployed_function.code,
                         signature=deployed_function.signature,
