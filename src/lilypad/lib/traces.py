@@ -41,6 +41,7 @@ from ._utils import (
     get_qualified_name,
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
+from .. import RemoteFunctionError
 from .._client import Lilypad, AsyncLilypad
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
