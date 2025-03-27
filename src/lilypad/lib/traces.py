@@ -1,4 +1,5 @@
 """This module contains the `generation` decorator and related utilities for tracing."""
+
 from __future__ import annotations
 
 import os
@@ -24,8 +25,6 @@ from opentelemetry.trace import Span, get_tracer, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from .._exceptions import NotFoundError
-from .._client import Lilypad, AsyncLilypad
 from ._utils import (
     Closure,
     call_safely,
@@ -35,6 +34,8 @@ from ._utils import (
     get_qualified_name,
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
+from .._client import Lilypad, AsyncLilypad
+from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 
 _P = ParamSpec("_P")
@@ -182,6 +183,7 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
         """Protocol for the `VersionFunction` decorator return type."""
         ...
 
+
 #
 # class SyncVersionFunctionWrapFunction(Protocol[_P, _R]):
 #     """Protocol for the `VersionFunction` decorator return type with wrap mode."""
@@ -233,11 +235,11 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
 #         ...
 
 
-
 class TraceDecoratedFunctionWithContext(Protocol[_P, _R]):
     """Protocol for the `VersioningDecorator` decorator return type."""
 
     def __call__(self, trace_ctx: spans.Span, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
+
 
 class TraceDecorator(Protocol):
     """Protocol for the `VersioningDecorator` decorator return type."""
@@ -271,7 +273,9 @@ class VersionedFunctionTraceDecorator(Protocol):
     """Protocol for the `VersionedFunction` decorator return type."""
 
     @overload
-    def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]) -> AsyncVersionedFunction[_P, _R]: ...
+    def __call__(
+        self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+    ) -> AsyncVersionedFunction[_P, _R]: ...
 
     @overload
     def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, _R]) -> SyncVersionedFunction[_P, _R]: ...
@@ -283,8 +287,12 @@ class VersionedFunctionTraceDecorator(Protocol):
     def __call__(self, fn: Callable[_P, _R]) -> SyncVersionedFunction[_P, _R]: ...
 
     def __call__(
-        self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]] | TraceDecoratedFunctionWithContext[_P, _R] | Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
-    ) ->AsyncVersionedFunction[_P, _R] | SyncVersionedFunction[_P, _R]:
+        self,
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+        | TraceDecoratedFunctionWithContext[_P, _R]
+        | Callable[_P, _R]
+        | Callable[_P, Coroutine[Any, Any, _R]],
+    ) -> AsyncVersionedFunction[_P, _R] | SyncVersionedFunction[_P, _R]:
         """Protocol `call` definition for `VersionedFunction` decorator return type."""
         ...
 
@@ -340,8 +348,10 @@ def _construct_trace_attributes(
 @overload
 def trace(versioning: None = None) -> TraceDecorator: ...
 
+
 @overload
 def trace(versioning: Literal["automatic"]) -> VersionedFunctionTraceDecorator: ...
+
 
 def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
@@ -373,6 +383,7 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
         signature = inspect.signature(fn)
+        closure = Closure.from_fn(fn)
 
         if fn_is_async(fn):
 
@@ -393,6 +404,26 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                         arg_types=arg_types,
                         arg_values=arg_values,
                     )
+                    settings = get_settings()
+                    async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+
+
+                    try:
+                        await async_lilypad_client.projects.functions.retrieve_by_hash(
+                            project_uuid=settings.project_id,function_hash=closure.hash
+                        )
+                    except NotFoundError:
+                        await async_lilypad_client.projects.create_versioned_function(
+                            path_project_uuid=settings.project_id,
+                            code=closure.code,
+                            signature=closure.signature,
+                            name=closure.name,
+                            hash=closure.hash,
+                            dependencies=closure.dependencies,
+                            arg_types=arg_types,
+                            is_versioned=True,
+                            prompt_template="dummy",
+                        )
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
                         output = await fn(*args, **kwargs)
                         result_holder.set_result(output)
@@ -401,7 +432,6 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
             if versioning is None:
                 return inner_async
 
-
             async def _specific_function_version_async(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
@@ -409,14 +439,12 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
-                closure = Closure.from_fn(fn)
+
                 try:
-                    versioned_function = (
-                        await async_lilypad_client.projects.functions.name.retrieve_by_version(
-                            version_num=forced_version,
-                            project_uuid=settings.project_id,
-                            function_name=closure.name,
-                        )
+                    versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
+                        version_num=forced_version,
+                        project_uuid=settings.project_id,
+                        function_name=closure.name,
                     )
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
@@ -424,26 +452,33 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(name=versioned_function.name, code=versioned_function.code, signature=versioned_function.signature,hash=versioned_function.hash, dependencies=versioned_function.dependencies or {})
+                versioned_function_closure = Closure(
+                    name=versioned_function.name,
+                    code=versioned_function.code,
+                    signature=versioned_function.signature,
+                    hash=versioned_function.hash,
+                    dependencies=versioned_function.dependencies or {},
+                )
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
 
                 return decorator(_inner_async)
+
             inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
-            async def _deployed_version_async(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
+            async def _deployed_version_async(
+                *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
+            ) -> _R:
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
 
-                closure = Closure.from_fn(fn)
+
                 try:
-                    deployed_function = (
-                        await async_lilypad_client.projects.functions.name.retrieve_deployed(
-                            project_uuid=settings.project_id,
-                            function_name=closure.name,
-                        )
+                    deployed_function = await async_lilypad_client.projects.functions.name.retrieve_deployed(
+                        project_uuid=settings.project_id,
+                        function_name=closure.name,
                     )
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
@@ -451,8 +486,15 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(name=deployed_function.name, code=deployed_function.code, signature=deployed_function.signature,hash=deployed_function.hash, dependencies=deployed_function.dependencies or {})
+                versioned_function_closure = Closure(
+                    name=deployed_function.name,
+                    code=deployed_function.code,
+                    signature=deployed_function.signature,
+                    hash=deployed_function.hash,
+                    dependencies=deployed_function.dependencies or {},
+                )
                 return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+
             inner_async.remote = _deployed_version_async
             return inner_async
         else:
@@ -472,6 +514,25 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                         arg_types=arg_types,
                         arg_values=arg_values,
                     )
+                    settings = get_settings()
+                    lilypad_client = Lilypad(api_key=settings.api_key)
+                    try:
+                        lilypad_client.projects.functions.retrieve_by_hash(
+                            project_uuid=settings.project_id,function_hash=closure.hash
+                        )
+                    except NotFoundError:
+                        lilypad_client.projects.create_versioned_function(
+                            path_project_uuid=settings.project_id,
+                            code=closure.code,
+                            signature=closure.signature,
+                            name=closure.name,
+                            hash=closure.hash,
+                            dependencies=closure.dependencies,
+                            arg_types=arg_types,
+                            is_versioned=True,
+                            prompt_template="dummy",
+                        )
+
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
@@ -489,12 +550,10 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
 
                 closure = Closure.from_fn(fn)
                 try:
-                    versioned_function = (
-                         lilypad_client.projects.functions.name.retrieve_by_version(
-                            version_num=forced_version,
-                            project_uuid=settings.project_id,
-                            function_name=closure.name,
-                        )
+                    versioned_function = lilypad_client.projects.functions.name.retrieve_by_version(
+                        version_num=forced_version,
+                        project_uuid=settings.project_id,
+                        function_name=closure.name,
                     )
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
@@ -502,27 +561,35 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(name=versioned_function.name, code=versioned_function.code, signature=versioned_function.signature,hash=versioned_function.hash, dependencies=versioned_function.dependencies or {})
+                versioned_function_closure = Closure(
+                    name=versioned_function.name,
+                    code=versioned_function.code,
+                    signature=versioned_function.signature,
+                    hash=versioned_function.hash,
+                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                    if versioned_function.dependencies is not None
+                    else {},
+                )
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
 
-                return decorator(_inner)
+                return _inner
 
             inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
-            async def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
+            async def _deployed_version(
+                *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
+            ) -> _R:
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
 
                 closure = Closure.from_fn(fn)
                 try:
-                    deployed_function = (
-                        lilypad_client.projects.functions.name.retrieve_deployed(
-                            project_uuid=settings.project_id,
-                            function_name=closure.name,
-                        )
+                    deployed_function = lilypad_client.projects.functions.name.retrieve_deployed(
+                        project_uuid=settings.project_id,
+                        function_name=closure.name,
                     )
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
@@ -530,12 +597,19 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                versioned_function_closure = Closure(name=deployed_function.name, code=deployed_function.code, signature=deployed_function.signature,hash=deployed_function.hash, dependencies=deployed_function.dependencies or {})
+                versioned_function_closure = Closure(
+                    name=deployed_function.name,
+                    code=deployed_function.code,
+                    signature=deployed_function.signature,
+                    hash=deployed_function.hash,
+                    dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                    if deployed_function.dependencies is not None
+                    else {},
+                )
+
                 return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
 
             inner.remote = _deployed_version
             return inner
 
-
     return decorator
-
