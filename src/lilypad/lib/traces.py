@@ -74,7 +74,7 @@ class _TraceBase(Generic[_T]):
     Base class for the Trace wrapper.
     """
 
-    def __init__(self, response: _T, span_uuid: str | None = None, function_uuid: str | None = None) -> None:
+    def __init__(self, response: _T, span_uuid: str, function_uuid: str) -> None:
         self.response: _T = response
         self.span_uuid: str = span_uuid
         self.function_uuid: str = function_uuid
