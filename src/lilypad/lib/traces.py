@@ -1,8 +1,11 @@
 """This module contains the `generation` decorator and related utilities for tracing."""
+from __future__ import annotations
 
 import json
+import inspect
 import threading
 from typing import (
+    TYPE_CHECKING,
     Any,
     TypeVar,
     Protocol,
@@ -31,6 +34,10 @@ from ._utils.settings import get_settings
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
+if TYPE_CHECKING:
+    from ..lib import spans
+
+TRACE_TYPE = "trace"
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
     """Get the BatchSpanProcessor from the current TracerProvider.
@@ -63,9 +70,19 @@ def span_order_context(span: Span) -> Generator[None, None, None]:
         _span_counter += 1
     yield
 
+class TraceDecoratedFunctionWithContext(Protocol[_P, _R]):
+    """Protocol for the `generation` decorator return type."""
+
+    def __call__(self, trace_ctx: spans.Span, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
 
 class TraceDecorator(Protocol):
     """Protocol for the `generation` decorator return type."""
+
+    @overload
+    def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
+
+    @overload
+    def __call__(self, fn: TraceDecoratedFunctionWithContext[_P, _R]) -> Callable[_P, _R]: ...
 
     @overload
     def __call__(self, fn: Callable[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
@@ -74,7 +91,7 @@ class TraceDecorator(Protocol):
     def __call__(self, fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
 
     def __call__(
-        self, fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
+        self, fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]] | TraceDecoratedFunctionWithContext[_P, _R] | Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
         """Protocol `call` definition for `generation` decorator return type."""
         ...
@@ -111,55 +128,6 @@ def _set_span_attributes(
     span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
 
 
-def _trace(
-    trace_type: str,
-    trace_attribute: _TraceAttribute,
-) -> TraceDecorator:
-    @overload
-    def decorator(
-        fn: Callable[_P, Coroutine[Any, Any, _R]],
-    ) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
-
-    @overload
-    def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
-
-    def decorator(
-        fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
-    ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
-        if fn_is_async(fn):
-
-            @wraps(fn)
-            async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with (
-                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                    span_order_context(span),
-                    _set_span_attributes(trace_type, span, trace_attribute, is_async=True) as result_holder,
-                ):
-                    output = await fn(*args, **kwargs)
-                    result_holder.set_result(output)
-
-                return output  # pyright: ignore [reportReturnType]
-
-            return inner_async
-
-        else:
-
-            @wraps(fn)
-            def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with (
-                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                    span_order_context(span),
-                    _set_span_attributes(trace_type, span, trace_attribute, is_async=True) as result_holder,
-                ):
-                    output = fn(*args, **kwargs)
-                    result_holder.set_result(output)
-                return output  # pyright: ignore [reportReturnType]
-
-            return inner
-
-    return decorator
-
-
 def _construct_trace_attributes(
     arg_types: dict[str, str],
     arg_values: dict[str, Any],
@@ -187,29 +155,48 @@ def trace() -> TraceDecorator:
     """
 
     @overload
-    def decorator(
-        fn: Callable[_P, Coroutine[Any, Any, _R]],
-    ) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
+    def decorator(fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
+
+    @overload
+    def decorator(fn: TraceDecoratedFunctionWithContext[_P, _R]) -> Callable[_P, _R]: ...
+
+    @overload
+    def decorator(fn: Callable[_P, Coroutine[Any, Any, _R]]) -> Callable[_P, Coroutine[Any, Any, _R]]: ...
 
     @overload
     def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R]: ...
 
     def decorator(
-        fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
+        fn: TraceDecoratedFunctionWithContext[_P, Coroutine[Any, Any, _R]]
+            | TraceDecoratedFunctionWithContext[_P, _R]
+            | Callable[_P, _R]
+            | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
+        signature = inspect.signature(fn)
+
         if fn_is_async(fn):
 
             @call_safely(fn)
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                decorator_inner = _trace(
-                    "trace",
-                    _construct_trace_attributes(
+                bound_args = signature.bind_partial(*args, **kwargs)
+
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                ):
+                    if "trace_ctx" in bound_args.arguments:
+                        args = tuple((span, *args))
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    arg_values.pop("trace_ctx", None)
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    trace_attribute = _construct_trace_attributes(
                         arg_types=arg_types,
                         arg_values=arg_values,
-                    ),
-                )
-                return await decorator_inner(fn)(*args, **kwargs)
+                    )
+                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
+                        output = await fn(*args, **kwargs)
+                        result_holder.set_result(output)
+                return output  # pyright: ignore [reportReturnType]
 
             return inner_async
 
@@ -217,16 +204,23 @@ def trace() -> TraceDecorator:
 
             @call_safely(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
-                decorator_inner = _trace(
-                    "trace",
-                    _construct_trace_attributes(
+                bound_args = signature.bind_partial(*args, **kwargs)
+                with (
+                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
+                    span_order_context(span),
+                ):
+                    if "trace_ctx" in bound_args.arguments:
+                        args = tuple((span, *args))
+                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    arg_values.pop("trace_ctx", None)
+                    trace_attribute = _construct_trace_attributes(
                         arg_types=arg_types,
                         arg_values=arg_values,
-                    ),
-                )
-                return decorator_inner(fn)(*args, **kwargs)  # pyright: ignore [reportReturnType]
-
+                    )
+                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
+                        output = fn(*args, **kwargs)
+                        result_holder.set_result(output)
+                return output  # pyright: ignore [reportReturnType]
             return inner  # pyright: ignore [reportReturnType]
 
     return decorator
