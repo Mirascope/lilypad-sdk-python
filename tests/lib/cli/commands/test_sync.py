@@ -1,11 +1,11 @@
-"""Tests for the stubs command."""
+"""Tests for the sync command."""
 
 from typing import Any
 from pathlib import Path
 
 import pytest
 
-from lilypad.lib.cli.commands.stubs import (
+from lilypad.lib.cli.commands.sync import (
     _merge_parameters,
     _parse_return_type,
     _normalize_signature,
@@ -71,17 +71,60 @@ def test_generate_protocol_stub_content():
             self.signature = signature
             self.arg_types = arg_types
 
+    # Define a simple signature for testing purposes.
+    SIMPLE_SIG = "def my_func(a: int, b: str) -> str: ..."
+
     versions = [
         DummyVersion(1, SIMPLE_SIG, {"a": "int", "b": "str"}),
         DummyVersion(2, SIMPLE_SIG, {"a": "int", "b": "str"}),
     ]
+
     stub_content = _generate_protocol_stub_content("my_func", versions, is_async=False)  # pyright: ignore [reportArgumentType]
+
+    # Check for the existence of the normal protocol class for version 1.
     assert "class MyFuncVersion1(Protocol):" in stub_content
+
+    # Check for the existence of the wrapped protocol class for version 1.
+    assert "class MyFuncVersion1Wrapped(Protocol):" in stub_content
+
+    # Check for the existence of the main protocol class.
     assert "class MyFunc(Protocol):" in stub_content
-    assert (
-        "def version(cls, forced_version: Literal[1], sandbox_runner: SandboxRunner | None = None) -> MyFuncVersion1: ..."
-        in stub_content
+
+    # Check __call__ overloads.
+    expected_call_overload = "@overload\n    def __call__(self, a: int, b: str) -> str: ..."
+    assert expected_call_overload in stub_content
+
+    expected_call_wrap_overload = (
+        '@overload\n    def __call__(self, a: int, b: str, *, mode: Literal["wrap"]) -> Trace[str]: ...'
     )
+    assert expected_call_wrap_overload in stub_content
+
+    # Check remote overloads.
+    expected_remote_overload = (
+        "@overload\n    def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ..."
+    )
+    assert expected_remote_overload in stub_content
+
+    expected_remote_wrap_overload = (
+        "@overload\n"
+        '    def remote(self, a: int, b: str, *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> Trace[str]: ...'
+    )
+    assert expected_remote_wrap_overload in stub_content
+
+    # Check version overloads.
+    expected_version_overload = (
+        "@classmethod\n"
+        "    @overload\n"
+        "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
+    )
+    assert expected_version_overload in stub_content
+
+    expected_version_wrap_overload = (
+        "@classmethod\n"
+        "    @overload\n"
+        '    def version(cls, forced_version: Literal[1], *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> MyFuncVersion1Wrapped: ...'
+    )
+    assert expected_version_wrap_overload in stub_content
 
 
 def dummy_get_decorated_functions(decorator_name: str, dummy_file_path: str):
@@ -112,15 +155,15 @@ class DummyClient:
 
 @pytest.fixture(autouse=True)
 def override_dependencies(monkeypatch, tmp_path: Path):
-    """Override dependencies for the stubs command."""
+    """Override dependencies for the sync command."""
     pkg_dir = tmp_path / "pkg"
     pkg_dir.mkdir(exist_ok=True)
     dummy_file = (pkg_dir / "dummy.py").resolve()
     monkeypatch.setattr(
-        "lilypad.lib.cli.commands.stubs.get_decorated_functions",
+        "lilypad.lib.cli.commands.sync.get_decorated_functions",
         lambda decorator_name: dummy_get_decorated_functions(decorator_name, str(dummy_file)),
     )
-    from lilypad.resources.projects.generations import NameResource
+    from lilypad.resources.projects.functions import NameResource
 
     monkeypatch.setattr(
         NameResource,

@@ -241,11 +241,8 @@ multidict==6.2.0
     # via aiobotocore
     # via aiohttp
     # via yarl
-mypy==1.14.1
 mypy-boto3-bedrock-runtime==1.37.7
     # via boto3-stubs
-mypy-extensions==1.0.0
-    # via mypy
 nest-asyncio==1.6.0
     # via outlines
 networkx==3.4.2
@@ -371,7 +368,8 @@ rpds-py==0.23.1
     # via referencing
 rsa==4.9
     # via google-auth
-ruff==0.9.4
+ruff==0.11.2
+    # via lilypad-sdk
 s3transfer==0.11.3
     # via boto3
 setuptools==68.2.2
@@ -393,7 +391,6 @@ sympy==1.13.1
 time-machine==2.9.0
 tomli==2.0.2
     # via coverage
-    # via mypy
     # via pytest
 torch==2.6.0
     # via outlines
@@ -426,7 +423,6 @@ typing-extensions==4.12.2
     # via lilypad-sdk
     # via mirascope
     # via multidict
-    # via mypy
     # via mypy-boto3-bedrock-runtime
     # via openai
     # via opentelemetry-sdk

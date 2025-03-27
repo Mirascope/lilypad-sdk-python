@@ -13,6 +13,10 @@ class LilypadException(Exception):
     """Base class for all Lilypad exceptions."""
 
 
+class RemoteFunctionError(LilypadException):
+    """Raised when a remote function call fails."""
+
+
 class LilypadNotFoundError(LilypadException):
     """Raised when an API response has a status code of 404."""
 

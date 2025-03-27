@@ -5,7 +5,6 @@ import importlib.util
 from collections.abc import Sequence
 
 from pydantic import TypeAdapter
-from rich.logging import RichHandler
 from opentelemetry import trace
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import (
@@ -17,7 +16,12 @@ from opentelemetry.sdk.trace.export import (
 from .._client import Lilypad
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
-from ..types.projects.generations import SpanPublic
+from ..types.projects.functions import SpanPublic
+
+try:
+    from rich.logging import RichHandler as LogHandler
+except ImportError:
+    from logging import StreamHandler as LogHandler
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
@@ -125,6 +129,7 @@ def configure(
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
+    auto_llm: bool = False,
 ) -> None:
     """Initialize the OpenTelemetry instrumentation for Lilypad and configure log outputs.
 
@@ -137,7 +142,7 @@ def configure(
     if not log_handlers:
         if log_handlers is None:
             log_handlers = []
-        log_handlers.append(RichHandler())
+        log_handlers.append(LogHandler())
     for log_handler in log_handlers:
         log_handler.setFormatter(logging.Formatter(log_format))
         logger.addHandler(log_handler)
@@ -151,6 +156,10 @@ def configure(
     processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
+
+    if not auto_llm:
+        return
+
     if importlib.util.find_spec("openai") is not None:
         from lilypad.lib._opentelemetry import OpenAIInstrumentor
 
@@ -168,10 +177,6 @@ def configure(
             from lilypad.lib._opentelemetry import GoogleGenAIInstrumentor
 
             GoogleGenAIInstrumentor().instrument()
-        # if importlib.util.find_spec("google.generativeai") is not None:
-        #     from lilypad.lib._opentelemetry import GoogleGenerativeAIInstrumentor
-        #
-        #     GoogleGenerativeAIInstrumentor().instrument()
     if importlib.util.find_spec("botocore") is not None:
         from lilypad.lib._opentelemetry import BedrockInstrumentor
 
@@ -184,7 +189,3 @@ def configure(
         from lilypad.lib._opentelemetry import OutlinesInstrumentor
 
         OutlinesInstrumentor().instrument()
-    # if importlib.util.find_spec("vertexai") is not None:
-    #     from lilypad.lib._opentelemetry import VertexAIInstrumentor
-    #
-    #     VertexAIInstrumentor().instrument()

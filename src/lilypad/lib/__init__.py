@@ -5,12 +5,12 @@ from .tools import tool
 from .traces import trace
 from .messages import Message
 from ._configure import configure
-from .generations import generation
+from .exceptions import RemoteFunctionError
 
 __all__ = [
     "configure",
-    "generation",
     "Message",
+    "RemoteFunctionError",
     "span",
     "tool",
     "trace",

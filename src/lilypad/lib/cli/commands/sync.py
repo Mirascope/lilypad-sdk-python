@@ -1,4 +1,4 @@
-"""Stubs command for generating type stubs for functions decorated with lilypad.lib.generation."""
+"""Sync command for generating type stubs for functions decorated with lilypad.lib.trace."""
 
 import os
 import ast
@@ -17,11 +17,10 @@ from rich.table import Table
 from rich.console import Console
 
 from lilypad import Lilypad
-from lilypad.types.ee.projects import GenerationPublic
 from lilypad.lib._utils.settings import get_settings
-from lilypad.types.projects.generations import NameRetrieveByNameResponse
+from lilypad.types.projects.functions import FunctionPublic, NameRetrieveByNameResponse
 
-from ...generations import (
+from ...traces import (
     clear_registry,
     enable_recording,
     disable_recording,
@@ -145,6 +144,9 @@ def _parse_parameters_from_signature(signature_text: str) -> list[str]:
                     annotation = "Any"
                 kwarg_str += f": {annotation}"
             params.append(kwarg_str)
+        # Remove the first parameter if it is 'trace_ctx'
+        if params and params[0].split(":")[0].strip() == "trace_ctx":
+            params = params[1:]
         if DEBUG:
             print(f"[DEBUG] Parsed parameters from normalized signature:\n{normalized}\n=> {params}")
         return params
@@ -228,7 +230,16 @@ def _extract_parameter_types(merged_params: list[str]) -> list[str]:
     return types
 
 
-def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPublic], is_async: bool) -> str:
+def _get_deployed_version(versions: list[FunctionPublic]) -> FunctionPublic:
+    """Return the deployed version from the list, choosing the highest version
+    that is not archived; if none is found, return the last version."""
+    for v in sorted(versions, key=lambda v: v.version_num or 0, reverse=True):
+        if not getattr(v, "archived", None):
+            return v
+    return versions[-1]
+
+
+def _generate_protocol_stub_content(func_name: str, versions: list[FunctionPublic], is_async: bool) -> str:
     if not versions:
         return ""
     sorted_versions = sorted(versions, key=lambda v: v.version_num or 0)
@@ -236,7 +247,9 @@ def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPub
     ret_type_latest = _parse_return_type(latest_version.signature)
     class_name = "".join(word.title() for word in func_name.split("_"))
     version_protocols = []
+    wrapped_version_protocols = []
     version_overloads = []
+    wrapped_overloads = []
     for version in sorted_versions:
         if version.version_num is None:
             continue
@@ -249,47 +262,140 @@ def _generate_protocol_stub_content(func_name: str, versions: list[GenerationPub
         ret_type = _parse_return_type(version.signature)
         ret_type_formatted = f"Coroutine[Any, Any, {ret_type}]" if is_async else ret_type
         version_class_name = f"{class_name}Version{version.version_num}"
+        # Normal protocol for this version
         ver_proto = (
-            f"class {version_class_name}(Protocol):\n    def __call__(self, {params_str}) -> {ret_type_formatted}: ..."
+            f"class {version_class_name}(Protocol):\n"
+            f"    def __call__(self, {params_str}) -> {ret_type_formatted}: ...\n\n"
+            f"    def remote(self, sandbox: SandboxRunner | None = None) -> {ret_type_formatted}: ..."
         )
         version_protocols.append(ver_proto)
-        _extract_parameter_types(merged_params)
-        overload = (
+        # Wrapped protocol: return types wrapped in Trace
+        if is_async:
+            wrapped_ret = f"Coroutine[Any, Any, Trace[{ret_type}]]"
+        else:
+            wrapped_ret = f"Trace[{ret_type}]"
+        wrapped_proto = (
+            f"class {version_class_name}Wrapped(Protocol):\n"
+            f"    def __call__(self, {params_str}) -> {wrapped_ret}: ...\n\n"
+            f"    def remote(self, sandbox: SandboxRunner | None = None) -> {wrapped_ret}: ..."
+        )
+        wrapped_version_protocols.append(wrapped_proto)
+        version_overload = (
             f"    @classmethod\n"
             f"    @overload\n"
-            f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox_runner: SandboxRunner | None = None) -> {version_class_name}: ..."
+            f"    def version(cls, forced_version: Literal[{version.version_num}], sandbox: SandboxRunner | None = None) -> {version_class_name}: ..."
         )
-        version_overloads.append(overload)
-    main_ret_type = f"Coroutine[Any, Any, {ret_type_latest}]" if is_async else ret_type_latest
-    main_call = f"    def __call__(self) -> {main_ret_type}: ..."
+        version_overloads.append(version_overload)
+        wrapped_overload = (
+            f"    @classmethod\n"
+            f"    @overload\n"
+            f'    def version(cls, forced_version: Literal[{version.version_num}], *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> {version_class_name}Wrapped: ...'
+        )
+        wrapped_overloads.append(wrapped_overload)
+    # Overloads for main __call__
+    latest_params = (
+        _merge_parameters(latest_version.signature, latest_version.arg_types)
+        if latest_version.arg_types
+        else _parse_parameters_from_signature(latest_version.signature)
+    )
+    params_str_latest = ", ".join(latest_params)
+    if params_str_latest:
+        call_overloads = (
+            f"    @overload\n"
+            f"    def __call__(self, {params_str_latest}) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ...\n\n"
+            f"    @overload\n"
+            f'    def __call__(self, {params_str_latest}, *, mode: Literal["wrap"]) -> {("Coroutine[Any, Any, Trace[" + ret_type_latest + "]") if is_async else "Trace[" + ret_type_latest + "]"}: ...'
+        )
+    else:
+        call_overloads = (
+            f"    @overload\n"
+            f"    def __call__(self) -> {('Coroutine[Any, Any, ' + ret_type_latest + ']') if is_async else ret_type_latest}: ...\n\n"
+            f"    @overload\n"
+            f'    def __call__(self, *, mode: Literal["wrap"]) -> {("Coroutine[Any, Any, Trace[" + ret_type_latest + "]") if is_async else "Trace[" + ret_type_latest + "]"}: ...'
+        )
+    # Overloads for main remote
+    deployed_version = _get_deployed_version(versions)
+    deployed_params = (
+        _merge_parameters(deployed_version.signature, deployed_version.arg_types)
+        if deployed_version.arg_types
+        else _parse_parameters_from_signature(deployed_version.signature)
+    )
+    deployed_params_str = ", ".join(deployed_params)
+    deployed_return_type = _parse_return_type(deployed_version.signature)
+    if deployed_params_str:
+        remote_overloads = (
+            f"    @overload\n"
+            f"    def remote(self, {deployed_params_str}, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + deployed_return_type + ']') if is_async else deployed_return_type}: ...\n\n"
+            f"    @overload\n"
+            f'    def remote(self, {deployed_params_str}, *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> {("Coroutine[Any, Any, Trace[" + deployed_return_type + "]") if is_async else "Trace[" + deployed_return_type + "]"}: ...'
+        )
+    else:
+        remote_overloads = (
+            f"    @overload\n"
+            f"    def remote(self, sandbox: SandboxRunner | None = None) -> {('Coroutine[Any, Any, ' + deployed_return_type + ']') if is_async else deployed_return_type}: ...\n\n"
+            f"    @overload\n"
+            f'    def remote(self, *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> {("Coroutine[Any, Any, Trace[" + deployed_return_type + "]") if is_async else "Trace[" + deployed_return_type + "]"}: ...'
+        )
+    # Implementation methods with union return types
+    if params_str_latest:
+        if is_async:
+            main_call_impl = f"    def __call__(self, {params_str_latest}) -> Coroutine[Any, Any, {ret_type_latest} | Trace[{ret_type_latest}]]: ..."
+        else:
+            main_call_impl = (
+                f"    def __call__(self, {params_str_latest}) -> {ret_type_latest} | Trace[{ret_type_latest}]: ..."
+            )
+    else:
+        if is_async:
+            main_call_impl = (
+                f"    def __call__(self) -> Coroutine[Any, Any, {ret_type_latest} | Trace[{ret_type_latest}]]: ..."
+            )
+        else:
+            main_call_impl = f"    def __call__(self) -> {ret_type_latest} | Trace[{ret_type_latest}]: ..."
+    if deployed_params_str:
+        if is_async:
+            main_remote_impl = f"    def remote(self, {deployed_params_str}, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, {deployed_return_type} | Trace[{deployed_return_type}]]: ..."
+        else:
+            main_remote_impl = f"    def remote(self, {deployed_params_str}, sandbox: SandboxRunner | None = None) -> {deployed_return_type} | Trace[{deployed_return_type}]: ..."
+    else:
+        if is_async:
+            main_remote_impl = f"    def remote(self, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, {deployed_return_type} | Trace[{deployed_return_type}]]: ..."
+        else:
+            main_remote_impl = f"    def remote(self, sandbox: SandboxRunner | None = None) -> {deployed_return_type} | Trace[{deployed_return_type}]: ..."
+    # Version overloads (normal and wrapped)
+    version_overload_block = "\n\n".join(version_overloads + wrapped_overloads)
     base_version = (
         f"    @classmethod  # type: ignore[misc]\n"
-        f"    def version(cls, forced_version: int, sandbox_runner: SandboxRunner | None = None) -> Callable[..., "
-        f"{'Coroutine[Any, Any, Any]' if is_async else 'Any'}]: ..."
+        f"    def version(cls, forced_version: int, sandbox: SandboxRunner | None = None) -> Callable[..., {'Coroutine[Any, Any, Any]' if is_async else 'Any'}]: ..."
     )
     header_types = (
         "overload, Literal, Callable, Any, Protocol, Coroutine"
         if is_async
         else "overload, Literal, Callable, Any, Protocol"
     )
-    joined_protocols = "\n\n".join(version_protocols)
-    joined_overloads = "\n\n".join(version_overloads)
-    content = f"""# This file was auto-generated by lilypad stubs command
+    joined_protocols = "\n\n".join(version_protocols + wrapped_version_protocols)
+    content = f"""# This file was auto-generated by lilypad sync command
 from typing import {header_types}
 from lilypad.lib.sandbox import SandboxRunner
+from lilypad.lib.traces import Trace
 
 
 {joined_protocols}
 
 class {class_name}(Protocol):
 
-{main_call}
+{call_overloads}
 
-{joined_overloads}
+{main_call_impl}
+
+{remote_overloads}
+
+{main_remote_impl}
+
+{version_overload_block}
 
 {base_version}
 
-{func_name} = {class_name}
+{func_name}: {class_name}
 """
     if DEBUG:
         print(f"[DEBUG] Generated stub content for function '{func_name}':\n{content}")
@@ -299,7 +405,7 @@ class {class_name}(Protocol):
 NameRetrieveByNameAdapter = TypeAdapter(NameRetrieveByNameResponse)
 
 
-def stubs_command(
+def sync_command(
     directory: Path = DEFAULT_DIRECTORY,
     exclude: list[str] | None = DEFAULT_EXCLUDE,
     verbose: bool = DEFAULT_VERBOSE,
@@ -324,7 +430,7 @@ def stubs_command(
         for dir_name in item.split(","):
             exclude_dirs.add(dir_name.strip())
     dir_str: str = str(directory.absolute())
-    with console.status("Scanning for functions decorated with [bold]lilypad.lib.generation[/bold]..."):
+    with console.status("Scanning for functions decorated with [bold]lilypad.lib.trace[/bold]..."):
         python_files: list[FilePath] = _find_python_files(dir_str, exclude_dirs)
         if not python_files:
             print(f"No Python files found in {dir_str}")
@@ -337,14 +443,14 @@ def stubs_command(
             for file_path in python_files:
                 module_path: ModulePath = _module_path_from_file(file_path, parent_dir)
                 _import_module_safely(module_path)
-            results = get_decorated_functions("lilypad.lib.generation")
+            results = get_decorated_functions("lilypad.lib.trace")
         finally:
             disable_recording()
             clear_registry()
             sys.path.pop(0)
     settings = get_settings()
     client = Lilypad(api_key=settings.api_key)
-    decorator_name = "lilypad.lib.generation"
+    decorator_name = "lilypad.lib.trace"
     functions = results.get(decorator_name, [])
     if not functions:
         print(f"No functions found with decorator [bold]{decorator_name}[/bold]")
@@ -367,8 +473,8 @@ def stubs_command(
         closure = Closure.from_fn(fn)
         try:
             with console.status(f"Fetching versions for [bold]{function_name}[/bold]..."):
-                raw_response = client.projects.generations.name.retrieve_by_name(
-                    generation_name=closure.name, project_uuid=settings.project_id
+                raw_response = client.projects.functions.name.retrieve_by_name(
+                    function_name=closure.name, project_uuid=settings.project_id
                 )
                 versions = NameRetrieveByNameAdapter.validate_python(raw_response)
             if not versions:
@@ -402,10 +508,10 @@ def stubs_command(
         merged_imports_str = ", ".join(sorted(merged_imports))
 
         new_header = [
-            "# This file was auto-generated by lilypad stubs command",
+            "# This file was auto-generated by lilypad sync command",
             f"from typing import {merged_imports_str}",
+            "from lilypad.lib.traces import Trace",
             "from lilypad.lib.sandbox import SandboxRunner",
-            "",
         ]
         content_parts = []
         for stub in stubs:
@@ -425,5 +531,5 @@ def stubs_command(
 
 
 if __name__ == "__main__":
-    app.command()(stubs_command)
+    app.command()(sync_command)
     app()
