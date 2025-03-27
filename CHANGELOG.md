@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.1.0-alpha.4 (2025-03-27)
+
+Full Changelog: [v0.1.0-alpha.3...v0.1.0-alpha.4](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.3...v0.1.0-alpha.4)
+
+### Features
+
+* feat: add .version and .remote method ([e4c588d](https://github.com/Mirascope/lilypad-sdk-python/commit/e4c588d9e68171cadf1cda06b766d8dd6a4640ec))
+* feat: add fallback ([ae83292](https://github.com/Mirascope/lilypad-sdk-python/commit/ae8329261b4bdb515a913ac28a25972e0a1d007f))
+* feat: add fallback ([e18ba79](https://github.com/Mirascope/lilypad-sdk-python/commit/e18ba79c6ef83db54fa660090acf1954c435d6e2))
+* feat: add fallback ([dfb8020](https://github.com/Mirascope/lilypad-sdk-python/commit/dfb8020fb77a6039b2fc6580e630392264634086))
+* feat: add Trace result ([7f59e14](https://github.com/Mirascope/lilypad-sdk-python/commit/7f59e14b1b14e5e78cb4616e9628de2aa5225258))
+* feat: change stubs to sync commands ([496d2bf](https://github.com/Mirascope/lilypad-sdk-python/commit/496d2bfcaa7dd189d91d52ab11ccf333da58bf87))
+* feat: delete generations.py ([4ecf5a1](https://github.com/Mirascope/lilypad-sdk-python/commit/4ecf5a1d128895ce970c6b16545015c6a437f449))
+* feat: delete old instrumentations ([342f8ac](https://github.com/Mirascope/lilypad-sdk-python/commit/342f8ac7760766f6cf5b12851e75a38f769e812a))
+* feat: fix _deployed_version_async ([940ec69](https://github.com/Mirascope/lilypad-sdk-python/commit/940ec698abd6697f0773aa22cec41aedb4c948c9))
+* feat: fix error ([dd75f12](https://github.com/Mirascope/lilypad-sdk-python/commit/dd75f12fa4859778047a662ee895f5a090a804e7))
+* feat: fix imports ([403fab6](https://github.com/Mirascope/lilypad-sdk-python/commit/403fab681dc257dd5f4c488099cbe6d912ff51b7))
+* feat: fix imports ([af2ea84](https://github.com/Mirascope/lilypad-sdk-python/commit/af2ea84a237575445013c9b69e9e458294c40bbd))
+* feat: fix imports ([51193d5](https://github.com/Mirascope/lilypad-sdk-python/commit/51193d57ee48303c2a9adfbc120278ec545df9c0))
+* feat: fix lint ([d3a038c](https://github.com/Mirascope/lilypad-sdk-python/commit/d3a038c0065d7053b3fe1402a9f3ca74f61f4320))
+* feat: fix log handler ([ded9157](https://github.com/Mirascope/lilypad-sdk-python/commit/ded91573fdfb344430ba792bcc2420891e8a1d4e))
+* feat: fix log handler ([260b5cb](https://github.com/Mirascope/lilypad-sdk-python/commit/260b5cbcb3070dd68934b39d9d8e0dd9ccc83e5a))
+* feat: fix types ([439b653](https://github.com/Mirascope/lilypad-sdk-python/commit/439b653eef6bd00b6239e48e1991d73d02b62cd8))
+* feat: support trace_ctx ([86c5196](https://github.com/Mirascope/lilypad-sdk-python/commit/86c5196ac0d449a4af1d92bd8807a2aca9c3270b))
+* feat: update lock file ([db583bb](https://github.com/Mirascope/lilypad-sdk-python/commit/db583bba287bb82a9aea84d01cd9110ac5e0800c))
+* feat: update stubs ([52c03d2](https://github.com/Mirascope/lilypad-sdk-python/commit/52c03d244a3b8d316604767318e035610e306681))
+* feat: update sync cli ([88a6cdd](https://github.com/Mirascope/lilypad-sdk-python/commit/88a6cdd711cc769e62ccd843bcb23945ee596667))
+* feat: Update trace decorator ([a86ac63](https://github.com/Mirascope/lilypad-sdk-python/commit/a86ac632b7997faa69c51f9c72e56b6e971fce9a))
+* feat: update trace inner func ([29aab89](https://github.com/Mirascope/lilypad-sdk-python/commit/29aab892c9e010ba502bca2dac97230f795bbab9))
+* feat: update trace inner func ([7c08d08](https://github.com/Mirascope/lilypad-sdk-python/commit/7c08d08913321be6d2cf3dea13154aad85e3649b))
+* feat: Update Trace result ([8fbc57b](https://github.com/Mirascope/lilypad-sdk-python/commit/8fbc57baf861fa865f906ef8d64e3207a1b276a8))
+* feat: Update Trace result ([ec88cfc](https://github.com/Mirascope/lilypad-sdk-python/commit/ec88cfcdca2b76e11323362341c7de87cc9b2a21))
+* feat: update unittest ([59c0aee](https://github.com/Mirascope/lilypad-sdk-python/commit/59c0aee98cf7a0ebf7255c01828b39321bcf4784))
+* fix: fix Trace class ([81d932e](https://github.com/Mirascope/lilypad-sdk-python/commit/81d932e6e3eecf58eb2d0fd341730326f0a6e527))
+* fix: fix unittest ([39f0422](https://github.com/Mirascope/lilypad-sdk-python/commit/39f0422236e654a649437464b6b62f081217e1ce))
+
+
+### Chores
+
+* fix typos ([#18](https://github.com/Mirascope/lilypad-sdk-python/issues/18)) ([fe3dcca](https://github.com/Mirascope/lilypad-sdk-python/commit/fe3dcca4b46d88fd3b2ae7ea57c06fa75f815c1d))
+
 ## 0.1.0-alpha.3 (2025-03-26)
 
 Full Changelog: [v0.1.0-alpha.2...v0.1.0-alpha.3](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.2...v0.1.0-alpha.3)
