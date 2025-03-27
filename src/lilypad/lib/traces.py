@@ -32,6 +32,7 @@ from opentelemetry.trace import Span, get_tracer, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from .. import RemoteFunctionError
 from ._utils import (
     Closure,
     call_safely,
@@ -41,7 +42,6 @@ from ._utils import (
     get_qualified_name,
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
-from .. import RemoteFunctionError
 from .._client import Lilypad, AsyncLilypad
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
