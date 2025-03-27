@@ -492,8 +492,8 @@ def trace(versioning: VERSIONING_MODE | None = None) -> TraceDecorator | Version
                     code=deployed_function.code,
                     signature=deployed_function.signature,
                     hash=deployed_function.hash,
-                    dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
-                    if versioned_function.dependencies is not None
+                    dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                    if deployed_function.dependencies is not None
                     else {},
                 )
                 return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
