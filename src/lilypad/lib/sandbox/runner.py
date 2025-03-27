@@ -2,9 +2,16 @@
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Optional
+from typing_extensions import TypedDict
 
 from .._utils import Closure
+
+
+class Result(TypedDict, total=False):
+    """Result of executing a function in a sandbox."""
+
+    result: Any
 
 
 class SandboxRunner(ABC):
@@ -17,7 +24,14 @@ class SandboxRunner(ABC):
         self.environment: dict[str, str] = environment or {}
 
     @abstractmethod
-    def execute_function(self, closure: Closure, *args: Any, **kwargs: Any) -> str:
+    def execute_function(
+        self,
+        closure: Closure,
+        *args: Any,
+        extra_result: dict[str, str] | None = None,
+        extra_imports: list[str] | None = None,
+        **kwargs: Any,
+    ) -> Result:
         """Execute the function in the sandbox."""
         ...
 
@@ -40,23 +54,47 @@ class SandboxRunner(ABC):
                 """).format(name=closure.name, args=args, kwargs=kwargs)
 
     @classmethod
-    def generate_script(cls, closure: Closure, *args: Any, **kwargs: Any) -> str:
-        """Generate a script that executes the function in the sandbox."""
+    def generate_script(
+        cls,
+        closure: Closure,
+        *args: Any,
+        extra_result: dict[str, str] | None = None,
+        extra_imports: list[str] | None = None,
+        **kwargs: Any,
+    ) -> str:
+        """
+        Generate a script that executes the function in the sandbox.
+
+        If wrap_result is True, the script returns a structured JSON object with additional
+        attributes. The additional attributes are specified by the extra_result dictionary,
+        where keys are attribute names and values are code snippets that evaluate to the attribute values.
+        """
+        base_run = (
+            cls._generate_async_run(closure, *args, **kwargs)
+            if cls._is_async_func(closure)
+            else cls._generate_sync_run(closure, *args, **kwargs)
+        )
+        extra_items = ""
+        if extra_result:
+            extra_items = ", " + ", ".join(f'"{k}": ({v})' for k, v in extra_result.items())
+        result_code = base_run + "\n" + f'result = {{"result": result{extra_items}}}'
+
         return inspect.cleandoc("""
-                # /// script
-                # dependencies = [
-                #   {dependencies}
-                # ]
-                # ///
+            # /// script
+            # dependencies = [
+            #   {dependencies}
+            # ]
+            # ///
 
-                {code}
+            {code}
 
 
-                if __name__ == "__main__":
-                    import json
-                    {result}
-                    print(json.dumps(result))
-                """).format(
+            if __name__ == "__main__":
+                import json
+                {extra_imports}
+                {result}
+                print(json.dumps(result))
+            """).format(
             dependencies=",\n#   ".join(
                 [
                     f'"{key}[{",".join(extras)}]=={value["version"]}"'
@@ -66,9 +104,8 @@ class SandboxRunner(ABC):
                 ]
             ),
             code=closure.code,
-            result=cls._generate_async_run(closure, *args, **kwargs)
-            if cls._is_async_func(closure)
-            else cls._generate_sync_run(closure, *args, **kwargs),
+            result=result_code,
+            extra_imports="\n".join(extra_imports) if extra_imports else "",
         )
 
 

@@ -7,6 +7,7 @@ import json
 import inspect
 import logging
 import threading
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -23,6 +24,7 @@ from typing import (
 )
 from functools import wraps
 from contextlib import contextmanager
+from contextvars import ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
 from pydantic import BaseModel
@@ -407,6 +409,17 @@ class _ResultHolder:
         self.result: Any = result
 
 
+_trace_context: ContextVar[MappingProxyType] = ContextVar("_trace_context", default=MappingProxyType({}))
+
+
+def _get_trace_context() -> dict[str, Any]:
+    return dict(_trace_context.get())
+
+
+def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
+    _trace_context.set(MappingProxyType(trace_ctx.copy()))
+
+
 @contextmanager
 def _set_span_attributes(
     trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool
@@ -533,6 +546,7 @@ def trace(
                         output = await fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.get_span_context().span_id
+                    _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_uuid=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
@@ -574,7 +588,13 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 async def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+                    return sandbox.execute_function(
+                        versioned_function_closure,
+                        *args,
+                        extra_result={"trace_context": "_get_trace_context()"},
+                        extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                        **kwargs,
+                    )
 
                 return _inner_async
 
@@ -610,12 +630,20 @@ def trace(
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                result = sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                result = sandbox.execute_function(
+                    deployed_function_closure,
+                    *args,
+                    extra_result={"trace_context": "_get_trace_context()"},
+                    extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                    **kwargs,
+                )
                 if mode == "wrap":
                     return AsyncTrace(
-                        response=result,
+                        response=result["result"],
+                        span_uuid=result["trace_context"]["span_uuid"],
+                        function_uuid=result["trace_context"]["function_uuid"],
                     )
-                return result
+                return result["result"]
 
             inner_async.remote = _deployed_version_async
             return inner_async
@@ -658,6 +686,7 @@ def trace(
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.get_span_context().span_id
+                    _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
                 if mode == "wrap":
                     return Trace(response=output, span_uuid=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
@@ -699,7 +728,13 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(versioned_function_closure, *args, **kwargs)
+                    return sandbox.execute_function(
+                        versioned_function_closure,
+                        *args,
+                        extra_result={"trace_context": "_get_trace_context()"},
+                        extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                        **kwargs,
+                    )
 
                 return _inner
 
@@ -733,10 +768,20 @@ def trace(
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                result = sandbox.execute_function(deployed_function_closure, *args, **kwargs)
+                result = sandbox.execute_function(
+                    deployed_function_closure,
+                    *args,
+                    extra_result={"trace_context": "_get_trace_context()"},
+                    extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                    **kwargs,
+                )
                 if mode == "wrap":
-                    return Trace(response=result)
-                return result
+                    return Trace(
+                        response=result["result"],
+                        span_uuid=result["trace_context"]["span_uuid"],
+                        function_uuid=result["trace_context"]["function_uuid"],
+                    )
+                return result["result"]
 
             inner.remote = _deployed_version
             return inner
