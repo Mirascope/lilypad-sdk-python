@@ -5,24 +5,19 @@ from __future__ import annotations
 import os
 import json
 import inspect
-import logging
 import threading
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
     Generic,
     Literal,
     TypeVar,
-    Optional,
     Protocol,
     ParamSpec,
     TypeAlias,
-    TypedDict,
     overload,
 )
-from functools import wraps
 from contextlib import contextmanager
 from contextvars import ContextVar
 from collections.abc import Callable, Coroutine, Generator
@@ -32,7 +27,6 @@ from opentelemetry.trace import Span, get_tracer, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from .. import RemoteFunctionError
 from ._utils import (
     Closure,
     call_safely,
@@ -43,6 +37,7 @@ from ._utils import (
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
+from .exceptions import RemoteFunctionError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
