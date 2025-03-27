@@ -18,7 +18,7 @@ from rich.console import Console
 
 from lilypad import Lilypad
 from lilypad.lib._utils.settings import get_settings
-from lilypad.types.projects.functions import NameRetrieveByNameResponse, FunctionPublic
+from lilypad.types.projects.functions import FunctionPublic, NameRetrieveByNameResponse
 
 from ...traces import (
     clear_registry,

@@ -125,7 +125,7 @@ def configure(
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
-    auto_llm: bool = False
+    auto_llm: bool = False,
 ) -> None:
     """Initialize the OpenTelemetry instrumentation for Lilypad and configure log outputs.
 
