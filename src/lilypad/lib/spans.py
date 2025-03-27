@@ -8,8 +8,6 @@ from contextlib import AbstractContextManager
 from opentelemetry import context as context_api
 from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, set_span_in_context
 
-from .traces import span_order_context
-
 
 class Span:
     """A context manager for creating a tracing span with parent-child relationship tracking."""
@@ -32,9 +30,6 @@ class Span:
         # Activate our context
         self._token = context_api.attach(ctx)
 
-        self._order_cm = span_order_context(self._span)
-        self._order_cm.__enter__()
-
         self.metadata(timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat())
         return self
 
@@ -46,8 +41,6 @@ class Span:
     ) -> None:
         if exc_type is not None and self._span is not None and exc_val is not None:
             self._span.record_exception(exc_val)
-        if self._order_cm is not None:
-            self._order_cm.__exit__(exc_type, exc_val, exc_tb)
 
         if self._span is not None:
             self._span.end()
@@ -132,6 +125,16 @@ class Span:
             if self._token:
                 context_api.detach(self._token)
             self._finished = True
+
+    @property
+    def span_id(self) -> int:
+        """Return the span ID."""
+        return self._span.get_span_context().span_id
+
+    @property
+    def opentelemetry_span(self) -> OTSpan | None:
+        """Return the underlying OpenTelemetry span."""
+        return self._span
 
 
 def span(name: str) -> Span:

@@ -5,10 +5,8 @@ from __future__ import annotations
 import os
 import json
 import inspect
-import threading
 from types import MappingProxyType
 from typing import (
-    TYPE_CHECKING,
     Any,
     Generic,
     Literal,
@@ -23,10 +21,11 @@ from contextvars import ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
 from pydantic import BaseModel
-from opentelemetry.trace import Span, get_tracer, get_tracer_provider
+from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from .spans import Span
 from ._utils import (
     Closure,
     call_safely,
@@ -47,8 +46,6 @@ _R = TypeVar("_R")
 _R_CO = TypeVar("_R_CO", covariant=True)
 _T = TypeVar("_T")
 
-if TYPE_CHECKING:
-    from ..lib import spans
 
 TRACE_TYPE = "trace"
 
@@ -68,13 +65,13 @@ class _TraceBase(Generic[_T]):
     Base class for the Trace wrapper.
     """
 
-    def __init__(self, response: _T, span_uuid: str, function_uuid: str) -> None:
+    def __init__(self, response: _T, span_id: int, function_uuid: str) -> None:
         self.response: _T = response
-        self.span_uuid: str = span_uuid
         self.function_uuid: str = function_uuid
+        self.formated_span_id: str = format_span_id(span_id)
 
     def _create_body(
-        self, project_id: str, annotation: Annotation | list[Annotation]
+        self, project_id: str, span_uuid: str, annotation: Annotation | list[Annotation]
     ) -> list[annotation_create_params.Body]:
         if not isinstance(annotation, list):
             annotation = [annotation]
@@ -82,7 +79,7 @@ class _TraceBase(Generic[_T]):
             annotation_create_params.Body(
                 data=annotation.data,
                 function_uuid=self.function_uuid,
-                span_uuid=self.span_uuid,
+                span_uuid=span_uuid,
                 label=annotation.label,
                 reasoning=annotation.reasoning,
                 type=annotation.type,
@@ -97,13 +94,22 @@ class Trace(_TraceBase[_T]):
     A simple trace wrapper that holds the original function's response and allows annotating the trace.
     """
 
+    def _get_span_uuid(self, client: Lilypad) -> str | None:
+        response = client.projects.functions.spans.list(
+            project_uuid=get_settings().project_id, function_uuid=self.function_uuid
+        )
+        for span in response:
+            if span.span_id == self.formated_span_id:
+                return span.uuid
+        return None
+
     def annotate(self, annotation: Annotation | list[Annotation]) -> None:
         """
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
         lilypad_client = Lilypad(api_key=settings.api_key)
-        body = self._create_body(settings.project_id, annotation)
+        body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
 
@@ -112,14 +118,23 @@ class AsyncTrace(_TraceBase[_T]):
     A simple trace wrapper that holds the original function's response and allows annotating the trace.
     """
 
+    async def _get_span_uuid(self, client: AsyncLilypad) -> str | None:
+        response = await client.projects.functions.spans.list(
+            project_uuid=get_settings().project_id, function_uuid=self.function_uuid
+        )
+        for span in response:
+            if span.span_id == self.formated_span_id:
+                return span.uuid
+        return None
+
     async def annotate(self, annotation: Annotation | list[Annotation]) -> None:
         """
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
-        async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-        body = self._create_body(settings.project_id, annotation)
-        await async_lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
+        lilypad_client = AsyncLilypad(api_key=settings.api_key)
+        body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
+        await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
@@ -138,20 +153,6 @@ def _get_batch_span_processor() -> BatchSpanProcessor | None:
             if isinstance(processor, BatchSpanProcessor):
                 return processor
     return None
-
-
-# Global counter and lock for span order.
-_span_counter_lock = threading.Lock()
-_span_counter = 0
-
-
-@contextmanager
-def span_order_context(span: Span) -> Generator[None, None, None]:
-    """Assign an explicit order to a span using a global counter."""
-    global _span_counter
-    with _span_counter_lock:
-        _span_counter += 1
-    yield
 
 
 # Type definitions for decorator registry
@@ -274,7 +275,7 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
 class TraceDecoratedFunctionWithContext(Protocol[_P, _R]):
     """Protocol for the `VersioningDecorator` decorator return type."""
 
-    def __call__(self, trace_ctx: spans.Span, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
+    def __call__(self, trace_ctx: Span, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
 
 
 class TraceDecorator(Protocol):
@@ -423,12 +424,12 @@ def _set_span_attributes(
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
-    span.set_attributes(span_attribute)
+    span.opentelemetry_span.set_attributes(span_attribute)
     result_holder = _ResultHolder()
     yield result_holder
     original_output = result_holder.result
     output_for_span = original_output.model_dump() if isinstance(original_output, BaseModel) else original_output
-    span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
+    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
 
 
 def _construct_trace_attributes(
@@ -505,11 +506,8 @@ def trace(
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 bound_args = signature.bind_partial(*args, **kwargs)
 
-                with (
-                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                    span_order_context(span),
-                ):
-                    if "trace_ctx" in bound_args.arguments:
+                with Span(get_qualified_name(fn)) as span:
+                    if "trace_ctx" not in bound_args.arguments and "trace_ctx" in signature.parameters:
                         args = tuple((span, *args))
                     arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
                     arg_values.pop("trace_ctx", None)
@@ -539,10 +537,10 @@ def trace(
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
                         output = await fn(*args, **kwargs)
                         result_holder.set_result(output)
-                    span_id = span.get_span_context().span_id
+                    span_id = span.span_id
                     _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
                 if mode == "wrap":
-                    return AsyncTrace(response=output, span_uuid=span_id, function_uuid=function.uuid)
+                    return AsyncTrace(response=output, span_id=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -626,7 +624,7 @@ def trace(
                 if mode == "wrap":
                     return AsyncTrace(
                         response=result["result"],
-                        span_uuid=result["trace_context"]["span_uuid"],
+                        span_id=result["trace_context"]["span_id"],
                         function_uuid=result["trace_context"]["function_uuid"],
                     )
                 return result["result"]
@@ -638,11 +636,8 @@ def trace(
             @call_safely(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 bound_args = signature.bind_partial(*args, **kwargs)
-                with (
-                    get_tracer("lilypad").start_as_current_span(get_qualified_name(fn)) as span,
-                    span_order_context(span),
-                ):
-                    if "trace_ctx" in bound_args.arguments:
+                with Span(get_qualified_name(fn)) as span:
+                    if "trace_ctx" not in bound_args.arguments and "trace_ctx" in signature.parameters:
                         args = tuple((span, *args))
                     arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
                     arg_values.pop("trace_ctx", None)
@@ -671,10 +666,10 @@ def trace(
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
-                    span_id = span.get_span_context().span_id
+                    span_id = span.span_id
                     _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
                 if mode == "wrap":
-                    return Trace(response=output, span_uuid=span_id, function_uuid=function.uuid)
+                    return Trace(response=output, span_id=span_id, function_uuid=function.uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -756,7 +751,7 @@ def trace(
                 if mode == "wrap":
                     return Trace(
                         response=result["result"],
-                        span_uuid=result["trace_context"]["span_uuid"],
+                        span_id=result["trace_context"]["span_id"],
                         function_uuid=result["trace_context"]["function_uuid"],
                     )
                 return result["result"]
