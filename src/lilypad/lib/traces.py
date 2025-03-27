@@ -575,8 +575,6 @@ def trace(
                         if versioned_function.dependencies is not None
                         else {},
                     )
-                except NotFoundError:
-                    raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -617,8 +615,6 @@ def trace(
                         if deployed_function.dependencies is not None
                         else {},
                     )
-                except NotFoundError:
-                    raise ValueError(f"Deployed function version is not found : {fn.__name__}")
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -711,8 +707,6 @@ def trace(
                         if versioned_function.dependencies is not None
                         else {},
                     )
-                except NotFoundError:
-                    raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -751,8 +745,6 @@ def trace(
                         if deployed_function.dependencies is not None
                         else {},
                     )
-                except NotFoundError:
-                    raise ValueError(f"Deployed function version is not found : {fn.__name__}")
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
