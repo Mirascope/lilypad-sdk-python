@@ -56,8 +56,6 @@ if TYPE_CHECKING:
 
 TRACE_TYPE = "trace"
 
-logger = logging.getLogger(__name__)
-
 
 class Annotation(BaseModel):
     data: dict[str, Any] | None
@@ -579,9 +577,7 @@ def trace(
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
                 except Exception as e:
-                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
-                    logger.warning(f"Running the function locally as Fallback")
-                    versioned_function = closure
+                    raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
@@ -623,9 +619,7 @@ def trace(
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
                 except Exception as e:
-                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
-                    logger.warning(f"Running the function locally as Fallback")
-                    deployed_function_closure = closure
+                    raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
@@ -719,9 +713,7 @@ def trace(
                 except NotFoundError:
                     raise ValueError(f"Function version {forced_version} not found for function: {fn.__name__}")
                 except Exception as e:
-                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
-                    logger.warning(f"Running the function locally as Fallback")
-                    versioned_function_closure = closure
+                    raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
@@ -761,9 +753,7 @@ def trace(
                 except NotFoundError:
                     raise ValueError(f"Deployed function version is not found : {fn.__name__}")
                 except Exception as e:
-                    logger.warning(f"Failed to retrieve function {fn.__name__}: {e}")
-                    logger.warning(f"Running the function locally as Fallback")
-                    deployed_function_closure = closure
+                    raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
