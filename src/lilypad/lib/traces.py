@@ -667,8 +667,6 @@ def trace(
                         )
 
                     with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
-                        print(f"args: {args}")
-                        print(f"kwargs: {kwargs}")
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id
