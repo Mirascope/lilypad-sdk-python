@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.5 (2025-03-28)
+
+Full Changelog: [v0.1.0-alpha.4...v0.1.0-alpha.5](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.4...v0.1.0-alpha.5)
+
+### Features
+
+* fix: add force flush ([fa07adc](https://github.com/Mirascope/lilypad-sdk-python/commit/fa07adc1623c79a12812d2484b2f431531a32028))
+* fix: fix trace for function-uuid ([5ece916](https://github.com/Mirascope/lilypad-sdk-python/commit/5ece916ff10a50708623d7d2c7f1ba904528e8cf))
+* fix: Improve async callable detection for decorated functions ([3f7cb12](https://github.com/Mirascope/lilypad-sdk-python/commit/3f7cb12d8ea51b9d6f0ac4352054c895c361090d))
+
 ## 0.1.0-alpha.4 (2025-03-27)
 
 Full Changelog: [v0.1.0-alpha.3...v0.1.0-alpha.4](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.3...v0.1.0-alpha.4)
