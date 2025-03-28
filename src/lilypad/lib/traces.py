@@ -69,6 +69,13 @@ class _TraceBase(Generic[_T]):
         self.response: _T = response
         self.function_uuid: str = function_uuid
         self.formated_span_id: str = format_span_id(span_id)
+        self._flush: bool = False
+
+    def _force_flush(self) -> None:
+        tracer = get_tracer_provider()
+        if force_flush := getattr(tracer, "force_flush", None):
+            force_flush(timeout_millis=5000)
+            self.flush = True
 
     def _create_body(
         self, project_id: str, span_uuid: str, annotation: Annotation | list[Annotation]
@@ -95,12 +102,14 @@ class Trace(_TraceBase[_T]):
     """
 
     def _get_span_uuid(self, client: Lilypad) -> str | None:
+        if not self._flush:
+            self._force_flush()
         response = client.projects.functions.spans.list(
             project_uuid=get_settings().project_id, function_uuid=self.function_uuid
         )
         for span in response:
-            if span.span_id == self.formated_span_id:
-                return span.uuid
+            if span.get("span_id") == self.formated_span_id:
+                return span["uuid"]
         return None
 
     def annotate(self, annotation: Annotation | list[Annotation]) -> None:
@@ -119,12 +128,14 @@ class AsyncTrace(_TraceBase[_T]):
     """
 
     async def _get_span_uuid(self, client: AsyncLilypad) -> str | None:
+        if not self._flush:
+            self._force_flush()
         response = await client.projects.functions.spans.list(
             project_uuid=get_settings().project_id, function_uuid=self.function_uuid
         )
         for span in response:
-            if span.span_id == self.formated_span_id:
-                return span.uuid
+            if span.get("span_id") == self.formated_span_id:
+                return span["uuid"]
         return None
 
     async def annotate(self, annotation: Annotation | list[Annotation]) -> None:
