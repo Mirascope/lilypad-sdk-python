@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.6 (2025-03-28)
+
+Full Changelog: [v0.1.0-alpha.5...v0.1.0-alpha.6](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.5...v0.1.0-alpha.6)
+
+### Features
+
+* feat: Add error handling for OpenTelemetry tracing ([f0b760a](https://github.com/Mirascope/lilypad-sdk-python/commit/f0b760a858a2406cc6784cb226585e6de363592d))
+
 ## 0.1.0-alpha.5 (2025-03-28)
 
 Full Changelog: [v0.1.0-alpha.4...v0.1.0-alpha.5](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.4...v0.1.0-alpha.5)
