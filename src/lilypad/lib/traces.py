@@ -417,11 +417,12 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool
+    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function_uuid: str
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
+    span_attribute["lilypad.function.uuid"] = function_uuid
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
     span.opentelemetry_span.set_attributes(span_attribute)
@@ -511,7 +512,6 @@ def trace(
                         args = tuple((span, *args))
                     arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
                     arg_values.pop("trace_ctx", None)
-                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
                     trace_attribute = _construct_trace_attributes(
                         arg_types=arg_types,
                         arg_values=arg_values,
@@ -534,7 +534,9 @@ def trace(
                             dependencies=closure.dependencies,
                             is_versioned=True,
                         )
-                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=True) as result_holder:
+                    with _set_span_attributes(
+                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function.uuid
+                    ) as result_holder:
                         output = await fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id
@@ -663,7 +665,9 @@ def trace(
                             is_versioned=True,
                         )
 
-                    with _set_span_attributes(TRACE_TYPE, span, trace_attribute, is_async=False) as result_holder:
+                    with _set_span_attributes(
+                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function.uuid
+                    ) as result_holder:
                         output = fn(*args, **kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id
