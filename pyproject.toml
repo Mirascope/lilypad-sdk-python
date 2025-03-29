@@ -1,26 +1,24 @@
 [project]
 name = "lilypad-sdk"
-version = "0.1.0-alpha.6"
-description = "The official Python library for the lilypad API"
+version = "0.1.0-alpha.7"
+description = "The official Lilypad SDK for Python"
 dynamic = ["readme"]
 license = "Apache-2.0"
-authors = [
-{ name = "Lilypad", email = "support@mirascope.com" },
-]
+authors = [{ name = "Mirascope", email = "support@mirascope.com" }]
 dependencies = [
-    "httpx>=0.23.0, <1",
-    "pydantic>=2.10.6, <3",
-    "typing-extensions>=4.10, <5",
-    "anyio>=3.5.0, <5",
-    "distro>=1.7.0, <2",
-    "sniffio",
-    "libcst>=1.6.0",
-    "mirascope>=1.22.0",
-    "opentelemetry-api>=1.31.0",
-    "opentelemetry-sdk>=1.31.0",
-    "opentelemetry-instrumentation>=0.51b0",
-    "pydantic-settings>=2.6.1",
-    "ruff>=0.11.2"
+  "httpx>=0.23.0, <1",
+  "pydantic>=2.10.6, <3",
+  "typing-extensions>=4.10, <5",
+  "anyio>=3.5.0, <5",
+  "distro>=1.7.0, <2",
+  "sniffio",
+  "libcst>=1.6.0",
+  "mirascope>=1.22.0",
+  "opentelemetry-api>=1.31.0",
+  "opentelemetry-sdk>=1.31.0",
+  "opentelemetry-instrumentation>=0.51b0",
+  "pydantic-settings>=2.6.1",
+  "ruff>=0.11.2",
 ]
 requires-python = ">=3.10"
 classifiers = [
@@ -35,7 +33,7 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
   "Operating System :: Microsoft :: Windows",
   "Topic :: Software Development :: Libraries :: Python Modules",
-  "License :: OSI Approved :: Apache Software License"
+  "License :: OSI Approved :: Apache Software License",
 ]
 
 [project.urls]
@@ -47,19 +45,19 @@ Repository = "https://github.com/Mirascope/lilypad-sdk-python"
 managed = true
 # version pins are in requirements-dev.lock
 dev-dependencies = [
-    "respx",
-    "pytest>=8.3.2",
-    "pyright>=1.1.397",
-    "pytest-asyncio>=0.23.8",
-    "pytest-cov>=5.0.0",
-    "pytest-asyncio",
-    "time-machine",
-    "nox",
-    "dirty-equals>=0.6.0",
-    "importlib-metadata>=6.7.0",
-    "rich>=13.7.1",
-    "nest_asyncio==1.6.0",
-    "pre-commit>=3.8.0",
+  "respx",
+  "pytest>=8.3.2",
+  "pyright>=1.1.397",
+  "pytest-asyncio>=0.23.8",
+  "pytest-cov>=5.0.0",
+  "pytest-asyncio",
+  "time-machine",
+  "nox",
+  "dirty-equals>=0.6.0",
+  "importlib-metadata>=6.7.0",
+  "rich>=13.7.1",
+  "nest_asyncio==1.6.0",
+  "pre-commit>=3.8.0",
 ]
 
 [tool.rye.scripts]
@@ -69,23 +67,17 @@ format = { chain = [
   "fix:ruff",
   # run formatting again to fix any inconsistencies when imports are stripped
   "format:ruff",
-]}
+] }
 "format:docs" = "python scripts/utils/ruffen-docs.py README.md api.md"
 "format:ruff" = "ruff format"
 
-"lint" = { chain = [
-  "check:ruff",
-  "typecheck",
-  "check:importable",
-]}
+"lint" = { chain = ["check:ruff", "typecheck", "check:importable"] }
 "check:ruff" = "ruff check ."
 "fix:ruff" = "ruff check --fix ."
 
 "check:importable" = "python -c 'import lilypad'"
 
-typecheck = { chain = [
-  "typecheck:pyright",
-]}
+typecheck = { chain = ["typecheck:pyright"] }
 "typecheck:pyright" = "pyright"
 
 [build-system]
@@ -93,9 +85,7 @@ requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = [
-  "src/*"
-]
+include = ["src/*"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/lilypad"]
@@ -129,20 +119,17 @@ replacement = '[\1](https://github.com/Mirascope/lilypad-sdk-python/tree/main/\g
 lilypad = "lilypad.lib.cli.main:app"
 
 [project.optional-dependencies]
-cli = [
-    "typer>=0.15.2",
-    "rich>=13.7.1",
-]
+cli = ["typer>=0.15.2", "rich>=13.7.1"]
 openai = ["openai>=1.57.0"]
 anthropic = ["anthropic>=0.36.0"]
 azure = ["azure-ai-inference>=1.0.0b9,<2.0", "aiohttp>=3.10.5,<4.0"]
 gemini = ["google-generativeai>=0.4.0,<1", "pillow>=10.4.0,<11"]
 google = ["google-genai>=1.7.0,<2", "pillow>=10.4.0,<11"]
 bedrock = [
-    "aioboto3>=13.2.0",
-    "boto3>=1.35.36",
-    "boto3-stubs[bedrock-runtime]>=1.35.82",
-    "types-aioboto3[bedrock-runtime]>=13.2.0.post3",
+  "aioboto3>=13.2.0",
+  "boto3>=1.35.36",
+  "boto3-stubs[bedrock-runtime]>=1.35.82",
+  "types-aioboto3[bedrock-runtime]>=13.2.0.post3",
 ]
 mistral = ["mistralai>=1.0.0,<2"]
 outlines = ["outlines>=0.1.11"]
@@ -156,10 +143,7 @@ addopts = "--tb=short"
 xfail_strict = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
-filterwarnings = [
-  "error",
-   "ignore::DeprecationWarning"
-]
+filterwarnings = ["error", "ignore::DeprecationWarning"]
 
 [tool.pyright]
 # this enables practically every flag given by pyright.
@@ -169,13 +153,13 @@ typeCheckingMode = "strict"
 pythonVersion = "3.10"
 
 exclude = [
-    "_dev",
-    ".venv",
-    ".nox",
-    "tests",
-    "src/lilypad/lib",
-    "src/lilypad/_models.py",
-    "src/lilypad/_utils/_typing.py",
+  "_dev",
+  ".venv",
+  ".nox",
+  "tests",
+  "src/lilypad/lib",
+  "src/lilypad/_models.py",
+  "src/lilypad/_utils/_typing.py",
 ]
 
 reportImplicitOverride = true
