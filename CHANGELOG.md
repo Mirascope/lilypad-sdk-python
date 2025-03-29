@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.7 (2025-03-29)
+
+Full Changelog: [v0.1.0-alpha.6...v0.1.0-alpha.7](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.6...v0.1.0-alpha.7)
+
+### Features
+
+* chore: bump alpha version number ([3fb7159](https://github.com/Mirascope/lilypad-sdk-python/commit/3fb7159eac2f4f428207929b460d48405eb939dc))
+* chore: update constants for upcoming release ([ab15394](https://github.com/Mirascope/lilypad-sdk-python/commit/ab15394556fb1f63753ffb36108f97514efdfbe5))
+
 ## 0.1.0-alpha.6 (2025-03-28)
 
 Full Changelog: [v0.1.0-alpha.5...v0.1.0-alpha.6](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.5...v0.1.0-alpha.6)
