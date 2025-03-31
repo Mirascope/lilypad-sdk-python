@@ -283,7 +283,7 @@ class AsyncVersionedFunction(Protocol[_P, _R_CO]):
         self,
         forced_version: int,
         sandbox_runner: SandboxRunner | None = None,
-    ) -> Coroutine[Any, Any, Callable[_P, Coroutine[Any, Any, _R_CO]]]:
+    ) -> Coroutine[Any, Any, Callable[_P, _R_CO]]:
         """Protocol for the `VersionFunction` decorator return type."""
         ...
 

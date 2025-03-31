@@ -69,7 +69,7 @@ def test_parse_return_type():
             True,
             True,
             [
-                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Coroutine[Any, Any, AsyncTrace[str]]: ...\n",
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> AsyncTrace[str]: ...\n",
                 "class MyFunc(Protocol):",
                 "    @classmethod\n"
                 "    @overload\n"
@@ -82,7 +82,7 @@ def test_parse_return_type():
             True,
             False,
             [
-                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Coroutine[Any, Any, str]: ...\n",
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> str: ...\n",
                 "class MyFunc(Protocol):",
                 "    @classmethod\n"
                 "    @overload\n"
