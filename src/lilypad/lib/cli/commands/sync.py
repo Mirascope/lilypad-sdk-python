@@ -236,18 +236,18 @@ def _get_deployed_version(versions: list[FunctionPublic]) -> FunctionPublic:
     return versions[-1]
 
 
-def _format_return_type(ret_type: str, is_async: bool, wrapped: bool) -> tuple[str, bool, bool]:
+def _format_return_type(ret_type: str, is_async: bool, wrapped: bool) -> str:
     """Format the return type based on whether it's async and if it's wrapped."""
     if is_async:
         if wrapped:
-            return f"Coroutine[Any, Any, AsyncTrace[{ret_type}]]", True, False
+            return f"Coroutine[Any, Any, AsyncTrace[{ret_type}]]"
         else:
-            return f"Coroutine[Any, Any, {ret_type}]", False, False
+            return f"Coroutine[Any, Any, {ret_type}]"
     else:
         if wrapped:
-            return f"Trace[{ret_type}]", False, True
+            return f"Trace[{ret_type}]"
         else:
-            return ret_type, False, False
+            return ret_type
 
 
 def _generate_protocol_stub_content(
