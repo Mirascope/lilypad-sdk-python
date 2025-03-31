@@ -59,6 +59,7 @@ class SandboxRunner(ABC):
         closure: Closure,
         *args: Any,
         custom_result: dict[str, str] | None = None,
+        pre_actions: list[str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> str:
@@ -85,13 +86,14 @@ class SandboxRunner(ABC):
             #   {dependencies}
             # ]
             # ///
-
+            
             {code}
 
 
             if __name__ == "__main__":
                 import json
                 {extra_imports}
+                {pre_actions}
                 {result}
                 print(json.dumps(result))
             """).format(
@@ -105,6 +107,7 @@ class SandboxRunner(ABC):
             ),
             code=closure.code,
             result=result_code,
+            pre_actions="\n".join(pre_actions) if pre_actions else "",
             extra_imports="\n".join(extra_imports) if extra_imports else "",
         )
 
