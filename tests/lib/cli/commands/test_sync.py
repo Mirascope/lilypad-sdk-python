@@ -142,20 +142,6 @@ def test_generate_protocol_stub_content(is_async, wrapped, expected):
     for part in expected:
         assert part in stub_content
 
-    # # Check for the existence of the normal protocol class for version 1.
-    # assert "class MyFuncVersion1(Protocol):" in stub_content
-    #
-    # # Check for the existence of the main protocol class.
-    # assert "class MyFunc(Protocol):" in stub_content
-    #
-    # # Check version overloads.
-    # expected_version_overload = (
-    #     "@classmethod\n"
-    #     "    @overload\n"
-    #     "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
-    # )
-    # assert expected_version_overload in stub_content
-
 
 def dummy_get_decorated_functions(decorator_name: str, dummy_file_path: str):
     """Dummy get_decorated_functions function"""
