@@ -26,11 +26,12 @@ class SubprocessSandboxRunner(SandboxRunner):
         closure: Closure,
         *args: Any,
         custom_result: dict[str, str] | None = None,
+        pre_actions: list[str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> Result:
         """Execute the function in the sandbox."""
-        script = self.generate_script(closure, *args, custom_result=custom_result, extra_imports=extra_imports, **kwargs)
+        script = self.generate_script(closure, *args, custom_result=custom_result, pre_actions=pre_actions, extra_imports=extra_imports, **kwargs)
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp_file:
             tmp_file.write(script)
             tmp_path = Path(tmp_file.name)
