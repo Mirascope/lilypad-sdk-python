@@ -62,7 +62,65 @@ def test_parse_return_type():
     assert ret_type == "bool"
 
 
-def test_generate_protocol_stub_content():
+@pytest.mark.parametrize(
+    "is_async, wrapped, expected",
+    [
+        (
+            True,
+            True,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> AsyncTrace[str]: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, AsyncTrace[str]]: ...",
+            ],
+        ),
+        (
+            True,
+            False,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> str: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, str]: ...",
+            ],
+        ),
+        (
+            False,
+            True,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Trace[str]: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Trace[str]: ...",
+            ],
+        ),
+        (
+            False,
+            False,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> str: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ...",
+            ],
+        ),
+    ],
+)
+def test_generate_protocol_stub_content(is_async, wrapped, expected):
     """Test the _generate_protocol_stub_content function."""
 
     class DummyVersion:
@@ -79,52 +137,10 @@ def test_generate_protocol_stub_content():
         DummyVersion(2, SIMPLE_SIG, {"a": "int", "b": "str"}),
     ]
 
-    stub_content = _generate_protocol_stub_content("my_func", versions, is_async=False)  # pyright: ignore [reportArgumentType]
+    stub_content = _generate_protocol_stub_content("my_func", versions, is_async=is_async, wrapped=wrapped)  # pyright: ignore [reportArgumentType]
 
-    # Check for the existence of the normal protocol class for version 1.
-    assert "class MyFuncVersion1(Protocol):" in stub_content
-
-    # Check for the existence of the wrapped protocol class for version 1.
-    assert "class MyFuncVersion1Wrapped(Protocol):" in stub_content
-
-    # Check for the existence of the main protocol class.
-    assert "class MyFunc(Protocol):" in stub_content
-
-    # Check __call__ overloads.
-    expected_call_overload = "@overload\n    def __call__(self, a: int, b: str) -> str: ..."
-    assert expected_call_overload in stub_content
-
-    expected_call_wrap_overload = (
-        '@overload\n    def __call__(self, a: int, b: str, *, mode: Literal["wrap"]) -> Trace[str]: ...'
-    )
-    assert expected_call_wrap_overload in stub_content
-
-    # Check remote overloads.
-    expected_remote_overload = (
-        "@overload\n    def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ..."
-    )
-    assert expected_remote_overload in stub_content
-
-    expected_remote_wrap_overload = (
-        "@overload\n"
-        '    def remote(self, a: int, b: str, *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> Trace[str]: ...'
-    )
-    assert expected_remote_wrap_overload in stub_content
-
-    # Check version overloads.
-    expected_version_overload = (
-        "@classmethod\n"
-        "    @overload\n"
-        "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
-    )
-    assert expected_version_overload in stub_content
-
-    expected_version_wrap_overload = (
-        "@classmethod\n"
-        "    @overload\n"
-        '    def version(cls, forced_version: Literal[1], *, mode: Literal["wrap"], sandbox: SandboxRunner | None = None) -> MyFuncVersion1Wrapped: ...'
-    )
-    assert expected_version_wrap_overload in stub_content
+    for part in expected:
+        assert part in stub_content
 
 
 def dummy_get_decorated_functions(decorator_name: str, dummy_file_path: str):
