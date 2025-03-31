@@ -170,7 +170,7 @@ def _get_batch_span_processor() -> BatchSpanProcessor | None:
 
 
 # Type definitions for decorator registry
-FunctionInfo: TypeAlias = tuple[str, str, int, str]  # (file_path, function_name, line_number, module_name)
+FunctionInfo: TypeAlias = tuple[str, str, int, str, dict[str, Any]]  # (file_path, function_name, line_number, module_name, context)
 DecoratorRegistry: TypeAlias = dict[str, list[FunctionInfo]]
 
 # Globals for decorator registry
@@ -195,13 +195,16 @@ def clear_registry() -> None:
     global _DECORATOR_REGISTRY
     _DECORATOR_REGISTRY = {}
 
+DecoratorArgs: TypeAlias = dict[str, Any]
+FunctionInfo: TypeAlias = tuple[str, str, int, str, DecoratorArgs]
 
-def register_decorated_function(decorator_name: str, fn: Callable[..., Any]) -> None:
+def register_decorated_function(decorator_name: str, fn: Callable[..., Any], context: dict[str, Any] | None = None) -> None:
     """Register a function that has been decorated.
 
     Args:
         decorator_name: The name of the decorator
         fn: The decorated function
+        context: Optional context information to store with the function
     """
     if not _RECORDING_ENABLED:
         return
@@ -220,7 +223,7 @@ def register_decorated_function(decorator_name: str, fn: Callable[..., Any]) -> 
             _DECORATOR_REGISTRY[decorator_name] = []
 
         # Store (file_path, function_name, line_number, module_name)
-        _DECORATOR_REGISTRY[decorator_name].append((abs_path, function_name, lineno, module_name))
+        _DECORATOR_REGISTRY[decorator_name].append((abs_path, function_name, lineno, module_name, context))
     except (TypeError, OSError):
         # Handle cases where inspect might fail (e.g., built-in functions)
         pass
@@ -525,7 +528,7 @@ def trace(
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn)
+            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
 
         signature = inspect.signature(fn)
         closure = Closure.from_fn(fn)
