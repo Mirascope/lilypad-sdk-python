@@ -63,16 +63,64 @@ def test_parse_return_type():
 
 
 @pytest.mark.parametrize(
-    "wrapped, expected",
-    [(True, [ "class MyFuncVersion1(Protocol):",
-             "class MyFunc(Protocol):",
-            "    @classmethod\n"
-            "    @overload\n"
-            "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
-            " None = None) -> MyFuncVersion1: ..."
-
-             ])])
-def test_generate_protocol_stub_content(wrapped, expected):
+    "is_async, wrapped, expected",
+    [
+        (
+            True,
+            True,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Coroutine[Any, Any, AsyncTrace[str]]: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, AsyncTrace[str]]: ...",
+            ],
+        ),
+        (
+            True,
+            False,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Coroutine[Any, Any, str]: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Coroutine[Any, Any, str]: ...",
+            ],
+        ),
+        (
+            False,
+            True,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> Trace[str]: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> Trace[str]: ...",
+            ],
+        ),
+        (
+            False,
+            False,
+            [
+                "class MyFuncVersion1(Protocol):\n    def __call__(self, a: int, b: str) -> str: ...\n",
+                "class MyFunc(Protocol):",
+                "    @classmethod\n"
+                "    @overload\n"
+                "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+                " None = None) -> MyFuncVersion1: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ...",
+                "def remote(self, a: int, b: str, sandbox: SandboxRunner | None = None) -> str: ...",
+            ],
+        ),
+    ],
+)
+def test_generate_protocol_stub_content(is_async, wrapped, expected):
     """Test the _generate_protocol_stub_content function."""
 
     class DummyVersion:
@@ -89,7 +137,8 @@ def test_generate_protocol_stub_content(wrapped, expected):
         DummyVersion(2, SIMPLE_SIG, {"a": "int", "b": "str"}),
     ]
 
-    stub_content = _generate_protocol_stub_content("my_func", versions, is_async=False, wrapped=False)  # pyright: ignore [reportArgumentType]
+    stub_content = _generate_protocol_stub_content("my_func", versions, is_async=is_async, wrapped=wrapped)  # pyright: ignore [reportArgumentType]
+
     for part in expected:
         assert part in stub_content
 
@@ -106,7 +155,6 @@ def test_generate_protocol_stub_content(wrapped, expected):
     #     "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
     # )
     # assert expected_version_overload in stub_content
-
 
 
 def dummy_get_decorated_functions(decorator_name: str, dummy_file_path: str):
