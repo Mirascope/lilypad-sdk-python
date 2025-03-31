@@ -469,11 +469,13 @@ _SANDBOX_CUSTOM_RESULT = {
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [
-    "lilypad.configure()",
+    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",
 ]
 _SANDBOX_EXTRA_IMPORT = [
     f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace, Trace",
     "import lilypad",
+    "import sys",
+    "import logging",
 ]
 
 
