@@ -74,8 +74,7 @@ class SandboxRunner(ABC):
             else cls._generate_sync_run(closure, *args, **kwargs)
         )
         if custom_result:
-            result_items = ", ".join(f'"{k}": ({v})' for k, v in custom_result.items())
-            result_content = f"{{result_items}}"
+            result_content = "{" + ", ".join(f'"{k}": ({v})' for k, v in custom_result.items()) + "}"
         else:
             result_content = '{"result": result}'
         result_code = base_run + "\n" + f"    result = {result_content}"

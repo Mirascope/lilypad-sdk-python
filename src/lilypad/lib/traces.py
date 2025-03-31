@@ -464,6 +464,13 @@ def _construct_trace_attributes(
     }
 
 
+_SANDBOX_CUSTOM_RESULT = {
+    "result": "result.response if isinstance(result, AsyncTrace | Trace) else result",
+    "trace_context": "_get_trace_context()",
+}
+_SANDBOX_EXTRA_IMPORT = [f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace, Trace"]
+
+
 @overload
 def trace(versioning: None = None, mode: None = None) -> TraceDecorator: ...
 
@@ -609,11 +616,8 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        custom_result={
-                            "result": "result.response if isinstance(result, AsyncTrace) else result",
-                            "trace_context": "_get_trace_context()",
-                        },
-                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace"],
+                        custom_result=_SANDBOX_CUSTOM_RESULT,
+                        extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
                     )
 
@@ -650,11 +654,8 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    custom_result={
-                        "result": "result.response if isinstance(result, AsyncTrace) else result",
-                        "trace_context": "_get_trace_context()",
-                    },
-                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace"],
+                    custom_result=_SANDBOX_CUSTOM_RESULT,
+                    extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )
                 if mode == "wrap":
@@ -761,11 +762,8 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        custom_result={
-                            "result": "result.response if isinstance(result, Trace) else result",
-                            "trace_context": "_get_trace_context()",
-                        },
-                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, Trace"],
+                        custom_result=_SANDBOX_CUSTOM_RESULT,
+                        extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
                     )
 
@@ -800,11 +798,8 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    custom_result={
-                        "result": "result.response if isinstance(result, Trace) else result",
-                        "trace_context": "_get_trace_context()",
-                    },
-                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, Trace"],
+                    custom_result=_SANDBOX_CUSTOM_RESULT,
+                    extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )
                 if mode == "wrap":
