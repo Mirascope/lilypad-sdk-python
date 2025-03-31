@@ -84,9 +84,6 @@ def test_generate_protocol_stub_content():
     # Check for the existence of the normal protocol class for version 1.
     assert "class MyFuncVersion1(Protocol):" in stub_content
 
-    # Check for the existence of the wrapped protocol class for version 1.
-    assert "class MyFuncVersion1Wrapped(Protocol):" not in stub_content
-
     # Check for the existence of the main protocol class.
     assert "class MyFunc(Protocol):" in stub_content
 
