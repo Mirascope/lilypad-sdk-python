@@ -57,8 +57,6 @@ class SandboxRunner(ABC):
         attributes. The result is wrapped in a dictionary with the key "result".
         """
 
-
-
         if custom_result:
             result_content = "{" + ", ".join(f'"{k}": ({v})' for k, v in custom_result.items()) + "}"
         else:
