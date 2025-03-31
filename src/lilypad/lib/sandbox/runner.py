@@ -28,7 +28,7 @@ class SandboxRunner(ABC):
         self,
         closure: Closure,
         *args: Any,
-        extra_result: dict[str, str] | None = None,
+        custom_result: dict[str, str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> Result:
@@ -58,7 +58,7 @@ class SandboxRunner(ABC):
         cls,
         closure: Closure,
         *args: Any,
-        extra_result: dict[str, str] | None = None,
+        custom_result: dict[str, str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> str:
@@ -66,18 +66,19 @@ class SandboxRunner(ABC):
         Generate a script that executes the function in the sandbox.
 
         If wrap_result is True, the script returns a structured JSON object with additional
-        attributes. The additional attributes are specified by the extra_result dictionary,
-        where keys are attribute names and values are code snippets that evaluate to the attribute values.
+        attributes. The result is wrapped in a dictionary with the key "result".
         """
         base_run = (
             cls._generate_async_run(closure, *args, **kwargs)
             if cls._is_async_func(closure)
             else cls._generate_sync_run(closure, *args, **kwargs)
         )
-        extra_items = ""
-        if extra_result:
-            extra_items = ", " + ", ".join(f'"{k}": ({v})' for k, v in extra_result.items())
-        result_code = base_run + "\n" + f'    result = {{"result": result{extra_items}}}'
+        if custom_result:
+            result_items = ", ".join(f'"{k}": ({v})' for k, v in custom_result.items())
+            result_content = f"{{result_items}}"
+        else:
+            result_content = '{"result": result}'
+        result_code = base_run + "\n" + f"    result = {result_content}"
 
         return inspect.cleandoc("""
             # /// script

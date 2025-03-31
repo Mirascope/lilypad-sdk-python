@@ -42,13 +42,13 @@ class DockerSandboxRunner(SandboxRunner):
     def execute_function(
         self,
         closure: Closure,
-        extra_result: dict[str, str] | None = None,
+        custom_result: dict[str, str] | None = None,
         extra_imports: list[str] | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Result:
         """Execute the function in the sandbox."""
-        script = self.generate_script(closure, *args, extra_result=extra_result, extra_imports=extra_imports, **kwargs)
+        script = self.generate_script(closure, *args, custom_result=custom_result, extra_imports=extra_imports, **kwargs)
         client = docker.from_env()
         container = None
         try:
