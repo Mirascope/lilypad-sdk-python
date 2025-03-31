@@ -170,7 +170,9 @@ def _get_batch_span_processor() -> BatchSpanProcessor | None:
 
 
 # Type definitions for decorator registry
-FunctionInfo: TypeAlias = tuple[str, str, int, str, dict[str, Any]]  # (file_path, function_name, line_number, module_name, context)
+FunctionInfo: TypeAlias = tuple[
+    str, str, int, str, dict[str, Any]
+]  # (file_path, function_name, line_number, module_name, context)
 DecoratorRegistry: TypeAlias = dict[str, list[FunctionInfo]]
 
 # Globals for decorator registry
@@ -195,10 +197,14 @@ def clear_registry() -> None:
     global _DECORATOR_REGISTRY
     _DECORATOR_REGISTRY = {}
 
+
 DecoratorArgs: TypeAlias = dict[str, Any]
 FunctionInfo: TypeAlias = tuple[str, str, int, str, DecoratorArgs]
 
-def register_decorated_function(decorator_name: str, fn: Callable[..., Any], context: dict[str, Any] | None = None) -> None:
+
+def register_decorated_function(
+    decorator_name: str, fn: Callable[..., Any], context: dict[str, Any] | None = None
+) -> None:
     """Register a function that has been decorated.
 
     Args:
