@@ -16,6 +16,7 @@ from typing import (
     TypeAlias,
     overload,
 )
+from functools import cached_property
 from contextlib import contextmanager
 from contextvars import ContextVar
 from collections.abc import Callable, Coroutine, Generator
@@ -49,6 +50,8 @@ _T = TypeVar("_T")
 
 TRACE_TYPE = "trace"
 
+TRACE_MODULE_NAME = "lilypad.lib.traces"
+
 
 class Annotation(BaseModel):
     data: dict[str, Any] | None
@@ -60,16 +63,22 @@ class Annotation(BaseModel):
     type: EvaluationType | None
 
 
-class _TraceBase(Generic[_T]):
+class _TraceBase(BaseModel, Generic[_T]):
     """
     Base class for the Trace wrapper.
     """
 
-    def __init__(self, response: _T, span_id: int, function_uuid: str) -> None:
-        self.response: _T = response
-        self.function_uuid: str = function_uuid
-        self.formated_span_id: str = format_span_id(span_id)
-        self._flush: bool = False
+    # def __init__(self, response: _T, span_id: int, function_uuid: str | None) -> None:
+    response: _T
+    function_uuid: str | None = None
+    # self.formated_span_id: str = format_span_id(span_id)
+    span_id: int
+    _flush: bool = False
+
+    @cached_property
+    def formated_span_id(self) -> str:
+        """Format the span ID for display."""
+        return format_span_id(self.span_id)
 
     def _force_flush(self) -> None:
         tracer = get_tracer_provider()
@@ -428,12 +437,12 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function_uuid: str
+    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function_uuid: str | None
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
-    span_attribute["lilypad.function.uuid"] = function_uuid
+    span_attribute["lilypad.function.uuid"] = function_uuid if function_uuid else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
     span.opentelemetry_span.set_attributes(span_attribute)
@@ -507,7 +516,7 @@ def trace(
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function("lilypad.lib.trace", fn)
+            register_decorated_function(TRACE_MODULE_NAME, fn)
 
         signature = inspect.signature(fn)
         closure = Closure.from_fn(fn)
@@ -519,41 +528,55 @@ def trace(
                 bound_args = signature.bind_partial(*args, **kwargs)
 
                 with Span(get_qualified_name(fn)) as span:
-                    if "trace_ctx" not in bound_args.arguments and "trace_ctx" in signature.parameters:
-                        args = tuple((span, *args))
-                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    final_args = args
+                    final_kwargs = kwargs
+                    needs_trace_ctx = "trace_ctx" in signature.parameters
+                    has_user_provided_trace_ctx = False
+                    try:
+                        bound_call_args = signature.bind(*args, **kwargs)
+                        has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
+                    except TypeError:
+                        pass
+                    if needs_trace_ctx and not has_user_provided_trace_ctx:
+                        final_args = tuple((span, *args))  # final_args を更新
+                    arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
                     arg_values.pop("trace_ctx", None)
+                    arg_types.pop("trace_ctx", None)
+
                     trace_attribute = _construct_trace_attributes(
                         arg_types=arg_types,
                         arg_values=arg_values,
                     )
                     settings = get_settings()
                     async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-
-                    try:
-                        function = await async_lilypad_client.projects.functions.retrieve_by_hash(
-                            project_uuid=settings.project_id, function_hash=closure.hash
-                        )
-                    except NotFoundError:
-                        function = await async_lilypad_client.projects.functions.create(
-                            path_project_uuid=settings.project_id,
-                            code=closure.code,
-                            hash=closure.hash,
-                            name=closure.name,
-                            signature=closure.signature,
-                            arg_types=arg_types,
-                            dependencies=closure.dependencies,
-                            is_versioned=True,
-                        )
+                    if versioning == "automatic":
+                        try:
+                            function = await async_lilypad_client.projects.functions.retrieve_by_hash(
+                                project_uuid=settings.project_id, function_hash=closure.hash
+                            )
+                        except NotFoundError:
+                            function = await async_lilypad_client.projects.functions.create(
+                                path_project_uuid=settings.project_id,
+                                code=closure.code,
+                                hash=closure.hash,
+                                name=closure.name,
+                                signature=closure.signature,
+                                arg_types=arg_types,
+                                dependencies=closure.dependencies,
+                                is_versioned=True,
+                            )
+                        function_uuid = function.uuid
+                    else:
+                        function_uuid = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function.uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
                     ) as result_holder:
-                        output = await fn(*args, **kwargs)
+                        output = await fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id
-                    _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
+                    _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
                 if mode == "wrap":
-                    return AsyncTrace(response=output, span_id=span_id, function_uuid=function.uuid)
+                    return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -593,7 +616,7 @@ def trace(
                         versioned_function_closure,
                         *args,
                         extra_result={"trace_context": "_get_trace_context()"},
-                        extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
                         **kwargs,
                     )
 
@@ -631,7 +654,7 @@ def trace(
                     deployed_function_closure,
                     *args,
                     extra_result={"trace_context": "_get_trace_context()"},
-                    extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
                     **kwargs,
                 )
                 if mode == "wrap":
@@ -648,43 +671,58 @@ def trace(
 
             @call_safely(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                bound_args = signature.bind_partial(*args, **kwargs)
                 with Span(get_qualified_name(fn)) as span:
-                    if "trace_ctx" not in bound_args.arguments and "trace_ctx" in signature.parameters:
-                        args = tuple((span, *args))
-                    arg_types, arg_values = inspect_arguments(fn, *args, **kwargs)
+                    final_args = args
+                    final_kwargs = kwargs
+                    needs_trace_ctx = "trace_ctx" in signature.parameters
+                    has_user_provided_trace_ctx = False
+                    try:
+                        bound_call_args = signature.bind(*args, **kwargs)
+                        has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
+                    except TypeError:
+                        pass
+
+                    if needs_trace_ctx and not has_user_provided_trace_ctx:
+                        final_args = tuple((span, *args))
+                    arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
                     arg_values.pop("trace_ctx", None)
+                    arg_types.pop("trace_ctx", None)
+
                     trace_attribute = _construct_trace_attributes(
                         arg_types=arg_types,
                         arg_values=arg_values,
                     )
                     settings = get_settings()
                     lilypad_client = Lilypad(api_key=settings.api_key)
-                    try:
-                        function = lilypad_client.projects.functions.retrieve_by_hash(
-                            project_uuid=settings.project_id, function_hash=closure.hash
-                        )
-                    except NotFoundError:
-                        function = lilypad_client.projects.functions.create(
-                            path_project_uuid=settings.project_id,
-                            code=closure.code,
-                            hash=closure.hash,
-                            name=closure.name,
-                            signature=closure.signature,
-                            arg_types=arg_types,
-                            dependencies=closure.dependencies,
-                            is_versioned=True,
-                        )
 
+                    if versioning == "automatic":
+                        try:
+                            function = lilypad_client.projects.functions.retrieve_by_hash(
+                                project_uuid=settings.project_id, function_hash=closure.hash
+                            )
+                        except NotFoundError:
+                            function = lilypad_client.projects.functions.create(
+                                path_project_uuid=settings.project_id,
+                                code=closure.code,
+                                hash=closure.hash,
+                                name=closure.name,
+                                signature=closure.signature,
+                                arg_types=arg_types,
+                                dependencies=closure.dependencies,
+                                is_versioned=True,
+                            )
+                        function_uuid = function.uuid
+                    else:
+                        function_uuid = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function.uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
                     ) as result_holder:
-                        output = fn(*args, **kwargs)
+                        output = fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
                     span_id = span.span_id
-                    _set_trace_context({"span_id": span_id, "function_uuid": function.uuid})
+                    _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
                 if mode == "wrap":
-                    return Trace(response=output, span_id=span_id, function_uuid=function.uuid)
+                    return Trace(response=output, span_id=span_id, function_uuid=function_uuid)
                 return output  # pyright: ignore [reportReturnType]
 
             if versioning is None:
@@ -724,7 +762,7 @@ def trace(
                         versioned_function_closure,
                         *args,
                         extra_result={"trace_context": "_get_trace_context()"},
-                        extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
                         **kwargs,
                     )
 
@@ -760,7 +798,7 @@ def trace(
                     deployed_function_closure,
                     *args,
                     extra_result={"trace_context": "_get_trace_context()"},
-                    extra_imports=["from lilypad.lib.trace import _get_trace_context"],
+                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
                     **kwargs,
                 )
                 if mode == "wrap":
