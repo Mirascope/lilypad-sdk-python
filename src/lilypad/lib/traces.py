@@ -541,7 +541,6 @@ def trace(
             register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
 
         signature = inspect.signature(fn)
-        closure = Closure.from_fn(fn)
 
         if name is None:
             trace_name = get_qualified_name(fn)
@@ -574,6 +573,8 @@ def trace(
                     settings = get_settings()
                     async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
                     if versioning == "automatic":
+                        closure = Closure.from_fn(fn)
+
                         try:
                             function = await async_lilypad_client.projects.functions.retrieve_by_hash(
                                 project_uuid=settings.project_id, function_hash=closure.hash
@@ -612,12 +613,12 @@ def trace(
             ) -> Callable[_P, _R]:
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-
+                function_name = get_qualified_name(fn)
                 try:
                     versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
-                        function_name=closure.name,
+                        function_name=function_name,
                     )
                     versioned_function_closure = Closure(
                         name=versioned_function.name,
@@ -654,11 +655,12 @@ def trace(
             ) -> _R:
                 settings = get_settings()
                 async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+                function_name = get_qualified_name(fn)
 
                 try:
                     deployed_function = await async_lilypad_client.projects.functions.name.retrieve_deployed(
                         project_uuid=settings.project_id,
-                        function_name=closure.name,
+                        function_name=function_name,
                     )
                     deployed_function_closure = Closure(
                         name=deployed_function.name,
@@ -722,6 +724,8 @@ def trace(
                     lilypad_client = Lilypad(api_key=settings.api_key)
 
                     if versioning == "automatic":
+                        closure = Closure.from_fn(fn)
+
                         try:
                             function = lilypad_client.projects.functions.retrieve_by_hash(
                                 project_uuid=settings.project_id, function_hash=closure.hash
@@ -760,12 +764,13 @@ def trace(
             ) -> Callable[_P, _R]:
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
+                function_name = get_qualified_name(fn)
 
                 try:
                     versioned_function = lilypad_client.projects.functions.name.retrieve_by_version(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
-                        function_name=closure.name,
+                        function_name=function_name,
                     )
                     versioned_function_closure = Closure(
                         name=versioned_function.name,
@@ -800,11 +805,12 @@ def trace(
             def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
                 settings = get_settings()
                 lilypad_client = Lilypad(api_key=settings.api_key)
+                function_name = get_qualified_name(fn)
 
                 try:
                     deployed_function = lilypad_client.projects.functions.name.retrieve_deployed(
                         project_uuid=settings.project_id,
-                        function_name=closure.name,
+                        function_name=function_name,
                     )
                     deployed_function_closure = Closure(
                         name=deployed_function.name,
