@@ -107,8 +107,8 @@ class SandboxRunner(ABC):
             ),
             code=closure.code,
             result=result_code,
-            pre_actions="\n".join(pre_actions) if pre_actions else "",
-            extra_imports="\n".join(extra_imports) if extra_imports else "",
+            pre_actions="    \n".join(pre_actions) if pre_actions else "",
+            extra_imports="    \n".join(extra_imports) if extra_imports else "",
         )
 
 
