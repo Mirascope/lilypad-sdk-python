@@ -609,7 +609,7 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        extra_result={
+                        custom_result={
                             "result": "result.response if isinstance(result, AsyncTrace) else result",
                             "trace_context": "_get_trace_context()",
                         },
@@ -650,7 +650,7 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    extra_result={
+                    custom_result={
                         "result": "result.response if isinstance(result, AsyncTrace) else result",
                         "trace_context": "_get_trace_context()",
                     },
@@ -761,7 +761,7 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        extra_result={
+                        custom_result={
                             "result": "result.response if isinstance(result, Trace) else result",
                             "trace_context": "_get_trace_context()",
                         },
@@ -800,7 +800,7 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    extra_result={
+                    custom_result={
                         "result": "result.response if isinstance(result, Trace) else result",
                         "trace_context": "_get_trace_context()",
                     },
