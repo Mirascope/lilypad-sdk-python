@@ -62,7 +62,17 @@ def test_parse_return_type():
     assert ret_type == "bool"
 
 
-def test_generate_protocol_stub_content():
+@pytest.mark.parametrize(
+    "wrapped, expected",
+    [(True, [ "class MyFuncVersion1(Protocol):",
+             "class MyFunc(Protocol):",
+            "    @classmethod\n"
+            "    @overload\n"
+            "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner |"
+            " None = None) -> MyFuncVersion1: ..."
+
+             ])])
+def test_generate_protocol_stub_content(wrapped, expected):
     """Test the _generate_protocol_stub_content function."""
 
     class DummyVersion:
@@ -80,20 +90,22 @@ def test_generate_protocol_stub_content():
     ]
 
     stub_content = _generate_protocol_stub_content("my_func", versions, is_async=False, wrapped=False)  # pyright: ignore [reportArgumentType]
+    for part in expected:
+        assert part in stub_content
 
-    # Check for the existence of the normal protocol class for version 1.
-    assert "class MyFuncVersion1(Protocol):" in stub_content
-
-    # Check for the existence of the main protocol class.
-    assert "class MyFunc(Protocol):" in stub_content
-
-    # Check version overloads.
-    expected_version_overload = (
-        "@classmethod\n"
-        "    @overload\n"
-        "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
-    )
-    assert expected_version_overload in stub_content
+    # # Check for the existence of the normal protocol class for version 1.
+    # assert "class MyFuncVersion1(Protocol):" in stub_content
+    #
+    # # Check for the existence of the main protocol class.
+    # assert "class MyFunc(Protocol):" in stub_content
+    #
+    # # Check version overloads.
+    # expected_version_overload = (
+    #     "@classmethod\n"
+    #     "    @overload\n"
+    #     "    def version(cls, forced_version: Literal[1], sandbox: SandboxRunner | None = None) -> MyFuncVersion1: ..."
+    # )
+    # assert expected_version_overload in stub_content
 
 
 
