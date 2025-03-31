@@ -489,23 +489,27 @@ _SANDBOX_EXTRA_IMPORT = [
 
 
 @overload
-def trace(versioning: None = None, mode: None = None) -> TraceDecorator: ...
+def trace(name: str | None = None, *, versioning: None = None, mode: None = None) -> TraceDecorator: ...
 
 
 @overload
-def trace(versioning: Literal["automatic"], mode: None = None) -> VersionedFunctionTraceDecorator: ...
+def trace(
+    name: str | None = None, *, versioning: Literal["automatic"], mode: None = None
+) -> VersionedFunctionTraceDecorator: ...
 
 
 @overload
-def trace(versioning: None, mode: Literal["wrap"]) -> WrappedTraceDecorator: ...
+def trace(name: str | None = None, *, versioning: None, mode: Literal["wrap"]) -> WrappedTraceDecorator: ...
 
 
 @overload
-def trace(versioning: Literal["automatic"], mode: Literal["wrap"]) -> WrappedVersionedFunctionTraceDecorator: ...
+def trace(
+    name: str | None = None, *, versioning: Literal["automatic"], mode: Literal["wrap"]
+) -> WrappedVersionedFunctionTraceDecorator: ...
 
 
 def trace(
-    versioning: Literal["automatic"] | None = None, mode: Literal["wrap"] | None = None
+    name: str | None = None, *, versioning: Literal["automatic"] | None = None, mode: Literal["wrap"] | None = None
 ) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
@@ -539,11 +543,15 @@ def trace(
         signature = inspect.signature(fn)
         closure = Closure.from_fn(fn)
 
+        if name is None:
+            trace_name = get_qualified_name(fn)
+        else:
+            trace_name = name
         if fn_is_async(fn):
 
             @call_safely(fn)
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with Span(get_qualified_name(fn)) as span:
+                with Span(trace_name) as span:
                     final_args = args
                     final_kwargs = kwargs
                     needs_trace_ctx = "trace_ctx" in signature.parameters
@@ -554,7 +562,7 @@ def trace(
                     except TypeError:
                         pass
                     if needs_trace_ctx and not has_user_provided_trace_ctx:
-                        final_args = tuple((span, *args))  # final_args を更新
+                        final_args = tuple((span, *args))
                     arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
                     arg_values.pop("trace_ctx", None)
                     arg_types.pop("trace_ctx", None)
@@ -689,7 +697,7 @@ def trace(
 
             @call_safely(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with Span(get_qualified_name(fn)) as span:
+                with Span(trace_name) as span:
                     final_args = args
                     final_kwargs = kwargs
                     needs_trace_ctx = "trace_ctx" in signature.parameters
