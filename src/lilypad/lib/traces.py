@@ -63,22 +63,16 @@ class Annotation(BaseModel):
     type: EvaluationType | None
 
 
-class _TraceBase(BaseModel, Generic[_T]):
+class _TraceBase(Generic[_T]):
     """
     Base class for the Trace wrapper.
     """
 
-    # def __init__(self, response: _T, span_id: int, function_uuid: str | None) -> None:
-    response: _T
-    function_uuid: str | None = None
-    # self.formated_span_id: str = format_span_id(span_id)
-    span_id: int
-    _flush: bool = False
-
-    @cached_property
-    def formated_span_id(self) -> str:
-        """Format the span ID for display."""
-        return format_span_id(self.span_id)
+    def __init__(self, response: _T, span_id: int, function_uuid: str) -> None:
+        self.response: _T = response
+        self.function_uuid: str = function_uuid
+        self.formated_span_id: str = format_span_id(span_id)
+        self._flush: bool = False
 
     def _force_flush(self) -> None:
         tracer = get_tracer_provider()
@@ -615,8 +609,11 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        extra_result={"trace_context": "_get_trace_context()"},
-                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
+                        extra_result={
+                            "result": "result.response if isinstance(result, AsyncTrace) else result",
+                            "trace_context": "_get_trace_context()",
+                        },
+                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace"],
                         **kwargs,
                     )
 
@@ -653,8 +650,11 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    extra_result={"trace_context": "_get_trace_context()"},
-                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
+                    extra_result={
+                        "result": "result.response if isinstance(result, AsyncTrace) else result",
+                        "trace_context": "_get_trace_context()",
+                    },
+                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace"],
                     **kwargs,
                 )
                 if mode == "wrap":
@@ -761,8 +761,11 @@ def trace(
                     return sandbox.execute_function(
                         versioned_function_closure,
                         *args,
-                        extra_result={"trace_context": "_get_trace_context()"},
-                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
+                        extra_result={
+                            "result": "result.response if isinstance(result, Trace) else result",
+                            "trace_context": "_get_trace_context()",
+                        },
+                        extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, Trace"],
                         **kwargs,
                     )
 
@@ -797,8 +800,11 @@ def trace(
                 result = sandbox.execute_function(
                     deployed_function_closure,
                     *args,
-                    extra_result={"trace_context": "_get_trace_context()"},
-                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context"],
+                    extra_result={
+                        "result": "result.response if isinstance(result, Trace) else result",
+                        "trace_context": "_get_trace_context()",
+                    },
+                    extra_imports=[f"from {TRACE_MODULE_NAME} import _get_trace_context, Trace"],
                     **kwargs,
                 )
                 if mode == "wrap":
