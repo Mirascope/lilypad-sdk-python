@@ -77,7 +77,7 @@ class SandboxRunner(ABC):
         extra_items = ""
         if extra_result:
             extra_items = ", " + ", ".join(f'"{k}": ({v})' for k, v in extra_result.items())
-        result_code = base_run + "\n" + f'result = {{"result": result{extra_items}}}'
+        result_code = base_run + "\n" + f'    result = {{"result": result{extra_items}}}'
 
         return inspect.cleandoc("""
             # /// script
