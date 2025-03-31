@@ -41,19 +41,6 @@ class SandboxRunner(ABC):
         return any(line.strip() for line in lines if line.strip().startswith("async def "))
 
     @classmethod
-    def _generate_async_run(cls, closure: Closure, *args: Any, **kwargs: Any) -> str:
-        return inspect.cleandoc("""
-                import asyncio
-                    result = asyncio.run({name}(*{args}, **{kwargs}))
-                """).format(name=closure.name, args=args, kwargs=kwargs)
-
-    @classmethod
-    def _generate_sync_run(cls, closure: Closure, *args: Any, **kwargs: Any) -> str:
-        return inspect.cleandoc("""
-                    result = {name}(*{args}, **{kwargs})
-                """).format(name=closure.name, args=args, kwargs=kwargs)
-
-    @classmethod
     def generate_script(
         cls,
         closure: Closure,
@@ -69,16 +56,33 @@ class SandboxRunner(ABC):
         If wrap_result is True, the script returns a structured JSON object with additional
         attributes. The result is wrapped in a dictionary with the key "result".
         """
-        base_run = (
-            cls._generate_async_run(closure, *args, **kwargs)
-            if cls._is_async_func(closure)
-            else cls._generate_sync_run(closure, *args, **kwargs)
-        )
+
+
+
         if custom_result:
             result_content = "{" + ", ".join(f'"{k}": ({v})' for k, v in custom_result.items()) + "}"
         else:
             result_content = '{"result": result}'
-        result_code = base_run + "\n" + f"    result = {result_content}"
+
+        base_run = "{name}(*{args}, **{kwargs})".format(name=closure.name, args=args, kwargs=kwargs)
+
+        is_async = cls._is_async_func(closure)
+        if is_async:
+            extra_imports = extra_imports or []
+            extra_imports.append("import asyncio")
+            result_code = inspect.cleandoc("""
+            async def main():
+                    result = await {base_run}
+                    return {result_content}
+                result = asyncio.run(main())
+            """).format(base_run=base_run, result_content=result_content)
+        else:
+            result_code = inspect.cleandoc("""
+            def main():
+                    result = {base_run}
+                    return {result_content}
+                result = main()
+            """).format(base_run=base_run, result_content=result_content)
 
         return inspect.cleandoc("""
             # /// script
