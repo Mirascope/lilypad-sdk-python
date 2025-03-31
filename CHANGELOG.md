@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.1.0-alpha.10 (2025-03-31)
+
+Full Changelog: [v0.1.0-alpha.9...v0.1.0-alpha.10](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.9...v0.1.0-alpha.10)
+
+### Features
+
+* chore: add auto labeling for new issues ([8cb1748](https://github.com/Mirascope/lilypad-sdk-python/commit/8cb1748aa045f974ff9c77d8760e8c849037d398))
+* chore: add issue templates ([44f7b3b](https://github.com/Mirascope/lilypad-sdk-python/commit/44f7b3bb980d703a9d4368c5349d3bc8629cbf46))
+* fix: fix async version call type ([050fd51](https://github.com/Mirascope/lilypad-sdk-python/commit/050fd51548ed13fd887286f8ee6a12208cf3a46d))
+* fix: fix func result ([064bc31](https://github.com/Mirascope/lilypad-sdk-python/commit/064bc31e53feb3a1df0b0002171c1566500b7742))
+* fix: fix function name ([87593cb](https://github.com/Mirascope/lilypad-sdk-python/commit/87593cb7117f91adf3e1645ff52de82ae675d700))
+* fix: fix indents ([d037e36](https://github.com/Mirascope/lilypad-sdk-python/commit/d037e36feaff77e47a59ab0d98ebf055107dcc4b))
+* fix: fix indents ([e4faaf2](https://github.com/Mirascope/lilypad-sdk-python/commit/e4faaf2f2b817bf08a83bdfcdc64a1b734d549e7))
+* fix: fix indents ([73dcbfe](https://github.com/Mirascope/lilypad-sdk-python/commit/73dcbfee05e91742adc5a6ecd193657390024b79))
+* fix: fix lint ([2b59ea1](https://github.com/Mirascope/lilypad-sdk-python/commit/2b59ea1c216519ab57d0becac215179330cb3658))
+* fix: fix sync ([2f3cbab](https://github.com/Mirascope/lilypad-sdk-python/commit/2f3cbabadd4d120e10ed0c09bdb765a37585c41d))
+* fix: fix sync ([e4626cf](https://github.com/Mirascope/lilypad-sdk-python/commit/e4626cfd647bfee3c0bbc68b7fa2ba3ea184c17c))
+* fix: fix sync ([13640fa](https://github.com/Mirascope/lilypad-sdk-python/commit/13640fa0e9b35ffbdf8d3fe8b5cf82965972095b))
+* fix: fix sync ([92424ae](https://github.com/Mirascope/lilypad-sdk-python/commit/92424aef304d393d7e49868c39f75792c11360fd))
+* fix: fix trace argument ([e5ce34f](https://github.com/Mirascope/lilypad-sdk-python/commit/e5ce34fb1bcd8246f7537a45580d4c987378c318))
+* fix: fix trace decorator behaviour ([d12821f](https://github.com/Mirascope/lilypad-sdk-python/commit/d12821ff201e4e6a9616de1d33b4ccedccc6635c))
+* fix: fix unittest ([6ec9b1f](https://github.com/Mirascope/lilypad-sdk-python/commit/6ec9b1fc3e8850f1df599725cb92f74290b08ea3))
+* fix: fix unittest ([e2061f5](https://github.com/Mirascope/lilypad-sdk-python/commit/e2061f5d5e5e1f4c6a0669b7aa58e4f0becfe596))
+* fix: fix wrapped trace result ([87f2b93](https://github.com/Mirascope/lilypad-sdk-python/commit/87f2b935c7cd2adeb7bddbb1b76559422285f276))
+* fix: fix wrapped trace result ([2a22743](https://github.com/Mirascope/lilypad-sdk-python/commit/2a22743ea0bad5ebe60deba4454d5dc145e23f74))
+* fix: fix wrapped trace result ([cb1d333](https://github.com/Mirascope/lilypad-sdk-python/commit/cb1d333989451c50dc0f96cb1ed8ef1c48e52464))
+* fix: fix wrapped trace result ([2936e32](https://github.com/Mirascope/lilypad-sdk-python/commit/2936e32dfcb87398808659bebe13aed250ebc710))
+
+
+### Chores
+
+* **internal:** version bump ([#36](https://github.com/Mirascope/lilypad-sdk-python/issues/36)) ([da043fd](https://github.com/Mirascope/lilypad-sdk-python/commit/da043fde7535aa14d2b9a36987ec18c5be0518c6))
+
 ## 0.1.0-alpha.9 (2025-03-29)
 
 Full Changelog: [v0.1.0-alpha.8...v0.1.0-alpha.9](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.8...v0.1.0-alpha.9)
