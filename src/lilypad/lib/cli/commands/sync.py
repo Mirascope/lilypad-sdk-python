@@ -272,7 +272,9 @@ def _generate_protocol_stub_content(
         params_str = ", ".join(merged_params)
 
         ret_type = _parse_return_type(version.signature)
-        ret_type_formatted = _format_return_type(ret_type, is_async, wrapped)
+        ret_type_formatted = _format_return_type(ret_type, False, wrapped)
+        if is_async and wrapped:
+            ret_type_formatted = f"Async{ret_type_formatted}"
 
         version_class_name = f"{class_name}Version{version.version_num}"
         # Normal protocol for this version
