@@ -598,7 +598,6 @@ def trace(
                                 is_versioned=True,
                             )
                         function_uuid = function.uuid
-                        function = function
                     else:
                         function_uuid = None
                         function = None
