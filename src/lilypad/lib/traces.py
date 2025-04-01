@@ -41,6 +41,7 @@ from .exceptions import RemoteFunctionError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
+from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -440,14 +441,20 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function_uuid: str | None
+    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function: FunctionPublic | None
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
-    span_attribute["lilypad.function.uuid"] = function_uuid if function_uuid else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
+    if function:
+        function_uuid = function.uuid
+        span_attribute[f"lilypad.{trace_type}.signature"] = function.signature
+        span_attribute[f"lilypad.{trace_type}.code"] = function.code
+    else:
+        function_uuid = ""
+    span_attribute["lilypad.function.uuid"] = function_uuid
     span.opentelemetry_span.set_attributes(span_attribute)
     result_holder = _ResultHolder()
     yield result_holder
@@ -591,10 +598,12 @@ def trace(
                                 is_versioned=True,
                             )
                         function_uuid = function.uuid
+                        function = function
                     else:
                         function_uuid = None
+                        function = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=True, function=function
                     ) as result_holder:
                         output = await fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
@@ -743,9 +752,10 @@ def trace(
                             )
                         function_uuid = function.uuid
                     else:
+                        function = None
                         function_uuid = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=False, function=function
                     ) as result_holder:
                         output = fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
