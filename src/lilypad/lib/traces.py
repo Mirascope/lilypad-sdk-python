@@ -645,14 +645,21 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(
+                    result = sandbox.execute_function(
                         versioned_function_closure,
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )["result"]
+                    )
+                    if mode == "wrap":
+                        return AsyncTrace(
+                            response=result["result"],
+                            span_id=result["trace_context"]["span_id"],
+                            function_uuid=result["trace_context"]["function_uuid"],
+                        )
+                    return result["result"]
 
                 return _inner_async
 
@@ -798,14 +805,21 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(
+                    result = sandbox.execute_function(
                         versioned_function_closure,
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )["result"]
+                    )
+                    if mode == "wrap":
+                        return Trace(
+                            response=result["result"],
+                            span_id=result["trace_context"]["span_id"],
+                            function_uuid=result["trace_context"]["function_uuid"],
+                        )
+                    return result["result"]
 
                 return _inner
 
