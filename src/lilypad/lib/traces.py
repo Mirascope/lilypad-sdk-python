@@ -41,6 +41,7 @@ from .exceptions import RemoteFunctionError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
+from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -440,14 +441,20 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function_uuid: str | None
+    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function: FunctionPublic | None
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
-    span_attribute["lilypad.function.uuid"] = function_uuid if function_uuid else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
+    if function:
+        function_uuid = function.uuid
+        span_attribute[f"lilypad.{trace_type}.signature"] = function.signature
+        span_attribute[f"lilypad.{trace_type}.code"] = function.code
+    else:
+        function_uuid = ""
+    span_attribute["lilypad.function.uuid"] = function_uuid
     span.opentelemetry_span.set_attributes(span_attribute)
     result_holder = _ResultHolder()
     yield result_holder
@@ -478,13 +485,18 @@ _SANDBOX_CUSTOM_RESULT = {
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [
-    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",
+    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",]
+_SANDBOX_AFTER_ACTIONS = [
+    "result = result.response if isinstance(result, AsyncTrace | Trace) else result",
+    "with suppress(ImportError): from mirascope.core import BaseCallResponse",
+    "result = result.content if (mirascope_response := locals().get('BaseCallResponse')) else result",
 ]
 _SANDBOX_EXTRA_IMPORT = [
     f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace, Trace",
     "import lilypad",
     "import sys",
     "import logging",
+    "from contextlib import suppress",
 ]
 
 
@@ -593,8 +605,9 @@ def trace(
                         function_uuid = function.uuid
                     else:
                         function_uuid = None
+                        function = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=True, function=function
                     ) as result_holder:
                         output = await fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
@@ -637,14 +650,22 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(
+                    result = sandbox.execute_function(
                         versioned_function_closure,
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
+                        after_actions=_SANDBOX_AFTER_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )["result"]
+                    )
+                    if mode == "wrap":
+                        return AsyncTrace(
+                            response=result["result"],
+                            span_id=result["trace_context"]["span_id"],
+                            function_uuid=result["trace_context"]["function_uuid"],
+                        )
+                    return result["result"]
 
                 return _inner_async
 
@@ -682,6 +703,7 @@ def trace(
                     *args,
                     custom_result=_SANDBOX_CUSTOM_RESULT,
                     pre_actions=_SANDBOX_PRE_ACTIONS,
+                    after_actions=_SANDBOX_AFTER_ACTIONS,
                     extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )
@@ -743,9 +765,10 @@ def trace(
                             )
                         function_uuid = function.uuid
                     else:
+                        function = None
                         function_uuid = None
                     with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
+                        TRACE_TYPE, span, trace_attribute, is_async=False, function=function
                     ) as result_holder:
                         output = fn(*final_args, **final_kwargs)
                         result_holder.set_result(output)
@@ -789,14 +812,22 @@ def trace(
 
                 @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                    return sandbox.execute_function(
+                    result = sandbox.execute_function(
                         versioned_function_closure,
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
+                        after_actions=_SANDBOX_AFTER_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )["result"]
+                    )
+                    if mode == "wrap":
+                        return Trace(
+                            response=result["result"],
+                            span_id=result["trace_context"]["span_id"],
+                            function_uuid=result["trace_context"]["function_uuid"],
+                        )
+                    return result["result"]
 
                 return _inner
 
@@ -832,6 +863,7 @@ def trace(
                     *args,
                     custom_result=_SANDBOX_CUSTOM_RESULT,
                     pre_actions=_SANDBOX_PRE_ACTIONS,
+                    after_actions=_SANDBOX_AFTER_ACTIONS,
                     extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )
