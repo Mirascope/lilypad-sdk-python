@@ -29,6 +29,8 @@ class SandboxRunner(ABC):
         closure: Closure,
         *args: Any,
         custom_result: dict[str, str] | None = None,
+        pre_actions: list[str] | None = None,
+        after_actions: list[str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> Result:
@@ -47,6 +49,7 @@ class SandboxRunner(ABC):
         *args: Any,
         custom_result: dict[str, str] | None = None,
         pre_actions: list[str] | None = None,
+        after_actions: list[str] | None = None,
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> str:
@@ -71,16 +74,18 @@ class SandboxRunner(ABC):
             result_code = inspect.cleandoc("""
             async def main():
                     result = await {base_run}
+                    {after_actions}
                     return {result_content}
-                result = asyncio.run(main())
-            """).format(base_run=base_run, result_content=result_content)
+            result = asyncio.run(main())
+            """).format(base_run=base_run, result_content=result_content, after_actions="\n        ".join(after_actions) if after_actions else "")
         else:
             result_code = inspect.cleandoc("""
             def main():
                     result = {base_run}
+                    {after_actions}
                     return {result_content}
                 result = main()
-            """).format(base_run=base_run, result_content=result_content)
+            """).format(base_run=base_run, result_content=result_content, after_actions="\n        ".join(after_actions) if after_actions else "")
 
         return inspect.cleandoc("""
             # /// script
