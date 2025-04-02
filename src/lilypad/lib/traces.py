@@ -652,7 +652,7 @@ def trace(
                         pre_actions=_SANDBOX_PRE_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )
+                    )["result"]
 
                 return _inner_async
 
@@ -805,7 +805,7 @@ def trace(
                         pre_actions=_SANDBOX_PRE_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
-                    )
+                    )["result"]
 
                 return _inner
 
