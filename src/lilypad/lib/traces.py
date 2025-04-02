@@ -478,13 +478,18 @@ _SANDBOX_CUSTOM_RESULT = {
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [
-    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",
+    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",]
+_SANDBOX_AFTER_ACTIONS = [
+    "result = result.response if isinstance(result, AsyncTrace | Trace) else result",
+    "with suppress(ImportError): from mirascope.core import BaseCallResponse",
+    "result = result.content if (mirascope_response := locals().get('BaseCallResponse')) else result",
 ]
 _SANDBOX_EXTRA_IMPORT = [
     f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace, Trace",
     "import lilypad",
     "import sys",
     "import logging",
+    "from contextlib import suppress",
 ]
 
 
@@ -642,6 +647,7 @@ def trace(
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
+                        after_actions=_SANDBOX_AFTER_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
                     )
@@ -689,6 +695,7 @@ def trace(
                     *args,
                     custom_result=_SANDBOX_CUSTOM_RESULT,
                     pre_actions=_SANDBOX_PRE_ACTIONS,
+                    after_actions=_SANDBOX_AFTER_ACTIONS,
                     extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )
@@ -801,6 +808,7 @@ def trace(
                         *args,
                         custom_result=_SANDBOX_CUSTOM_RESULT,
                         pre_actions=_SANDBOX_PRE_ACTIONS,
+                        after_actions=_SANDBOX_AFTER_ACTIONS,
                         extra_imports=_SANDBOX_EXTRA_IMPORT,
                         **kwargs,
                     )
@@ -846,6 +854,7 @@ def trace(
                     *args,
                     custom_result=_SANDBOX_CUSTOM_RESULT,
                     pre_actions=_SANDBOX_PRE_ACTIONS,
+                    after_actions=_SANDBOX_AFTER_ACTIONS,
                     extra_imports=_SANDBOX_EXTRA_IMPORT,
                     **kwargs,
                 )

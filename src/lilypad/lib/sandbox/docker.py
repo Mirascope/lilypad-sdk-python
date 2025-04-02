@@ -44,13 +44,20 @@ class DockerSandboxRunner(SandboxRunner):
         closure: Closure,
         custom_result: dict[str, str] | None = None,
         pre_actions: list[str] | None = None,
+        after_actions: list[str] | None = None,
         extra_imports: list[str] | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Result:
         """Execute the function in the sandbox."""
         script = self.generate_script(
-            closure, *args, custom_result=custom_result, pre_actions=pre_actions, extra_imports=extra_imports, **kwargs
+            closure,
+            *args,
+            custom_result=custom_result,
+            pre_actions=pre_actions,
+            after_actions=after_actions,
+            extra_imports=extra_imports,
+            **kwargs,
         )
         client = docker.from_env()
         container = None
