@@ -530,7 +530,7 @@ def test_create_mirascope_middleware():
         )
 
         mock_get_cm.assert_called_once_with(
-            mock_function, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder
+            mock_function, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder, None
         )
 
         mock_middleware_factory.assert_called_once_with(
