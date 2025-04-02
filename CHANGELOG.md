@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.1.0-alpha.12 (2025-04-02)
+
+Full Changelog: [v0.1.0-alpha.11...v0.1.0-alpha.12](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.11...v0.1.0-alpha.12)
+
+### Features
+
+* fix: .version trace result ([93d3370](https://github.com/Mirascope/lilypad-sdk-python/commit/93d3370e72151363e1e0074326785631e5da6615))
+* fix: expose Span object from lilypad.span.Span ([02d9373](https://github.com/Mirascope/lilypad-sdk-python/commit/02d937368f53d41524070b773fed91b6f0b37e2e))
+* fix: fix .version() result ([61da65d](https://github.com/Mirascope/lilypad-sdk-python/commit/61da65d628d78d71f9a5e29c67e57645016d9d26))
+* fix: fix mirascope call response in sandbox ([3729ca0](https://github.com/Mirascope/lilypad-sdk-python/commit/3729ca07a93ac45f166a3040b6355ba8a7ec65fe))
+* fix: remove unused line ([0209aa8](https://github.com/Mirascope/lilypad-sdk-python/commit/0209aa8987dbdb46532dcaef4cc9cbb06e4f0dbf))
+* Set trace's code and signature on span ([fc424ce](https://github.com/Mirascope/lilypad-sdk-python/commit/fc424ce641f3352145c2c57812d0b168cfb9b708))
+
+
+### Bug Fixes
+
+* fix .version() result ([f8668b3](https://github.com/Mirascope/lilypad-sdk-python/commit/f8668b3e3f3ae5f4f31ef7c3e28ae02214d76686))
+
+
+### Chores
+
+* **internal:** version bump ([#45](https://github.com/Mirascope/lilypad-sdk-python/issues/45)) ([f9a937a](https://github.com/Mirascope/lilypad-sdk-python/commit/f9a937a28aa2f273687c11f22cb34c9e1bb4403d))
+
 ## 0.1.0-alpha.11 (2025-03-31)
 
 Full Changelog: [v0.1.0-alpha.10...v0.1.0-alpha.11](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.10...v0.1.0-alpha.11)
