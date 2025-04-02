@@ -66,6 +66,7 @@ def _get_custom_context_manager(
     prompt_template: str | None = None,
     project_uuid: UUID | None = None,
     span_context_holder: SpanContextHolder | None = None,
+    current_span: Span | None = None,
 ) -> Callable[..., _GeneratorContextManager[Span]]:
     @contextmanager
     def custom_context_manager(
@@ -80,7 +81,14 @@ def _get_custom_context_manager(
             except ValueError:
                 serialized_arg_value = "could not serialize"
             jsonable_arg_values[arg_name] = serialized_arg_value
-        with tracer.start_as_current_span(f"{fn.__name__}") as span:
+        if current_span:
+            _current_span = current_span
+            create_span = False
+        else:
+            _current_span = tracer.start_as_current_span(f"{fn.__name__}").__enter__()
+            create_span = True
+
+        try:
             attributes: dict[str, AttributeValue] = {
                 "lilypad.project_uuid": str(new_project_uuid) if new_project_uuid else "",
                 "lilypad.type": "function",
@@ -95,10 +103,23 @@ def _get_custom_context_manager(
                 "lilypad.is_async": is_async,
             }
             filtered_attributes = {k: v for k, v in attributes.items() if v is not None}
-            span.set_attributes(filtered_attributes)
+            _current_span.set_attributes(filtered_attributes)
             if span_context_holder:
-                span_context_holder.set_span_context(span)
-            yield span
+                span_context_holder.set_span_context(_current_span)
+            yield _current_span
+
+            if create_span:
+                if is_async:
+                    _current_span.__aexit__(None, None, None)
+                else:
+                    _current_span.__exit__(None, None, None)
+        except Exception as error:
+            if create_span:
+                if is_async:
+                    _current_span.__aexit__(Exception, error, None)
+                else:
+                    _current_span.__exit__(Exception, error, None)
+            raise error
 
     return custom_context_manager
 
@@ -251,15 +272,11 @@ def create_mirascope_middleware(
     prompt_template: str | None = None,
     project_uuid: UUID | None = None,
     span_context_holder: SpanContextHolder | None = None,
+    current_span: Span | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Creates the middleware decorator for a Lilypad/Mirascope function."""
     cm_callable: Callable[[SyncFunc | AsyncFunc], _GeneratorContextManager[Span]] = _get_custom_context_manager(
-        function,
-        arg_values,
-        is_async,
-        prompt_template,
-        project_uuid,
-        span_context_holder,
+        function, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span
     )
 
     return middleware_factory(

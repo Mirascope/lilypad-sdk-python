@@ -34,6 +34,7 @@ from ._utils import (
     jsonable_encoder,
     inspect_arguments,
     get_qualified_name,
+    create_mirascope_middleware,
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
@@ -537,6 +538,10 @@ def trace(
         | Callable[_P, _R]
         | Callable[_P, Coroutine[Any, Any, _R]],
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
+        is_mirascope_call = hasattr(fn, "__mirascope_call__")
+        prompt_template = (
+            fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
+        )
         if _RECORDING_ENABLED and versioning == "automatic":
             register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
 
@@ -589,16 +594,28 @@ def trace(
                                 arg_types=arg_types,
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
+                                prompt_template=prompt_template,
                             )
                         function_uuid = function.uuid
                     else:
                         function_uuid = None
-                    with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
-                    ) as result_holder:
-                        output = await fn(*final_args, **final_kwargs)
-                        result_holder.set_result(output)
-                    span_id = span.span_id
+                    if is_mirascope_call:
+                        decorator_inner = create_mirascope_middleware(
+                            function,
+                            arg_values,
+                            True,
+                            prompt_template,
+                            settings.project_id,
+                            current_span=span.opentelemetry_span,
+                        )
+                        output = await decorator_inner(fn)(*final_args, **final_kwargs)
+                    else:
+                        with _set_span_attributes(
+                            TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
+                        ) as result_holder:
+                            output = await fn(*final_args, **final_kwargs)
+                            result_holder.set_result(output)
+                        span_id = span.span_id
                     _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
@@ -740,15 +757,27 @@ def trace(
                                 arg_types=arg_types,
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
+                                prompt_template=prompt_template,
                             )
                         function_uuid = function.uuid
                     else:
                         function_uuid = None
-                    with _set_span_attributes(
-                        TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
-                    ) as result_holder:
-                        output = fn(*final_args, **final_kwargs)
-                        result_holder.set_result(output)
+                    if is_mirascope_call:
+                        decorator_inner = create_mirascope_middleware(
+                            function,
+                            arg_values,
+                            False,
+                            prompt_template,
+                            settings.project_id,
+                            current_span=span.opentelemetry_span,
+                        )
+                        output = decorator_inner(fn)(*final_args, **final_kwargs)
+                    else:
+                        with _set_span_attributes(
+                            TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
+                        ) as result_holder:
+                            output = fn(*final_args, **final_kwargs)
+                            result_holder.set_result(output)
                     span_id = span.span_id
                     _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
                 if mode == "wrap":
