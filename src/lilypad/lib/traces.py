@@ -482,11 +482,12 @@ def _construct_trace_attributes(
 
 
 _SANDBOX_CUSTOM_RESULT = {
-    "result": "result.response if isinstance(result, AsyncTrace | Trace) else result",
+    "result": "result",
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [
-    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",]
+    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",
+]
 _SANDBOX_AFTER_ACTIONS = [
     "result = result.response if isinstance(result, AsyncTrace | Trace) else result",
     "with suppress(ImportError): from mirascope.core import BaseCallResponse",
@@ -614,6 +615,7 @@ def trace(
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
+                            arg_types,
                             arg_values,
                             True,
                             prompt_template,
@@ -787,6 +789,7 @@ def trace(
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
+                            arg_types,
                             arg_values,
                             False,
                             prompt_template,

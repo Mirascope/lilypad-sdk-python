@@ -422,9 +422,10 @@ def test_get_custom_context_manager():
     project_uuid = UUID("123e4567-e89b-12d3-a456-426614174000")
 
     with patch("lilypad.lib._utils.middleware.get_tracer", return_value=tracer_mock):
+        arg_types = {"param": "str"}
         arg_values = {"param": "world"}
         context_manager_factory = _get_custom_context_manager(
-            mock_function, arg_values, is_async, prompt_template, project_uuid
+            mock_function, arg_types, arg_values, is_async, prompt_template, project_uuid
         )
         with context_manager_factory(fn_mock) as cm_span:
             assert cm_span == span_mock
@@ -509,6 +510,7 @@ async def test_handle_error_async_calls_handle_error():
 def test_create_mirascope_middleware():
     """Test create_mirascope_middleware passes correct handlers including error handlers."""
     mock_function = MagicMock(spec=FunctionPublic)
+    mock_arg_types = {"param": "str"}
     mock_arg_values = {"param": "value"}
     is_async = False
     prompt_template = None
@@ -526,11 +528,11 @@ def test_create_mirascope_middleware():
         patch("lilypad.lib._utils.middleware._get_custom_context_manager", return_value=mock_cm_factory) as mock_get_cm,
     ):
         middleware_decorator = create_mirascope_middleware(
-            mock_function, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder
+            mock_function, mock_arg_types, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder
         )
 
         mock_get_cm.assert_called_once_with(
-            mock_function, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder, None
+            mock_function, mock_arg_types, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder, None
         )
 
         mock_middleware_factory.assert_called_once_with(

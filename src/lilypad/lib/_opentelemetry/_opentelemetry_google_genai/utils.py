@@ -101,7 +101,7 @@ def get_candidate_event(candidate: Any) -> dict[str, AttributeValue]:
         if tool_calls := get_tool_calls(parts):
             message_dict["tool_calls"] = tool_calls
         attributes["message"] = json.dumps(message_dict)
-        attributes["index"] = candidate.index
+        attributes["index"] = candidate.index or 0
         attributes["finish_reason"] = candidate.finish_reason.value if candidate.finish_reason is not None else "none"
     return attributes
 
