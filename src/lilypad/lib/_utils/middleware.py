@@ -20,7 +20,7 @@ from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
 from . import jsonable_encoder
 from .settings import get_settings
-from .functions import ArgValues, ArgTypes
+from .functions import ArgTypes, ArgValues
 
 if TYPE_CHECKING:
     from ...types.projects.functions import FunctionPublic
@@ -96,14 +96,14 @@ def _get_custom_context_manager(
             }
             if function:
                 attribute_type = "function"
-                attributes["lilypad.function.uuid"] =  str(function.uuid)
-                attributes["lilypad.function.name"] =  fn.__name__
-                attributes["lilypad.function.signature"] =  function.signature
-                attributes["lilypad.function.code"] =  function.code
+                attributes["lilypad.function.uuid"] = str(function.uuid)
+                attributes["lilypad.function.name"] = fn.__name__
+                attributes["lilypad.function.signature"] = function.signature
+                attributes["lilypad.function.code"] = function.code
                 attributes["lilypad.function.arg_types"] = json.dumps(arg_types)
-                attributes["lilypad.function.arg_values"] =  json.dumps(jsonable_arg_values)
-                attributes["lilypad.function.prompt_template"] =  prompt_template or ""
-                attributes["lilypad.function.version"] =  function.version_num if function.version_num else -1
+                attributes["lilypad.function.arg_values"] = json.dumps(jsonable_arg_values)
+                attributes["lilypad.function.prompt_template"] = prompt_template or ""
+                attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             else:
                 attribute_type = "trace"
             attributes["lilypad.type"] = attribute_type

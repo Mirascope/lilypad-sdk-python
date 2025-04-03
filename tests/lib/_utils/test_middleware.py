@@ -422,9 +422,10 @@ def test_get_custom_context_manager():
     project_uuid = UUID("123e4567-e89b-12d3-a456-426614174000")
 
     with patch("lilypad.lib._utils.middleware.get_tracer", return_value=tracer_mock):
+        arg_types = {"param": "str"}
         arg_values = {"param": "world"}
         context_manager_factory = _get_custom_context_manager(
-            mock_function, arg_values, is_async, prompt_template, project_uuid
+            mock_function, arg_types, arg_values, is_async, prompt_template, project_uuid
         )
         with context_manager_factory(fn_mock) as cm_span:
             assert cm_span == span_mock
