@@ -623,7 +623,7 @@ def trace(
                         output = await decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=True, function_uuid=function_uuid
+                            TRACE_TYPE, span, trace_attribute, is_async=True, function=function
                         ) as result_holder:
                             output = await fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
@@ -796,7 +796,7 @@ def trace(
                         output = decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=False, function_uuid=function_uuid
+                            TRACE_TYPE, span, trace_attribute, is_async=False, function=function
                         ) as result_holder:
                             output = fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)

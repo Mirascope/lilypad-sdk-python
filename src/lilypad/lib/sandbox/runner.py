@@ -76,7 +76,7 @@ class SandboxRunner(ABC):
                     result = await {base_run}
                     {after_actions}
                     return {result_content}
-            result = asyncio.run(main())
+                result = asyncio.run(main())
             """).format(base_run=base_run, result_content=result_content, after_actions="\n        ".join(after_actions) if after_actions else "")
         else:
             result_code = inspect.cleandoc("""
