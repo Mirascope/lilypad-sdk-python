@@ -614,6 +614,7 @@ def trace(
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
+                            arg_types,
                             arg_values,
                             True,
                             prompt_template,
@@ -787,6 +788,7 @@ def trace(
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
+                            arg_types,
                             arg_values,
                             False,
                             prompt_template,

@@ -20,7 +20,7 @@ from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
 from . import jsonable_encoder
 from .settings import get_settings
-from .functions import ArgValues
+from .functions import ArgValues, ArgTypes
 
 if TYPE_CHECKING:
     from ...types.projects.functions import FunctionPublic
@@ -61,6 +61,7 @@ class SpanContextHolder:
 
 def _get_custom_context_manager(
     function: FunctionPublic,
+    arg_types: ArgTypes,
     arg_values: ArgValues,
     is_async: bool,
     prompt_template: str | None = None,
@@ -72,7 +73,6 @@ def _get_custom_context_manager(
     def custom_context_manager(
         fn: SyncFunc | AsyncFunc,
     ) -> Generator[Span, Any, None]:
-        tracer = get_tracer("lilypad")
         new_project_uuid = project_uuid or get_settings().project_id
         jsonable_arg_values = {}
         for arg_name, arg_value in arg_values.items():
@@ -85,23 +85,31 @@ def _get_custom_context_manager(
             _current_span = current_span
             create_span = False
         else:
+            tracer = get_tracer("lilypad")
             _current_span = tracer.start_as_current_span(f"{fn.__name__}").__enter__()
             create_span = True
 
         try:
             attributes: dict[str, AttributeValue] = {
                 "lilypad.project_uuid": str(new_project_uuid) if new_project_uuid else "",
-                "lilypad.type": "function",
-                "lilypad.function.uuid": str(function.uuid),
-                "lilypad.function.name": fn.__name__,
-                "lilypad.function.signature": function.signature,
-                "lilypad.function.code": function.code,
-                "lilypad.function.arg_types": json.dumps(function.arg_types),
-                "lilypad.function.arg_values": json.dumps(jsonable_arg_values),
-                "lilypad.function.prompt_template": prompt_template or "",
-                "lilypad.function.version": function.version_num if function.version_num else -1,
                 "lilypad.is_async": is_async,
             }
+            if function:
+                attribute_type = "function"
+                attributes["lilypad.function.uuid"] =  str(function.uuid)
+                attributes["lilypad.function.name"] =  fn.__name__
+                attributes["lilypad.function.signature"] =  function.signature
+                attributes["lilypad.function.code"] =  function.code
+                attributes["lilypad.function.arg_types"] = json.dumps(arg_types)
+                attributes["lilypad.function.arg_values"] =  json.dumps(jsonable_arg_values)
+                attributes["lilypad.function.prompt_template"] =  prompt_template or ""
+                attributes["lilypad.function.version"] =  function.version_num if function.version_num else -1
+            else:
+                attribute_type = "trace"
+            attributes["lilypad.type"] = attribute_type
+            attributes[f"lilypad.{attribute_type}.arg_types"] = json.dumps(arg_types)
+            attributes[f"lilypad.{attribute_type}.arg_values"] = json.dumps(jsonable_arg_values)
+            attributes[f"lilypad.{attribute_type}.prompt_template"] = prompt_template or ""
             filtered_attributes = {k: v for k, v in attributes.items() if v is not None}
             _current_span.set_attributes(filtered_attributes)
             if span_context_holder:
@@ -267,6 +275,7 @@ async def _handle_error_async(error: Exception, fn: SyncFunc | AsyncFunc, span: 
 
 def create_mirascope_middleware(
     function: FunctionPublic,
+    arg_types: ArgTypes,
     arg_values: ArgValues,
     is_async: bool,
     prompt_template: str | None = None,
@@ -276,7 +285,7 @@ def create_mirascope_middleware(
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Creates the middleware decorator for a Lilypad/Mirascope function."""
     cm_callable: Callable[[SyncFunc | AsyncFunc], _GeneratorContextManager[Span]] = _get_custom_context_manager(
-        function, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span
+        function, arg_types, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span
     )
 
     return middleware_factory(
