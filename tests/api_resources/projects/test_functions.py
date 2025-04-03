@@ -115,7 +115,6 @@ class TestFunctions:
                 hash="hash",
                 name="x",
                 signature="signature",
-                body_project_uuid="",
             )
 
     @pytest.mark.skip()
@@ -516,7 +515,6 @@ class TestAsyncFunctions:
                 hash="hash",
                 name="x",
                 signature="signature",
-                body_project_uuid="",
             )
 
     @pytest.mark.skip()
