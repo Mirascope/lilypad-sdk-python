@@ -307,7 +307,6 @@ class TestProjects:
                 hash="hash",
                 name="x",
                 signature="signature",
-                body_project_uuid="",
             )
 
 
@@ -598,5 +597,4 @@ class TestAsyncProjects:
                 hash="hash",
                 name="x",
                 signature="signature",
-                body_project_uuid="",
             )
