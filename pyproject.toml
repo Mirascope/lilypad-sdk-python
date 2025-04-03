@@ -1,7 +1,7 @@
 [project]
 name = "lilypad-sdk"
-version = "0.1.0-alpha.12"
-description = "The official Python Lilypad SDK"
+version = "0.1.0-alpha.13"
+description = "The official Python library for the lilypad API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [{ name = "Mirascope", email = "support@mirascope.com" }]
