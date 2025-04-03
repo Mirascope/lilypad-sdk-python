@@ -482,7 +482,7 @@ def _construct_trace_attributes(
 
 
 _SANDBOX_CUSTOM_RESULT = {
-    "result": "result.response if isinstance(result, AsyncTrace | Trace) else result",
+    "result": "result",
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [

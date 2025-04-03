@@ -43,7 +43,10 @@ def generate_content(
             end_on_exit=False,
         ) as span:
             if span.is_recording():
-                for content in kwargs.get("contents", []):
+                contents = kwargs.get("contents", [])
+                if isinstance(contents, str):
+                    contents = [{"content": contents, "role": "user"}]
+                for content in contents:
                     set_content_event(span, content)
             try:
                 result = wrapped(*args, **kwargs)
