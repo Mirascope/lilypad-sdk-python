@@ -1,7 +1,6 @@
 """Subprocess sandbox runner."""
 
 import os
-import json
 import tempfile
 import subprocess
 from typing import Any, cast
@@ -47,14 +46,11 @@ class SubprocessSandboxRunner(SandboxRunner):
         try:
             result = subprocess.run(
                 ["uv", "run", "--no-project", str(tmp_path)],
-                check=True,
                 capture_output=True,
                 text=True,
                 env=self.environment,
             )
-            return cast(Result, json.loads(result.stdout.strip()))
-        except subprocess.CalledProcessError as e:
-            error_message = f"Process exited with non-zero status.\nStdout: {e.stdout}\nStderr: {e.stderr}"
-            raise RuntimeError(error_message)
+
+            return self.parse_execution_result(result.stdout, result.stderr, result.returncode)
         finally:
             tmp_path.unlink()
