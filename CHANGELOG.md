@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.15 (2025-04-04)
+
+Full Changelog: [v0.1.0-alpha.14...v0.1.0-alpha.15](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.14...v0.1.0-alpha.15)
+
+### Chores
+
+* **internal:** remove trailing character ([#65](https://github.com/Mirascope/lilypad-sdk-python/issues/65)) ([9f9eb5a](https://github.com/Mirascope/lilypad-sdk-python/commit/9f9eb5a7ef48d35f7cda01b8a51ee4a133065277))
+
 ## 0.1.0-alpha.14 (2025-04-03)
 
 Full Changelog: [v0.1.0-alpha.13...v0.1.0-alpha.14](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.13...v0.1.0-alpha.14)
