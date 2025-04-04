@@ -1,11 +1,22 @@
 """This module contains the SandboxRunner abstract base class."""
 
+import json
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Optional
+from typing import Any, TypeVar, cast
 from typing_extensions import TypedDict
 
 from .._utils import Closure
+
+
+class DependencyError(Exception):
+    """Represents an error caused by missing or incompatible dependencies."""
+
+    def __init__(self, message: str, module_name: str = None, error_class: str = None):
+        self.message = message
+        self.module_name = module_name
+        self.error_class = error_class
+        super().__init__(f"Dependency error: {message}")
 
 
 class Result(TypedDict, total=False):
@@ -43,6 +54,34 @@ class SandboxRunner(ABC):
         return any(line.strip() for line in lines if line.strip().startswith("async def "))
 
     @classmethod
+    def parse_execution_result(cls, stdout: str, stderr: str, returncode: int) -> Result:
+        """Parse the execution result from stdout, stderr, and return code."""
+        try:
+            data = json.loads(stdout.strip())
+
+            if returncode == 0:
+                return cast(Result, data)
+
+            if isinstance(data, dict) and "error_type" in data:
+                if data.get("is_dependency_error", False) or data["error_type"] in [
+                    "ImportError",
+                    "ModuleNotFoundError",
+                ]:
+                    raise DependencyError(
+                        message=data.get("error_message", "Unknown dependency error"),
+                        module_name=data.get("module_name"),
+                        error_class=data.get("error_type"),
+                    )
+        except json.JSONDecodeError:
+            pass
+
+        if returncode != 0:
+            error_message = f"Process exited with non-zero status.\nStdout: {stdout}\nStderr: {stderr}"
+            raise RuntimeError(error_message)
+
+        return cast(Result, json.loads(stdout.strip()))
+
+    @classmethod
     def generate_script(
         cls,
         closure: Closure,
@@ -53,13 +92,7 @@ class SandboxRunner(ABC):
         extra_imports: list[str] | None = None,
         **kwargs: Any,
     ) -> str:
-        """
-        Generate a script that executes the function in the sandbox.
-
-        If wrap_result is True, the script returns a structured JSON object with additional
-        attributes. The result is wrapped in a dictionary with the key "result".
-        """
-
+        """Generate a script that executes the function in the sandbox."""
         if custom_result:
             result_content = "{" + ", ".join(f'"{k}": ({v})' for k, v in custom_result.items()) + "}"
         else:
@@ -95,36 +128,74 @@ class SandboxRunner(ABC):
                 after_actions="\n        ".join(after_actions) if after_actions else "",
             )
 
-        return inspect.cleandoc("""
-            # /// script
-            # dependencies = [
-            #   {dependencies}
-            # ]
-            # ///
-            
-            {code}
-
-
-            if __name__ == "__main__":
-                import json
-                {extra_imports}
-                {pre_actions}
-                {result}
-                print(json.dumps(result))
-            """).format(
-            dependencies=",\n#   ".join(
-                [
-                    f'"{key}[{",".join(extras)}]=={value["version"]}"'
-                    if (extras := value["extras"])
-                    else f'"{key}=={value["version"]}"'
-                    for key, value in closure.dependencies.items()
-                ]
-            ),
-            code=closure.code,
-            result=result_code,
-            pre_actions="\n    ".join(pre_actions) if pre_actions else "",
-            extra_imports="\n    ".join(extra_imports) if extra_imports else "",
+        dependencies_str = ",\n#   ".join(
+            [
+                f'"{key}[{",".join(extras)}]=={value["version"]}"'
+                if (extras := value["extras"])
+                else f'"{key}=={value["version"]}"'
+                for key, value in closure.dependencies.items()
+            ]
         )
+
+        error_handler = """
+    try:
+        {code}
+        
+        {extra_imports}
+        {pre_actions}
+        {result}
+        print(json.dumps(result))
+    except ImportError as e:
+        import traceback
+        error_info = {{
+            "error_type": "ImportError",
+            "error_message": str(e),
+            "is_dependency_error": True,
+            "module_name": getattr(e, "name", None),
+            "traceback": traceback.format_exc()
+        }}
+        print(json.dumps(error_info))
+        sys.exit(1)
+    except ModuleNotFoundError as e:
+        import traceback
+        error_info = {{
+            "error_type": "ModuleNotFoundError",
+            "error_message": str(e),
+            "is_dependency_error": True,
+            "module_name": getattr(e, "name", None),
+            "traceback": traceback.format_exc()
+        }}
+        print(json.dumps(error_info))
+        sys.exit(1)
+    except Exception as e:
+        import traceback
+        error_info = {{
+            "error_type": e.__class__.__name__,
+            "error_message": str(e),
+            "traceback": traceback.format_exc()
+        }}
+        print(json.dumps(error_info))
+        sys.exit(1)
+        """.format(
+            code="\n        ".join(closure.code.splitlines()),
+            extra_imports="\n        ".join(extra_imports) if extra_imports else "",
+            pre_actions="\n        ".join(pre_actions) if pre_actions else "",
+            result="\n    ".join(result_code.splitlines()),
+        )
+
+        return inspect.cleandoc(f"""
+# /// script
+# dependencies = [
+#   {dependencies_str}
+# ]
+# ///
+
+
+if __name__ == "__main__":
+    import json
+    import sys
+{error_handler}
+""")
 
 
 SandboxRunnerT = TypeVar("SandboxRunnerT", bound=SandboxRunner)

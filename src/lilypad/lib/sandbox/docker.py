@@ -78,9 +78,11 @@ class DockerSandboxRunner(SandboxRunner):
                 cmd=["uv", "run", "/main.py"],
                 demux=True,
             )
-            if exit_code:
-                raise RuntimeError(f"Error running code in Docker container: {stderr.decode('utf-8').strip()}")
-            return cast(Result, json.loads(stdout.decode("utf-8").strip()))
+
+            stdout_str = stdout.decode("utf-8") if stdout else ""
+            stderr_str = stderr.decode("utf-8") if stderr else ""
+
+            return self.parse_execution_result(stdout_str, stderr_str, exit_code)
         finally:
             if container:
                 with suppress(Exception):
