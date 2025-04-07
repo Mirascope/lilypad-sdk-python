@@ -629,7 +629,7 @@ def trace(
                         ) as result_holder:
                             output = await fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
-                        span_id = span.span_id
+                    span_id = span.span_id
                     _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
