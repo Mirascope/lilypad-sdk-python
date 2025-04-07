@@ -165,7 +165,7 @@ def _serialize_proto_data(data: list[dict]) -> str:
     return json.dumps(serializable_data)
 
 
-def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span) -> None:
+def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
         output = json.dumps(jsonable_encoder(response.message_param))
     except TypeError:
@@ -175,13 +175,13 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span) -> 
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
     attributes: dict[str, AttributeValue] = {
-        "lilypad.function.output": output,
-        "lilypad.function.messages": messages,
+        f"lilypad.{trace_type}.output": output,
+        f"lilypad.{trace_type}.messages": messages,
     }
     span.set_attributes(attributes)
 
 
-def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span) -> None:
+def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, trace_type: str) -> None:
     if isinstance(result, BaseModel):
         completion = result.model_dump_json()
         # Safely handle the case where result._response might be None
@@ -198,64 +198,66 @@ def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span) 
         messages = None
 
     attributes: dict[str, AttributeValue] = {
-        "lilypad.function.output": completion,
+        f"lilypad.{trace_type}.output": completion,
     }
     if messages:
-        attributes["lilypad.function.messages"] = messages
+        attributes[f"lilypad.{trace_type}.messages"] = messages
     span.set_attributes(attributes)
 
+class _Handlers:
+    def __init__(self, trace_type: str) -> None:
+        self.trace_type = trace_type
 
-def _handle_call_response(result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-    _set_call_response_attributes(result, span)
+    def handle_call_response(self, result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+        _set_call_response_attributes(result, span, self.trace_type)
 
-
-def _handle_stream(stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-    call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
-    _set_call_response_attributes(call_response, span)
-
-
-def _handle_response_model(result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-
-    _set_response_model_attributes(result, span)
+    def handle_stream(self, stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+        call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
+        _set_call_response_attributes(call_response, span, self.trace_type)
 
 
-def _handle_structured_stream(result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
+    def handle_response_model(self, result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
 
-    _set_response_model_attributes(result.constructed_response_model, span)
-
-
-async def _handle_call_response_async(result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-
-    _set_call_response_attributes(result, span)
+        _set_response_model_attributes(result, span, self.trace_type)
 
 
-async def _handle_stream_async(stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-    call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
-    _set_call_response_attributes(call_response, span)
+    def handle_structured_stream(self, result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+
+        _set_response_model_attributes(result.constructed_response_model, span, self.trace_type)
 
 
-async def _handle_response_model_async(result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-    _set_response_model_attributes(result, span)
+    async def handle_call_response_async(self, result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+
+        _set_call_response_attributes(result, span, self.trace_type)
 
 
-async def _handle_structured_stream_async(result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
-    if span is None:
-        return
-    _set_response_model_attributes(result.constructed_response_model, span)
+    async def handle_stream_async(self, stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+        call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
+        _set_call_response_attributes(call_response, span, self.trace_type)
+
+
+    async def handle_response_model_async(self, result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+        _set_response_model_attributes(result, span, self.trace_type)
+
+
+    async def handle_structured_stream_async(self, result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
+        if span is None:
+            return
+        _set_response_model_attributes(result.constructed_response_model, span, self.trace_type)
 
 
 def _handle_error(error: Exception, fn: SyncFunc | AsyncFunc, span: Span | None) -> None:
@@ -274,7 +276,7 @@ async def _handle_error_async(error: Exception, fn: SyncFunc | AsyncFunc, span: 
 
 
 def create_mirascope_middleware(
-    function: FunctionPublic,
+    function: FunctionPublic | None,
     arg_types: ArgTypes,
     arg_values: ArgValues,
     is_async: bool,
@@ -287,17 +289,17 @@ def create_mirascope_middleware(
     cm_callable: Callable[[SyncFunc | AsyncFunc], _GeneratorContextManager[Span]] = _get_custom_context_manager(
         function, arg_types, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span
     )
-
+    _handlers = _Handlers("function" if function else "trace")
     return middleware_factory(
         custom_context_manager=cm_callable,
-        handle_call_response=_handle_call_response,
-        handle_call_response_async=_handle_call_response_async,
-        handle_stream=_handle_stream,
-        handle_stream_async=_handle_stream_async,
-        handle_response_model=_handle_response_model,
-        handle_response_model_async=_handle_response_model_async,
-        handle_structured_stream=_handle_structured_stream,
-        handle_structured_stream_async=_handle_structured_stream_async,
+        handle_call_response=_handlers.handle_call_response,
+        handle_call_response_async=_handlers.handle_call_response_async,
+        handle_stream=_handlers.handle_stream,
+        handle_stream_async=_handlers.handle_stream_async,
+        handle_response_model=_handlers.handle_response_model,
+        handle_response_model_async=_handlers.handle_response_model_async,
+        handle_structured_stream=_handlers.handle_structured_stream,
+        handle_structured_stream_async=_handlers.handle_structured_stream_async,
         handle_error=_handle_error,
         handle_error_async=_handle_error_async,
     )
