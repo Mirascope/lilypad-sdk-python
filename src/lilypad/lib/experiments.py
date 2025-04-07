@@ -98,7 +98,6 @@ class VersionResult(BaseModel, Generic[R]):
 _MetricInfoEntry: TypeAlias = tuple[MetricInfo, bool]
 _AllResults: TypeAlias = list[list[VersionResult[R]]]
 _SummaryResultData: TypeAlias = dict[str, dict[str, tuple[float, str]]]
-AnyCallable: TypeAlias = Callable[P, Any]
 
 
 class Experiment(Generic[P, R]):
@@ -114,7 +113,7 @@ class Experiment(Generic[P, R]):
         R: TypeVar representing the return type (or awaitable inner type) of the function.
     """
 
-    def __init__(self, fn: AnyCallable) -> None:
+    def __init__(self, fn: Callable[P, R]) -> None:
         """
         Initializes an Experiment with the primary function to test.
 
@@ -123,7 +122,7 @@ class Experiment(Generic[P, R]):
         """
         if not callable(fn):
             raise TypeError("The function provided must be callable.")
-        self._target_fn: AnyCallable = fn
+        self._target_fn: Callable[P, R] = fn
         self._is_target_async = inspect.iscoroutinefunction(fn)
         self._metrics: list[_MetricInfoEntry] = []
         self._cases: list[ExperimentCase[P, R]] = []
@@ -186,7 +185,7 @@ class Experiment(Generic[P, R]):
         self._cases.append(case)
         return self
 
-    def _get_function_name(self, func: AnyCallable, index: int, all_funcs: Sequence[AnyCallable]) -> str:
+    def _get_function_name(self, func: Callable[P, R], index: int, all_funcs: Sequence[AnyCallable]) -> str:
         """
         Generates a unique, human-readable name for a function version (sync or async).
 
@@ -303,7 +302,7 @@ class Experiment(Generic[P, R]):
         return all_results
 
     async def _async_run_case_version(
-        self, case: ExperimentCase[P, R], func_version: AnyCallable, version_name: str
+        self, case: ExperimentCase[P, R], func_version: Callable[P, R], version_name: str
     ) -> VersionResult[R]:
         """Runs a single function version (sync or async) against a single test case."""
         actual_result: R | None = None
@@ -347,7 +346,7 @@ class Experiment(Generic[P, R]):
         )
 
     async def _async_collect_all_results_with_tracing(
-        self, versions_to_run: tuple[AnyCallable, ...], tracer: Tracer
+        self, versions_to_run: tuple[Callable[P, R], ...], tracer: Tracer
     ) -> _AllResults:
         """Collects results asynchronously (implementation deferred for gather)."""
         all_results: _AllResults = []
@@ -677,7 +676,7 @@ class Experiment(Generic[P, R]):
             return
 
         tracer: Tracer = trace.get_tracer(_OTEL_TRACE_PROVIDER_NAME)
-        async_versions_to_run = cast(tuple[AnyCallable, ...], (self._target_fn,) + versions)
+        async_versions_to_run = cast(tuple[Callable[P, R], ...], (self._target_fn,) + versions)
 
         with tracer.start_as_current_span("Experiment.run[async]") as run_span:
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
