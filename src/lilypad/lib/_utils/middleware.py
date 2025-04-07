@@ -276,7 +276,7 @@ async def _handle_error_async(error: Exception, fn: SyncFunc | AsyncFunc, span: 
 
 
 def create_mirascope_middleware(
-    function: FunctionPublic,
+    function: FunctionPublic | None,
     arg_types: ArgTypes,
     arg_values: ArgValues,
     is_async: bool,
