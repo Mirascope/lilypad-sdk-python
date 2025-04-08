@@ -22,21 +22,14 @@ from lilypad.lib._utils.middleware import (
     SyncFunc,
     AsyncFunc,
     mb,
+    _Handlers,
     _handle_error,
-    _handle_stream,
     _handle_error_async,
-    _handle_stream_async,
-    _handle_call_response,
     _serialize_proto_data,
-    _handle_response_model,
-    _handle_structured_stream,
     _get_custom_context_manager,
-    _handle_call_response_async,
     create_mirascope_middleware,
-    _handle_response_model_async,
     _set_call_response_attributes,
     _set_response_model_attributes,
-    _handle_structured_stream_async,
 )
 from lilypad.types.projects.functions import FunctionPublic
 
@@ -139,13 +132,12 @@ def test_set_call_response_attributes_serializable():
     response.messages = [{"role": "user", "content": "hello"}]
     span = MagicMock(spec=Span)
     with patch("lilypad.lib._utils.middleware.jsonable_encoder", side_effect=lambda x: x):
-        _set_call_response_attributes(response, span)
+        _set_call_response_attributes(response, span, "trace")
         expected_output = json.dumps(response.message_param)
         expected_messages = json.dumps(response.messages)
-        # Use 'function' prefix consistent with the latest production code
         expected_attributes = {
-            "lilypad.function.output": expected_output,
-            "lilypad.function.messages": expected_messages,
+            "lilypad.trace.output": expected_output,
+            "lilypad.trace.messages": expected_messages,
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
 
@@ -164,11 +156,11 @@ def test_set_call_response_attributes_needs_serialization():
             "lilypad.lib._utils.middleware._serialize_proto_data", return_value=serialized_messages
         ) as mock_proto_serializer,
     ):
-        _set_call_response_attributes(response, span)
+        _set_call_response_attributes(response, span, "trace")
         expected_attributes = {
             # Production code falls back to str() for message_param on TypeError
-            "lilypad.function.output": str(response.message_param),
-            "lilypad.function.messages": serialized_messages,
+            "lilypad.trace.output": str(response.message_param),
+            "lilypad.trace.messages": serialized_messages,
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
         # Ensure _serialize_proto_data was called ONLY for messages
@@ -183,10 +175,10 @@ def test_set_response_model_attributes_base_model_with_messages():
     result._response.messages = [{"role": "user", "parts": ["hello"]}]
     span = MagicMock(spec=Span)
     with patch("lilypad.lib._utils.middleware.jsonable_encoder", side_effect=lambda x: x) as mock_encoder:
-        _set_response_model_attributes(result, span)
+        _set_response_model_attributes(result, span, "trace")
         expected_attributes = {
-            "lilypad.function.output": '{"key": "value"}',
-            "lilypad.function.messages": json.dumps(result._response.messages),
+            "lilypad.trace.output": '{"key": "value"}',
+            "lilypad.trace.messages": json.dumps(result._response.messages),
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
         mock_encoder.assert_called_once_with(result._response.messages)
@@ -203,12 +195,12 @@ def test_set_response_model_attributes_base_type():
     result.value = mock_value
     span = MagicMock(spec=Span)
 
-    _set_response_model_attributes(result, span)
+    _set_response_model_attributes(result, span, "trace")
 
     # This assertion reflects the *expected* behavior after production code fix
-    expected_attributes_fixed = {"lilypad.function.output": str(mock_value)}
+    expected_attributes_fixed = {"lilypad.trace.output": str(mock_value)}
     # This assertion reflects the *current* behavior based on test failure
-    expected_attributes_current = {"lilypad.function.output": str(result)}
+    expected_attributes_current = {"lilypad.trace.output": str(result)}
 
     # Use the assertion matching the current (failing) state until production code is fixed
     # span.set_attributes.assert_called_once_with(expected_attributes_fixed)
@@ -221,12 +213,12 @@ def test_set_response_model_attributes_primitive():
     result = 123
     span = MagicMock(spec=Span)
 
-    _set_response_model_attributes(result, span)
+    _set_response_model_attributes(result, span, "trace")
 
     # This assertion reflects the *expected* behavior after production code fix
-    expected_attributes_fixed = {"lilypad.function.output": "123"}
+    expected_attributes_fixed = {"lilypad.trace.output": "123"}
     # This assertion reflects the *current* behavior based on test failure
-    expected_attributes_current = {"lilypad.function.output": 123}
+    expected_attributes_current = {"lilypad.trace.output": 123}
 
     # Use the assertion matching the current (failing) state until production code is fixed
     # span.set_attributes.assert_called_once_with(expected_attributes_fixed)
@@ -238,9 +230,10 @@ def test_handle_call_response_with_span():
     result = MagicMock(spec=mb.BaseCallResponse)
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        _handle_call_response(result, fn, span)
-        mock_set_attrs.assert_called_once_with(result, span)
+        handlers.handle_call_response(result, fn, span)
+        mock_set_attrs.assert_called_once_with(result, span, "trace")
 
 
 def test_handle_call_response_without_span():
@@ -248,8 +241,9 @@ def test_handle_call_response_without_span():
     result = MagicMock(spec=mb.BaseCallResponse)
     fn = MagicMock()
     span = None
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        _handle_call_response(result, fn, span)
+        handlers.handle_call_response(result, fn, span)
         mock_set_attrs.assert_not_called()
 
 
@@ -261,10 +255,11 @@ def test_handle_stream_with_span():
     span.is_recording.return_value = True
     call_response = MagicMock(spec=mb.BaseCallResponse)
     stream.construct_call_response = MagicMock(return_value=call_response)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        _handle_stream(stream, fn, span)
+        handlers.handle_stream(stream, fn, span)
         stream.construct_call_response.assert_called_once()
-        mock_set_attrs.assert_called_once_with(call_response, span)
+        mock_set_attrs.assert_called_once_with(call_response, span, "trace")
 
 
 def test_handle_stream_without_span():
@@ -272,8 +267,9 @@ def test_handle_stream_without_span():
     stream = MagicMock(spec=mb.BaseStream)
     fn = MagicMock()
     span = None
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        _handle_stream(stream, fn, span)
+        handlers.handle_stream(stream, fn, span)
         mock_set_attrs.assert_not_called()
 
 
@@ -282,9 +278,10 @@ def test_handle_response_model_with_span():
     result = MagicMock(spec=BaseModel)
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        _handle_response_model(result, fn, span)
-        mock_set_attrs.assert_called_once_with(result, span)
+        handlers.handle_response_model(result, fn, span)
+        mock_set_attrs.assert_called_once_with(result, span, "trace")
 
 
 def test_handle_response_model_without_span():
@@ -292,8 +289,9 @@ def test_handle_response_model_without_span():
     result = MagicMock(spec=BaseModel)
     fn = MagicMock()
     span = None
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        _handle_response_model(result, fn, span)
+        handlers.handle_response_model(result, fn, span)
         mock_set_attrs.assert_not_called()
 
 
@@ -305,11 +303,12 @@ def test_handle_structured_stream_with_span():
     fn = MagicMock()
     span = MagicMock(spec=Span)
     span.is_recording.return_value = True
+    handlers = _Handlers("trace")
     # Patch the function that is actually called
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        _handle_structured_stream(result, fn, span)
+        handlers.handle_structured_stream(result, fn, span)
         # Assert based on current production code (calls _set directly)
-        mock_set_attrs.assert_called_once_with(result.constructed_response_model, span)
+        mock_set_attrs.assert_called_once_with(result.constructed_response_model, span, "trace")
 
 
 def test_handle_structured_stream_without_span():
@@ -318,8 +317,9 @@ def test_handle_structured_stream_without_span():
     result.constructed_response_model = MagicMock(spec=BaseModel)  # Add attribute
     fn = MagicMock()
     span = None
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        _handle_structured_stream(result, fn, span)
+        handlers.handle_structured_stream(result, fn, span)
         mock_set_attrs.assert_not_called()
 
 
@@ -334,11 +334,12 @@ def test_handle_structured_stream_with_error_attr():
     fn = MagicMock()
     span = MagicMock(spec=Span)
     span.is_recording.return_value = True
+    handlers = _Handlers("trace")
 
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        _handle_structured_stream(result, fn, span)
+        handlers.handle_structured_stream(result, fn, span)
         # Current production code calls _set_response_model_attributes(None, span)
-        mock_set_attrs.assert_called_once_with(None, span)
+        mock_set_attrs.assert_called_once_with(None, span, "trace")
         # These checks might fail depending on where they are placed relative to the above call
         # If production code fixed, these should pass, and mock_set_attrs.assert_not_called() should be used.
         # span.set_attribute.assert_called_once_with("lilypad.warning", "constructed_response_model not available on structured stream.")
@@ -357,9 +358,10 @@ async def test_handle_call_response_async_sets_attributes():
     result.messages = []
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        await _handle_call_response_async(result, fn, span)
-        mock_set_attrs.assert_called_once_with(result, span)
+        await handlers.handle_call_response_async(result, fn, span)
+        mock_set_attrs.assert_called_once_with(result, span, "trace")
 
 
 @pytest.mark.asyncio
@@ -370,11 +372,12 @@ async def test_handle_stream_async_sets_attributes():
     stream.construct_call_response = MagicMock(return_value=call_response)
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_attrs:
-        await _handle_stream_async(stream, fn, span)
+        await handlers.handle_stream_async(stream, fn, span)
         # Assert based on internal call
         stream.construct_call_response.assert_called_once()
-        mock_set_attrs.assert_called_once_with(call_response, span)
+        mock_set_attrs.assert_called_once_with(call_response, span, "trace")
 
 
 @pytest.mark.asyncio
@@ -383,10 +386,11 @@ async def test_handle_response_model_async_sets_attributes():
     result = MagicMock(spec=BaseModel)
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        await _handle_response_model_async(result, fn, span)
+        await handlers.handle_response_model_async(result, fn, span)
         # Assert based on internal call
-        mock_set_attrs.assert_called_once_with(result, span)
+        mock_set_attrs.assert_called_once_with(result, span, "trace")
 
 
 @pytest.mark.asyncio
@@ -397,10 +401,11 @@ async def test_handle_structured_stream_async_sets_attributes():
     result._error = None
     fn = MagicMock()
     span = MagicMock(spec=Span)
+    handlers = _Handlers("trace")
     with patch("lilypad.lib._utils.middleware._set_response_model_attributes") as mock_set_attrs:
-        await _handle_structured_stream_async(result, fn, span)
+        await handlers.handle_structured_stream_async(result, fn, span)
         # Assert based on internal call
-        mock_set_attrs.assert_called_once_with(result.constructed_response_model, span)
+        mock_set_attrs.assert_called_once_with(result.constructed_response_model, span, "trace")
 
 
 def test_get_custom_context_manager():
@@ -520,31 +525,45 @@ def test_create_mirascope_middleware():
     mock_cm_instance = MagicMock()
     mock_cm_factory = MagicMock(return_value=mock_cm_instance)
     mock_factory_return = MagicMock()
-
+    mock_handlers = MagicMock()
     with (
         patch(
             "lilypad.lib._utils.middleware.middleware_factory", return_value=mock_factory_return
         ) as mock_middleware_factory,
         patch("lilypad.lib._utils.middleware._get_custom_context_manager", return_value=mock_cm_factory) as mock_get_cm,
+        patch("lilypad.lib._utils.middleware._Handlers", return_value=mock_handlers),
     ):
         middleware_decorator = create_mirascope_middleware(
-            mock_function, mock_arg_types, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder
+            mock_function,
+            mock_arg_types,
+            mock_arg_values,
+            is_async,
+            prompt_template,
+            project_uuid,
+            mock_span_context_holder,
         )
 
         mock_get_cm.assert_called_once_with(
-            mock_function, mock_arg_types, mock_arg_values, is_async, prompt_template, project_uuid, mock_span_context_holder, None
+            mock_function,
+            mock_arg_types,
+            mock_arg_values,
+            is_async,
+            prompt_template,
+            project_uuid,
+            mock_span_context_holder,
+            None,
         )
 
         mock_middleware_factory.assert_called_once_with(
             custom_context_manager=mock_cm_factory,
-            handle_call_response=middleware._handle_call_response,
-            handle_call_response_async=middleware._handle_call_response_async,
-            handle_stream=middleware._handle_stream,
-            handle_stream_async=middleware._handle_stream_async,
-            handle_response_model=middleware._handle_response_model,
-            handle_response_model_async=middleware._handle_response_model_async,
-            handle_structured_stream=middleware._handle_structured_stream,
-            handle_structured_stream_async=middleware._handle_structured_stream_async,
+            handle_call_response=mock_handlers.handle_call_response,
+            handle_call_response_async=mock_handlers.handle_call_response_async,
+            handle_stream=mock_handlers.handle_stream,
+            handle_stream_async=mock_handlers.handle_stream_async,
+            handle_response_model=mock_handlers.handle_response_model,
+            handle_response_model_async=mock_handlers.handle_response_model_async,
+            handle_structured_stream=mock_handlers.handle_structured_stream,
+            handle_structured_stream_async=mock_handlers.handle_structured_stream_async,
             handle_error=middleware._handle_error,
             handle_error_async=middleware._handle_error_async,
         )
