@@ -42,10 +42,10 @@ class MetricFn(Protocol[R]):
         ...
 
 
-class MetricFnWithArgs(Protocol[P, R]):
+class MetricFnWithArgs(Protocol[R, P]):
     """Protocol for a metric function that also accepts test case arguments."""
 
-    def __call__(self, actual: R, ideal: R, *args: P.args, **kwargs: P.kwargs) -> bool | float | int:
+    def __call__(self, actual: R, ideal: R, *args: P.args, **kwargs: P.kwargs) -> bool | int | float:
         """
         Compares the actual output to the ideal output, using test case inputs.
 
