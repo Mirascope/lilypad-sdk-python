@@ -491,7 +491,7 @@ _SANDBOX_PRE_ACTIONS = [
 _SANDBOX_AFTER_ACTIONS = [
     "result = result.response if isinstance(result, AsyncTrace | Trace) else result",
     "with suppress(ImportError): from mirascope.core import BaseCallResponse",
-    "result = result.content if (mirascope_response := locals().get('BaseCallResponse')) else result",
+    "result = getattr(result, 'content', result) if (mirascope_response := locals().get('BaseCallResponse')) else result",
 ]
 _SANDBOX_EXTRA_IMPORT = [
     f"from {TRACE_MODULE_NAME} import _get_trace_context, AsyncTrace, Trace",
