@@ -206,8 +206,9 @@ class Experiment(Generic[P, R]):
         duplicates = [i for i, f in enumerate(all_funcs) if getattr(f, "__name__", f"func_{i}") == base_name]
         if len(duplicates) > 1:
             try:
-                name_index = duplicates.index(index)
-                return f"{base_name} ({name_index + 1})"
+                if version_number := getattr(func, "version_number", None):
+                    return f"{base_name} ({version_number})"
+                return f"{base_name} ({duplicates.index(index) + 1})"
             except ValueError:
                 return f"{base_name}_{index}"
         return base_name
