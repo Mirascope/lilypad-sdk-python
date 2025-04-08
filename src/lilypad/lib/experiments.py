@@ -61,7 +61,7 @@ class MetricFnWithArgs(Protocol[P, R]):
         ...
 
 
-MetricFuncType: TypeAlias = MetricFn[R] | MetricFnWithArgs[P, R]
+MetricFuncType: TypeAlias = MetricFn[R] | MetricFnWithArgs[R, P]
 
 _SUMMARY_FORMAT_PERCENTAGE = "percentage"
 _SUMMARY_FORMAT_FLOAT = "float"
@@ -117,7 +117,7 @@ class Experiment(Generic[P, R]):
         R: TypeVar representing the return type (or awaitable inner type) of the function.
     """
 
-    def __init__(self, fn: Callable[P, Any | Coroutine[Any, Any, Any]]) -> None:
+    def __init__(self, fn: Callable[P, BaseCallResponse | Coroutine[Any, Any, BaseCallResponse] | R | Coroutine[Any, Any, R]]) -> None:
         """
         Initializes an Experiment with the primary function to test.
 
@@ -145,7 +145,7 @@ class Experiment(Generic[P, R]):
         except TypeError:
             return False
 
-    def metric(self, name: str) -> Callable[[MetricFuncType], None]:
+    def metric(self, name: str) -> Callable[[MetricFuncType[R, P]], None]:
         """
         Returns a decorator to register a metric function for the experiment.
 
@@ -493,9 +493,8 @@ class Experiment(Generic[P, R]):
         summary_results: _SummaryResultData = {}
         if not all_results or not all_results[0]:
             return summary_results
-        num_versions = len(all_results[0]) if all_results else 0
 
-        for j, version_name in enumerate(unique_version_names):
+        for version_index, version_name in enumerate(unique_version_names):
             summary_results[version_name] = {}
             for metric_name in metric_names:
                 valid: list[bool | float | int] = []
@@ -671,7 +670,7 @@ class Experiment(Generic[P, R]):
             self._console.print(f"[bold red]Error during detailed results display:[/bold red] {e}")
             run_span.record_exception(e)
 
-    def run(self, *versions: Callable[P, R], num_threads: int | None = None) -> None:
+    def run(self, *versions: Callable[P, R], num_threads: int | None = None, include_target_fn: bool = True) -> None:
         """
         Runs the experiment synchronously for all registered cases and metrics.
 
@@ -682,10 +681,18 @@ class Experiment(Generic[P, R]):
             *versions: Additional synchronous function versions to test.
             num_threads: The number of worker threads to use for parallel execution.
                          If None or 1, runs sequentially.
+            include_target_fn: Whether to include the target function provided
+                           during initialization in the comparison. Defaults to True.
 
         Raises:
             TypeError: If the target function or any provided version is async.
         """
+        if not include_target_fn and not versions:
+            self._console.print(
+                "[yellow]Warning: No versions provided and include_target_fn=False. Nothing to run.[/yellow]"
+            )
+            return
+
         if self._is_target_async:
             raise TypeError(
                 f"Target function '{getattr(self._target_fn, '__name__', '...')}' is async. Use arun() instead."
@@ -700,7 +707,11 @@ class Experiment(Generic[P, R]):
             self._console.print("[yellow]Warning: No test cases added. Nothing to run.[/yellow]")
             return
 
-        sync_versions_to_run = cast(tuple[Callable[P, R], ...], (self._target_fn,) + versions)
+        sync_versions_to_run: tuple[Callable[P, R], ...]
+        if include_target_fn:
+            sync_versions_to_run = cast(tuple[Callable[P, R], ...], (self._target_fn,) + versions)
+        else:
+            sync_versions_to_run = versions
 
         with self._tracer.start_as_current_span("Experiment.run[sync]") as run_span:
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -734,7 +745,7 @@ class Experiment(Generic[P, R]):
 
             self._post_process_results(all_results, unique_version_names, metric_names, run_span, csv_filename)
 
-    async def arun(self, *versions: AnyCallable) -> None:
+    async def arun(self, *versions: AnyCallable, include_target_fn: bool = True) -> None:
         """
         Runs the experiment asynchronously for all registered cases and metrics.
 
@@ -744,13 +755,23 @@ class Experiment(Generic[P, R]):
 
         Args:
             *versions: Additional sync or async function versions to test.
+            include_target_fn: Whether to include the target function provided
+                           during initialization in the comparison. Defaults to True.
         """
+        if not include_target_fn and not versions:
+            self._console.print(
+                "[yellow]Warning: No versions provided and include_target_fn=False. Nothing to run.[/yellow]"
+            )
+            return
         if not self._cases:
             self._console.print("[yellow]Warning: No test cases added. Nothing to run.[/yellow]")
             return
 
-        mixed_versions_to_run: tuple[AnyCallable, ...] = (self._target_fn,) + versions
-
+        mixed_versions_to_run: tuple[AnyCallable, ...]
+        if include_target_fn:
+            mixed_versions_to_run = (self._target_fn,) + versions
+        else:
+            mixed_versions_to_run = versions
         with self._tracer.start_as_current_span("Experiment.run[async]") as run_span:
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
             csv_filename: str = f"run_{timestamp}.csv"
