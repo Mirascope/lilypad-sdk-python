@@ -646,7 +646,7 @@ class Experiment(Generic[P, R]):
             row_data: list[str] = [str(i + 1), self._format_inputs(sample), repr(sample.ideal)]
             if i < len(all_results):
                 sample_run_results = all_results[i]
-                for j, version_result in enumerate(sample_run_results):
+                for version_result in sample_run_results:
                     if version_result is None:
                         row_data.append("[grey50]Task Error[/grey50]")
                         if self._metrics:
