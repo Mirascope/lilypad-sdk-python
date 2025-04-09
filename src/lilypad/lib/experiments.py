@@ -1,3 +1,4 @@
+# src/lilypad/lib/experiments.py
 """Experimentation framework for evaluating and comparing functions."""
 
 import csv
@@ -20,7 +21,7 @@ from opentelemetry.trace import Span as OTSpan, Status, Tracer, StatusCode
 from lilypad.lib.traces import Trace, AsyncTrace
 
 P = ParamSpec("P")
-R = TypeVar("R")
+R = TypeVar("R")  # Represents the UNWRAPPED result type expected by metrics/ideal
 
 AnyCallable: TypeAlias = Callable[..., Any | Coroutine[Any, Any, Any]]
 
@@ -30,10 +31,10 @@ class MetricFn(Protocol[R]):
 
     def __call__(self, actual: R, ideal: R) -> bool | float | int:
         """
-        Compares the actual output to the ideal output.
+        Compares the actual (unwrapped) output to the ideal output.
 
         Args:
-            actual: The actual output from the function under test.
+            actual: The actual, potentially unwrapped output from the function.
             ideal: The ideal/expected output for the test case.
 
         Returns:
@@ -47,10 +48,10 @@ class MetricFnWithArgs(Protocol[R, P]):
 
     def __call__(self, actual: R, ideal: R, *args: P.args, **kwargs: P.kwargs) -> bool | int | float:
         """
-        Compares the actual output to the ideal output, using test case inputs.
+        Compares the actual (unwrapped) output to the ideal output, using inputs.
 
         Args:
-            actual: The actual output from the function under test.
+            actual: The actual, potentially unwrapped output from the function.
             ideal: The ideal/expected output for the test case.
             *args: Positional arguments supplied to the function for this test case.
             **kwargs: Keyword arguments supplied to the function for this test case.
@@ -76,7 +77,7 @@ class ExperimentCase(BaseModel, Generic[P, R]):
 
     args: tuple
     kwargs: dict[str, Any]
-    ideal: R
+    ideal: R  # Ideal output (expected type R)
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -84,7 +85,7 @@ class MetricInfo(TypedDict):
     """Stores information about a registered metric using TypedDict."""
 
     name: str
-    metric_fn: MetricFuncType
+    metric_fn: MetricFuncType[R, P]  # Uses R and P
 
 
 class VersionResult(BaseModel, Generic[R]):
@@ -93,14 +94,15 @@ class VersionResult(BaseModel, Generic[R]):
     case_index: int
     version_index: int
     version_name: str
-    actual: R | None = None
+    actual_raw: Any | None = None  # Store the raw return value
+    actual_unwrapped: R | None = None  # Store the unwrapped value (type R)
     metric_results: dict[str, bool | float | int | str]
     error: Exception | None = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-_MetricInfoEntry: TypeAlias = tuple[MetricInfo, bool]
-_AllResults: TypeAlias = list[list[VersionResult[R] | None]]  # Allow None for failed tasks
+_MetricInfoEntry: TypeAlias = tuple[MetricInfo, bool]  # MetricInfo and accepts_args flag
+_AllResults: TypeAlias = list[list[VersionResult[R] | None]]
 _SummaryResultData: TypeAlias = dict[str, dict[str, tuple[float, str]]]
 
 
@@ -110,19 +112,22 @@ class Experiment(Generic[P, R]):
 
     Supports both synchronous and asynchronous functions via `run` and `arun`
     methods respectively. Handles result collection (sequentially or in parallel),
-    metric evaluation, reporting (Rich tables), CSV export, and OpenTelemetry tracing.
+    metric evaluation against the unwrapped function result, reporting (Rich tables),
+    CSV export, and OpenTelemetry tracing.
 
     Generic Parameters:
         P: ParamSpec representing the parameters of the function under test.
-        R: TypeVar representing the return type (or awaitable inner type) of the function.
+        R: TypeVar representing the **unwrapped** return type expected by metrics
+           and the `ideal` value in test cases.
     """
 
-    def __init__(self, fn: Callable[P, BaseCallResponse | Coroutine[Any, Any, BaseCallResponse] | R | Coroutine[Any, Any, R]]) -> None:
+    def __init__(self, fn: Callable[P, Any | Coroutine[Any, Any, Any]]) -> None:
         """
         Initializes an Experiment with the primary function to test.
 
         Args:
-            fn: The primary function (sync or async) to be tested.
+            fn: The primary function (sync or async) to be tested. Its raw return
+                value will be processed by `_extract_result` before metric evaluation.
         """
         if not callable(fn):
             raise TypeError("The function provided must be callable.")
@@ -132,6 +137,10 @@ class Experiment(Generic[P, R]):
         self._cases: list[ExperimentCase[P, R]] = []
         self._console = Console()
         self._tracer: Tracer = trace.get_tracer(_OTEL_TRACE_PROVIDER_NAME)
+        try:
+            self._target_signature = inspect.signature(self._target_fn)
+        except ValueError:  # Handle cases where signature cannot be retrieved (e.g., builtins)
+            self._target_signature = None
 
     def _calculate_accepts_args(self, metric_fn: Callable[..., Any]) -> bool:
         """Determines if a metric function accepts extra args based on signature."""
@@ -149,12 +158,14 @@ class Experiment(Generic[P, R]):
         """
         Returns a decorator to register a metric function for the experiment.
 
+        The metric function will receive the **unwrapped** result of the function
+        execution as its `actual` argument.
+
         Args:
             name: A unique display name for the metric.
 
         Returns:
-            A decorator function that takes a metric function (MetricFn or
-            MetricFnWithArgs) and registers it. The decorator itself returns None.
+            A decorator function that takes a metric function and registers it.
 
         Raises:
             ValueError: If the metric name is empty or already exists.
@@ -163,13 +174,14 @@ class Experiment(Generic[P, R]):
         if not isinstance(name, str) or not name:
             raise ValueError("Metric name must be non-empty")
 
-        def decorator(metric_fn: MetricFuncType) -> None:
+        def decorator(metric_fn: MetricFuncType[R, P]) -> None:
             if not callable(metric_fn):
                 raise TypeError("Metric must be callable")
             if any(m["name"] == name for m, _ in self._metrics):
                 raise ValueError(f"Metric '{name}' exists")
             accepts_args = self._calculate_accepts_args(metric_fn)
-            metric_info: MetricInfo = {"name": name, "metric_fn": metric_fn}
+            # Cast metric_fn to satisfy MetricInfo type definition
+            metric_info: MetricInfo = {"name": name, "metric_fn": cast(MetricFuncType, metric_fn)}
             self._metrics.append((metric_info, accepts_args))
 
         return decorator
@@ -179,7 +191,8 @@ class Experiment(Generic[P, R]):
         Adds a test case to the experiment.
 
         Args:
-            ideal: The expected result (ideal output) for this test case.
+            ideal: The expected result (ideal output) for this test case. Should
+                   match the **unwrapped** return type R.
             *args: Positional arguments to pass to the function under test.
             **kwargs: Keyword arguments to pass to the function under test.
 
@@ -192,39 +205,32 @@ class Experiment(Generic[P, R]):
 
     def _get_function_name(self, func: AnyCallable, index: int, all_funcs: Sequence[AnyCallable]) -> str:
         """
-        Generates a unique, human-readable name for a function version (sync or async).
-
-        Args:
-            func: The function callable.
-            index: The index of the function in the list of versions being run.
-            all_funcs: The sequence of all functions being run in this experiment.
-
-        Returns:
-            A unique string name for the function version.
+        Generates a unique, human-readable name for a function version.
+        Uses `version_number` attribute if available, otherwise handles duplicates.
         """
         base_name = getattr(func, "__name__", f"func_{index}")
+        # Attempt to get version number if attached by @trace decorator
+        if version_number := getattr(func, "version_number", None):
+            return f"{base_name}_v{version_number}"
+
+        # Fallback duplicate handling based on position in list
         duplicates = [i for i, f in enumerate(all_funcs) if getattr(f, "__name__", f"func_{i}") == base_name]
         if len(duplicates) > 1:
-            try:
-                if version_number := getattr(func, "version_number", None):
-                    return f"{base_name} ({version_number})"
-                return f"{base_name} ({duplicates.index(index) + 1})"
-            except ValueError:
-                return f"{base_name}_{index}"
-        return base_name
+            # Use index suffix if version number not found and duplicates exist
+            return f"{base_name}_{index}"
+
+        return base_name  # Return base name if no collision or version number
 
     def _extract_result(self, result: Any) -> Any:
-        """Extracts the underlying result if wrapped in Trace or BaseCallResponse."""
+        """Extracts the underlying result if wrapped in Trace."""
         if isinstance(result, (AsyncTrace, Trace)):
             result = result.response
-        if isinstance(result, BaseCallResponse):
-            result = result.content
         return result
 
     def _calculate_metrics(
         self, actual_unwrapped: R | None, case: ExperimentCase[P, R]
     ) -> dict[str, bool | float | int | str]:
-        """Calculates all registered metrics for a given result and case."""
+        """Calculates all registered metrics against the unwrapped actual result."""
         metric_outputs: dict[str, bool | float | int | str] = {}
         if actual_unwrapped is None:
             for metric_info, _ in self._metrics:
@@ -236,10 +242,12 @@ class Experiment(Generic[P, R]):
             try:
                 metric_fn = metric_info["metric_fn"]
                 if accepts_args:
-                    mfn_args = cast(MetricFnWithArgs[P, R], metric_fn)
+                    mfn_args = cast(MetricFnWithArgs[R, P], metric_fn)
+                    # Pass unwrapped result to metric
                     metric_outputs[metric_name] = mfn_args(actual_unwrapped, case.ideal, *case.args, **case.kwargs)
                 else:
                     mfn_simple = cast(MetricFn[R], metric_fn)
+                    # Pass unwrapped result to metric
                     metric_outputs[metric_name] = mfn_simple(actual_unwrapped, case.ideal)
             except Exception as metric_error:
                 metric_outputs[metric_name] = f"[red]Error: {metric_error}[/red]"
@@ -250,13 +258,17 @@ class Experiment(Generic[P, R]):
         if version_result.error:
             span.set_status(Status(StatusCode.ERROR, str(version_result.error)))
             span.record_exception(version_result.error)
-            span.set_attribute("experiment.result.actual", "N/A (Func Err)")
+            span.set_attribute("experiment.result.actual_raw", "N/A (Func Err)")
+            span.set_attribute("experiment.result.actual_unwrapped", "N/A (Func Err)")
         else:
             span.set_status(Status(StatusCode.OK))
             try:
-                span.set_attribute("experiment.result.actual", repr(version_result.actual))
+                # Store both raw and unwrapped representations if possible
+                span.set_attribute("experiment.result.actual_raw", repr(version_result.actual_raw))
+                span.set_attribute("experiment.result.actual_unwrapped", repr(version_result.actual_unwrapped))
             except Exception:
-                span.set_attribute("experiment.result.actual", "Serialization failed")
+                span.set_attribute("experiment.result.actual_raw", "Serialization failed")
+                span.set_attribute("experiment.result.actual_unwrapped", "Serialization failed")
 
         for metric_name, metric_value in version_result.metric_results.items():
             attr_key = f"experiment.metric.{metric_name}"
@@ -267,6 +279,22 @@ class Experiment(Generic[P, R]):
                 span.set_attribute(attr_key, metric_value)
             else:
                 span.set_attribute(attr_key, str(metric_value))
+
+    def _format_inputs(self, case: ExperimentCase[P, R]) -> str:
+        """Formats case inputs into a string representation."""
+        if not self._target_signature:
+            # Fallback if signature retrieval failed
+            return f"Args: {case.args!r}, Kwargs: {case.kwargs!r}"
+        try:
+            bound_args = self._target_signature.bind_partial(*case.args, **case.kwargs)
+            bound_args.apply_defaults()
+            parts = []
+            for name, value in bound_args.arguments.items():
+                parts.append(f"{name}={repr(value)}")
+            return ", ".join(parts)
+        except TypeError:
+            # Fallback if binding fails
+            return f"Args: {case.args!r}, Kwargs: {case.kwargs!r}"
 
     def _execute_and_trace_sync(
         self,
@@ -281,8 +309,7 @@ class Experiment(Generic[P, R]):
         with self._tracer.start_as_current_span(span_name) as exec_span:
             exec_span.set_attribute("experiment.case.index", case_idx + 1)
             try:
-                exec_span.set_attribute("experiment.case.args", repr(case.args))
-                exec_span.set_attribute("experiment.case.kwargs", repr(case.kwargs))
+                exec_span.set_attribute("experiment.case.inputs", self._format_inputs(case))
                 exec_span.set_attribute("experiment.case.ideal", repr(case.ideal))
             except Exception:
                 exec_span.set_attribute("experiment.case.inputs.error", "Serialization failed")
@@ -290,22 +317,25 @@ class Experiment(Generic[P, R]):
             exec_span.set_attribute("experiment.version.index", version_idx)
 
             run_error: Exception | None = None
+            actual_raw_result: Any | None = None
             actual_unwrapped_result: R | None = None
             metric_outputs: dict[str, bool | float | int | str] = {}
 
             try:
                 raw_result = func_version(*case.args, **case.kwargs)
+                actual_raw_result = raw_result  # Store raw result
                 actual_unwrapped_result = self._extract_result(raw_result)
                 metric_outputs = self._calculate_metrics(actual_unwrapped_result, case)
             except Exception as e:
                 run_error = e
-                metric_outputs = self._calculate_metrics(None, case)  # Mark metrics as N/A
+                metric_outputs = self._calculate_metrics(None, case)
 
             version_result = VersionResult[R](
                 case_index=case_idx,
                 version_index=version_idx,
                 version_name=version_name,
-                actual=actual_unwrapped_result,
+                actual_raw=actual_raw_result,
+                actual_unwrapped=actual_unwrapped_result,
                 metric_results=metric_outputs,
                 error=run_error,
             )
@@ -320,8 +350,7 @@ class Experiment(Generic[P, R]):
         with self._tracer.start_as_current_span(span_name) as exec_span:
             exec_span.set_attribute("experiment.case.index", case_idx + 1)
             try:
-                exec_span.set_attribute("experiment.case.args", repr(case.args))
-                exec_span.set_attribute("experiment.case.kwargs", repr(case.kwargs))
+                exec_span.set_attribute("experiment.case.inputs", self._format_inputs(case))
                 exec_span.set_attribute("experiment.case.ideal", repr(case.ideal))
             except Exception:
                 exec_span.set_attribute("experiment.case.inputs.error", "Serialization failed")
@@ -329,6 +358,7 @@ class Experiment(Generic[P, R]):
             exec_span.set_attribute("experiment.version.index", version_idx)
 
             run_error: Exception | None = None
+            actual_raw_result: Any | None = None
             actual_unwrapped_result: R | None = None
             metric_outputs: dict[str, bool | float | int | str] = {}
 
@@ -341,17 +371,19 @@ class Experiment(Generic[P, R]):
                     sync_callable = cast(Callable[P, Any], func_version)
                     raw_result = await asyncio.to_thread(sync_callable, *case.args, **case.kwargs)
 
+                actual_raw_result = raw_result  # Store raw result
                 actual_unwrapped_result = self._extract_result(raw_result)
                 metric_outputs = self._calculate_metrics(actual_unwrapped_result, case)
             except Exception as e:
                 run_error = e
-                metric_outputs = self._calculate_metrics(None, case)  # Mark metrics as N/A
+                metric_outputs = self._calculate_metrics(None, case)
 
             version_result = VersionResult[R](
                 case_index=case_idx,
                 version_index=version_idx,
                 version_name=version_name,
-                actual=actual_unwrapped_result,
+                actual_raw=actual_raw_result,
+                actual_unwrapped=actual_unwrapped_result,
                 metric_results=metric_outputs,
                 error=run_error,
             )
@@ -431,7 +463,7 @@ class Experiment(Generic[P, R]):
                 all_results[case_idx][version_idx] = result_or_exc
             else:
                 self._console.print(
-                    f"[bold red]Unexpected result type in async task ({case_idx},{version_idx}): {type(result_or_exc)}[/bold red]"
+                    f"[bold red]Unexpected result type ({case_idx},{version_idx}): {type(result_or_exc)}[/bold red]"
                 )
                 all_results[case_idx][version_idx] = VersionResult[R](
                     case_index=case_idx,
@@ -449,7 +481,7 @@ class Experiment(Generic[P, R]):
             with open(csv_filename, "w", newline="", encoding="utf-8") as csvfile:
                 csv_writer: csv._writer = csv.writer(csvfile)
                 header: list[str] = (
-                    ["Case #", "Args", "Kwargs", "Ideal", "Version", "Actual"] + metric_names + ["Error"]
+                    ["Case #", "Inputs", "Ideal", "Version", "Actual (Unwrapped)"] + metric_names + ["Error"]
                 )
                 csv_writer.writerow(header)
                 for case_idx, case_data in enumerate(self._cases):
@@ -457,7 +489,6 @@ class Experiment(Generic[P, R]):
                         for version_result in all_results[case_idx]:
                             if version_result is None:
                                 continue
-
                             metric_values_for_row: list[str] = []
                             for name in metric_names:
                                 result = version_result.metric_results.get(name)
@@ -471,11 +502,12 @@ class Experiment(Generic[P, R]):
                             row_data: list[Any] = (
                                 [
                                     case_idx + 1,
-                                    repr(case_data.args),
-                                    repr(case_data.kwargs),
+                                    self._format_inputs(case_data),
                                     repr(case_data.ideal),
                                     version_result.version_name,
-                                    repr(version_result.actual) if version_result.error is None else "N/A (Func Err)",
+                                    repr(version_result.actual_unwrapped)
+                                    if version_result.error is None
+                                    else "N/A (Func Err)",
                                 ]
                                 + metric_values_for_row
                                 + [str(version_result.error) if version_result.error else ""]
@@ -502,7 +534,7 @@ class Experiment(Generic[P, R]):
                 for case_idx in range(len(self._cases)):
                     if case_idx < len(all_results) and version_index < len(all_results[case_idx]):
                         vr = all_results[case_idx][version_index]
-                        if vr.error is None:
+                        if vr and vr.error is None:
                             mr = vr.metric_results.get(metric_name)
                             if isinstance(mr, (bool, int, float)):
                                 valid.append(mr)
@@ -554,8 +586,10 @@ class Experiment(Generic[P, R]):
             summary_table.add_row(*row_data)
         self._console.print(summary_table)
 
-    def _display_details(self, all_results: _AllResults, metric_names: list[str]) -> None:
-        """Displays the detailed results for all cases and versions in a single table."""
+    def _display_details(
+        self, all_results: _AllResults, metric_names: list[str], versions_to_run: Sequence[AnyCallable]
+    ) -> None:
+        """Displays the detailed results with rows per case and columns per version."""
         if not self._cases:
             return
 
@@ -567,73 +601,61 @@ class Experiment(Generic[P, R]):
             expand=True,
             show_lines=True,
         )
+
+        # Define static columns
         detail_table.add_column("Case #", style="dim", justify="right", no_wrap=True)
         detail_table.add_column("Inputs", style="yellow", overflow="fold", min_width=30, ratio=2)
         detail_table.add_column("Ideal", style="green", overflow="fold", min_width=15, ratio=1)
-        detail_table.add_column("Version", style="dim", min_width=15)
-        detail_table.add_column("Actual Output", style="cyan", overflow="fold", min_width=20, ratio=2)
-        if self._metrics:
-            for name in metric_names:
-                detail_table.add_column(name, justify="center", min_width=10)
-        detail_table.add_column("Error", style="red", overflow="fold", min_width=15, ratio=1)
 
+        # Define dynamic columns per version
+        version_names = [self._get_function_name(f, i, versions_to_run) for i, f in enumerate(versions_to_run)]
+        for version_name in version_names:
+            detail_table.add_column(f"{version_name} - Output", style="cyan", overflow="fold", min_width=20, ratio=2)
+            if self._metrics:
+                for metric_name in metric_names:
+                    detail_table.add_column(f"{version_name} - {metric_name}", justify="center", min_width=10)
+            detail_table.add_column(f"{version_name} - Error", style="red", overflow="fold", min_width=15, ratio=1)
+
+        # Populate rows
         for i, case in enumerate(self._cases):
-            case_num_str = str(i + 1)
-            inputs_repr = f"Args: {case.args!r}\nKwargs: {case.kwargs!r}"
-            ideal_repr = repr(case.ideal)
+            row_data: list[str] = [str(i + 1), self._format_inputs(case), repr(case.ideal)]
             if i < len(all_results):
                 case_run_results = all_results[i]
-                if not case_run_results:
-                    continue
-
                 for j, version_result in enumerate(case_run_results):
-                    display_case_num = case_num_str if j == 0 else ""
-                    display_inputs = inputs_repr if j == 0 else ""
-                    display_ideal = ideal_repr if j == 0 else ""
-
-                    if version_result is None:
-                        detail_table.add_row(
-                            display_case_num,
-                            display_inputs,
-                            display_ideal,
-                            "[grey50]Task Error[/grey50]",
-                            "",
-                            *[""] * (len(metric_names) + 1) if self._metrics else [""] * 1,
-                        )
+                    if version_result is None:  # Handle potential task failure
+                        row_data.append("[grey50]Task Error[/grey50]")
+                        if self._metrics:
+                            row_data.extend([""] * len(metric_names))
+                        row_data.append("")  # Error column
                         continue
 
-                    row_data: list[str] = [display_case_num, display_inputs, display_ideal, version_result.version_name]
+                    # Append Actual Output
                     if version_result.error:
                         row_data.append("[grey50]N/A (Func Err)[/grey50]")
-                        if self._metrics:
-                            row_data.extend(["[grey50]N/A[/grey50]"] * len(metric_names))
-                        row_data.append(str(version_result.error))
                     else:
-                        row_data.append(repr(version_result.actual))
-                        if self._metrics:
-                            for name in metric_names:
-                                result = version_result.metric_results.get(name, "[grey50]Missing[/grey50]")
-                                if isinstance(result, bool):
-                                    row_data.append(
-                                        "[green][bold]True[/bold][/green]"
-                                        if result
-                                        else "[red][bold]False[/bold][/red]"
-                                    )
-                                elif isinstance(result, (int, float)):
-                                    row_data.append(f"{result:.4f}" if isinstance(result, float) else str(result))
-                                else:
-                                    row_data.append(str(result))
-                        row_data.append("")
-                    detail_table.add_row(*row_data)
+                        row_data.append(repr(version_result.actual_unwrapped))  # Show unwrapped
+
+                    # Append Metrics
+                    if self._metrics:
+                        for name in metric_names:
+                            result = version_result.metric_results.get(name, "[grey50]Missing[/grey50]")
+                            if isinstance(result, bool):
+                                row_data.append(
+                                    "[green][bold]True[/bold][/green]" if result else "[red][bold]False[/bold][/red]"
+                                )
+                            elif isinstance(result, (int, float)):
+                                row_data.append(f"{result:.4f}" if isinstance(result, float) else str(result))
+                            else:
+                                row_data.append(str(result))
+
+                    # Append Error
+                    row_data.append(str(version_result.error) if version_result.error else "")
             else:
-                detail_table.add_row(
-                    case_num_str,
-                    inputs_repr,
-                    ideal_repr,
-                    "[grey50]No results[/grey50]",
-                    "",
-                    *[""] * (len(metric_names) + 1) if self._metrics else [""] * 1,
-                )
+                # Case where no results are available for the row (should not happen if populated correctly)
+                num_version_cols = len(versions_to_run) * (1 + (len(metric_names) if self._metrics else 0) + 1)
+                row_data.extend(["[grey50]No results[/grey50]"] * num_version_cols)
+
+            detail_table.add_row(*row_data)
 
         self._console.print(detail_table)
 
@@ -644,6 +666,7 @@ class Experiment(Generic[P, R]):
         metric_names: list[str],
         run_span: OTSpan,
         csv_filename: str,
+        versions_ran: Sequence[AnyCallable],
     ) -> None:
         """Handles saving, summary, and detailed display after results are collected."""
         try:
@@ -666,7 +689,8 @@ class Experiment(Generic[P, R]):
             self._console.print("[yellow]Warning: No metrics added. Skipping summary.[/yellow]")
 
         try:
-            self._display_details(all_results, metric_names)
+            # Pass versions_ran to details display for column generation
+            self._display_details(all_results, metric_names, versions_ran)
         except Exception as e:
             self._console.print(f"[bold red]Error during detailed results display:[/bold red] {e}")
             run_span.record_exception(e)
@@ -680,47 +704,50 @@ class Experiment(Generic[P, R]):
 
         Args:
             *versions: Additional synchronous function versions to test.
-            num_threads: The number of worker threads to use for parallel execution.
-                         If None or 1, runs sequentially.
-            include_target_fn: Whether to include the target function provided
-                           during initialization in the comparison. Defaults to True.
+            num_threads: The number of worker threads for parallel execution. Default is sequential.
+            include_target_fn: Whether to include the initial target function. Defaults to True.
 
         Raises:
             TypeError: If the target function or any provided version is async.
         """
-        if not include_target_fn and not versions:
+        target_fn_sync: Callable[P, R] | None = None
+        if include_target_fn:
+            if self._is_target_async:
+                raise TypeError(
+                    f"Target function '{getattr(self._target_fn, '__name__', '...')}' is async. Use arun() instead or set include_target_fn=False."
+                )
+            target_fn_sync = cast(Callable[P, R], self._target_fn)
+
+        sync_versions: list[Callable[P, R]] = []
+        for v in versions:
+            if inspect.iscoroutinefunction(v):
+                raise TypeError(f"Sync run() called with async version: {getattr(v, '__name__', '...')}. Use arun().")
+            sync_versions.append(v)
+
+        versions_to_run_list: list[Callable[P, R]] = []
+        if target_fn_sync:
+            versions_to_run_list.append(target_fn_sync)
+        versions_to_run_list.extend(sync_versions)
+
+        if not versions_to_run_list:
             self._console.print(
-                "[yellow]Warning: No versions provided and include_target_fn=False. Nothing to run.[/yellow]"
+                "[yellow]Warning: No functions selected to run (check include_target_fn and versions).[/yellow]"
             )
             return
-
-        if self._is_target_async:
-            raise TypeError(
-                f"Target function '{getattr(self._target_fn, '__name__', '...')}' is async. Use arun() instead."
-            )
-        async_versions = [v for v in versions if inspect.iscoroutinefunction(v)]
-        if async_versions:
-            raise TypeError(
-                f"Sync run() called with async versions: {[getattr(v, '__name__', '...') for v in async_versions]}. Use arun()."
-            )
 
         if not self._cases:
             self._console.print("[yellow]Warning: No test cases added. Nothing to run.[/yellow]")
             return
 
-        sync_versions_to_run: tuple[Callable[P, R], ...]
-        if include_target_fn:
-            sync_versions_to_run = cast(tuple[Callable[P, R], ...], (self._target_fn,) + versions)
-        else:
-            sync_versions_to_run = versions
+        versions_to_run = tuple(versions_to_run_list)
 
         with self._tracer.start_as_current_span("Experiment.run[sync]") as run_span:
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
             csv_filename: str = f"run_{timestamp}.csv"
-            num_versions: int = len(sync_versions_to_run)
+            num_versions: int = len(versions_to_run)
             metric_names: list[str] = [m["name"] for m, _ in self._metrics]
             unique_version_names: list[str] = [
-                self._get_function_name(f, i, sync_versions_to_run) for i, f in enumerate(sync_versions_to_run)
+                self._get_function_name(f, i, versions_to_run) for i, f in enumerate(versions_to_run)
             ]
 
             run_span.set_attribute("experiment.execution_mode", "sync")
@@ -740,24 +767,23 @@ class Experiment(Generic[P, R]):
 
             all_results: _AllResults
             if parallel:
-                all_results = self._collect_parallel_sync(sync_versions_to_run, cast(int, num_threads))
+                all_results = self._collect_parallel_sync(versions_to_run, cast(int, num_threads))
             else:
-                all_results = self._collect_sequential(sync_versions_to_run)
+                all_results = self._collect_sequential(versions_to_run)
 
-            self._post_process_results(all_results, unique_version_names, metric_names, run_span, csv_filename)
+            self._post_process_results(
+                all_results, unique_version_names, metric_names, run_span, csv_filename, versions_to_run
+            )
 
     async def arun(self, *versions: AnyCallable, include_target_fn: bool = True) -> None:
         """
         Runs the experiment asynchronously for all registered cases and metrics.
 
-        Accepts a mix of synchronous and asynchronous functions. Executes async
-        functions directly and sync functions in separate threads via asyncio.to_thread.
-        Uses asyncio.gather for parallel execution.
+        Accepts a mix of sync/async functions. Executes using asyncio.gather.
 
         Args:
             *versions: Additional sync or async function versions to test.
-            include_target_fn: Whether to include the target function provided
-                           during initialization in the comparison. Defaults to True.
+            include_target_fn: Whether to include the initial target function. Defaults to True.
         """
         if not include_target_fn and not versions:
             self._console.print(
@@ -768,18 +794,26 @@ class Experiment(Generic[P, R]):
             self._console.print("[yellow]Warning: No test cases added. Nothing to run.[/yellow]")
             return
 
-        mixed_versions_to_run: tuple[AnyCallable, ...]
+        versions_to_run_list: list[AnyCallable] = []
         if include_target_fn:
-            mixed_versions_to_run = (self._target_fn,) + versions
-        else:
-            mixed_versions_to_run = versions
+            versions_to_run_list.append(self._target_fn)
+        versions_to_run_list.extend(versions)
+
+        if not versions_to_run_list:
+            self._console.print(
+                "[yellow]Warning: No functions selected to run (check include_target_fn and versions).[/yellow]"
+            )
+            return
+
+        versions_to_run = tuple(versions_to_run_list)
+
         with self._tracer.start_as_current_span("Experiment.run[async]") as run_span:
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
             csv_filename: str = f"run_{timestamp}.csv"
-            num_versions: int = len(mixed_versions_to_run)
+            num_versions: int = len(versions_to_run)
             metric_names: list[str] = [m["name"] for m, _ in self._metrics]
             unique_version_names: list[str] = [
-                self._get_function_name(f, i, mixed_versions_to_run) for i, f in enumerate(mixed_versions_to_run)
+                self._get_function_name(f, i, versions_to_run) for i, f in enumerate(versions_to_run)
             ]
 
             run_span.set_attribute("experiment.execution_mode", "async")
@@ -794,6 +828,8 @@ class Experiment(Generic[P, R]):
                 f"({len(self._cases)} cases, {num_versions} versions)...[/bold cyan]"
             )
 
-            all_results = await self._collect_parallel_async(mixed_versions_to_run)
+            all_results = await self._collect_parallel_async(versions_to_run)
 
-            self._post_process_results(all_results, unique_version_names, metric_names, run_span, csv_filename)
+            self._post_process_results(
+                all_results, unique_version_names, metric_names, run_span, csv_filename, versions_to_run
+            )
