@@ -1,8 +1,7 @@
-# src/lilypad/lib/experiments.py
 """Experimentation framework for evaluating and comparing functions."""
 
 import csv
-import json  # Added for json.dumps
+import json
 import asyncio
 import inspect
 import datetime
@@ -16,12 +15,9 @@ from rich.text import Text
 from rich.table import Table
 from rich.console import Console
 from opentelemetry import trace
-from mirascope.core.base import BaseCallResponse
 from opentelemetry.trace import Span as OTSpan, Status, Tracer, StatusCode
 
-# Assuming jsonable_encoder is accessible; adjust import if necessary
 from lilypad.lib._utils import jsonable_encoder
-from lilypad.lib.traces import Trace, AsyncTrace
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -32,13 +28,37 @@ AnyCallable: TypeAlias = Callable[..., Any | Coroutine[Any, Any, Any]]
 class MetricFn(Protocol[R]):
     """Protocol for a metric function comparing actual (raw) and ideal values."""
 
-    def __call__(self, actual: R, ideal: R) -> bool | float | int: ...
+    def __call__(self, actual: R, ideal: R) -> bool | float | int:
+        """
+        Compares the actual (raw) output to the ideal output.
+
+        Args:
+            actual: The raw output (type R) from the function under test.
+            ideal: The ideal/expected raw output (type R) for the sample.
+
+        Returns:
+            A boolean, float, or integer representing the metric score.
+        """
+        ...
 
 
 class MetricFnWithArgs(Protocol[R, P]):
-    """Protocol for a metric function that also accepts test case arguments."""
+    """Protocol for a metric function that also accepts sample arguments."""
 
-    def __call__(self, actual: R, ideal: R, *args: P.args, **kwargs: P.kwargs) -> bool | int | float: ...
+    def __call__(self, actual: R, ideal: R, *args: P.args, **kwargs: P.kwargs) -> bool | int | float:
+        """
+        Compares the actual (raw) output to the ideal output, using inputs.
+
+        Args:
+            actual: The raw output (type R) from the function under test.
+            ideal: The ideal/expected raw output (type R) for the sample.
+            *args: Positional arguments supplied to the function for this sample.
+            **kwargs: Keyword arguments supplied to the function for this sample.
+
+        Returns:
+            A boolean, float, or integer representing the metric score.
+        """
+        ...
 
 
 MetricFuncType: TypeAlias = MetricFn[R] | MetricFnWithArgs[R, P]
@@ -47,11 +67,12 @@ _SUMMARY_FORMAT_PERCENTAGE = "percentage"
 _SUMMARY_FORMAT_FLOAT = "float"
 _SUMMARY_FORMAT_NA = "na"
 _SUMMARY_FORMAT_ERROR = "error"
+
 _OTEL_TRACE_PROVIDER_NAME = "lilypad.experiment"
 
 
-class ExperimentCase(BaseModel, Generic[P, R]):
-    """Represents a single test case with inputs and expected (raw) output."""
+class ExperimentSample(BaseModel, Generic[P, R]):
+    """Represents a single sample with inputs and expected (raw) output."""
 
     args: tuple
     kwargs: dict[str, Any]
@@ -67,9 +88,9 @@ class MetricInfo(TypedDict):
 
 
 class VersionResult(BaseModel, Generic[R]):
-    """Stores the execution results for a specific function version on a single case."""
+    """Stores the execution results for a specific function version on a single sample."""
 
-    case_index: int
+    sample_index: int
     version_index: int
     version_name: str
     actual_raw: R | None = None
@@ -87,7 +108,8 @@ class Experiment(Generic[P, R]):
     """
     Manages and runs experiments to evaluate and compare function versions.
 
-    Metrics operate on the raw return value of the functions.
+    Metrics operate on the raw return value of the functions. Samples define
+    the inputs and expected outputs for each run.
 
     Generic Parameters:
         P: ParamSpec representing the parameters of the function under test.
@@ -107,7 +129,7 @@ class Experiment(Generic[P, R]):
         self._target_fn: AnyCallable = cast(AnyCallable, fn)
         self._is_target_async = inspect.iscoroutinefunction(fn)
         self._metrics: list[_MetricInfoEntry] = []
-        self._cases: list[ExperimentCase[P, R]] = []
+        self._samples: list[ExperimentSample[P, R]] = []
         self._console = Console()
         self._tracer: Tracer = trace.get_tracer(_OTEL_TRACE_PROVIDER_NAME)
         try:
@@ -161,20 +183,20 @@ class Experiment(Generic[P, R]):
 
         return decorator
 
-    def add_case(self, ideal: R, *args: P.args, **kwargs: P.kwargs) -> Self:
+    def sample(self, ideal: R, *args: P.args, **kwargs: P.kwargs) -> Self:
         """
-        Adds a test case to the experiment.
+        Adds a sample (test case) to the experiment.
 
         Args:
-            ideal: The expected **raw** result (type R) for this test case.
+            ideal: The expected **raw** result (type R) for this sample.
             *args: Positional arguments to pass to the function under test.
             **kwargs: Keyword arguments to pass to the function under test.
 
         Returns:
             The Experiment instance itself, allowing for method chaining.
         """
-        case = ExperimentCase[P, R](args=args, kwargs=kwargs, ideal=ideal)
-        self._cases.append(case)
+        sample = ExperimentSample[P, R](args=args, kwargs=kwargs, ideal=ideal)
+        self._samples.append(sample)
         return self
 
     def _get_function_name(self, func: AnyCallable, index: int, all_funcs: Sequence[AnyCallable]) -> str:
@@ -188,9 +210,9 @@ class Experiment(Generic[P, R]):
         return base_name
 
     def _calculate_metrics(
-        self, actual_raw: R | None, case: ExperimentCase[P, R]
+        self, actual_raw: R | None, sample: ExperimentSample[P, R]
     ) -> dict[str, bool | float | int | str]:
-        """Calculates all registered metrics against the raw actual result."""
+        """Calculates all registered metrics against the raw actual result for a given sample."""
         metric_outputs: dict[str, bool | float | int | str] = {}
         if actual_raw is None:
             for metric_info, _ in self._metrics:
@@ -202,10 +224,10 @@ class Experiment(Generic[P, R]):
             try:
                 if needs_case_args:
                     mfn_with_args = cast(MetricFnWithArgs[R, P], metric_fn)
-                    metric_outputs[metric_name] = mfn_with_args(actual_raw, case.ideal, *case.args, **case.kwargs)
+                    metric_outputs[metric_name] = mfn_with_args(actual_raw, sample.ideal, *sample.args, **sample.kwargs)
                 else:
                     mfn_simple = cast(MetricFn[R], metric_fn)
-                    metric_outputs[metric_name] = mfn_simple(actual_raw, case.ideal)
+                    metric_outputs[metric_name] = mfn_simple(actual_raw, sample.ideal)
             except Exception as metric_error:
                 metric_outputs[metric_name] = f"[red]Error: {metric_error}[/red]"
         return metric_outputs
@@ -232,27 +254,27 @@ class Experiment(Generic[P, R]):
             else:
                 span.set_attribute(attr_key, str(metric_value))
 
-    def _format_inputs(self, case: ExperimentCase[P, R]) -> str:
-        """Formats case inputs into a string representation for display."""
+    def _format_inputs(self, sample: ExperimentSample[P, R]) -> str:
+        """Formats sample inputs into a string representation for display."""
         if not self._target_signature:
-            return f"Args: {case.args!r}, Kwargs: {case.kwargs!r}"
+            return f"Args: {sample.args!r}, Kwargs: {sample.kwargs!r}"
         try:
-            bound_args = self._target_signature.bind_partial(*case.args, **case.kwargs)
+            bound_args = self._target_signature.bind_partial(*sample.args, **sample.kwargs)
             bound_args.apply_defaults()
             return ", ".join([f"{name}={repr(value)}" for name, value in bound_args.arguments.items()])
         except TypeError:
-            return f"Args: {case.args!r}, Kwargs: {case.kwargs!r}"
+            return f"Args: {sample.args!r}, Kwargs: {sample.kwargs!r}"
 
-    def _format_inputs_json(self, case: ExperimentCase[P, R]) -> str:
-        """Formats case inputs into a JSON string representation."""
-        fallback = {"args": case.args, "kwargs": case.kwargs}
+    def _format_inputs_json(self, sample: ExperimentSample[P, R]) -> str:
+        """Formats sample inputs into a JSON string representation."""
+        fallback = {"args": sample.args, "kwargs": sample.kwargs}
         if not self._target_signature:
             try:
                 return json.dumps(jsonable_encoder(fallback), ensure_ascii=False)
             except Exception:
                 return json.dumps({"error": "Failed to serialize basic inputs"})
         try:
-            bound_args = self._target_signature.bind_partial(*case.args, **case.kwargs)
+            bound_args = self._target_signature.bind_partial(*sample.args, **sample.kwargs)
             bound_args.apply_defaults()
             encoded_args = jsonable_encoder(bound_args.arguments)
             return json.dumps(encoded_args, ensure_ascii=False)
@@ -266,26 +288,24 @@ class Experiment(Generic[P, R]):
 
     def _execute_and_trace_sync(
         self,
-        case_idx: int,
-        case: ExperimentCase[P, R],
+        sample_idx: int,
+        sample: ExperimentSample[P, R],
         func_version: Callable[P, R],
         version_name: str,
         version_idx: int,
     ) -> VersionResult[R]:
         """Executes a sync function, calculates metrics (on raw), traces, returns results."""
-        span_name = f"case_{case_idx + 1}_{version_name}"
+        span_name = f"sample_{sample_idx + 1}_{version_name}"
         with self._tracer.start_as_current_span(span_name) as exec_span:
-            exec_span.set_attribute("experiment.case.index", case_idx + 1)
+            exec_span.set_attribute("experiment.sample.index", sample_idx + 1)
             try:
-                exec_span.set_attribute(
-                    "experiment.case.inputs", self._format_inputs(case)
-                )  # Use formatted string for display attr
+                exec_span.set_attribute("experiment.sample.inputs", self._format_inputs(sample))
             except Exception:
-                exec_span.set_attribute("experiment.case.inputs.error", "Serialization failed")
+                exec_span.set_attribute("experiment.sample.inputs.error", "Serialization failed")
             try:
-                exec_span.set_attribute("experiment.case.ideal", repr(case.ideal))
+                exec_span.set_attribute("experiment.sample.ideal", repr(sample.ideal))
             except Exception:
-                exec_span.set_attribute("experiment.case.ideal.error", "Serialization failed")
+                exec_span.set_attribute("experiment.sample.ideal.error", "Serialization failed")
             exec_span.set_attribute("experiment.version.name", version_name)
             exec_span.set_attribute("experiment.version.index", version_idx)
 
@@ -294,15 +314,15 @@ class Experiment(Generic[P, R]):
             metric_outputs: dict[str, bool | float | int | str] = {}
 
             try:
-                raw_result = func_version(*case.args, **case.kwargs)
+                raw_result = func_version(*sample.args, **sample.kwargs)
                 actual_raw_result = cast(R, raw_result)
-                metric_outputs = self._calculate_metrics(actual_raw_result, case)
+                metric_outputs = self._calculate_metrics(actual_raw_result, sample)
             except Exception as e:
                 run_error = e
-                metric_outputs = self._calculate_metrics(None, case)
+                metric_outputs = self._calculate_metrics(None, sample)
 
             version_result = VersionResult[R](
-                case_index=case_idx,
+                sample_index=sample_idx,
                 version_index=version_idx,
                 version_name=version_name,
                 actual_raw=actual_raw_result,
@@ -313,20 +333,25 @@ class Experiment(Generic[P, R]):
             return version_result
 
     async def _execute_and_trace_async(
-        self, case_idx: int, case: ExperimentCase[P, R], func_version: AnyCallable, version_name: str, version_idx: int
+        self,
+        sample_idx: int,
+        sample: ExperimentSample[P, R],
+        func_version: AnyCallable,
+        version_name: str,
+        version_idx: int,
     ) -> VersionResult[R]:
         """Executes a sync/async function, calculates metrics (on raw), traces, returns results."""
-        span_name = f"case_{case_idx + 1}_{version_name}"
+        span_name = f"sample_{sample_idx + 1}_{version_name}"
         with self._tracer.start_as_current_span(span_name) as exec_span:
-            exec_span.set_attribute("experiment.case.index", case_idx + 1)
+            exec_span.set_attribute("experiment.sample.index", sample_idx + 1)
             try:
-                exec_span.set_attribute("experiment.case.inputs", self._format_inputs(case))
+                exec_span.set_attribute("experiment.sample.inputs", self._format_inputs(sample))
             except Exception:
-                exec_span.set_attribute("experiment.case.inputs.error", "Serialization failed")
+                exec_span.set_attribute("experiment.sample.inputs.error", "Serialization failed")
             try:
-                exec_span.set_attribute("experiment.case.ideal", repr(case.ideal))
+                exec_span.set_attribute("experiment.sample.ideal", repr(sample.ideal))
             except Exception:
-                exec_span.set_attribute("experiment.case.ideal.error", "Serialization failed")
+                exec_span.set_attribute("experiment.sample.ideal.error", "Serialization failed")
             exec_span.set_attribute("experiment.version.name", version_name)
             exec_span.set_attribute("experiment.version.index", version_idx)
 
@@ -338,19 +363,19 @@ class Experiment(Generic[P, R]):
                 raw_result: Any
                 if inspect.iscoroutinefunction(func_version):
                     async_callable = cast(Callable[P, Coroutine[Any, Any, Any]], func_version)
-                    raw_result = await async_callable(*case.args, **case.kwargs)
+                    raw_result = await async_callable(*sample.args, **sample.kwargs)
                 else:
                     sync_callable = cast(Callable[P, Any], func_version)
-                    raw_result = await asyncio.to_thread(sync_callable, *case.args, **case.kwargs)
+                    raw_result = await asyncio.to_thread(sync_callable, *sample.args, **sample.kwargs)
 
                 actual_raw_result = cast(R, raw_result)
-                metric_outputs = self._calculate_metrics(actual_raw_result, case)
+                metric_outputs = self._calculate_metrics(actual_raw_result, sample)
             except Exception as e:
                 run_error = e
-                metric_outputs = self._calculate_metrics(None, case)
+                metric_outputs = self._calculate_metrics(None, sample)
 
             version_result = VersionResult[R](
-                case_index=case_idx,
+                sample_index=sample_idx,
                 version_index=version_idx,
                 version_name=version_name,
                 actual_raw=actual_raw_result,
@@ -362,35 +387,35 @@ class Experiment(Generic[P, R]):
 
     def _collect_sequential(self, versions_to_run: tuple[Callable[P, R], ...]) -> _AllResults:
         """Collects results sequentially for synchronous execution."""
-        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._cases]
-        for i, case in enumerate(self._cases):
+        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._samples]
+        for i, sample in enumerate(self._samples):
             for j, func_version in enumerate(versions_to_run):
                 version_name = self._get_function_name(func_version, j, versions_to_run)
-                result = self._execute_and_trace_sync(i, case, func_version, version_name, j)
+                result = self._execute_and_trace_sync(i, sample, func_version, version_name, j)
                 all_results[i][j] = result
         return all_results
 
     def _collect_parallel_sync(self, versions_to_run: tuple[Callable[P, R], ...], num_threads: int) -> _AllResults:
         """Collects results in parallel using threads for synchronous execution."""
-        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._cases]
+        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._samples]
         futures_map: dict[concurrent.futures.Future[VersionResult[R]], tuple[int, int]] = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            for i, case in enumerate(self._cases):
+            for i, sample in enumerate(self._samples):
                 for j, func_version in enumerate(versions_to_run):
                     version_name = self._get_function_name(func_version, j, versions_to_run)
-                    future = executor.submit(self._execute_and_trace_sync, i, case, func_version, version_name, j)
+                    future = executor.submit(self._execute_and_trace_sync, i, sample, func_version, version_name, j)
                     futures_map[future] = (i, j)
             for future in concurrent.futures.as_completed(futures_map):
-                case_idx, version_idx = futures_map[future]
+                sample_idx, version_idx = futures_map[future]
                 try:
-                    all_results[case_idx][version_idx] = future.result()
+                    all_results[sample_idx][version_idx] = future.result()
                 except Exception as exc:
                     self._console.print(
-                        f"[bold red]Error in parallel task ({case_idx},{version_idx}): {exc}[/bold red]"
+                        f"[bold red]Error in parallel task (sample {sample_idx}, version {version_idx}): {exc}[/bold red]"
                     )
                     version_name = self._get_function_name(versions_to_run[version_idx], version_idx, versions_to_run)
-                    all_results[case_idx][version_idx] = VersionResult[R](
-                        case_index=case_idx,
+                    all_results[sample_idx][version_idx] = VersionResult[R](
+                        sample_index=sample_idx,
                         version_index=version_idx,
                         version_name=version_name,
                         error=exc,
@@ -400,37 +425,39 @@ class Experiment(Generic[P, R]):
 
     async def _collect_parallel_async(self, versions_to_run: tuple[AnyCallable, ...]) -> _AllResults:
         """Collects results in parallel using asyncio.gather for asynchronous execution."""
-        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._cases]
+        all_results: _AllResults = [[None for _ in versions_to_run] for _ in self._samples]
         tasks: list[asyncio.Task[VersionResult[R]]] = []
         indices: list[tuple[int, int]] = []
-        for i, case in enumerate(self._cases):
+        for i, sample in enumerate(self._samples):
             for j, func_version in enumerate(versions_to_run):
                 version_name = self._get_function_name(func_version, j, versions_to_run)
-                tasks.append(asyncio.create_task(self._execute_and_trace_async(i, case, func_version, version_name, j)))
+                tasks.append(
+                    asyncio.create_task(self._execute_and_trace_async(i, sample, func_version, version_name, j))
+                )
                 indices.append((i, j))
         gathered_results = await asyncio.gather(*tasks, return_exceptions=True)
         for idx, result_or_exc in enumerate(gathered_results):
-            case_idx, version_idx = indices[idx]
+            sample_idx, version_idx = indices[idx]
             version_name = self._get_function_name(versions_to_run[version_idx], version_idx, versions_to_run)
             if isinstance(result_or_exc, Exception):
                 self._console.print(
-                    f"[bold red]Error in async task ({case_idx},{version_idx}): {result_or_exc}[/bold red]"
+                    f"[bold red]Error in async task (sample {sample_idx}, version {version_idx}): {result_or_exc}[/bold red]"
                 )
-                all_results[case_idx][version_idx] = VersionResult[R](
-                    case_index=case_idx,
+                all_results[sample_idx][version_idx] = VersionResult[R](
+                    sample_index=sample_idx,
                     version_index=version_idx,
                     version_name=version_name,
                     error=result_or_exc,
                     metric_results={},
                 )
             elif isinstance(result_or_exc, VersionResult):
-                all_results[case_idx][version_idx] = result_or_exc
+                all_results[sample_idx][version_idx] = result_or_exc
             else:
                 self._console.print(
-                    f"[bold red]Unexpected result type ({case_idx},{version_idx}): {type(result_or_exc)}[/bold red]"
+                    f"[bold red]Unexpected result type (sample {sample_idx}, version {version_idx}): {type(result_or_exc)}[/bold red]"
                 )
-                all_results[case_idx][version_idx] = VersionResult[R](
-                    case_index=case_idx,
+                all_results[sample_idx][version_idx] = VersionResult[R](
+                    sample_index=sample_idx,
                     version_index=version_idx,
                     version_name=version_name,
                     error=Exception(f"Unexpected result type: {type(result_or_exc)}"),
@@ -440,10 +467,9 @@ class Experiment(Generic[P, R]):
 
     def _save_results_to_csv(self, all_results: _AllResults, csv_filename: str) -> None:
         """
-        Saves the detailed experiment results to a CSV file.
+        Saves the detailed experiment results to a CSV file using JSON serialization.
 
-        Uses a fixed header including 'Exact Match' metric. Uses JSON serialization
-        for Inputs, Ideal, and Actual (Raw) columns.
+        Uses a fixed header including 'Exact Match' metric.
 
         Args:
             all_results: The collected results.
@@ -453,24 +479,30 @@ class Experiment(Generic[P, R]):
             self._console.print(f"[info]Saving detailed results to [bold]{csv_filename}[/bold]...[/info]")
             with open(csv_filename, "w", newline="", encoding="utf-8") as csvfile:
                 csv_writer: csv._writer = csv.writer(csvfile)
-                # Fixed header as requested by user feedback
-                header: list[str] = ["Case #", "Inputs", "Ideal", "Version", "Actual (Raw)", "Exact Match", "Error"]
+                header: list[str] = [
+                    "Sample #",
+                    "Inputs",
+                    "Ideal",
+                    "Version",
+                    "Actual (Raw)",
+                    "Exact Match",
+                    "Error",
+                ]
                 csv_writer.writerow(header)
 
-                for case_idx, case_data in enumerate(self._cases):
-                    if case_idx < len(all_results):
-                        for version_result in all_results[case_idx]:
+                for sample_idx, sample_data in enumerate(self._samples):
+                    if sample_idx < len(all_results):
+                        for version_result in all_results[sample_idx]:
                             if version_result is None:
                                 continue
 
-                            # Serialize complex fields to JSON
                             try:
-                                inputs_json = self._format_inputs_json(case_data)
+                                inputs_json = self._format_inputs_json(sample_data)
                             except Exception:
                                 inputs_json = json.dumps({"error": "input serialization failed"})
                             try:
                                 ideal_json = json.dumps(
-                                    jsonable_encoder(case_data.ideal), ensure_ascii=False, default=str
+                                    jsonable_encoder(sample_data.ideal), ensure_ascii=False, default=str
                                 )
                             except Exception:
                                 ideal_json = json.dumps({"error": "ideal serialization failed"})
@@ -485,7 +517,6 @@ class Experiment(Generic[P, R]):
                             except Exception:
                                 actual_json = json.dumps({"error": "actual serialization failed"})
 
-                            # Extract "Exact Match" metric result specifically
                             exact_match_result_raw = version_result.metric_results.get("Exact Match", "N/A")
                             exact_match_result_str = ""
                             if isinstance(exact_match_result_raw, (bool, int, float)):
@@ -499,12 +530,12 @@ class Experiment(Generic[P, R]):
                                 exact_match_result_str = str(exact_match_result_raw)
 
                             row_data: list[Any] = [
-                                case_idx + 1,
-                                inputs_json,  # Use JSON string
-                                ideal_json,  # Use JSON string
+                                sample_idx + 1,
+                                inputs_json,
+                                ideal_json,
                                 version_result.version_name,
-                                actual_json,  # Use JSON string
-                                exact_match_result_str,  # Specific metric
+                                actual_json,
+                                exact_match_result_str,
                                 str(version_result.error) if version_result.error else "",
                             ]
                             csv_writer.writerow(row_data)
@@ -526,9 +557,9 @@ class Experiment(Generic[P, R]):
             summary_results[version_name] = {}
             for metric_name in metric_names:
                 valid: list[bool | float | int] = []
-                for case_idx in range(len(self._cases)):
-                    if case_idx < len(all_results) and version_index < len(all_results[case_idx]):
-                        vr = all_results[case_idx][version_index]
+                for sample_idx in range(len(self._samples)):
+                    if sample_idx < len(all_results) and version_index < len(all_results[sample_idx]):
+                        vr = all_results[sample_idx][version_index]
                         if vr and vr.error is None:
                             mr = vr.metric_results.get(metric_name)
                             if isinstance(mr, (bool, int, float)):
@@ -584,11 +615,11 @@ class Experiment(Generic[P, R]):
     def _display_details(
         self, all_results: _AllResults, metric_names: list[str], versions_to_run: Sequence[AnyCallable]
     ) -> None:
-        """Displays the detailed results with rows per case and columns per version."""
-        if not self._cases:
+        """Displays the detailed results with rows per sample and columns per version."""
+        if not self._samples:
             return
 
-        self._console.print(f"[bold cyan]Detailed Results ({len(self._cases)} cases):[/bold cyan]")
+        self._console.print(f"[bold cyan]Detailed Results ({len(self._samples)} samples):[/bold cyan]")
         detail_table = Table(
             title="Detailed Experiment Results",
             show_header=True,
@@ -597,7 +628,7 @@ class Experiment(Generic[P, R]):
             show_lines=True,
         )
 
-        detail_table.add_column("Case #", style="dim", justify="right", no_wrap=True)
+        detail_table.add_column("Sample #", style="dim", justify="right", no_wrap=True)
         detail_table.add_column("Inputs", style="yellow", overflow="fold", min_width=30, ratio=2)
         detail_table.add_column("Ideal", style="green", overflow="fold", min_width=15, ratio=1)
 
@@ -611,11 +642,11 @@ class Experiment(Generic[P, R]):
                     detail_table.add_column(f"{version_name} - {metric_name}", justify="center", min_width=10)
             detail_table.add_column(f"{version_name} - Error", style="red", overflow="fold", min_width=15, ratio=1)
 
-        for i, case in enumerate(self._cases):
-            row_data: list[str] = [str(i + 1), self._format_inputs(case), repr(case.ideal)]
+        for i, sample in enumerate(self._samples):
+            row_data: list[str] = [str(i + 1), self._format_inputs(sample), repr(sample.ideal)]
             if i < len(all_results):
-                case_run_results = all_results[i]
-                for version_result in case_run_results:
+                sample_run_results = all_results[i]
+                for j, version_result in enumerate(sample_run_results):
                     if version_result is None:
                         row_data.append("[grey50]Task Error[/grey50]")
                         if self._metrics:
@@ -657,7 +688,7 @@ class Experiment(Generic[P, R]):
     ) -> None:
         """Handles saving, summary, and detailed display after results are collected."""
         try:
-            self._save_results_to_csv(all_results, csv_filename)  # Removed metric_names as header is fixed
+            self._save_results_to_csv(all_results, csv_filename)
             run_span.set_attribute("experiment.csv_output_file", csv_filename)
         except Exception as e:
             self._console.print(f"[bold red]Failed during CSV saving:[/bold red] {e}")
@@ -683,7 +714,7 @@ class Experiment(Generic[P, R]):
 
     def run(self, *versions: Callable[P, Any], num_threads: int | None = None, include_target_fn: bool = True) -> None:
         """
-        Runs the experiment synchronously for all registered cases and metrics.
+        Runs the experiment synchronously for all registered samples and metrics.
 
         Requires the target function and all provided versions to be synchronous.
         Uses a ThreadPoolExecutor for parallel execution if num_threads > 1.
@@ -720,8 +751,8 @@ class Experiment(Generic[P, R]):
                 "[yellow]Warning: No functions selected (check include_target_fn and versions).[/yellow]"
             )
             return
-        if not self._cases:
-            self._console.print("[yellow]Warning: No test cases added.[/yellow]")
+        if not self._samples:
+            self._console.print("[yellow]Warning: No samples added.[/yellow]")
             return
 
         versions_to_run = tuple(versions_to_run_list)
@@ -730,14 +761,13 @@ class Experiment(Generic[P, R]):
             timestamp: str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
             csv_filename: str = f"run_{timestamp}.csv"
             num_versions: int = len(versions_to_run)
-            # Get all metric names for summary/display, even if not all saved to CSV
             metric_names: list[str] = [m["name"] for m, _ in self._metrics]
             unique_version_names: list[str] = [
                 self._get_function_name(f, i, versions_to_run) for i, f in enumerate(versions_to_run)
             ]
 
             run_span.set_attribute("experiment.execution_mode", "sync")
-            run_span.set_attribute("experiment.num_cases", len(self._cases))
+            run_span.set_attribute("experiment.num_samples", len(self._samples))
             run_span.set_attribute("experiment.num_versions", num_versions)
             run_span.set_attribute("experiment.metric_names", metric_names)
             run_span.set_attribute("experiment.version_names", unique_version_names)
@@ -747,7 +777,8 @@ class Experiment(Generic[P, R]):
                 run_span.set_attribute("experiment.num_threads", num_threads)
 
             self._console.print(
-                f"\n[bold cyan]Running Experiment (Sync{' Parallel' if parallel else ''}) ({len(self._cases)} cases, {num_versions} versions)...[/bold cyan]"
+                f"\n[bold cyan]Running Experiment (Sync{' Parallel' if parallel else ''}) "
+                f"({len(self._samples)} samples, {num_versions} versions)...[/bold cyan]"
             )
 
             all_results: _AllResults
@@ -762,7 +793,7 @@ class Experiment(Generic[P, R]):
 
     async def arun(self, *versions: AnyCallable, include_target_fn: bool = True) -> None:
         """
-        Runs the experiment asynchronously for all registered cases and metrics.
+        Runs the experiment asynchronously for all registered samples and metrics.
 
         Accepts a mix of sync/async functions. Executes using asyncio.gather.
 
@@ -775,8 +806,8 @@ class Experiment(Generic[P, R]):
                 "[yellow]Warning: No versions provided and include_target_fn=False. Nothing to run.[/yellow]"
             )
             return
-        if not self._cases:
-            self._console.print("[yellow]Warning: No test cases added.[/yellow]")
+        if not self._samples:
+            self._console.print("[yellow]Warning: No samples added.[/yellow]")
             return
 
         versions_to_run_list: list[AnyCallable] = []
@@ -802,14 +833,15 @@ class Experiment(Generic[P, R]):
             ]
 
             run_span.set_attribute("experiment.execution_mode", "async")
-            run_span.set_attribute("experiment.num_cases", len(self._cases))
+            run_span.set_attribute("experiment.num_samples", len(self._samples))
             run_span.set_attribute("experiment.num_versions", num_versions)
             run_span.set_attribute("experiment.metric_names", metric_names)
             run_span.set_attribute("experiment.version_names", unique_version_names)
             run_span.set_attribute("experiment.parallel", True)
 
             self._console.print(
-                f"\n[bold cyan]Running Experiment (Async Parallel) ({len(self._cases)} cases, {num_versions} versions)...[/bold cyan]"
+                f"\n[bold cyan]Running Experiment (Async Parallel) "
+                f"({len(self._samples)} samples, {num_versions} versions)...[/bold cyan]"
             )
 
             all_results = await self._collect_parallel_async(versions_to_run)
