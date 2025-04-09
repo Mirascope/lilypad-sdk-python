@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.0-alpha.16 (2025-04-09)
+
+Full Changelog: [v0.1.0-alpha.15...v0.1.0-alpha.16](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.15...v0.1.0-alpha.16)
+
+### Bug Fixes
+
+* fix function type ([cb4855f](https://github.com/Mirascope/lilypad-sdk-python/commit/cb4855f4e470b87f4900a2791e0d4154d3f0c3c4))
+* fix sandbox when mirascope call is not used ([b1624b5](https://github.com/Mirascope/lilypad-sdk-python/commit/b1624b5e51fb546da6c45bcfabc9c351ad7ec8cf))
+* fix span_id in async mirascope call ([6b24865](https://github.com/Mirascope/lilypad-sdk-python/commit/6b248655059647e02b074bc173be93063048f65f))
+* fix unittest ([8a88235](https://github.com/Mirascope/lilypad-sdk-python/commit/8a8823596688feebe3ae0a09d8a5818cae4a1cfc))
+
+
+### Chores
+
+* **internal:** slight transform perf improvement ([#74](https://github.com/Mirascope/lilypad-sdk-python/issues/74)) ([651fd11](https://github.com/Mirascope/lilypad-sdk-python/commit/651fd11c1579c9c4af44593c7aafb4a7d91a14cf))
+
 ## 0.1.0-alpha.15 (2025-04-04)
 
 Full Changelog: [v0.1.0-alpha.14...v0.1.0-alpha.15](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.14...v0.1.0-alpha.15)
