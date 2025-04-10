@@ -685,6 +685,7 @@ def trace(
                         )
                     return result["result"]
 
+                _inner_async.version_number = forced_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
                 return _inner_async
 
             inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
@@ -860,6 +861,7 @@ def trace(
                         )
                     return result["result"]
 
+                _inner.version_number = forced_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
                 return _inner
 
             inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
