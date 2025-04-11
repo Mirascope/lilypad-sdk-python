@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.19 (2025-04-11)
+
+Full Changelog: [v0.1.0-alpha.18...v0.1.0-alpha.19](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.18...v0.1.0-alpha.19)
+
+### Features
+
+* **api:** update via SDK Studio ([ef23862](https://github.com/Mirascope/lilypad-sdk-python/commit/ef2386207da8fc627286141c93cf7d60e75517a4))
+
 ## 0.1.0-alpha.18 (2025-04-11)
 
 Full Changelog: [v0.1.0-alpha.17...v0.1.0-alpha.18](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.17...v0.1.0-alpha.18)
