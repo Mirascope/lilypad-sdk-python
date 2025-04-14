@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.0-alpha.20 (2025-04-14)
+
+Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.19...v0.1.0-alpha.20)
+
+### Features
+
+* **api:** update via SDK Studio ([8cdf78b](https://github.com/Mirascope/lilypad-sdk-python/commit/8cdf78b2fa34cd4c4ae78f35c60fc8712483c57b))
+* **api:** update via SDK Studio ([90e359c](https://github.com/Mirascope/lilypad-sdk-python/commit/90e359ce21a9d171ecfc7287edc4ff9eaa0fbfb6))
+* **api:** update via SDK Studio ([c0db1b6](https://github.com/Mirascope/lilypad-sdk-python/commit/c0db1b671b6bd8a4d9f8b12ff9d4430a68ff6402))
+* **api:** update via SDK Studio ([985414b](https://github.com/Mirascope/lilypad-sdk-python/commit/985414bd4839afe25442a756e532d7ad5d3302f8))
+* **api:** update via SDK Studio ([c3a2fc4](https://github.com/Mirascope/lilypad-sdk-python/commit/c3a2fc47d1c0760994bade43ab2a75b548aecfb9))
+* **api:** update via SDK Studio ([168bfe5](https://github.com/Mirascope/lilypad-sdk-python/commit/168bfe5cd8ae1b5a829fdbfc12e967d9ffdfca3d))
+
+
+### Bug Fixes
+
+* **perf:** optimize some hot paths ([59b67ca](https://github.com/Mirascope/lilypad-sdk-python/commit/59b67ca05fac0077c1524874e9767a4faf47403f))
+* **perf:** skip traversing types for NotGiven values ([7367bbd](https://github.com/Mirascope/lilypad-sdk-python/commit/7367bbde711a0ebe76de10b17b40a6d2821b3851))
+
 ## 0.1.0-alpha.19 (2025-04-11)
 
 Full Changelog: [v0.1.0-alpha.18...v0.1.0-alpha.19](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.18...v0.1.0-alpha.19)
