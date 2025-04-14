@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import httpx
 
-from ..types import external_api_key_create_params, external_api_key_update_params
+from ..types import comment_create_params, comment_update_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import (
     maybe_transform,
@@ -19,51 +21,52 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.external_api_key_public import ExternalAPIKeyPublic
-from ..types.external_api_key_list_response import ExternalAPIKeyListResponse
-from ..types.external_api_key_delete_response import ExternalAPIKeyDeleteResponse
+from ..types.comment_list_response import CommentListResponse
+from ..types.comment_create_response import CommentCreateResponse
+from ..types.comment_delete_response import CommentDeleteResponse
+from ..types.comment_update_response import CommentUpdateResponse
+from ..types.comment_retrieve_response import CommentRetrieveResponse
 
-__all__ = ["ExternalAPIKeysResource", "AsyncExternalAPIKeysResource"]
+__all__ = ["CommentsResource", "AsyncCommentsResource"]
 
 
-class ExternalAPIKeysResource(SyncAPIResource):
+class CommentsResource(SyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> ExternalAPIKeysResourceWithRawResponse:
+    def with_raw_response(self) -> CommentsResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
-        return ExternalAPIKeysResourceWithRawResponse(self)
+        return CommentsResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> ExternalAPIKeysResourceWithStreamingResponse:
+    def with_streaming_response(self) -> CommentsResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
-        return ExternalAPIKeysResourceWithStreamingResponse(self)
+        return CommentsResourceWithStreamingResponse(self)
 
     def create(
         self,
         *,
-        api_key: str,
-        service_name: str,
+        span_uuid: str,
+        text: str,
+        parent_comment_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentCreateResponse:
         """
-        Store an external API key for a given service.
+        Create a comment
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -73,23 +76,24 @@ class ExternalAPIKeysResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/external-api-keys",
+            "/comments",
             body=maybe_transform(
                 {
-                    "api_key": api_key,
-                    "service_name": service_name,
+                    "span_uuid": span_uuid,
+                    "text": text,
+                    "parent_comment_uuid": parent_comment_uuid,
                 },
-                external_api_key_create_params.ExternalAPIKeyCreateParams,
+                comment_create_params.CommentCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentCreateResponse,
         )
 
     def retrieve(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -97,9 +101,9 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentRetrieveResponse:
         """
-        Retrieve an external API key for a given service.
+        Get a comment.
 
         Args:
           extra_headers: Send extra headers
@@ -110,34 +114,33 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return self._get(
-            f"/external-api-keys/{service_name}",
+            f"/comments/{comment_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentRetrieveResponse,
         )
 
     def update(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
-        api_key: str,
+        is_edited: Optional[bool] | NotGiven = NOT_GIVEN,
+        text: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentUpdateResponse:
         """
-        Update users keys.
+        Update a comment.
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -146,15 +149,21 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return self._patch(
-            f"/external-api-keys/{service_name}",
-            body=maybe_transform({"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams),
+            f"/comments/{comment_uuid}",
+            body=maybe_transform(
+                {
+                    "is_edited": is_edited,
+                    "text": text,
+                },
+                comment_update_params.CommentUpdateParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentUpdateResponse,
         )
 
     def list(
@@ -166,19 +175,19 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyListResponse:
-        """List all external API keys for the user with masked values."""
+    ) -> CommentListResponse:
+        """Get all comments."""
         return self._get(
-            "/external-api-keys",
+            "/comments",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyListResponse,
+            cast_to=CommentListResponse,
         )
 
     def delete(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -186,9 +195,9 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyDeleteResponse:
+    ) -> CommentDeleteResponse:
         """
-        Delete an external API key for a given service.
+        Delete a comment
 
         Args:
           extra_headers: Send extra headers
@@ -199,55 +208,54 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return self._delete(
-            f"/external-api-keys/{service_name}",
+            f"/comments/{comment_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyDeleteResponse,
+            cast_to=CommentDeleteResponse,
         )
 
 
-class AsyncExternalAPIKeysResource(AsyncAPIResource):
+class AsyncCommentsResource(AsyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> AsyncExternalAPIKeysResourceWithRawResponse:
+    def with_raw_response(self) -> AsyncCommentsResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
-        return AsyncExternalAPIKeysResourceWithRawResponse(self)
+        return AsyncCommentsResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> AsyncExternalAPIKeysResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AsyncCommentsResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
-        return AsyncExternalAPIKeysResourceWithStreamingResponse(self)
+        return AsyncCommentsResourceWithStreamingResponse(self)
 
     async def create(
         self,
         *,
-        api_key: str,
-        service_name: str,
+        span_uuid: str,
+        text: str,
+        parent_comment_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentCreateResponse:
         """
-        Store an external API key for a given service.
+        Create a comment
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -257,23 +265,24 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/external-api-keys",
+            "/comments",
             body=await async_maybe_transform(
                 {
-                    "api_key": api_key,
-                    "service_name": service_name,
+                    "span_uuid": span_uuid,
+                    "text": text,
+                    "parent_comment_uuid": parent_comment_uuid,
                 },
-                external_api_key_create_params.ExternalAPIKeyCreateParams,
+                comment_create_params.CommentCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentCreateResponse,
         )
 
     async def retrieve(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -281,9 +290,9 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentRetrieveResponse:
         """
-        Retrieve an external API key for a given service.
+        Get a comment.
 
         Args:
           extra_headers: Send extra headers
@@ -294,34 +303,33 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return await self._get(
-            f"/external-api-keys/{service_name}",
+            f"/comments/{comment_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentRetrieveResponse,
         )
 
     async def update(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
-        api_key: str,
+        is_edited: Optional[bool] | NotGiven = NOT_GIVEN,
+        text: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> CommentUpdateResponse:
         """
-        Update users keys.
+        Update a comment.
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -330,17 +338,21 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return await self._patch(
-            f"/external-api-keys/{service_name}",
+            f"/comments/{comment_uuid}",
             body=await async_maybe_transform(
-                {"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams
+                {
+                    "is_edited": is_edited,
+                    "text": text,
+                },
+                comment_update_params.CommentUpdateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=CommentUpdateResponse,
         )
 
     async def list(
@@ -352,19 +364,19 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyListResponse:
-        """List all external API keys for the user with masked values."""
+    ) -> CommentListResponse:
+        """Get all comments."""
         return await self._get(
-            "/external-api-keys",
+            "/comments",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyListResponse,
+            cast_to=CommentListResponse,
         )
 
     async def delete(
         self,
-        service_name: str,
+        comment_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -372,9 +384,9 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyDeleteResponse:
+    ) -> CommentDeleteResponse:
         """
-        Delete an external API key for a given service.
+        Delete a comment
 
         Args:
           extra_headers: Send extra headers
@@ -385,96 +397,96 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not comment_uuid:
+            raise ValueError(f"Expected a non-empty value for `comment_uuid` but received {comment_uuid!r}")
         return await self._delete(
-            f"/external-api-keys/{service_name}",
+            f"/comments/{comment_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyDeleteResponse,
+            cast_to=CommentDeleteResponse,
         )
 
 
-class ExternalAPIKeysResourceWithRawResponse:
-    def __init__(self, external_api_keys: ExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class CommentsResourceWithRawResponse:
+    def __init__(self, comments: CommentsResource) -> None:
+        self._comments = comments
 
         self.create = to_raw_response_wrapper(
-            external_api_keys.create,
+            comments.create,
         )
         self.retrieve = to_raw_response_wrapper(
-            external_api_keys.retrieve,
+            comments.retrieve,
         )
         self.update = to_raw_response_wrapper(
-            external_api_keys.update,
+            comments.update,
         )
         self.list = to_raw_response_wrapper(
-            external_api_keys.list,
+            comments.list,
         )
         self.delete = to_raw_response_wrapper(
-            external_api_keys.delete,
+            comments.delete,
         )
 
 
-class AsyncExternalAPIKeysResourceWithRawResponse:
-    def __init__(self, external_api_keys: AsyncExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class AsyncCommentsResourceWithRawResponse:
+    def __init__(self, comments: AsyncCommentsResource) -> None:
+        self._comments = comments
 
         self.create = async_to_raw_response_wrapper(
-            external_api_keys.create,
+            comments.create,
         )
         self.retrieve = async_to_raw_response_wrapper(
-            external_api_keys.retrieve,
+            comments.retrieve,
         )
         self.update = async_to_raw_response_wrapper(
-            external_api_keys.update,
+            comments.update,
         )
         self.list = async_to_raw_response_wrapper(
-            external_api_keys.list,
+            comments.list,
         )
         self.delete = async_to_raw_response_wrapper(
-            external_api_keys.delete,
+            comments.delete,
         )
 
 
-class ExternalAPIKeysResourceWithStreamingResponse:
-    def __init__(self, external_api_keys: ExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class CommentsResourceWithStreamingResponse:
+    def __init__(self, comments: CommentsResource) -> None:
+        self._comments = comments
 
         self.create = to_streamed_response_wrapper(
-            external_api_keys.create,
+            comments.create,
         )
         self.retrieve = to_streamed_response_wrapper(
-            external_api_keys.retrieve,
+            comments.retrieve,
         )
         self.update = to_streamed_response_wrapper(
-            external_api_keys.update,
+            comments.update,
         )
         self.list = to_streamed_response_wrapper(
-            external_api_keys.list,
+            comments.list,
         )
         self.delete = to_streamed_response_wrapper(
-            external_api_keys.delete,
+            comments.delete,
         )
 
 
-class AsyncExternalAPIKeysResourceWithStreamingResponse:
-    def __init__(self, external_api_keys: AsyncExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class AsyncCommentsResourceWithStreamingResponse:
+    def __init__(self, comments: AsyncCommentsResource) -> None:
+        self._comments = comments
 
         self.create = async_to_streamed_response_wrapper(
-            external_api_keys.create,
+            comments.create,
         )
         self.retrieve = async_to_streamed_response_wrapper(
-            external_api_keys.retrieve,
+            comments.retrieve,
         )
         self.update = async_to_streamed_response_wrapper(
-            external_api_keys.update,
+            comments.update,
         )
         self.list = async_to_streamed_response_wrapper(
-            external_api_keys.list,
+            comments.list,
         )
         self.delete = async_to_streamed_response_wrapper(
-            external_api_keys.delete,
+            comments.delete,
         )

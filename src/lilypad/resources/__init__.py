@@ -16,6 +16,14 @@ from .auth import (
     AuthResourceWithStreamingResponse,
     AsyncAuthResourceWithStreamingResponse,
 )
+from .tags import (
+    TagsResource,
+    AsyncTagsResource,
+    TagsResourceWithRawResponse,
+    AsyncTagsResourceWithRawResponse,
+    TagsResourceWithStreamingResponse,
+    AsyncTagsResourceWithStreamingResponse,
+)
 from .spans import (
     SpansResource,
     AsyncSpansResource,
@@ -39,6 +47,14 @@ from .api_keys import (
     AsyncAPIKeysResourceWithRawResponse,
     APIKeysResourceWithStreamingResponse,
     AsyncAPIKeysResourceWithStreamingResponse,
+)
+from .comments import (
+    CommentsResource,
+    AsyncCommentsResource,
+    CommentsResourceWithRawResponse,
+    AsyncCommentsResourceWithRawResponse,
+    CommentsResourceWithStreamingResponse,
+    AsyncCommentsResourceWithStreamingResponse,
 )
 from .projects import (
     ProjectsResource,
@@ -79,6 +95,14 @@ from .organizations import (
     AsyncOrganizationsResourceWithRawResponse,
     OrganizationsResourceWithStreamingResponse,
     AsyncOrganizationsResourceWithStreamingResponse,
+)
+from .user_consents import (
+    UserConsentsResource,
+    AsyncUserConsentsResource,
+    UserConsentsResourceWithRawResponse,
+    AsyncUserConsentsResourceWithRawResponse,
+    UserConsentsResourceWithStreamingResponse,
+    AsyncUserConsentsResourceWithStreamingResponse,
 )
 from .external_api_keys import (
     ExternalAPIKeysResource,
@@ -170,4 +194,22 @@ __all__ = [
     "AsyncSettingsResourceWithRawResponse",
     "SettingsResourceWithStreamingResponse",
     "AsyncSettingsResourceWithStreamingResponse",
+    "UserConsentsResource",
+    "AsyncUserConsentsResource",
+    "UserConsentsResourceWithRawResponse",
+    "AsyncUserConsentsResourceWithRawResponse",
+    "UserConsentsResourceWithStreamingResponse",
+    "AsyncUserConsentsResourceWithStreamingResponse",
+    "TagsResource",
+    "AsyncTagsResource",
+    "TagsResourceWithRawResponse",
+    "AsyncTagsResourceWithRawResponse",
+    "TagsResourceWithStreamingResponse",
+    "AsyncTagsResourceWithStreamingResponse",
+    "CommentsResource",
+    "AsyncCommentsResource",
+    "CommentsResourceWithRawResponse",
+    "AsyncCommentsResourceWithRawResponse",
+    "CommentsResourceWithStreamingResponse",
+    "AsyncCommentsResourceWithStreamingResponse",
 ]

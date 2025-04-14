@@ -24,6 +24,7 @@ from ....types.ee.projects import Label, EvaluationType, annotation_create_param
 from ....types.ee.projects.label import Label
 from ....types.ee.projects.evaluation_type import EvaluationType
 from ....types.ee.projects.annotation_public import AnnotationPublic
+from ....types.ee.projects.annotation_list_response import AnnotationListResponse
 from ....types.ee.projects.annotation_create_response import AnnotationCreateResponse
 
 __all__ = ["AnnotationsResource", "AsyncAnnotationsResource"]
@@ -148,6 +149,39 @@ class AnnotationsResource(SyncAPIResource):
             cast_to=AnnotationPublic,
         )
 
+    def list(
+        self,
+        project_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> AnnotationListResponse:
+        """
+        Get annotations by project.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        return self._get(
+            f"/ee/projects/{project_uuid}/annotations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=AnnotationListResponse,
+        )
+
 
 class AsyncAnnotationsResource(AsyncAPIResource):
     @cached_property
@@ -268,6 +302,39 @@ class AsyncAnnotationsResource(AsyncAPIResource):
             cast_to=AnnotationPublic,
         )
 
+    async def list(
+        self,
+        project_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> AnnotationListResponse:
+        """
+        Get annotations by project.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        return await self._get(
+            f"/ee/projects/{project_uuid}/annotations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=AnnotationListResponse,
+        )
+
 
 class AnnotationsResourceWithRawResponse:
     def __init__(self, annotations: AnnotationsResource) -> None:
@@ -278,6 +345,9 @@ class AnnotationsResourceWithRawResponse:
         )
         self.update = to_raw_response_wrapper(
             annotations.update,
+        )
+        self.list = to_raw_response_wrapper(
+            annotations.list,
         )
 
 
@@ -291,6 +361,9 @@ class AsyncAnnotationsResourceWithRawResponse:
         self.update = async_to_raw_response_wrapper(
             annotations.update,
         )
+        self.list = async_to_raw_response_wrapper(
+            annotations.list,
+        )
 
 
 class AnnotationsResourceWithStreamingResponse:
@@ -303,6 +376,9 @@ class AnnotationsResourceWithStreamingResponse:
         self.update = to_streamed_response_wrapper(
             annotations.update,
         )
+        self.list = to_streamed_response_wrapper(
+            annotations.list,
+        )
 
 
 class AsyncAnnotationsResourceWithStreamingResponse:
@@ -314,4 +390,7 @@ class AsyncAnnotationsResourceWithStreamingResponse:
         )
         self.update = async_to_streamed_response_wrapper(
             annotations.update,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            annotations.list,
         )
