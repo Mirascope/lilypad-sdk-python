@@ -9,7 +9,6 @@ from .organization_invite import OrganizationInvite as OrganizationInvite
 from .organization_public import OrganizationPublic as OrganizationPublic
 from .api_key_create_params import APIKeyCreateParams as APIKeyCreateParams
 from .api_key_list_response import APIKeyListResponse as APIKeyListResponse
-from .function_create_param import FunctionCreateParam as FunctionCreateParam
 from .project_create_params import ProjectCreateParams as ProjectCreateParams
 from .project_list_response import ProjectListResponse as ProjectListResponse
 from .project_update_params import ProjectUpdateParams as ProjectUpdateParams

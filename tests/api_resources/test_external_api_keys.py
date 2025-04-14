@@ -25,7 +25,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_method_create(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
         assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
@@ -34,7 +34,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_raw_response_create(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
 
@@ -47,7 +47,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_streaming_response_create(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         ) as response:
             assert not response.is_closed
@@ -178,7 +178,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_method_create(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
         assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
@@ -187,7 +187,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
 
@@ -200,7 +200,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         ) as response:
             assert not response.is_closed

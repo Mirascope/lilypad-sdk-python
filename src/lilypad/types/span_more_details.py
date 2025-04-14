@@ -15,6 +15,7 @@ __all__ = [
     "MessageContent_ImagePart",
     "MessageContent_ToolCall",
     "Event",
+    "Tag",
 ]
 
 
@@ -71,6 +72,18 @@ class Event(BaseModel):
     type: str
 
 
+class Tag(BaseModel):
+    created_at: datetime
+
+    name: str
+
+    organization_uuid: str
+
+    uuid: str
+
+    project_uuid: Optional[str] = None
+
+
 class SpanMoreDetails(BaseModel):
     data: object
 
@@ -107,5 +120,7 @@ class SpanMoreDetails(BaseModel):
     signature: Optional[str] = None
 
     status: Optional[str] = None
+
+    tags: Optional[List[Tag]] = None
 
     template: Optional[str] = None

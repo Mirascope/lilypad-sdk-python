@@ -62,6 +62,8 @@ class ExternalAPIKeysResource(SyncAPIResource):
         Store an external API key for a given service.
 
         Args:
+          api_key: New API key
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -207,6 +209,8 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         Store an external API key for a given service.
 
         Args:
+          api_key: New API key
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
