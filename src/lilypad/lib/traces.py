@@ -80,7 +80,7 @@ class _TraceBase(Generic[_T]):
         tracer = get_tracer_provider()
         if force_flush := getattr(tracer, "force_flush", None):
             force_flush(timeout_millis=5000)
-            self.flush = True
+            self._flush = True
 
     def _create_body(
         self, project_id: str, span_uuid: str, annotation: Annotation | list[Annotation]
