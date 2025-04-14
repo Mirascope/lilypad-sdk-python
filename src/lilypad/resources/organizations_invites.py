@@ -7,7 +7,7 @@ from datetime import datetime
 
 import httpx
 
-from ..types import organizations_invite_create_params
+from ..types import organizations_invite_create_params, organizations_invite_resend_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import (
     maybe_transform,
@@ -23,6 +23,8 @@ from .._response import (
 )
 from .._base_client import make_request_options
 from ..types.organization_invite import OrganizationInvite
+from ..types.organizations_invite_list_response import OrganizationsInviteListResponse
+from ..types.organizations_invite_delete_response import OrganizationsInviteDeleteResponse
 
 __all__ = ["OrganizationsInvitesResource", "AsyncOrganizationsInvitesResource"]
 
@@ -121,6 +123,112 @@ class OrganizationsInvitesResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `invite_token` but received {invite_token!r}")
         return self._get(
             f"/organizations-invites/{invite_token}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationInvite,
+        )
+
+    def list(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationsInviteListResponse:
+        """Get an organization invite."""
+        return self._get(
+            "/organizations-invites/",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationsInviteListResponse,
+        )
+
+    def delete(
+        self,
+        organization_invite_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationsInviteDeleteResponse:
+        """
+        Remove an organization invite.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not organization_invite_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `organization_invite_uuid` but received {organization_invite_uuid!r}"
+            )
+        return self._delete(
+            f"/organizations-invites/{organization_invite_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationsInviteDeleteResponse,
+        )
+
+    def resend(
+        self,
+        organization_invite_uuid: str,
+        *,
+        email: str,
+        invited_by: str,
+        token: Optional[str] | NotGiven = NOT_GIVEN,
+        expires_at: Union[str, datetime] | NotGiven = NOT_GIVEN,
+        organization_uuid: Optional[str] | NotGiven = NOT_GIVEN,
+        resend_email_id: Optional[str] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationInvite:
+        """
+        Resend an organization invite.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not organization_invite_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `organization_invite_uuid` but received {organization_invite_uuid!r}"
+            )
+        return self._post(
+            f"/organizations-invites/{organization_invite_uuid}",
+            body=maybe_transform(
+                {
+                    "email": email,
+                    "invited_by": invited_by,
+                    "token": token,
+                    "expires_at": expires_at,
+                    "organization_uuid": organization_uuid,
+                    "resend_email_id": resend_email_id,
+                },
+                organizations_invite_resend_params.OrganizationsInviteResendParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -228,6 +336,112 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
             cast_to=OrganizationInvite,
         )
 
+    async def list(
+        self,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationsInviteListResponse:
+        """Get an organization invite."""
+        return await self._get(
+            "/organizations-invites/",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationsInviteListResponse,
+        )
+
+    async def delete(
+        self,
+        organization_invite_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationsInviteDeleteResponse:
+        """
+        Remove an organization invite.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not organization_invite_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `organization_invite_uuid` but received {organization_invite_uuid!r}"
+            )
+        return await self._delete(
+            f"/organizations-invites/{organization_invite_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationsInviteDeleteResponse,
+        )
+
+    async def resend(
+        self,
+        organization_invite_uuid: str,
+        *,
+        email: str,
+        invited_by: str,
+        token: Optional[str] | NotGiven = NOT_GIVEN,
+        expires_at: Union[str, datetime] | NotGiven = NOT_GIVEN,
+        organization_uuid: Optional[str] | NotGiven = NOT_GIVEN,
+        resend_email_id: Optional[str] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> OrganizationInvite:
+        """
+        Resend an organization invite.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not organization_invite_uuid:
+            raise ValueError(
+                f"Expected a non-empty value for `organization_invite_uuid` but received {organization_invite_uuid!r}"
+            )
+        return await self._post(
+            f"/organizations-invites/{organization_invite_uuid}",
+            body=await async_maybe_transform(
+                {
+                    "email": email,
+                    "invited_by": invited_by,
+                    "token": token,
+                    "expires_at": expires_at,
+                    "organization_uuid": organization_uuid,
+                    "resend_email_id": resend_email_id,
+                },
+                organizations_invite_resend_params.OrganizationsInviteResendParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=OrganizationInvite,
+        )
+
 
 class OrganizationsInvitesResourceWithRawResponse:
     def __init__(self, organizations_invites: OrganizationsInvitesResource) -> None:
@@ -238,6 +452,15 @@ class OrganizationsInvitesResourceWithRawResponse:
         )
         self.retrieve = to_raw_response_wrapper(
             organizations_invites.retrieve,
+        )
+        self.list = to_raw_response_wrapper(
+            organizations_invites.list,
+        )
+        self.delete = to_raw_response_wrapper(
+            organizations_invites.delete,
+        )
+        self.resend = to_raw_response_wrapper(
+            organizations_invites.resend,
         )
 
 
@@ -251,6 +474,15 @@ class AsyncOrganizationsInvitesResourceWithRawResponse:
         self.retrieve = async_to_raw_response_wrapper(
             organizations_invites.retrieve,
         )
+        self.list = async_to_raw_response_wrapper(
+            organizations_invites.list,
+        )
+        self.delete = async_to_raw_response_wrapper(
+            organizations_invites.delete,
+        )
+        self.resend = async_to_raw_response_wrapper(
+            organizations_invites.resend,
+        )
 
 
 class OrganizationsInvitesResourceWithStreamingResponse:
@@ -263,6 +495,15 @@ class OrganizationsInvitesResourceWithStreamingResponse:
         self.retrieve = to_streamed_response_wrapper(
             organizations_invites.retrieve,
         )
+        self.list = to_streamed_response_wrapper(
+            organizations_invites.list,
+        )
+        self.delete = to_streamed_response_wrapper(
+            organizations_invites.delete,
+        )
+        self.resend = to_streamed_response_wrapper(
+            organizations_invites.resend,
+        )
 
 
 class AsyncOrganizationsInvitesResourceWithStreamingResponse:
@@ -274,4 +515,13 @@ class AsyncOrganizationsInvitesResourceWithStreamingResponse:
         )
         self.retrieve = async_to_streamed_response_wrapper(
             organizations_invites.retrieve,
+        )
+        self.list = async_to_streamed_response_wrapper(
+            organizations_invites.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
+            organizations_invites.delete,
+        )
+        self.resend = async_to_streamed_response_wrapper(
+            organizations_invites.resend,
         )

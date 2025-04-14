@@ -9,7 +9,11 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types import OrganizationInvite
+from lilypad.types import (
+    OrganizationInvite,
+    OrganizationsInviteListResponse,
+    OrganizationsInviteDeleteResponse,
+)
 from lilypad._utils import parse_datetime
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -110,6 +114,144 @@ class TestOrganizationsInvites:
                 "",
             )
 
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_list(self, client: Lilypad) -> None:
+        organizations_invite = client.organizations_invites.list()
+        assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_list(self, client: Lilypad) -> None:
+        response = client.organizations_invites.with_raw_response.list()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = response.parse()
+        assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_list(self, client: Lilypad) -> None:
+        with client.organizations_invites.with_streaming_response.list() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = response.parse()
+            assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_delete(self, client: Lilypad) -> None:
+        organizations_invite = client.organizations_invites.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_delete(self, client: Lilypad) -> None:
+        response = client.organizations_invites.with_raw_response.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = response.parse()
+        assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_delete(self, client: Lilypad) -> None:
+        with client.organizations_invites.with_streaming_response.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = response.parse()
+            assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_delete(self, client: Lilypad) -> None:
+        with pytest.raises(
+            ValueError, match=r"Expected a non-empty value for `organization_invite_uuid` but received ''"
+        ):
+            client.organizations_invites.with_raw_response.delete(
+                "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_resend(self, client: Lilypad) -> None:
+        organizations_invite = client.organizations_invites.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_resend_with_all_params(self, client: Lilypad) -> None:
+        organizations_invite = client.organizations_invites.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            token="token",
+            expires_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            resend_email_id="resend_email_id",
+        )
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_resend(self, client: Lilypad) -> None:
+        response = client.organizations_invites.with_raw_response.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = response.parse()
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_resend(self, client: Lilypad) -> None:
+        with client.organizations_invites.with_streaming_response.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = response.parse()
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_resend(self, client: Lilypad) -> None:
+        with pytest.raises(
+            ValueError, match=r"Expected a non-empty value for `organization_invite_uuid` but received ''"
+        ):
+            client.organizations_invites.with_raw_response.resend(
+                organization_invite_uuid="",
+                email="x",
+                invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
 
 class TestAsyncOrganizationsInvites:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
@@ -204,4 +346,142 @@ class TestAsyncOrganizationsInvites:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `invite_token` but received ''"):
             await async_client.organizations_invites.with_raw_response.retrieve(
                 "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_list(self, async_client: AsyncLilypad) -> None:
+        organizations_invite = await async_client.organizations_invites.list()
+        assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_list(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.organizations_invites.with_raw_response.list()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = await response.parse()
+        assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_list(self, async_client: AsyncLilypad) -> None:
+        async with async_client.organizations_invites.with_streaming_response.list() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = await response.parse()
+            assert_matches_type(OrganizationsInviteListResponse, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_delete(self, async_client: AsyncLilypad) -> None:
+        organizations_invite = await async_client.organizations_invites.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_delete(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.organizations_invites.with_raw_response.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = await response.parse()
+        assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_delete(self, async_client: AsyncLilypad) -> None:
+        async with async_client.organizations_invites.with_streaming_response.delete(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = await response.parse()
+            assert_matches_type(OrganizationsInviteDeleteResponse, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_delete(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(
+            ValueError, match=r"Expected a non-empty value for `organization_invite_uuid` but received ''"
+        ):
+            await async_client.organizations_invites.with_raw_response.delete(
+                "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_resend(self, async_client: AsyncLilypad) -> None:
+        organizations_invite = await async_client.organizations_invites.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_resend_with_all_params(self, async_client: AsyncLilypad) -> None:
+        organizations_invite = await async_client.organizations_invites.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            token="token",
+            expires_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            organization_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            resend_email_id="resend_email_id",
+        )
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_resend(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.organizations_invites.with_raw_response.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organizations_invite = await response.parse()
+        assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_resend(self, async_client: AsyncLilypad) -> None:
+        async with async_client.organizations_invites.with_streaming_response.resend(
+            organization_invite_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            email="x",
+            invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organizations_invite = await response.parse()
+            assert_matches_type(OrganizationInvite, organizations_invite, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_resend(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(
+            ValueError, match=r"Expected a non-empty value for `organization_invite_uuid` but received ''"
+        ):
+            await async_client.organizations_invites.with_raw_response.resend(
+                organization_invite_uuid="",
+                email="x",
+                invited_by="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
