@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Union, Optional
+from typing import Dict, List, Union, Optional
 from datetime import datetime
 
 import httpx
@@ -267,6 +267,7 @@ class ProjectsResource(SyncAPIResource):
         arg_types: Dict[str, str] | NotGiven = NOT_GIVEN,
         call_params: CommonCallParamsParam | NotGiven = NOT_GIVEN,
         custom_id: Optional[str] | NotGiven = NOT_GIVEN,
+        decorator_tags: Optional[List[str]] | NotGiven = NOT_GIVEN,
         dependencies: Dict[str, project_create_versioned_function_params.Dependencies] | NotGiven = NOT_GIVEN,
         is_versioned: Optional[bool] | NotGiven = NOT_GIVEN,
         model: Optional[str] | NotGiven = NOT_GIVEN,
@@ -319,6 +320,7 @@ class ProjectsResource(SyncAPIResource):
                     "arg_types": arg_types,
                     "call_params": call_params,
                     "custom_id": custom_id,
+                    "decorator_tags": decorator_tags,
                     "dependencies": dependencies,
                     "is_versioned": is_versioned,
                     "model": model,
@@ -536,6 +538,7 @@ class AsyncProjectsResource(AsyncAPIResource):
         arg_types: Dict[str, str] | NotGiven = NOT_GIVEN,
         call_params: CommonCallParamsParam | NotGiven = NOT_GIVEN,
         custom_id: Optional[str] | NotGiven = NOT_GIVEN,
+        decorator_tags: Optional[List[str]] | NotGiven = NOT_GIVEN,
         dependencies: Dict[str, project_create_versioned_function_params.Dependencies] | NotGiven = NOT_GIVEN,
         is_versioned: Optional[bool] | NotGiven = NOT_GIVEN,
         model: Optional[str] | NotGiven = NOT_GIVEN,
@@ -588,6 +591,7 @@ class AsyncProjectsResource(AsyncAPIResource):
                     "arg_types": arg_types,
                     "call_params": call_params,
                     "custom_id": custom_id,
+                    "decorator_tags": decorator_tags,
                     "dependencies": dependencies,
                     "is_versioned": is_versioned,
                     "model": model,
