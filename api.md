@@ -31,7 +31,7 @@ from lilypad.types.ee.projects import FunctionGetAnnotationsResponse, FunctionRu
 Methods:
 
 - <code title="get /ee/projects/{project_uuid}/functions/{function_uuid}/annotations">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">get_annotations</a>(function_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/function_get_annotations_response.py">FunctionGetAnnotationsResponse</a></code>
-- <code title="post /ee/projects/{project_uuid}/functions/{function_uuid}/playground">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">run_playground</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/function_run_playground_params.py">params</a>) -> str</code>
+- <code title="post /ee/projects/{project_uuid}/functions/{function_uuid}/playground">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">run_playground</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/function_run_playground_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/function_run_playground_response.py">FunctionRunPlaygroundResponse</a></code>
 
 ### Spans
 

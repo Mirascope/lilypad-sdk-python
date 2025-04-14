@@ -9,5 +9,6 @@ __all__ = ["ExternalAPIKeyCreateParams"]
 
 class ExternalAPIKeyCreateParams(TypedDict, total=False):
     api_key: Required[str]
+    """New API key"""
 
     service_name: Required[str]

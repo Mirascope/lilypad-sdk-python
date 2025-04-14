@@ -12,7 +12,7 @@ from .function_public import FunctionPublic
 from ...ee.projects.label import Label
 from ...ee.projects.evaluation_type import EvaluationType
 
-__all__ = ["SpanPublic", "Annotation"]
+__all__ = ["SpanPublic", "Annotation", "Tag"]
 
 
 class Annotation(BaseModel):
@@ -41,6 +41,18 @@ class Annotation(BaseModel):
     uuid: Optional[str] = None
 
 
+class Tag(BaseModel):
+    created_at: datetime
+
+    name: str
+
+    organization_uuid: str
+
+    uuid: str
+
+    project_uuid: Optional[str] = None
+
+
 class SpanPublic(BaseModel):
     annotations: List[Annotation]
 
@@ -48,12 +60,17 @@ class SpanPublic(BaseModel):
 
     created_at: datetime
 
+    function: Optional[FunctionPublic] = None
+    """Function public model."""
+
     project_uuid: str
 
     scope: Literal["lilypad", "llm"]
     """Instrumentation Scope name of the span"""
 
     span_id: str
+
+    tags: List[Tag]
 
     uuid: str
 
@@ -64,9 +81,6 @@ class SpanPublic(BaseModel):
     display_name: Optional[str] = None
 
     duration_ms: Optional[float] = None
-
-    function: Optional[FunctionPublic] = None
-    """Function public model."""
 
     function_uuid: Optional[str] = None
 
@@ -81,12 +95,12 @@ class SpanPublic(BaseModel):
     type: Optional[Literal["function", "trace"]] = None
     """Span type"""
 
-    version: Optional[int] = None
-
 
 if PYDANTIC_V2:
     SpanPublic.model_rebuild()
     Annotation.model_rebuild()
+    Tag.model_rebuild()
 else:
     SpanPublic.update_forward_refs()  # type: ignore
     Annotation.update_forward_refs()  # type: ignore
+    Tag.update_forward_refs()  # type: ignore
