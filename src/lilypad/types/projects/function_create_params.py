@@ -41,8 +41,6 @@ class FunctionCreateParams(TypedDict, total=False):
 
     custom_id: Optional[str]
 
-    decorator_tags: Optional[List[str]]
-
     dependencies: Dict[str, Dependencies]
 
     is_versioned: Optional[bool]

@@ -6,25 +6,13 @@ from datetime import datetime
 from ...._models import BaseModel
 from .common_call_params import CommonCallParams
 
-__all__ = ["FunctionPublic", "Dependencies", "Tag"]
+__all__ = ["FunctionPublic", "Dependencies"]
 
 
 class Dependencies(BaseModel):
     extras: Optional[List[str]] = None
 
     version: str
-
-
-class Tag(BaseModel):
-    created_at: datetime
-
-    name: str
-
-    organization_uuid: str
-
-    uuid: str
-
-    project_uuid: Optional[str] = None
 
 
 class FunctionPublic(BaseModel):
@@ -69,7 +57,5 @@ class FunctionPublic(BaseModel):
     prompt_template: Optional[str] = None
 
     provider: Optional[str] = None
-
-    tags: Optional[List[Tag]] = None
 
     version_num: Optional[int] = None

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List
-
 import httpx
 
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
@@ -23,7 +21,6 @@ from ..._base_client import make_request_options
 from ...types.projects import span_list_aggregates_params
 from ...types.projects.functions import TimeFrame
 from ...types.projects.functions.time_frame import TimeFrame
-from ...types.projects.functions.span_public import SpanPublic
 from ...types.projects.span_list_aggregates_response import SpanListAggregatesResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
@@ -89,44 +86,6 @@ class SpansResource(SyncAPIResource):
             cast_to=SpanListAggregatesResponse,
         )
 
-    def update_tags(
-        self,
-        span_uuid: str,
-        *,
-        project_uuid: str,
-        body: List[str],
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanPublic:
-        """
-        Update span tags by uuid.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not span_uuid:
-            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
-        return self._patch(
-            f"/projects/{project_uuid}/spans/{span_uuid}",
-            body=maybe_transform(body, List[str]),
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanPublic,
-        )
-
 
 class AsyncSpansResource(AsyncAPIResource):
     @cached_property
@@ -190,44 +149,6 @@ class AsyncSpansResource(AsyncAPIResource):
             cast_to=SpanListAggregatesResponse,
         )
 
-    async def update_tags(
-        self,
-        span_uuid: str,
-        *,
-        project_uuid: str,
-        body: List[str],
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanPublic:
-        """
-        Update span tags by uuid.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not span_uuid:
-            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
-        return await self._patch(
-            f"/projects/{project_uuid}/spans/{span_uuid}",
-            body=await async_maybe_transform(body, List[str]),
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanPublic,
-        )
-
 
 class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
@@ -235,9 +156,6 @@ class SpansResourceWithRawResponse:
 
         self.list_aggregates = to_raw_response_wrapper(
             spans.list_aggregates,
-        )
-        self.update_tags = to_raw_response_wrapper(
-            spans.update_tags,
         )
 
 
@@ -248,9 +166,6 @@ class AsyncSpansResourceWithRawResponse:
         self.list_aggregates = async_to_raw_response_wrapper(
             spans.list_aggregates,
         )
-        self.update_tags = async_to_raw_response_wrapper(
-            spans.update_tags,
-        )
 
 
 class SpansResourceWithStreamingResponse:
@@ -260,9 +175,6 @@ class SpansResourceWithStreamingResponse:
         self.list_aggregates = to_streamed_response_wrapper(
             spans.list_aggregates,
         )
-        self.update_tags = to_streamed_response_wrapper(
-            spans.update_tags,
-        )
 
 
 class AsyncSpansResourceWithStreamingResponse:
@@ -271,7 +183,4 @@ class AsyncSpansResourceWithStreamingResponse:
 
         self.list_aggregates = async_to_streamed_response_wrapper(
             spans.list_aggregates,
-        )
-        self.update_tags = async_to_streamed_response_wrapper(
-            spans.update_tags,
         )
