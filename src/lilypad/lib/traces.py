@@ -38,7 +38,7 @@ from ._utils import (
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
-from .exceptions import RemoteFunctionError
+from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
@@ -126,6 +126,26 @@ class Trace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
+    def tag(self, *tags: str) -> None:
+        """
+        Annotate the trace with the given tags.
+        """
+        if not tags:
+            return None
+        settings = get_settings()
+        client = Lilypad(api_key=settings.api_key)
+        span_uuid = self._get_span_uuid(client)
+        if not span_uuid:
+            raise LilypadNotFoundError(
+                f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
+            )
+        try:
+            client.projects.spans.update_tags(span_uuid=span_uuid, body=list(tags), project_uuid=settings.project_id)
+        except NotFoundError as e:
+            raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
+        except Exception as e:
+            raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
+
 
 class AsyncTrace(_TraceBase[_T]):
     """
@@ -151,6 +171,28 @@ class AsyncTrace(_TraceBase[_T]):
         lilypad_client = AsyncLilypad(api_key=settings.api_key)
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
+
+    async def tag(self, *tags: str) -> None:
+        """
+        Annotate the trace with the given tags.
+        """
+        if not tags:
+            return None
+        settings = get_settings()
+        client = AsyncLilypad(api_key=settings.api_key)
+        span_uuid = await self._get_span_uuid(client)
+        if not span_uuid:
+            raise LilypadNotFoundError(
+                f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
+            )
+        try:
+            await client.projects.spans.update_tags(
+                span_uuid=span_uuid, body=list(tags), project_uuid=settings.project_id
+            )
+        except NotFoundError as e:
+            raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
+        except Exception as e:
+            raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
@@ -503,33 +545,59 @@ _SANDBOX_EXTRA_IMPORT = [
 
 
 @overload
-def trace(name: str | None = None, *, versioning: None = None, mode: None = None) -> TraceDecorator: ...
+def trace(
+    name: str | None = None,
+    *,
+    versioning: None = None,
+    mode: None = None,
+    tags: list[str] | None = None,
+) -> TraceDecorator: ...
 
 
 @overload
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"], mode: None = None
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"],
+    mode: None = None,
+    tags: list[str] | None = None,
 ) -> VersionedFunctionTraceDecorator: ...
 
 
 @overload
-def trace(name: str | None = None, *, versioning: None, mode: Literal["wrap"]) -> WrappedTraceDecorator: ...
+def trace(
+    name: str | None = None,
+    *,
+    versioning: None,
+    mode: Literal["wrap"],
+    tags: list[str] | None = None,
+) -> WrappedTraceDecorator: ...
 
 
 @overload
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"], mode: Literal["wrap"]
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"],
+    mode: Literal["wrap"],
+    tags: list[str] | None = None,
 ) -> WrappedVersionedFunctionTraceDecorator: ...
 
 
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"] | None = None, mode: Literal["wrap"] | None = None
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"] | None = None,
+    mode: Literal["wrap"] | None = None,
+    tags: list[str] | None = None,
 ) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
     The decorated function will trace and log automatically.
     If mode="wrap" is set, the function will return a Trace[_R] object with a 'response' property containing the original function's response and an 'annotate' method.
     """
+
+    decorator_tags = sorted(list(set(tags))) if tags else None
 
     @overload
     def decorator(
@@ -556,7 +624,7 @@ def trace(
             fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
         )
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
+            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode, "tags": decorator_tags})
 
         signature = inspect.signature(fn)
 
@@ -608,6 +676,7 @@ def trace(
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
                                 prompt_template=prompt_template,
+                                decorator_tags=decorator_tags,
                             )
                         function_uuid = function.uuid
                     else:
@@ -781,6 +850,7 @@ def trace(
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
                                 prompt_template=prompt_template,
+                                decorator_tags=decorator_tags,
                             )
                         function_uuid = function.uuid
                     else:
