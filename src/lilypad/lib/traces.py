@@ -135,16 +135,28 @@ class Trace(_TraceBase[_T]):
         settings = get_settings()
         client = Lilypad(api_key=settings.api_key)
         span_uuid = self._get_span_uuid(client)
+        tag_list = list(tags)
         if not span_uuid:
             raise LilypadNotFoundError(
                 f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
             )
         try:
-            client.projects.spans.update_tags(span_uuid=span_uuid, body=list(tags), project_uuid=settings.project_id)
+            client.projects.spans.update_tags(span_uuid=span_uuid, body=tag_list, project_uuid=settings.project_id)
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
         except Exception as e:
             raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
+
+        try:
+            client.projects.functions.update(
+                function_uuid=self.function_uuid,
+                project_uuid=settings.project_id,
+                extra_body={"decorator_tags": tag_list},
+            )
+        except NotFoundError as e:
+            raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
+        except Exception as e:
+            raise LilypadValueError(f"Failed to add tags to function '{self.function_uuid}': {e}")
 
 
 class AsyncTrace(_TraceBase[_T]):
@@ -181,18 +193,30 @@ class AsyncTrace(_TraceBase[_T]):
         settings = get_settings()
         client = AsyncLilypad(api_key=settings.api_key)
         span_uuid = await self._get_span_uuid(client)
+        tag_list = list(tags)
         if not span_uuid:
             raise LilypadNotFoundError(
                 f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
             )
         try:
             await client.projects.spans.update_tags(
-                span_uuid=span_uuid, body=list(tags), project_uuid=settings.project_id
+                span_uuid=span_uuid, body=tag_list, project_uuid=settings.project_id
             )
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
         except Exception as e:
             raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
+
+        try:
+            await client.projects.functions.update(
+                function_uuid=self.function_uuid,
+                project_uuid=settings.project_id,
+                extra_body={"decorator_tags": tag_list},
+            )
+        except NotFoundError as e:
+            raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
+        except Exception as e:
+            raise LilypadValueError(f"Failed to add tags to function '{self.function_uuid}': {e}")
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
