@@ -248,6 +248,7 @@ class TestProjects:
                 "top_p": 0,
             },
             custom_id="custom_id",
+            decorator_tags=["string"],
             dependencies={
                 "foo": {
                     "extras": ["string"],
@@ -538,6 +539,7 @@ class TestAsyncProjects:
                 "top_p": 0,
             },
             custom_id="custom_id",
+            decorator_tags=["string"],
             dependencies={
                 "foo": {
                     "extras": ["string"],

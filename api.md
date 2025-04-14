@@ -38,12 +38,11 @@ Methods:
 Types:
 
 ```python
-from lilypad.types.ee.projects import SpanAssignAnnotationResponse, SpanGenerateAnnotationResponse
+from lilypad.types.ee.projects import SpanGenerateAnnotationResponse
 ```
 
 Methods:
 
-- <code title="patch /ee/projects/{project_uuid}/spans/{span_uuid}/assignment">client.ee.projects.spans.<a href="./src/lilypad/resources/ee/projects/spans.py">assign_annotation</a>(span_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/span_assign_annotation_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/span_assign_annotation_response.py">SpanAssignAnnotationResponse</a></code>
 - <code title="get /ee/projects/{project_uuid}/spans/{span_uuid}/generate-annotation">client.ee.projects.spans.<a href="./src/lilypad/resources/ee/projects/spans.py">generate_annotation</a>(span_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/span_generate_annotation_response.py">object</a></code>
 
 ## Organizations
