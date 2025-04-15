@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Iterable, Optional
 
 import httpx
 
@@ -93,8 +93,7 @@ class SpansResource(SyncAPIResource):
         self,
         span_uuid: str,
         *,
-        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
-        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags: Optional[Iterable[span_update_tags_params.Tag]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -118,13 +117,7 @@ class SpansResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return self._patch(
             f"/spans/{span_uuid}",
-            body=maybe_transform(
-                {
-                    "tags_by_name": tags_by_name,
-                    "tags_by_uuid": tags_by_uuid,
-                },
-                span_update_tags_params.SpanUpdateTagsParams,
-            ),
+            body=maybe_transform({"tags": tags}, span_update_tags_params.SpanUpdateTagsParams),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -198,8 +191,7 @@ class AsyncSpansResource(AsyncAPIResource):
         self,
         span_uuid: str,
         *,
-        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
-        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags: Optional[Iterable[span_update_tags_params.Tag]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -223,13 +215,7 @@ class AsyncSpansResource(AsyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return await self._patch(
             f"/spans/{span_uuid}",
-            body=await async_maybe_transform(
-                {
-                    "tags_by_name": tags_by_name,
-                    "tags_by_uuid": tags_by_uuid,
-                },
-                span_update_tags_params.SpanUpdateTagsParams,
-            ),
+            body=await async_maybe_transform({"tags": tags}, span_update_tags_params.SpanUpdateTagsParams),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),

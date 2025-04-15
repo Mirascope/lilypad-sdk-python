@@ -2,13 +2,26 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-from typing_extensions import TypedDict
+from typing import Union, Iterable, Optional
+from datetime import datetime
+from typing_extensions import Required, Annotated, TypedDict
 
-__all__ = ["SpanUpdateTagsParams"]
+from ..._utils import PropertyInfo
+
+__all__ = ["SpanUpdateTagsParams", "Tag"]
 
 
 class SpanUpdateTagsParams(TypedDict, total=False):
-    tags_by_name: Optional[List[str]]
+    tags: Optional[Iterable[Tag]]
 
-    tags_by_uuid: Optional[List[str]]
+
+class Tag(TypedDict, total=False):
+    created_at: Required[Annotated[Union[str, datetime], PropertyInfo(format="iso8601")]]
+
+    name: Required[str]
+
+    organization_uuid: Required[str]
+
+    uuid: Required[str]
+
+    project_uuid: Optional[str]
