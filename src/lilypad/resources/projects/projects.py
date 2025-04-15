@@ -61,6 +61,7 @@ from .functions.functions import (
 from ...types.project_public import ProjectPublic
 from ...types.project_list_response import ProjectListResponse
 from ...types.project_delete_response import ProjectDeleteResponse
+from ...types.project_retrieve_tags_response import ProjectRetrieveTagsResponse
 from ...types.projects.functions.function_public import FunctionPublic
 from ...types.projects.functions.common_call_params_param import CommonCallParamsParam
 
@@ -335,6 +336,39 @@ class ProjectsResource(SyncAPIResource):
             cast_to=FunctionPublic,
         )
 
+    def retrieve_tags(
+        self,
+        project_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> ProjectRetrieveTagsResponse:
+        """
+        Get all tags by project.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        return self._get(
+            f"/projects/{project_uuid}/tags",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ProjectRetrieveTagsResponse,
+        )
+
 
 class AsyncProjectsResource(AsyncAPIResource):
     @cached_property
@@ -604,6 +638,39 @@ class AsyncProjectsResource(AsyncAPIResource):
             cast_to=FunctionPublic,
         )
 
+    async def retrieve_tags(
+        self,
+        project_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> ProjectRetrieveTagsResponse:
+        """
+        Get all tags by project.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/tags",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ProjectRetrieveTagsResponse,
+        )
+
 
 class ProjectsResourceWithRawResponse:
     def __init__(self, projects: ProjectsResource) -> None:
@@ -626,6 +693,9 @@ class ProjectsResourceWithRawResponse:
         )
         self.create_versioned_function = to_raw_response_wrapper(
             projects.create_versioned_function,
+        )
+        self.retrieve_tags = to_raw_response_wrapper(
+            projects.retrieve_tags,
         )
 
     @cached_property
@@ -667,6 +737,9 @@ class AsyncProjectsResourceWithRawResponse:
         self.create_versioned_function = async_to_raw_response_wrapper(
             projects.create_versioned_function,
         )
+        self.retrieve_tags = async_to_raw_response_wrapper(
+            projects.retrieve_tags,
+        )
 
     @cached_property
     def functions(self) -> AsyncFunctionsResourceWithRawResponse:
@@ -707,6 +780,9 @@ class ProjectsResourceWithStreamingResponse:
         self.create_versioned_function = to_streamed_response_wrapper(
             projects.create_versioned_function,
         )
+        self.retrieve_tags = to_streamed_response_wrapper(
+            projects.retrieve_tags,
+        )
 
     @cached_property
     def functions(self) -> FunctionsResourceWithStreamingResponse:
@@ -746,6 +822,9 @@ class AsyncProjectsResourceWithStreamingResponse:
         )
         self.create_versioned_function = async_to_streamed_response_wrapper(
             projects.create_versioned_function,
+        )
+        self.retrieve_tags = async_to_streamed_response_wrapper(
+            projects.retrieve_tags,
         )
 
     @cached_property

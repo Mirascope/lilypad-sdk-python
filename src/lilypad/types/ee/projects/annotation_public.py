@@ -1,6 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from typing import Optional
+from datetime import datetime
 
 from .label import Label
 from ...._models import BaseModel
@@ -11,7 +12,7 @@ __all__ = ["AnnotationPublic"]
 
 
 class AnnotationPublic(BaseModel):
-    assigned_to: Optional[str] = None
+    created_at: datetime
 
     function_uuid: str
 
@@ -23,6 +24,8 @@ class AnnotationPublic(BaseModel):
     span_uuid: str
 
     uuid: str
+
+    assigned_to: Optional[str] = None
 
     data: Optional[object] = None
 

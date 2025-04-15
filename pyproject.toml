@@ -1,6 +1,6 @@
 [project]
 name = "lilypad-sdk"
-version = "0.1.0-alpha.19"
+version = "0.1.0-alpha.20"
 description = "The official Python library for the lilypad API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -163,6 +163,7 @@ exclude = [
 ]
 
 reportImplicitOverride = true
+reportOverlappingOverload = false
 
 reportImportCycles = false
 reportPrivateUsage = false

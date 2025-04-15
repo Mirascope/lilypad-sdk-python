@@ -25,13 +25,16 @@ from ._utils import (
 )
 from ._version import __version__
 from .resources import (
+    tags,
     spans,
     users,
     api_keys,
+    comments,
     settings,
     current_user,
     environments,
     organizations,
+    user_consents,
     external_api_keys,
     organizations_invites,
 )
@@ -62,6 +65,9 @@ class Lilypad(SyncAPIClient):
     external_api_keys: external_api_keys.ExternalAPIKeysResource
     environments: environments.EnvironmentsResource
     settings: settings.SettingsResource
+    user_consents: user_consents.UserConsentsResource
+    tags: tags.TagsResource
+    comments: comments.CommentsResource
     with_raw_response: LilypadWithRawResponse
     with_streaming_response: LilypadWithStreamedResponse
 
@@ -131,6 +137,9 @@ class Lilypad(SyncAPIClient):
         self.external_api_keys = external_api_keys.ExternalAPIKeysResource(self)
         self.environments = environments.EnvironmentsResource(self)
         self.settings = settings.SettingsResource(self)
+        self.user_consents = user_consents.UserConsentsResource(self)
+        self.tags = tags.TagsResource(self)
+        self.comments = comments.CommentsResource(self)
         self.with_raw_response = LilypadWithRawResponse(self)
         self.with_streaming_response = LilypadWithStreamedResponse(self)
 
@@ -252,6 +261,9 @@ class AsyncLilypad(AsyncAPIClient):
     external_api_keys: external_api_keys.AsyncExternalAPIKeysResource
     environments: environments.AsyncEnvironmentsResource
     settings: settings.AsyncSettingsResource
+    user_consents: user_consents.AsyncUserConsentsResource
+    tags: tags.AsyncTagsResource
+    comments: comments.AsyncCommentsResource
     with_raw_response: AsyncLilypadWithRawResponse
     with_streaming_response: AsyncLilypadWithStreamedResponse
 
@@ -321,6 +333,9 @@ class AsyncLilypad(AsyncAPIClient):
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResource(self)
         self.environments = environments.AsyncEnvironmentsResource(self)
         self.settings = settings.AsyncSettingsResource(self)
+        self.user_consents = user_consents.AsyncUserConsentsResource(self)
+        self.tags = tags.AsyncTagsResource(self)
+        self.comments = comments.AsyncCommentsResource(self)
         self.with_raw_response = AsyncLilypadWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadWithStreamedResponse(self)
 
@@ -445,6 +460,9 @@ class LilypadWithRawResponse:
         self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.environments = environments.EnvironmentsResourceWithRawResponse(client.environments)
         self.settings = settings.SettingsResourceWithRawResponse(client.settings)
+        self.user_consents = user_consents.UserConsentsResourceWithRawResponse(client.user_consents)
+        self.tags = tags.TagsResourceWithRawResponse(client.tags)
+        self.comments = comments.CommentsResourceWithRawResponse(client.comments)
 
 
 class AsyncLilypadWithRawResponse:
@@ -463,6 +481,9 @@ class AsyncLilypadWithRawResponse:
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.environments = environments.AsyncEnvironmentsResourceWithRawResponse(client.environments)
         self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
+        self.user_consents = user_consents.AsyncUserConsentsResourceWithRawResponse(client.user_consents)
+        self.tags = tags.AsyncTagsResourceWithRawResponse(client.tags)
+        self.comments = comments.AsyncCommentsResourceWithRawResponse(client.comments)
 
 
 class LilypadWithStreamedResponse:
@@ -483,6 +504,9 @@ class LilypadWithStreamedResponse:
         )
         self.environments = environments.EnvironmentsResourceWithStreamingResponse(client.environments)
         self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
+        self.user_consents = user_consents.UserConsentsResourceWithStreamingResponse(client.user_consents)
+        self.tags = tags.TagsResourceWithStreamingResponse(client.tags)
+        self.comments = comments.CommentsResourceWithStreamingResponse(client.comments)
 
 
 class AsyncLilypadWithStreamedResponse:
@@ -503,6 +527,9 @@ class AsyncLilypadWithStreamedResponse:
         )
         self.environments = environments.AsyncEnvironmentsResourceWithStreamingResponse(client.environments)
         self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
+        self.user_consents = user_consents.AsyncUserConsentsResourceWithStreamingResponse(client.user_consents)
+        self.tags = tags.AsyncTagsResourceWithStreamingResponse(client.tags)
+        self.comments = comments.AsyncCommentsResourceWithStreamingResponse(client.comments)
 
 
 Client = Lilypad

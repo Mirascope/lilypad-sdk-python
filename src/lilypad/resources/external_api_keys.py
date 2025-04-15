@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import httpx
 
-from ..types import external_api_key_create_params
+from ..types import external_api_key_create_params, external_api_key_update_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import (
     maybe_transform,
@@ -62,6 +62,8 @@ class ExternalAPIKeysResource(SyncAPIResource):
         Store an external API key for a given service.
 
         Args:
+          api_key: New API key
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -112,6 +114,43 @@ class ExternalAPIKeysResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
         return self._get(
             f"/external-api-keys/{service_name}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ExternalAPIKeyPublic,
+        )
+
+    def update(
+        self,
+        service_name: str,
+        *,
+        api_key: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> ExternalAPIKeyPublic:
+        """
+        Update users keys.
+
+        Args:
+          api_key: New API key
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not service_name:
+            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        return self._patch(
+            f"/external-api-keys/{service_name}",
+            body=maybe_transform({"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -207,6 +246,8 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         Store an external API key for a given service.
 
         Args:
+          api_key: New API key
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -257,6 +298,45 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
         return await self._get(
             f"/external-api-keys/{service_name}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=ExternalAPIKeyPublic,
+        )
+
+    async def update(
+        self,
+        service_name: str,
+        *,
+        api_key: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> ExternalAPIKeyPublic:
+        """
+        Update users keys.
+
+        Args:
+          api_key: New API key
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not service_name:
+            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        return await self._patch(
+            f"/external-api-keys/{service_name}",
+            body=await async_maybe_transform(
+                {"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -326,6 +406,9 @@ class ExternalAPIKeysResourceWithRawResponse:
         self.retrieve = to_raw_response_wrapper(
             external_api_keys.retrieve,
         )
+        self.update = to_raw_response_wrapper(
+            external_api_keys.update,
+        )
         self.list = to_raw_response_wrapper(
             external_api_keys.list,
         )
@@ -343,6 +426,9 @@ class AsyncExternalAPIKeysResourceWithRawResponse:
         )
         self.retrieve = async_to_raw_response_wrapper(
             external_api_keys.retrieve,
+        )
+        self.update = async_to_raw_response_wrapper(
+            external_api_keys.update,
         )
         self.list = async_to_raw_response_wrapper(
             external_api_keys.list,
@@ -362,6 +448,9 @@ class ExternalAPIKeysResourceWithStreamingResponse:
         self.retrieve = to_streamed_response_wrapper(
             external_api_keys.retrieve,
         )
+        self.update = to_streamed_response_wrapper(
+            external_api_keys.update,
+        )
         self.list = to_streamed_response_wrapper(
             external_api_keys.list,
         )
@@ -379,6 +468,9 @@ class AsyncExternalAPIKeysResourceWithStreamingResponse:
         )
         self.retrieve = async_to_streamed_response_wrapper(
             external_api_keys.retrieve,
+        )
+        self.update = async_to_streamed_response_wrapper(
+            external_api_keys.update,
         )
         self.list = async_to_streamed_response_wrapper(
             external_api_keys.list,

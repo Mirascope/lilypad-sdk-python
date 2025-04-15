@@ -25,7 +25,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_method_create(self, client: Lilypad) -> None:
         external_api_key = client.external_api_keys.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
         assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
@@ -34,7 +34,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_raw_response_create(self, client: Lilypad) -> None:
         response = client.external_api_keys.with_raw_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
 
@@ -47,7 +47,7 @@ class TestExternalAPIKeys:
     @parametrize
     def test_streaming_response_create(self, client: Lilypad) -> None:
         with client.external_api_keys.with_streaming_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         ) as response:
             assert not response.is_closed
@@ -98,6 +98,52 @@ class TestExternalAPIKeys:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             client.external_api_keys.with_raw_response.retrieve(
                 "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_update(self, client: Lilypad) -> None:
+        external_api_key = client.external_api_keys.update(
+            service_name="service_name",
+            api_key="x",
+        )
+        assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_update(self, client: Lilypad) -> None:
+        response = client.external_api_keys.with_raw_response.update(
+            service_name="service_name",
+            api_key="x",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        external_api_key = response.parse()
+        assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_update(self, client: Lilypad) -> None:
+        with client.external_api_keys.with_streaming_response.update(
+            service_name="service_name",
+            api_key="x",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            external_api_key = response.parse()
+            assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_update(self, client: Lilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
+            client.external_api_keys.with_raw_response.update(
+                service_name="",
+                api_key="x",
             )
 
     @pytest.mark.skip()
@@ -178,7 +224,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_method_create(self, async_client: AsyncLilypad) -> None:
         external_api_key = await async_client.external_api_keys.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
         assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
@@ -187,7 +233,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
         response = await async_client.external_api_keys.with_raw_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         )
 
@@ -200,7 +246,7 @@ class TestAsyncExternalAPIKeys:
     @parametrize
     async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
         async with async_client.external_api_keys.with_streaming_response.create(
-            api_key="api_key",
+            api_key="x",
             service_name="service_name",
         ) as response:
             assert not response.is_closed
@@ -251,6 +297,52 @@ class TestAsyncExternalAPIKeys:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
             await async_client.external_api_keys.with_raw_response.retrieve(
                 "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_update(self, async_client: AsyncLilypad) -> None:
+        external_api_key = await async_client.external_api_keys.update(
+            service_name="service_name",
+            api_key="x",
+        )
+        assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_update(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.external_api_keys.with_raw_response.update(
+            service_name="service_name",
+            api_key="x",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        external_api_key = await response.parse()
+        assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_update(self, async_client: AsyncLilypad) -> None:
+        async with async_client.external_api_keys.with_streaming_response.update(
+            service_name="service_name",
+            api_key="x",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            external_api_key = await response.parse()
+            assert_matches_type(ExternalAPIKeyPublic, external_api_key, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_update(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `service_name` but received ''"):
+            await async_client.external_api_keys.with_raw_response.update(
+                service_name="",
+                api_key="x",
             )
 
     @pytest.mark.skip()

@@ -7,6 +7,7 @@ from .trace_list_response import TraceListResponse as TraceListResponse
 from .trace_create_response import TraceCreateResponse as TraceCreateResponse
 from .function_create_params import FunctionCreateParams as FunctionCreateParams
 from .function_list_response import FunctionListResponse as FunctionListResponse
+from .span_update_tags_params import SpanUpdateTagsParams as SpanUpdateTagsParams
 from .environment_deploy_params import EnvironmentDeployParams as EnvironmentDeployParams
 from .function_archive_response import FunctionArchiveResponse as FunctionArchiveResponse
 from .span_list_aggregates_params import SpanListAggregatesParams as SpanListAggregatesParams

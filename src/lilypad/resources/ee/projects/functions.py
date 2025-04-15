@@ -22,7 +22,8 @@ from ...._response import (
 )
 from ...._base_client import make_request_options
 from ....types.ee.projects import function_run_playground_params
-from ....types.function_create_param import FunctionCreateParam
+from ....types.projects.functions.common_call_params_param import CommonCallParamsParam
+from ....types.ee.projects.function_run_playground_response import FunctionRunPlaygroundResponse
 from ....types.ee.projects.function_get_annotations_response import FunctionGetAnnotationsResponse
 
 __all__ = ["FunctionsResource", "AsyncFunctionsResource"]
@@ -89,24 +90,37 @@ class FunctionsResource(SyncAPIResource):
         function_uuid: str,
         *,
         project_uuid: str,
+        arg_types: Optional[Dict[str, str]],
         arg_values: Dict[str, Union[float, bool, str, Iterable[object], object]],
+        call_params: Optional[CommonCallParamsParam],
         model: str,
+        prompt_template: str,
         provider: Literal["openai", "anthropic", "openrouter", "gemini"],
-        function: Optional[FunctionCreateParam] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> str:
+    ) -> FunctionRunPlaygroundResponse:
         """
-        Run playground version.
+        Executes a function with specified parameters in a secure playground
+        environment.
 
         Args:
-          provider: Provider name enum
+          call_params: Common parameters shared across LLM providers.
 
-          function: Function create model.
+              Note: Each provider may handle these parameters differently or not support them
+              at all. Please check provider-specific documentation for parameter support and
+              behavior.
+
+              Attributes: temperature: Controls randomness in the output (0.0 to 1.0).
+              max_tokens: Maximum number of tokens to generate. top_p: Nucleus sampling
+              parameter (0.0 to 1.0). frequency_penalty: Penalizes frequent tokens (-2.0 to
+              2.0). presence_penalty: Penalizes tokens based on presence (-2.0 to 2.0). seed:
+              Random seed for reproducibility. stop: Stop sequence(s) to end generation.
+
+          provider: Provider name enum
 
           extra_headers: Send extra headers
 
@@ -124,17 +138,19 @@ class FunctionsResource(SyncAPIResource):
             f"/ee/projects/{project_uuid}/functions/{function_uuid}/playground",
             body=maybe_transform(
                 {
+                    "arg_types": arg_types,
                     "arg_values": arg_values,
+                    "call_params": call_params,
                     "model": model,
+                    "prompt_template": prompt_template,
                     "provider": provider,
-                    "function": function,
                 },
                 function_run_playground_params.FunctionRunPlaygroundParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=str,
+            cast_to=FunctionRunPlaygroundResponse,
         )
 
 
@@ -199,24 +215,37 @@ class AsyncFunctionsResource(AsyncAPIResource):
         function_uuid: str,
         *,
         project_uuid: str,
+        arg_types: Optional[Dict[str, str]],
         arg_values: Dict[str, Union[float, bool, str, Iterable[object], object]],
+        call_params: Optional[CommonCallParamsParam],
         model: str,
+        prompt_template: str,
         provider: Literal["openai", "anthropic", "openrouter", "gemini"],
-        function: Optional[FunctionCreateParam] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> str:
+    ) -> FunctionRunPlaygroundResponse:
         """
-        Run playground version.
+        Executes a function with specified parameters in a secure playground
+        environment.
 
         Args:
-          provider: Provider name enum
+          call_params: Common parameters shared across LLM providers.
 
-          function: Function create model.
+              Note: Each provider may handle these parameters differently or not support them
+              at all. Please check provider-specific documentation for parameter support and
+              behavior.
+
+              Attributes: temperature: Controls randomness in the output (0.0 to 1.0).
+              max_tokens: Maximum number of tokens to generate. top_p: Nucleus sampling
+              parameter (0.0 to 1.0). frequency_penalty: Penalizes frequent tokens (-2.0 to
+              2.0). presence_penalty: Penalizes tokens based on presence (-2.0 to 2.0). seed:
+              Random seed for reproducibility. stop: Stop sequence(s) to end generation.
+
+          provider: Provider name enum
 
           extra_headers: Send extra headers
 
@@ -234,17 +263,19 @@ class AsyncFunctionsResource(AsyncAPIResource):
             f"/ee/projects/{project_uuid}/functions/{function_uuid}/playground",
             body=await async_maybe_transform(
                 {
+                    "arg_types": arg_types,
                     "arg_values": arg_values,
+                    "call_params": call_params,
                     "model": model,
+                    "prompt_template": prompt_template,
                     "provider": provider,
-                    "function": function,
                 },
                 function_run_playground_params.FunctionRunPlaygroundParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=str,
+            cast_to=FunctionRunPlaygroundResponse,
         )
 
 

@@ -77,8 +77,6 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
 
-from lilypad.\_utils import parse_datetime
-
 ## Nested params
 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
@@ -91,41 +89,22 @@ client = Lilypad()
 response = client.ee.projects.functions.run_playground(
     function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
     project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+    arg_types={"foo": "string"},
     arg_values={"foo": 0},
-    model="model",
-    provider="openai",
-    function={
-        "code": "code",
-        "hash": "hash",
-        "name": "x",
-        "signature": "signature",
-        "archived": parse_datetime("2019-12-27T18:11:19.117Z"),
-        "arg_types": {"foo": "string"},
-        "call_params": {
-            "frequency_penalty": 0,
-            "max_tokens": 0,
-            "presence_penalty": 0,
-            "seed": 0,
-            "stop": "string",
-            "temperature": 0,
-            "top_p": 0,
-        },
-        "custom_id": "custom_id",
-        "dependencies": {
-            "foo": {
-                "extras": ["string"],
-                "version": "version",
-            }
-        },
-        "is_versioned": True,
-        "model": "model",
-        "project_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-        "prompt_template": "prompt_template",
-        "provider": "provider",
-        "version_num": 0,
+    call_params={
+        "frequency_penalty": 0,
+        "max_tokens": 0,
+        "presence_penalty": 0,
+        "seed": 0,
+        "stop": "string",
+        "temperature": 0,
+        "top_p": 0,
     },
+    model="model",
+    prompt_template="prompt_template",
+    provider="openai",
 )
-print(response.function)
+print(response.call_params)
 ```
 
 ## Handling errors
