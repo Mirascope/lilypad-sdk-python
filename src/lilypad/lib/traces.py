@@ -127,26 +127,22 @@ class Trace(_TraceBase[_T]):
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
     def assign(self, email: str) -> None:
+        """Assign the trace to a user by email."""
         settings = get_settings()
 
-        client = Lilypad(api_key=settings.api_key)
+        lilypad_client = Lilypad(api_key=settings.api_key)
 
-        span_uuid_str = self._get_span_uuid(client)
-        if not span_uuid_str:
-            raise LilypadNotFoundError(
-                f"Could not find the span UUID for trace (otel_span_id: {self.formated_span_id}). Assignment failed."
-            )
-
-        try:
-            client.ee.projects.spans.assign_annotation(
-                span_uuid=span_uuid_str,
-                assignee_email=email,
-                project_uuid=settings.project_id,
-            )
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to assign annotation: Span or user not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to assign annotation for span '{span_uuid_str}' to user '{email}': {e}")
+        lilypad_client.ee.projects.annotations.create(
+            project_uuid=settings.project_id,
+            body=[
+                dict(
+                    assignee_email=email,
+                    function_uuid=self.function_uuid,
+                    project_uuid=settings.project_id,
+                    span_uuid=self._get_span_uuid(lilypad_client),
+                )
+            ],
+        )
 
 
 class AsyncTrace(_TraceBase[_T]):
@@ -175,25 +171,21 @@ class AsyncTrace(_TraceBase[_T]):
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
     async def assign(self, email: str) -> None:
+        """Assign the trace to a user by email."""
         settings = get_settings()
         async_client = AsyncLilypad(api_key=settings.api_key)
 
-        span_uuid_str = await self._get_span_uuid(async_client)
-        if not span_uuid_str:
-            raise LilypadNotFoundError(
-                f"Could not find the span UUID for trace (otel_span_id: {self.formated_span_id}). Assignment failed."
-            )
-
-        try:
-            await async_client.ee.projects.spans.assign_annotation(
-                span_uuid=span_uuid_str,
-                assignee_email=email,
-                project_uuid=settings.project_id,
-            )
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to assign annotation: Span or user not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to assign annotation for span '{span_uuid_str}' to user '{email}': {e}")
+        await async_client.ee.projects.annotations.create(
+            project_uuid=settings.project_id,
+            body=[
+                dict(
+                    assignee_email=email,
+                    function_uuid=self.function_uuid,
+                    project_uuid=settings.project_id,
+                    span_uuid=await self._get_span_uuid(async_client),
+                )
+            ],
+        )
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
