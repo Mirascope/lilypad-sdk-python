@@ -6,15 +6,6 @@ Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope
 
 ### Features
 
-* **api:** update via SDK Studio ([633d2e1](https://github.com/Mirascope/lilypad-sdk-python/commit/633d2e12669a5ddb3c23808e4b9cbd8ee682142d))
-* **api:** update via SDK Studio ([f3d7377](https://github.com/Mirascope/lilypad-sdk-python/commit/f3d73771cf5a426f7822b3146068f2a971ea1d26))
-* **api:** update via SDK Studio ([b2bc5fc](https://github.com/Mirascope/lilypad-sdk-python/commit/b2bc5fce8f497f4aee8102a53ba500b073450e83))
-* **api:** update via SDK Studio ([cdf70fd](https://github.com/Mirascope/lilypad-sdk-python/commit/cdf70fd56cc3c85c3922d5eacc67781ae3d87677))
-* **api:** update via SDK Studio ([3ddaaa5](https://github.com/Mirascope/lilypad-sdk-python/commit/3ddaaa5f732b0e9cd70bb7c37910f3e8e98cba70))
-* **api:** update via SDK Studio ([8cdf78b](https://github.com/Mirascope/lilypad-sdk-python/commit/8cdf78b2fa34cd4c4ae78f35c60fc8712483c57b))
-* **api:** update via SDK Studio ([90e359c](https://github.com/Mirascope/lilypad-sdk-python/commit/90e359ce21a9d171ecfc7287edc4ff9eaa0fbfb6))
-* **api:** update via SDK Studio ([c0db1b6](https://github.com/Mirascope/lilypad-sdk-python/commit/c0db1b671b6bd8a4d9f8b12ff9d4430a68ff6402))
-* **api:** update via SDK Studio ([985414b](https://github.com/Mirascope/lilypad-sdk-python/commit/985414bd4839afe25442a756e532d7ad5d3302f8))
 * **api:** update via SDK Studio ([c3a2fc4](https://github.com/Mirascope/lilypad-sdk-python/commit/c3a2fc47d1c0760994bade43ab2a75b548aecfb9))
 * **api:** update via SDK Studio ([168bfe5](https://github.com/Mirascope/lilypad-sdk-python/commit/168bfe5cd8ae1b5a829fdbfc12e967d9ffdfca3d))
 
@@ -29,6 +20,7 @@ Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope
 
 * **client:** minor internal fixes ([14acfa7](https://github.com/Mirascope/lilypad-sdk-python/commit/14acfa70a0d175d31c3fd58ce2aa6196ea0f73ba))
 * **internal:** update pyright settings ([1ba41f6](https://github.com/Mirascope/lilypad-sdk-python/commit/1ba41f6ae04bacea78b589b39c534608720b0174))
+
 
 ## 0.1.0-alpha.19 (2025-04-11)
 

@@ -38,7 +38,7 @@ from ._utils import (
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
-from .exceptions import RemoteFunctionError
+from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
 from .._exceptions import NotFoundError
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
@@ -80,7 +80,7 @@ class _TraceBase(Generic[_T]):
         tracer = get_tracer_provider()
         if force_flush := getattr(tracer, "force_flush", None):
             force_flush(timeout_millis=5000)
-            self.flush = True
+            self._flush = True
 
     def _create_body(
         self, project_id: str, span_uuid: str, annotation: Annotation | list[Annotation]
@@ -126,6 +126,24 @@ class Trace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
+    def assign(self, email: str) -> None:
+        """Assign the trace to a user by email."""
+        settings = get_settings()
+
+        lilypad_client = Lilypad(api_key=settings.api_key)
+
+        lilypad_client.ee.projects.annotations.create(
+            project_uuid=settings.project_id,
+            body=[
+                dict(
+                    assignee_email=email,
+                    function_uuid=self.function_uuid,
+                    project_uuid=settings.project_id,
+                    span_uuid=self._get_span_uuid(lilypad_client),
+                )
+            ],
+        )
+
 
 class AsyncTrace(_TraceBase[_T]):
     """
@@ -151,6 +169,23 @@ class AsyncTrace(_TraceBase[_T]):
         lilypad_client = AsyncLilypad(api_key=settings.api_key)
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
+
+    async def assign(self, email: str) -> None:
+        """Assign the trace to a user by email."""
+        settings = get_settings()
+        async_client = AsyncLilypad(api_key=settings.api_key)
+
+        await async_client.ee.projects.annotations.create(
+            project_uuid=settings.project_id,
+            body=[
+                dict(
+                    assignee_email=email,
+                    function_uuid=self.function_uuid,
+                    project_uuid=settings.project_id,
+                    span_uuid=await self._get_span_uuid(async_client),
+                )
+            ],
+        )
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
