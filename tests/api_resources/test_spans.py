@@ -10,7 +10,6 @@ import pytest
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
 from lilypad.types import SpanMoreDetails, SpanListCommentsResponse
-from lilypad._utils import parse_datetime
 from lilypad.types.projects.functions import SpanPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -74,15 +73,8 @@ class TestSpans:
     def test_method_update_with_all_params(self, client: Lilypad) -> None:
         span = client.spans.update(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            tags=[
-                {
-                    "created_at": parse_datetime("2019-12-27T18:11:19.117Z"),
-                    "name": "x",
-                    "organization_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                    "uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                    "project_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                }
-            ],
+            tags_by_name=["string"],
+            tags_by_uuid=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
         )
         assert_matches_type(SpanPublic, span, path=["response"])
 
@@ -221,15 +213,8 @@ class TestAsyncSpans:
     async def test_method_update_with_all_params(self, async_client: AsyncLilypad) -> None:
         span = await async_client.spans.update(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            tags=[
-                {
-                    "created_at": parse_datetime("2019-12-27T18:11:19.117Z"),
-                    "name": "x",
-                    "organization_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                    "uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                    "project_uuid": "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                }
-            ],
+            tags_by_name=["string"],
+            tags_by_uuid=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
         )
         assert_matches_type(SpanPublic, span, path=["response"])
 
