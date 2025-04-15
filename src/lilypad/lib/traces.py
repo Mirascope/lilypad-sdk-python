@@ -147,16 +147,6 @@ class Trace(_TraceBase[_T]):
         except Exception as e:
             raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
 
-        try:
-            client.projects.functions.update(
-                function_uuid=self.function_uuid,
-                project_uuid=settings.project_id,
-            )
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to add tags to function '{self.function_uuid}': {e}")
-
 
 class AsyncTrace(_TraceBase[_T]):
     """
@@ -203,16 +193,6 @@ class AsyncTrace(_TraceBase[_T]):
             raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
         except Exception as e:
             raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
-
-        try:
-            await client.projects.functions.update(
-                function_uuid=self.function_uuid,
-                project_uuid=settings.project_id,
-            )
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to add tags to function '{self.function_uuid}': {e}")
 
 
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
