@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.20 (2025-04-14)
+## 0.1.0-alpha.20 (2025-04-15)
 
 Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.19...v0.1.0-alpha.20)
 
@@ -14,6 +14,13 @@ Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope
 
 * **perf:** optimize some hot paths ([59b67ca](https://github.com/Mirascope/lilypad-sdk-python/commit/59b67ca05fac0077c1524874e9767a4faf47403f))
 * **perf:** skip traversing types for NotGiven values ([7367bbd](https://github.com/Mirascope/lilypad-sdk-python/commit/7367bbde711a0ebe76de10b17b40a6d2821b3851))
+
+
+### Chores
+
+* **client:** minor internal fixes ([14acfa7](https://github.com/Mirascope/lilypad-sdk-python/commit/14acfa70a0d175d31c3fd58ce2aa6196ea0f73ba))
+* **internal:** update pyright settings ([1ba41f6](https://github.com/Mirascope/lilypad-sdk-python/commit/1ba41f6ae04bacea78b589b39c534608720b0174))
+
 
 ## 0.1.0-alpha.19 (2025-04-11)
 

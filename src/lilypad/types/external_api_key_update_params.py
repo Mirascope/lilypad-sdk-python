@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-__all__ = ["SpanAssignAnnotationParams"]
+__all__ = ["ExternalAPIKeyUpdateParams"]
 
 
-class SpanAssignAnnotationParams(TypedDict, total=False):
-    project_uuid: Required[str]
-
-    assignee_email: Required[str]
+class ExternalAPIKeyUpdateParams(TypedDict, total=False):
+    api_key: Required[str]
+    """New API key"""

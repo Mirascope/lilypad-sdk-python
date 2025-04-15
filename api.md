@@ -12,6 +12,7 @@ from lilypad.types.ee.projects import (
     EvaluationType,
     Label,
     AnnotationCreateResponse,
+    AnnotationListResponse,
 )
 ```
 
@@ -19,6 +20,7 @@ Methods:
 
 - <code title="post /ee/projects/{project_uuid}/annotations">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">create</a>(project_uuid, \*\*<a href="src/lilypad/types/ee/projects/annotation_create_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/annotation_create_response.py">AnnotationCreateResponse</a></code>
 - <code title="patch /ee/projects/{project_uuid}/annotations/{annotation_uuid}">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">update</a>(annotation_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/annotation_update_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/annotation_public.py">AnnotationPublic</a></code>
+- <code title="get /ee/projects/{project_uuid}/annotations">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">list</a>(project_uuid) -> <a href="./src/lilypad/types/ee/projects/annotation_list_response.py">AnnotationListResponse</a></code>
 
 ### Functions
 
@@ -38,12 +40,11 @@ Methods:
 Types:
 
 ```python
-from lilypad.types.ee.projects import SpanAssignAnnotationResponse, SpanGenerateAnnotationResponse
+from lilypad.types.ee.projects import SpanGenerateAnnotationResponse
 ```
 
 Methods:
 
-- <code title="patch /ee/projects/{project_uuid}/spans/{span_uuid}/assignment">client.ee.projects.spans.<a href="./src/lilypad/resources/ee/projects/spans.py">assign_annotation</a>(span_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/span_assign_annotation_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/span_assign_annotation_response.py">SpanAssignAnnotationResponse</a></code>
 - <code title="get /ee/projects/{project_uuid}/spans/{span_uuid}/generate-annotation">client.ee.projects.spans.<a href="./src/lilypad/resources/ee/projects/spans.py">generate_annotation</a>(span_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/span_generate_annotation_response.py">object</a></code>
 
 ## Organizations
@@ -105,6 +106,7 @@ from lilypad.types import (
     ProjectPublic,
     ProjectListResponse,
     ProjectDeleteResponse,
+    ProjectRetrieveTagsResponse,
 )
 ```
 
@@ -116,6 +118,7 @@ Methods:
 - <code title="get /projects">client.projects.<a href="./src/lilypad/resources/projects/projects.py">list</a>() -> <a href="./src/lilypad/types/project_list_response.py">ProjectListResponse</a></code>
 - <code title="delete /projects/{project_uuid}">client.projects.<a href="./src/lilypad/resources/projects/projects.py">delete</a>(project_uuid) -> <a href="./src/lilypad/types/project_delete_response.py">ProjectDeleteResponse</a></code>
 - <code title="post /projects/{project_uuid}/versioned-functions">client.projects.<a href="./src/lilypad/resources/projects/projects.py">create_versioned_function</a>(path_project_uuid, \*\*<a href="src/lilypad/types/project_create_versioned_function_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/function_public.py">FunctionPublic</a></code>
+- <code title="get /projects/{project_uuid}/tags">client.projects.<a href="./src/lilypad/resources/projects/projects.py">retrieve_tags</a>(project_uuid) -> <a href="./src/lilypad/types/project_retrieve_tags_response.py">ProjectRetrieveTagsResponse</a></code>
 
 ## Functions
 
@@ -205,6 +208,7 @@ from lilypad.types.projects import SpanListAggregatesResponse
 Methods:
 
 - <code title="get /projects/{project_uuid}/spans/metadata">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">list_aggregates</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/span_list_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_list_aggregates_response.py">SpanListAggregatesResponse</a></code>
+- <code title="patch /spans/{span_uuid}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">update_tags</a>(span_uuid, \*\*<a href="src/lilypad/types/projects/span_update_tags_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
 ## Traces
 
@@ -239,25 +243,34 @@ Methods:
 Types:
 
 ```python
-from lilypad.types import OrganizationInvite
+from lilypad.types import (
+    OrganizationInvite,
+    OrganizationsInviteListResponse,
+    OrganizationsInviteDeleteResponse,
+)
 ```
 
 Methods:
 
 - <code title="post /organizations-invites">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">create</a>(\*\*<a href="src/lilypad/types/organizations_invite_create_params.py">params</a>) -> <a href="./src/lilypad/types/organization_invite.py">OrganizationInvite</a></code>
 - <code title="get /organizations-invites/{invite_token}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">retrieve</a>(invite_token) -> <a href="./src/lilypad/types/organization_invite.py">OrganizationInvite</a></code>
+- <code title="get /organizations-invites/">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">list</a>() -> <a href="./src/lilypad/types/organizations_invite_list_response.py">OrganizationsInviteListResponse</a></code>
+- <code title="delete /organizations-invites/{organization_invite_uuid}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">delete</a>(organization_invite_uuid) -> <a href="./src/lilypad/types/organizations_invite_delete_response.py">OrganizationsInviteDeleteResponse</a></code>
+- <code title="post /organizations-invites/{organization_invite_uuid}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">resend</a>(organization_invite_uuid, \*\*<a href="src/lilypad/types/organizations_invite_resend_params.py">params</a>) -> <a href="./src/lilypad/types/organization_invite.py">OrganizationInvite</a></code>
 
 # Spans
 
 Types:
 
 ```python
-from lilypad.types import SpanMoreDetails
+from lilypad.types import SpanMoreDetails, SpanListCommentsResponse
 ```
 
 Methods:
 
 - <code title="get /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">retrieve</a>(span_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
+- <code title="patch /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">update</a>(span_uuid, \*\*<a href="src/lilypad/types/span_update_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
+- <code title="get /spans/{span_uuid}/comments">client.spans.<a href="./src/lilypad/resources/spans.py">list_comments</a>(span_uuid) -> <a href="./src/lilypad/types/span_list_comments_response.py">SpanListCommentsResponse</a></code>
 
 # Auth
 
@@ -320,6 +333,7 @@ Methods:
 
 - <code title="post /external-api-keys">client.external_api_keys.<a href="./src/lilypad/resources/external_api_keys.py">create</a>(\*\*<a href="src/lilypad/types/external_api_key_create_params.py">params</a>) -> <a href="./src/lilypad/types/external_api_key_public.py">ExternalAPIKeyPublic</a></code>
 - <code title="get /external-api-keys/{service_name}">client.external_api_keys.<a href="./src/lilypad/resources/external_api_keys.py">retrieve</a>(service_name) -> <a href="./src/lilypad/types/external_api_key_public.py">ExternalAPIKeyPublic</a></code>
+- <code title="patch /external-api-keys/{service_name}">client.external_api_keys.<a href="./src/lilypad/resources/external_api_keys.py">update</a>(service_name, \*\*<a href="src/lilypad/types/external_api_key_update_params.py">params</a>) -> <a href="./src/lilypad/types/external_api_key_public.py">ExternalAPIKeyPublic</a></code>
 - <code title="get /external-api-keys">client.external_api_keys.<a href="./src/lilypad/resources/external_api_keys.py">list</a>() -> <a href="./src/lilypad/types/external_api_key_list_response.py">ExternalAPIKeyListResponse</a></code>
 - <code title="delete /external-api-keys/{service_name}">client.external_api_keys.<a href="./src/lilypad/resources/external_api_keys.py">delete</a>(service_name) -> <a href="./src/lilypad/types/external_api_key_delete_response.py">ExternalAPIKeyDeleteResponse</a></code>
 
@@ -349,3 +363,60 @@ from lilypad.types import SettingRetrieveResponse
 Methods:
 
 - <code title="get /settings">client.settings.<a href="./src/lilypad/resources/settings.py">retrieve</a>() -> <a href="./src/lilypad/types/setting_retrieve_response.py">SettingRetrieveResponse</a></code>
+
+# UserConsents
+
+Types:
+
+```python
+from lilypad.types import UserConsentCreateResponse, UserConsentUpdateResponse
+```
+
+Methods:
+
+- <code title="post /user-consents">client.user_consents.<a href="./src/lilypad/resources/user_consents.py">create</a>(\*\*<a href="src/lilypad/types/user_consent_create_params.py">params</a>) -> <a href="./src/lilypad/types/user_consent_create_response.py">UserConsentCreateResponse</a></code>
+- <code title="patch /user-consents/{user_consent_uuid}">client.user_consents.<a href="./src/lilypad/resources/user_consents.py">update</a>(user_consent_uuid, \*\*<a href="src/lilypad/types/user_consent_update_params.py">params</a>) -> <a href="./src/lilypad/types/user_consent_update_response.py">UserConsentUpdateResponse</a></code>
+
+# Tags
+
+Types:
+
+```python
+from lilypad.types import (
+    TagCreateResponse,
+    TagRetrieveResponse,
+    TagUpdateResponse,
+    TagListResponse,
+    TagDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="post /tags">client.tags.<a href="./src/lilypad/resources/tags.py">create</a>(\*\*<a href="src/lilypad/types/tag_create_params.py">params</a>) -> <a href="./src/lilypad/types/tag_create_response.py">TagCreateResponse</a></code>
+- <code title="get /tags/{tag_uuid}">client.tags.<a href="./src/lilypad/resources/tags.py">retrieve</a>(tag_uuid) -> <a href="./src/lilypad/types/tag_retrieve_response.py">TagRetrieveResponse</a></code>
+- <code title="patch /tags/{tag_uuid}">client.tags.<a href="./src/lilypad/resources/tags.py">update</a>(tag_uuid, \*\*<a href="src/lilypad/types/tag_update_params.py">params</a>) -> <a href="./src/lilypad/types/tag_update_response.py">TagUpdateResponse</a></code>
+- <code title="get /tags">client.tags.<a href="./src/lilypad/resources/tags.py">list</a>() -> <a href="./src/lilypad/types/tag_list_response.py">TagListResponse</a></code>
+- <code title="delete /tags/{tag_uuid}">client.tags.<a href="./src/lilypad/resources/tags.py">delete</a>(tag_uuid) -> <a href="./src/lilypad/types/tag_delete_response.py">TagDeleteResponse</a></code>
+
+# Comments
+
+Types:
+
+```python
+from lilypad.types import (
+    CommentCreateResponse,
+    CommentRetrieveResponse,
+    CommentUpdateResponse,
+    CommentListResponse,
+    CommentDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="post /comments">client.comments.<a href="./src/lilypad/resources/comments.py">create</a>(\*\*<a href="src/lilypad/types/comment_create_params.py">params</a>) -> <a href="./src/lilypad/types/comment_create_response.py">CommentCreateResponse</a></code>
+- <code title="get /comments/{comment_uuid}">client.comments.<a href="./src/lilypad/resources/comments.py">retrieve</a>(comment_uuid) -> <a href="./src/lilypad/types/comment_retrieve_response.py">CommentRetrieveResponse</a></code>
+- <code title="patch /comments/{comment_uuid}">client.comments.<a href="./src/lilypad/resources/comments.py">update</a>(comment_uuid, \*\*<a href="src/lilypad/types/comment_update_params.py">params</a>) -> <a href="./src/lilypad/types/comment_update_response.py">CommentUpdateResponse</a></code>
+- <code title="get /comments">client.comments.<a href="./src/lilypad/resources/comments.py">list</a>() -> <a href="./src/lilypad/types/comment_list_response.py">CommentListResponse</a></code>
+- <code title="delete /comments/{comment_uuid}">client.comments.<a href="./src/lilypad/resources/comments.py">delete</a>(comment_uuid) -> <a href="./src/lilypad/types/comment_delete_response.py">CommentDeleteResponse</a></code>

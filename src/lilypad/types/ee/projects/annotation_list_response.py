@@ -5,6 +5,6 @@ from typing_extensions import TypeAlias
 
 from .annotation_public import AnnotationPublic
 
-__all__ = ["SpanAssignAnnotationResponse"]
+__all__ = ["AnnotationListResponse"]
 
-SpanAssignAnnotationResponse: TypeAlias = List[AnnotationPublic]
+AnnotationListResponse: TypeAlias = List[AnnotationPublic]

@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import httpx
 
-from ..types import external_api_key_create_params, external_api_key_update_params
+from ..types import tag_create_params, tag_update_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import (
     maybe_transform,
@@ -19,51 +21,51 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.external_api_key_public import ExternalAPIKeyPublic
-from ..types.external_api_key_list_response import ExternalAPIKeyListResponse
-from ..types.external_api_key_delete_response import ExternalAPIKeyDeleteResponse
+from ..types.tag_list_response import TagListResponse
+from ..types.tag_create_response import TagCreateResponse
+from ..types.tag_delete_response import TagDeleteResponse
+from ..types.tag_update_response import TagUpdateResponse
+from ..types.tag_retrieve_response import TagRetrieveResponse
 
-__all__ = ["ExternalAPIKeysResource", "AsyncExternalAPIKeysResource"]
+__all__ = ["TagsResource", "AsyncTagsResource"]
 
 
-class ExternalAPIKeysResource(SyncAPIResource):
+class TagsResource(SyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> ExternalAPIKeysResourceWithRawResponse:
+    def with_raw_response(self) -> TagsResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
-        return ExternalAPIKeysResourceWithRawResponse(self)
+        return TagsResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> ExternalAPIKeysResourceWithStreamingResponse:
+    def with_streaming_response(self) -> TagsResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
-        return ExternalAPIKeysResourceWithStreamingResponse(self)
+        return TagsResourceWithStreamingResponse(self)
 
     def create(
         self,
         *,
-        api_key: str,
-        service_name: str,
+        name: str,
+        project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagCreateResponse:
         """
-        Store an external API key for a given service.
+        Create a tag
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -73,23 +75,23 @@ class ExternalAPIKeysResource(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/external-api-keys",
+            "/tags",
             body=maybe_transform(
                 {
-                    "api_key": api_key,
-                    "service_name": service_name,
+                    "name": name,
+                    "project_uuid": project_uuid,
                 },
-                external_api_key_create_params.ExternalAPIKeyCreateParams,
+                tag_create_params.TagCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagCreateResponse,
         )
 
     def retrieve(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -97,9 +99,9 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagRetrieveResponse:
         """
-        Retrieve an external API key for a given service.
+        Get a tag.
 
         Args:
           extra_headers: Send extra headers
@@ -110,34 +112,33 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return self._get(
-            f"/external-api-keys/{service_name}",
+            f"/tags/{tag_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagRetrieveResponse,
         )
 
     def update(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
-        api_key: str,
+        name: str,
+        project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagUpdateResponse:
         """
-        Update users keys.
+        Update a tag.
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -146,15 +147,21 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return self._patch(
-            f"/external-api-keys/{service_name}",
-            body=maybe_transform({"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams),
+            f"/tags/{tag_uuid}",
+            body=maybe_transform(
+                {
+                    "name": name,
+                    "project_uuid": project_uuid,
+                },
+                tag_update_params.TagUpdateParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagUpdateResponse,
         )
 
     def list(
@@ -166,19 +173,19 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyListResponse:
-        """List all external API keys for the user with masked values."""
+    ) -> TagListResponse:
+        """Get all tags."""
         return self._get(
-            "/external-api-keys",
+            "/tags",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyListResponse,
+            cast_to=TagListResponse,
         )
 
     def delete(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -186,9 +193,9 @@ class ExternalAPIKeysResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyDeleteResponse:
+    ) -> TagDeleteResponse:
         """
-        Delete an external API key for a given service.
+        Delete a tag
 
         Args:
           extra_headers: Send extra headers
@@ -199,55 +206,53 @@ class ExternalAPIKeysResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return self._delete(
-            f"/external-api-keys/{service_name}",
+            f"/tags/{tag_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyDeleteResponse,
+            cast_to=TagDeleteResponse,
         )
 
 
-class AsyncExternalAPIKeysResource(AsyncAPIResource):
+class AsyncTagsResource(AsyncAPIResource):
     @cached_property
-    def with_raw_response(self) -> AsyncExternalAPIKeysResourceWithRawResponse:
+    def with_raw_response(self) -> AsyncTagsResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#accessing-raw-response-data-eg-headers
         """
-        return AsyncExternalAPIKeysResourceWithRawResponse(self)
+        return AsyncTagsResourceWithRawResponse(self)
 
     @cached_property
-    def with_streaming_response(self) -> AsyncExternalAPIKeysResourceWithStreamingResponse:
+    def with_streaming_response(self) -> AsyncTagsResourceWithStreamingResponse:
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
-        return AsyncExternalAPIKeysResourceWithStreamingResponse(self)
+        return AsyncTagsResourceWithStreamingResponse(self)
 
     async def create(
         self,
         *,
-        api_key: str,
-        service_name: str,
+        name: str,
+        project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagCreateResponse:
         """
-        Store an external API key for a given service.
+        Create a tag
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -257,23 +262,23 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/external-api-keys",
+            "/tags",
             body=await async_maybe_transform(
                 {
-                    "api_key": api_key,
-                    "service_name": service_name,
+                    "name": name,
+                    "project_uuid": project_uuid,
                 },
-                external_api_key_create_params.ExternalAPIKeyCreateParams,
+                tag_create_params.TagCreateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagCreateResponse,
         )
 
     async def retrieve(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -281,9 +286,9 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagRetrieveResponse:
         """
-        Retrieve an external API key for a given service.
+        Get a tag.
 
         Args:
           extra_headers: Send extra headers
@@ -294,34 +299,33 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return await self._get(
-            f"/external-api-keys/{service_name}",
+            f"/tags/{tag_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagRetrieveResponse,
         )
 
     async def update(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
-        api_key: str,
+        name: str,
+        project_uuid: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyPublic:
+    ) -> TagUpdateResponse:
         """
-        Update users keys.
+        Update a tag.
 
         Args:
-          api_key: New API key
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -330,17 +334,21 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return await self._patch(
-            f"/external-api-keys/{service_name}",
+            f"/tags/{tag_uuid}",
             body=await async_maybe_transform(
-                {"api_key": api_key}, external_api_key_update_params.ExternalAPIKeyUpdateParams
+                {
+                    "name": name,
+                    "project_uuid": project_uuid,
+                },
+                tag_update_params.TagUpdateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyPublic,
+            cast_to=TagUpdateResponse,
         )
 
     async def list(
@@ -352,19 +360,19 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyListResponse:
-        """List all external API keys for the user with masked values."""
+    ) -> TagListResponse:
+        """Get all tags."""
         return await self._get(
-            "/external-api-keys",
+            "/tags",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyListResponse,
+            cast_to=TagListResponse,
         )
 
     async def delete(
         self,
-        service_name: str,
+        tag_uuid: str,
         *,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -372,9 +380,9 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> ExternalAPIKeyDeleteResponse:
+    ) -> TagDeleteResponse:
         """
-        Delete an external API key for a given service.
+        Delete a tag
 
         Args:
           extra_headers: Send extra headers
@@ -385,96 +393,96 @@ class AsyncExternalAPIKeysResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not service_name:
-            raise ValueError(f"Expected a non-empty value for `service_name` but received {service_name!r}")
+        if not tag_uuid:
+            raise ValueError(f"Expected a non-empty value for `tag_uuid` but received {tag_uuid!r}")
         return await self._delete(
-            f"/external-api-keys/{service_name}",
+            f"/tags/{tag_uuid}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ExternalAPIKeyDeleteResponse,
+            cast_to=TagDeleteResponse,
         )
 
 
-class ExternalAPIKeysResourceWithRawResponse:
-    def __init__(self, external_api_keys: ExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class TagsResourceWithRawResponse:
+    def __init__(self, tags: TagsResource) -> None:
+        self._tags = tags
 
         self.create = to_raw_response_wrapper(
-            external_api_keys.create,
+            tags.create,
         )
         self.retrieve = to_raw_response_wrapper(
-            external_api_keys.retrieve,
+            tags.retrieve,
         )
         self.update = to_raw_response_wrapper(
-            external_api_keys.update,
+            tags.update,
         )
         self.list = to_raw_response_wrapper(
-            external_api_keys.list,
+            tags.list,
         )
         self.delete = to_raw_response_wrapper(
-            external_api_keys.delete,
+            tags.delete,
         )
 
 
-class AsyncExternalAPIKeysResourceWithRawResponse:
-    def __init__(self, external_api_keys: AsyncExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class AsyncTagsResourceWithRawResponse:
+    def __init__(self, tags: AsyncTagsResource) -> None:
+        self._tags = tags
 
         self.create = async_to_raw_response_wrapper(
-            external_api_keys.create,
+            tags.create,
         )
         self.retrieve = async_to_raw_response_wrapper(
-            external_api_keys.retrieve,
+            tags.retrieve,
         )
         self.update = async_to_raw_response_wrapper(
-            external_api_keys.update,
+            tags.update,
         )
         self.list = async_to_raw_response_wrapper(
-            external_api_keys.list,
+            tags.list,
         )
         self.delete = async_to_raw_response_wrapper(
-            external_api_keys.delete,
+            tags.delete,
         )
 
 
-class ExternalAPIKeysResourceWithStreamingResponse:
-    def __init__(self, external_api_keys: ExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class TagsResourceWithStreamingResponse:
+    def __init__(self, tags: TagsResource) -> None:
+        self._tags = tags
 
         self.create = to_streamed_response_wrapper(
-            external_api_keys.create,
+            tags.create,
         )
         self.retrieve = to_streamed_response_wrapper(
-            external_api_keys.retrieve,
+            tags.retrieve,
         )
         self.update = to_streamed_response_wrapper(
-            external_api_keys.update,
+            tags.update,
         )
         self.list = to_streamed_response_wrapper(
-            external_api_keys.list,
+            tags.list,
         )
         self.delete = to_streamed_response_wrapper(
-            external_api_keys.delete,
+            tags.delete,
         )
 
 
-class AsyncExternalAPIKeysResourceWithStreamingResponse:
-    def __init__(self, external_api_keys: AsyncExternalAPIKeysResource) -> None:
-        self._external_api_keys = external_api_keys
+class AsyncTagsResourceWithStreamingResponse:
+    def __init__(self, tags: AsyncTagsResource) -> None:
+        self._tags = tags
 
         self.create = async_to_streamed_response_wrapper(
-            external_api_keys.create,
+            tags.create,
         )
         self.retrieve = async_to_streamed_response_wrapper(
-            external_api_keys.retrieve,
+            tags.retrieve,
         )
         self.update = async_to_streamed_response_wrapper(
-            external_api_keys.update,
+            tags.update,
         )
         self.list = async_to_streamed_response_wrapper(
-            external_api_keys.list,
+            tags.list,
         )
         self.delete = async_to_streamed_response_wrapper(
-            external_api_keys.delete,
+            tags.delete,
         )
