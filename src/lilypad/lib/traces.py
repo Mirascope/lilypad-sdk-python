@@ -141,7 +141,7 @@ class Trace(_TraceBase[_T]):
                 f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
             )
         try:
-            client.projects.spans.update_tags(span_uuid=span_uuid, body=tag_list, project_uuid=settings.project_id)
+            client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
         except Exception as e:
@@ -151,7 +151,6 @@ class Trace(_TraceBase[_T]):
             client.projects.functions.update(
                 function_uuid=self.function_uuid,
                 project_uuid=settings.project_id,
-                extra_body={"decorator_tags": tag_list},
             )
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
@@ -199,9 +198,7 @@ class AsyncTrace(_TraceBase[_T]):
                 f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
             )
         try:
-            await client.projects.spans.update_tags(
-                span_uuid=span_uuid, body=tag_list, project_uuid=settings.project_id
-            )
+            await client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
         except Exception as e:
@@ -211,7 +208,6 @@ class AsyncTrace(_TraceBase[_T]):
             await client.projects.functions.update(
                 function_uuid=self.function_uuid,
                 project_uuid=settings.project_id,
-                extra_body={"decorator_tags": tag_list},
             )
         except NotFoundError as e:
             raise LilypadNotFoundError(f"Failed to update function tags: Function not found. Details: {e}")
@@ -508,13 +504,19 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function: FunctionPublic | None
+    trace_type: str,
+    span: Span,
+    span_attribute: _TraceAttribute,
+    is_async: bool,
+    function: FunctionPublic | None,
+    decorator_tags: list[str] | None = None,
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
+    span_attribute["lilypad.decorator.tags"] = decorator_tags
     if function:
         function_uuid = function.uuid
         span_attribute[f"lilypad.{trace_type}.signature"] = function.signature
@@ -700,7 +702,6 @@ def trace(
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
                                 prompt_template=prompt_template,
-                                decorator_tags=decorator_tags,
                             )
                         function_uuid = function.uuid
                     else:
@@ -714,11 +715,17 @@ def trace(
                             prompt_template,
                             settings.project_id,
                             current_span=span.opentelemetry_span,
+                            decorator_tags=decorator_tags,
                         )
                         output = await decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=True, function=function
+                            TRACE_TYPE,
+                            span,
+                            trace_attribute,
+                            is_async=True,
+                            function=function,
+                            decorator_tags=decorator_tags,
                         ) as result_holder:
                             output = await fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
@@ -874,7 +881,6 @@ def trace(
                                 dependencies=closure.dependencies,
                                 is_versioned=True,
                                 prompt_template=prompt_template,
-                                decorator_tags=decorator_tags,
                             )
                         function_uuid = function.uuid
                     else:
@@ -889,11 +895,17 @@ def trace(
                             prompt_template,
                             settings.project_id,
                             current_span=span.opentelemetry_span,
+                            decorator_tags=decorator_tags,
                         )
                         output = decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=False, function=function
+                            TRACE_TYPE,
+                            span,
+                            trace_attribute,
+                            is_async=False,
+                            function=function,
+                            decorator_tags=decorator_tags,
                         ) as result_holder:
                             output = fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
