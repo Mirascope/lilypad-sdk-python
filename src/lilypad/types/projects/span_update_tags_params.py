@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import List
-from typing_extensions import Required, TypedDict
+from typing import List, Optional
+from typing_extensions import TypedDict
 
 __all__ = ["SpanUpdateTagsParams"]
 
 
 class SpanUpdateTagsParams(TypedDict, total=False):
-    project_uuid: Required[str]
+    tags_by_name: Optional[List[str]]
 
-    body: Required[List[str]]
+    tags_by_uuid: Optional[List[str]]

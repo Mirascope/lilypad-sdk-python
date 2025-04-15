@@ -1,11 +1,16 @@
 # Changelog
 
-## 0.1.0-alpha.20 (2025-04-14)
+## 0.1.0-alpha.20 (2025-04-15)
+
 
 Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.19...v0.1.0-alpha.20)
 
 ### Features
 
+* **api:** update via SDK Studio ([f3d7377](https://github.com/Mirascope/lilypad-sdk-python/commit/f3d73771cf5a426f7822b3146068f2a971ea1d26))
+* **api:** update via SDK Studio ([b2bc5fc](https://github.com/Mirascope/lilypad-sdk-python/commit/b2bc5fce8f497f4aee8102a53ba500b073450e83))
+* **api:** update via SDK Studio ([cdf70fd](https://github.com/Mirascope/lilypad-sdk-python/commit/cdf70fd56cc3c85c3922d5eacc67781ae3d87677))
+* **api:** update via SDK Studio ([3ddaaa5](https://github.com/Mirascope/lilypad-sdk-python/commit/3ddaaa5f732b0e9cd70bb7c37910f3e8e98cba70))
 * **api:** update via SDK Studio ([8cdf78b](https://github.com/Mirascope/lilypad-sdk-python/commit/8cdf78b2fa34cd4c4ae78f35c60fc8712483c57b))
 * **api:** update via SDK Studio ([90e359c](https://github.com/Mirascope/lilypad-sdk-python/commit/90e359ce21a9d171ecfc7287edc4ff9eaa0fbfb6))
 * **api:** update via SDK Studio ([c0db1b6](https://github.com/Mirascope/lilypad-sdk-python/commit/c0db1b671b6bd8a4d9f8b12ff9d4430a68ff6402))
@@ -18,6 +23,13 @@ Full Changelog: [v0.1.0-alpha.19...v0.1.0-alpha.20](https://github.com/Mirascope
 
 * **perf:** optimize some hot paths ([59b67ca](https://github.com/Mirascope/lilypad-sdk-python/commit/59b67ca05fac0077c1524874e9767a4faf47403f))
 * **perf:** skip traversing types for NotGiven values ([7367bbd](https://github.com/Mirascope/lilypad-sdk-python/commit/7367bbde711a0ebe76de10b17b40a6d2821b3851))
+
+
+### Chores
+
+* **client:** minor internal fixes ([14acfa7](https://github.com/Mirascope/lilypad-sdk-python/commit/14acfa70a0d175d31c3fd58ce2aa6196ea0f73ba))
+* **internal:** update pyright settings ([1ba41f6](https://github.com/Mirascope/lilypad-sdk-python/commit/1ba41f6ae04bacea78b589b39c534608720b0174))
+
 
 ## 0.1.0-alpha.19 (2025-04-11)
 

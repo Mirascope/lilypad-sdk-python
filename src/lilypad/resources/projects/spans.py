@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 import httpx
 
@@ -20,7 +20,7 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.projects import span_list_aggregates_params
+from ...types.projects import span_update_tags_params, span_list_aggregates_params
 from ...types.projects.functions import TimeFrame
 from ...types.projects.functions.time_frame import TimeFrame
 from ...types.projects.functions.span_public import SpanPublic
@@ -93,8 +93,8 @@ class SpansResource(SyncAPIResource):
         self,
         span_uuid: str,
         *,
-        project_uuid: str,
-        body: List[str],
+        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -103,7 +103,7 @@ class SpansResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> SpanPublic:
         """
-        Update span tags by uuid.
+        Update span by uuid.
 
         Args:
           extra_headers: Send extra headers
@@ -114,13 +114,17 @@ class SpansResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
         if not span_uuid:
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return self._patch(
-            f"/projects/{project_uuid}/spans/{span_uuid}",
-            body=maybe_transform(body, List[str]),
+            f"/spans/{span_uuid}",
+            body=maybe_transform(
+                {
+                    "tags_by_name": tags_by_name,
+                    "tags_by_uuid": tags_by_uuid,
+                },
+                span_update_tags_params.SpanUpdateTagsParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -194,8 +198,8 @@ class AsyncSpansResource(AsyncAPIResource):
         self,
         span_uuid: str,
         *,
-        project_uuid: str,
-        body: List[str],
+        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -204,7 +208,7 @@ class AsyncSpansResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> SpanPublic:
         """
-        Update span tags by uuid.
+        Update span by uuid.
 
         Args:
           extra_headers: Send extra headers
@@ -215,13 +219,17 @@ class AsyncSpansResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
         if not span_uuid:
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return await self._patch(
-            f"/projects/{project_uuid}/spans/{span_uuid}",
-            body=await async_maybe_transform(body, List[str]),
+            f"/spans/{span_uuid}",
+            body=await async_maybe_transform(
+                {
+                    "tags_by_name": tags_by_name,
+                    "tags_by_uuid": tags_by_uuid,
+                },
+                span_update_tags_params.SpanUpdateTagsParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),

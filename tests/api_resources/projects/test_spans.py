@@ -69,8 +69,16 @@ class TestSpans:
     def test_method_update_tags(self, client: Lilypad) -> None:
         span = client.projects.spans.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
+        )
+        assert_matches_type(SpanPublic, span, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_update_tags_with_all_params(self, client: Lilypad) -> None:
+        span = client.projects.spans.update_tags(
+            span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            tags_by_name=["string"],
+            tags_by_uuid=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
         )
         assert_matches_type(SpanPublic, span, path=["response"])
 
@@ -79,8 +87,6 @@ class TestSpans:
     def test_raw_response_update_tags(self, client: Lilypad) -> None:
         response = client.projects.spans.with_raw_response.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
         )
 
         assert response.is_closed is True
@@ -93,8 +99,6 @@ class TestSpans:
     def test_streaming_response_update_tags(self, client: Lilypad) -> None:
         with client.projects.spans.with_streaming_response.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -107,18 +111,9 @@ class TestSpans:
     @pytest.mark.skip()
     @parametrize
     def test_path_params_update_tags(self, client: Lilypad) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.spans.with_raw_response.update_tags(
-                span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                project_uuid="",
-                body=["string"],
-            )
-
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
             client.projects.spans.with_raw_response.update_tags(
                 span_uuid="",
-                project_uuid="project_uuid",
-                body=["string"],
             )
 
 
@@ -176,8 +171,16 @@ class TestAsyncSpans:
     async def test_method_update_tags(self, async_client: AsyncLilypad) -> None:
         span = await async_client.projects.spans.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
+        )
+        assert_matches_type(SpanPublic, span, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_update_tags_with_all_params(self, async_client: AsyncLilypad) -> None:
+        span = await async_client.projects.spans.update_tags(
+            span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            tags_by_name=["string"],
+            tags_by_uuid=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
         )
         assert_matches_type(SpanPublic, span, path=["response"])
 
@@ -186,8 +189,6 @@ class TestAsyncSpans:
     async def test_raw_response_update_tags(self, async_client: AsyncLilypad) -> None:
         response = await async_client.projects.spans.with_raw_response.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
         )
 
         assert response.is_closed is True
@@ -200,8 +201,6 @@ class TestAsyncSpans:
     async def test_streaming_response_update_tags(self, async_client: AsyncLilypad) -> None:
         async with async_client.projects.spans.with_streaming_response.update_tags(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            project_uuid="project_uuid",
-            body=["string"],
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -214,16 +213,7 @@ class TestAsyncSpans:
     @pytest.mark.skip()
     @parametrize
     async def test_path_params_update_tags(self, async_client: AsyncLilypad) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.spans.with_raw_response.update_tags(
-                span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-                project_uuid="",
-                body=["string"],
-            )
-
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
             await async_client.projects.spans.with_raw_response.update_tags(
                 span_uuid="",
-                project_uuid="project_uuid",
-                body=["string"],
             )
