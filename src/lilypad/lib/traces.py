@@ -106,16 +106,12 @@ class Trace(_TraceBase[_T]):
     A simple trace wrapper that holds the original function's response and allows annotating the trace.
     """
 
-    def _get_span_uuid(self, client: Lilypad) -> str | None:
+    def _get_span_uuid(self, client: Lilypad) -> str:
         if not self._flush:
             self._force_flush()
-        response = client.projects.functions.spans.list(
-            project_uuid=get_settings().project_id, function_uuid=self.function_uuid
-        )
-        for span in response:
-            if span.get("span_id") == self.formated_span_id:
-                return span["uuid"]
-        return None
+        return client.projects.spans.get_span_by_span_id(
+            project_uuid=get_settings().project_id, span_id=self.formated_span_id
+        ).uuid
 
     def annotate(self, annotation: Annotation | list[Annotation]) -> None:
         """
@@ -135,7 +131,7 @@ class Trace(_TraceBase[_T]):
         lilypad_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
+                annotation_create_params.Body(
                     assignee_email=email,
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
@@ -150,16 +146,14 @@ class AsyncTrace(_TraceBase[_T]):
     A simple trace wrapper that holds the original function's response and allows annotating the trace.
     """
 
-    async def _get_span_uuid(self, client: AsyncLilypad) -> str | None:
+    async def _get_span_uuid(self, client: AsyncLilypad) -> str:
         if not self._flush:
             self._force_flush()
-        response = await client.projects.functions.spans.list(
-            project_uuid=get_settings().project_id, function_uuid=self.function_uuid
-        )
-        for span in response:
-            if span.get("span_id") == self.formated_span_id:
-                return span["uuid"]
-        return None
+        return (
+            await client.projects.spans.get_span_by_span_id(
+                project_uuid=get_settings().project_id, span_id=self.formated_span_id
+            )
+        ).uuid
 
     async def annotate(self, annotation: Annotation | list[Annotation]) -> None:
         """
@@ -178,7 +172,7 @@ class AsyncTrace(_TraceBase[_T]):
         await async_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
+                annotation_create_params.Body(
                     assignee_email=email,
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
@@ -646,6 +640,7 @@ def trace(
                             )
                         function_uuid = function.uuid
                     else:
+                        function = None
                         function_uuid = None
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
