@@ -22,8 +22,8 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve(self, client: Lilypad) -> None:
-        span = client.projects.spans.retrieve(
+    def test_method_get_span_by_span_id(self, client: Lilypad) -> None:
+        span = client.projects.spans.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -31,8 +31,8 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve(self, client: Lilypad) -> None:
-        response = client.projects.spans.with_raw_response.retrieve(
+    def test_raw_response_get_span_by_span_id(self, client: Lilypad) -> None:
+        response = client.projects.spans.with_raw_response.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -44,8 +44,8 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve(self, client: Lilypad) -> None:
-        with client.projects.spans.with_streaming_response.retrieve(
+    def test_streaming_response_get_span_by_span_id(self, client: Lilypad) -> None:
+        with client.projects.spans.with_streaming_response.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -59,15 +59,15 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve(self, client: Lilypad) -> None:
+    def test_path_params_get_span_by_span_id(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.spans.with_raw_response.retrieve(
+            client.projects.spans.with_raw_response.get_span_by_span_id(
                 span_id="span_id",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_id` but received ''"):
-            client.projects.spans.with_raw_response.retrieve(
+            client.projects.spans.with_raw_response.get_span_by_span_id(
                 span_id="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
@@ -183,8 +183,8 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve(self, async_client: AsyncLilypad) -> None:
-        span = await async_client.projects.spans.retrieve(
+    async def test_method_get_span_by_span_id(self, async_client: AsyncLilypad) -> None:
+        span = await async_client.projects.spans.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -192,8 +192,8 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.spans.with_raw_response.retrieve(
+    async def test_raw_response_get_span_by_span_id(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.spans.with_raw_response.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -205,8 +205,8 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.spans.with_streaming_response.retrieve(
+    async def test_streaming_response_get_span_by_span_id(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.spans.with_streaming_response.get_span_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -220,15 +220,15 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_get_span_by_span_id(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.spans.with_raw_response.retrieve(
+            await async_client.projects.spans.with_raw_response.get_span_by_span_id(
                 span_id="span_id",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_id` but received ''"):
-            await async_client.projects.spans.with_raw_response.retrieve(
+            await async_client.projects.spans.with_raw_response.get_span_by_span_id(
                 span_id="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
