@@ -9,36 +9,9 @@ from typing_extensions import Literal
 from ...._compat import PYDANTIC_V2
 from ...._models import BaseModel
 from .function_public import FunctionPublic
-from ...ee.projects.label import Label
-from ...ee.projects.evaluation_type import EvaluationType
+from ...ee.projects.annotation_public import AnnotationPublic
 
-__all__ = ["SpanPublic", "Annotation", "Tag"]
-
-
-class Annotation(BaseModel):
-    organization_uuid: str
-
-    assigned_to: Optional[str] = None
-
-    created_at: Optional[datetime] = None
-
-    data: Optional[object] = None
-
-    function_uuid: Optional[str] = None
-
-    label: Optional[Label] = None
-    """Label enum"""
-
-    project_uuid: Optional[str] = None
-
-    reasoning: Optional[str] = None
-
-    span_uuid: Optional[str] = None
-
-    type: Optional[EvaluationType] = None
-    """Evaluation type enum"""
-
-    uuid: Optional[str] = None
+__all__ = ["SpanPublic", "Tag"]
 
 
 class Tag(BaseModel):
@@ -54,7 +27,7 @@ class Tag(BaseModel):
 
 
 class SpanPublic(BaseModel):
-    annotations: List[Annotation]
+    annotations: List[AnnotationPublic]
 
     child_spans: List["SpanPublic"]
 
@@ -98,9 +71,7 @@ class SpanPublic(BaseModel):
 
 if PYDANTIC_V2:
     SpanPublic.model_rebuild()
-    Annotation.model_rebuild()
     Tag.model_rebuild()
 else:
     SpanPublic.update_forward_refs()  # type: ignore
-    Annotation.update_forward_refs()  # type: ignore
     Tag.update_forward_refs()  # type: ignore

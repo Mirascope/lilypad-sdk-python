@@ -25,6 +25,7 @@ from ....types.ee.projects import function_run_playground_params
 from ....types.projects.functions.common_call_params_param import CommonCallParamsParam
 from ....types.ee.projects.function_run_playground_response import FunctionRunPlaygroundResponse
 from ....types.ee.projects.function_get_annotations_response import FunctionGetAnnotationsResponse
+from ....types.ee.projects.function_get_annotation_metrics_response import FunctionGetAnnotationMetricsResponse
 
 __all__ = ["FunctionsResource", "AsyncFunctionsResource"]
 
@@ -48,6 +49,42 @@ class FunctionsResource(SyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return FunctionsResourceWithStreamingResponse(self)
+
+    def get_annotation_metrics(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> FunctionGetAnnotationMetricsResponse:
+        """
+        Get annotation metrics by function.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return self._get(
+            f"/ee/projects/{project_uuid}/functions/{function_uuid}/annotations/metrics",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=FunctionGetAnnotationMetricsResponse,
+        )
 
     def get_annotations(
         self,
@@ -174,6 +211,42 @@ class AsyncFunctionsResource(AsyncAPIResource):
         """
         return AsyncFunctionsResourceWithStreamingResponse(self)
 
+    async def get_annotation_metrics(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> FunctionGetAnnotationMetricsResponse:
+        """
+        Get annotation metrics by function.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return await self._get(
+            f"/ee/projects/{project_uuid}/functions/{function_uuid}/annotations/metrics",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=FunctionGetAnnotationMetricsResponse,
+        )
+
     async def get_annotations(
         self,
         function_uuid: str,
@@ -283,6 +356,9 @@ class FunctionsResourceWithRawResponse:
     def __init__(self, functions: FunctionsResource) -> None:
         self._functions = functions
 
+        self.get_annotation_metrics = to_raw_response_wrapper(
+            functions.get_annotation_metrics,
+        )
         self.get_annotations = to_raw_response_wrapper(
             functions.get_annotations,
         )
@@ -295,6 +371,9 @@ class AsyncFunctionsResourceWithRawResponse:
     def __init__(self, functions: AsyncFunctionsResource) -> None:
         self._functions = functions
 
+        self.get_annotation_metrics = async_to_raw_response_wrapper(
+            functions.get_annotation_metrics,
+        )
         self.get_annotations = async_to_raw_response_wrapper(
             functions.get_annotations,
         )
@@ -307,6 +386,9 @@ class FunctionsResourceWithStreamingResponse:
     def __init__(self, functions: FunctionsResource) -> None:
         self._functions = functions
 
+        self.get_annotation_metrics = to_streamed_response_wrapper(
+            functions.get_annotation_metrics,
+        )
         self.get_annotations = to_streamed_response_wrapper(
             functions.get_annotations,
         )
@@ -319,6 +401,9 @@ class AsyncFunctionsResourceWithStreamingResponse:
     def __init__(self, functions: AsyncFunctionsResource) -> None:
         self._functions = functions
 
+        self.get_annotation_metrics = async_to_streamed_response_wrapper(
+            functions.get_annotation_metrics,
+        )
         self.get_annotations = async_to_streamed_response_wrapper(
             functions.get_annotations,
         )

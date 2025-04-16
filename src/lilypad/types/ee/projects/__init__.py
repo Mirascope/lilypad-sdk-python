@@ -12,3 +12,6 @@ from .annotation_create_response import AnnotationCreateResponse as AnnotationCr
 from .function_run_playground_params import FunctionRunPlaygroundParams as FunctionRunPlaygroundParams
 from .function_run_playground_response import FunctionRunPlaygroundResponse as FunctionRunPlaygroundResponse
 from .function_get_annotations_response import FunctionGetAnnotationsResponse as FunctionGetAnnotationsResponse
+from .function_get_annotation_metrics_response import (
+    FunctionGetAnnotationMetricsResponse as FunctionGetAnnotationMetricsResponse,
+)
