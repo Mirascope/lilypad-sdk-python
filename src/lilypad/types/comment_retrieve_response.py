@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime
 
 from .._models import BaseModel
@@ -18,8 +18,6 @@ class CommentRetrieveResponse(BaseModel):
     user_uuid: str
 
     uuid: str
-
-    child_comments: Optional[List[object]] = None
 
     is_edited: Optional[bool] = None
 

@@ -27,11 +27,16 @@ Methods:
 Types:
 
 ```python
-from lilypad.types.ee.projects import FunctionGetAnnotationsResponse, FunctionRunPlaygroundResponse
+from lilypad.types.ee.projects import (
+    FunctionGetAnnotationMetricsResponse,
+    FunctionGetAnnotationsResponse,
+    FunctionRunPlaygroundResponse,
+)
 ```
 
 Methods:
 
+- <code title="get /ee/projects/{project_uuid}/functions/{function_uuid}/annotations/metrics">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">get_annotation_metrics</a>(function_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/function_get_annotation_metrics_response.py">FunctionGetAnnotationMetricsResponse</a></code>
 - <code title="get /ee/projects/{project_uuid}/functions/{function_uuid}/annotations">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">get_annotations</a>(function_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/function_get_annotations_response.py">FunctionGetAnnotationsResponse</a></code>
 - <code title="post /ee/projects/{project_uuid}/functions/{function_uuid}/playground">client.ee.projects.functions.<a href="./src/lilypad/resources/ee/projects/functions.py">run_playground</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/function_run_playground_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/function_run_playground_response.py">FunctionRunPlaygroundResponse</a></code>
 
@@ -207,6 +212,7 @@ from lilypad.types.projects import SpanListAggregatesResponse
 
 Methods:
 
+- <code title="get /projects/{project_uuid}/spans/{span_id}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">retrieve</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
 - <code title="get /projects/{project_uuid}/spans/metadata">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">list_aggregates</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/span_list_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_list_aggregates_response.py">SpanListAggregatesResponse</a></code>
 - <code title="patch /spans/{span_uuid}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">update_tags</a>(span_uuid, \*\*<a href="src/lilypad/types/projects/span_update_tags_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
