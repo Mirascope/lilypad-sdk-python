@@ -21,6 +21,7 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.projects import span_update_tags_params, span_list_aggregates_params
+from ...types.span_more_details import SpanMoreDetails
 from ...types.projects.functions import TimeFrame
 from ...types.projects.functions.time_frame import TimeFrame
 from ...types.projects.functions.span_public import SpanPublic
@@ -48,6 +49,42 @@ class SpansResource(SyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return SpansResourceWithStreamingResponse(self)
+
+    def retrieve(
+        self,
+        span_id: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanMoreDetails:
+        """
+        Get span by project_uuid and span_id.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_id:
+            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
+        return self._get(
+            f"/projects/{project_uuid}/spans/{span_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanMoreDetails,
+        )
 
     def list_aggregates(
         self,
@@ -145,6 +182,42 @@ class AsyncSpansResource(AsyncAPIResource):
         """
         return AsyncSpansResourceWithStreamingResponse(self)
 
+    async def retrieve(
+        self,
+        span_id: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanMoreDetails:
+        """
+        Get span by project_uuid and span_id.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_id:
+            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/spans/{span_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanMoreDetails,
+        )
+
     async def list_aggregates(
         self,
         project_uuid: str,
@@ -227,6 +300,9 @@ class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
+        self.retrieve = to_raw_response_wrapper(
+            spans.retrieve,
+        )
         self.list_aggregates = to_raw_response_wrapper(
             spans.list_aggregates,
         )
@@ -239,6 +315,9 @@ class AsyncSpansResourceWithRawResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
+        self.retrieve = async_to_raw_response_wrapper(
+            spans.retrieve,
+        )
         self.list_aggregates = async_to_raw_response_wrapper(
             spans.list_aggregates,
         )
@@ -251,6 +330,9 @@ class SpansResourceWithStreamingResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
+        self.retrieve = to_streamed_response_wrapper(
+            spans.retrieve,
+        )
         self.list_aggregates = to_streamed_response_wrapper(
             spans.list_aggregates,
         )
@@ -263,6 +345,9 @@ class AsyncSpansResourceWithStreamingResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
+        self.retrieve = async_to_streamed_response_wrapper(
+            spans.retrieve,
+        )
         self.list_aggregates = async_to_streamed_response_wrapper(
             spans.list_aggregates,
         )
