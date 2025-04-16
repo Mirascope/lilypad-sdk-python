@@ -50,7 +50,7 @@ class SpansResource(SyncAPIResource):
         """
         return SpansResourceWithStreamingResponse(self)
 
-    def retrieve(
+    def get_span_by_span_id(
         self,
         span_id: str,
         *,
@@ -182,7 +182,7 @@ class AsyncSpansResource(AsyncAPIResource):
         """
         return AsyncSpansResourceWithStreamingResponse(self)
 
-    async def retrieve(
+    async def get_span_by_span_id(
         self,
         span_id: str,
         *,
@@ -300,8 +300,8 @@ class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.retrieve = to_raw_response_wrapper(
-            spans.retrieve,
+        self.get_span_by_span_id = to_raw_response_wrapper(
+            spans.get_span_by_span_id,
         )
         self.list_aggregates = to_raw_response_wrapper(
             spans.list_aggregates,
@@ -315,8 +315,8 @@ class AsyncSpansResourceWithRawResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.retrieve = async_to_raw_response_wrapper(
-            spans.retrieve,
+        self.get_span_by_span_id = async_to_raw_response_wrapper(
+            spans.get_span_by_span_id,
         )
         self.list_aggregates = async_to_raw_response_wrapper(
             spans.list_aggregates,
@@ -330,8 +330,8 @@ class SpansResourceWithStreamingResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.retrieve = to_streamed_response_wrapper(
-            spans.retrieve,
+        self.get_span_by_span_id = to_streamed_response_wrapper(
+            spans.get_span_by_span_id,
         )
         self.list_aggregates = to_streamed_response_wrapper(
             spans.list_aggregates,
@@ -345,8 +345,8 @@ class AsyncSpansResourceWithStreamingResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.retrieve = async_to_streamed_response_wrapper(
-            spans.retrieve,
+        self.get_span_by_span_id = async_to_streamed_response_wrapper(
+            spans.get_span_by_span_id,
         )
         self.list_aggregates = async_to_streamed_response_wrapper(
             spans.list_aggregates,
