@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import ast
 import sys
 import site
@@ -139,6 +140,9 @@ def _clean_source_code(
       4. Convert multi-line strings to triple-quoted strings.
     """
     source = dedent(inspect.getsource(fn))
+    docstr_flag = os.getenv("LILYPAD_VERSIONING_INCLUDE_DOCSTRINGS", "true").lower()
+    if docstr_flag not in ("0", "false", "no"):
+        return source.rstrip()
     module = cst.parse_module(source)
 
     transformer = _RemoveDocstringTransformer(exclude_fn_body=exclude_fn_body)
