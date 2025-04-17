@@ -97,7 +97,7 @@ def request_assistance(question: str) -> str:
     Ensure `question` is as clear and concise as possible.
     This will help the expert provide a more accurate response.
     """
-    return input(f"[NEED ASSISTANCE] {question}\n[ANSWER] ")
+    return input(f"[NEED ASSISTANCE] {question}, [ANSWER] ")
 
 
 @openai.call(

@@ -738,6 +738,10 @@ def handle_issue(issue: str) -> str:
     from pydantic import BaseModel, Field
 
 
+    def request_assistance(question: str) -> str:
+        return input(f"[NEED ASSISTANCE] {question}, [ANSWER] ")
+
+
     class TicketPriority(str, Enum):
         LOW = "Low"
         MEDIUM = "Medium"
