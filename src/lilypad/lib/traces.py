@@ -126,7 +126,7 @@ class Trace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
-    def assign(self, email: str) -> None:
+    def assign(self, email: str | list[str]) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
 
@@ -135,8 +135,8 @@ class Trace(_TraceBase[_T]):
         lilypad_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
-                    assignee_email=email,
+                annotation_create_params.Body(
+                    assignee_email=email if isinstance(email, list) else [email],
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
                     span_uuid=self._get_span_uuid(lilypad_client),
@@ -170,7 +170,7 @@ class AsyncTrace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
-    async def assign(self, email: str) -> None:
+    async def assign(self, email: str | list[str]) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
         async_client = AsyncLilypad(api_key=settings.api_key)
@@ -178,8 +178,8 @@ class AsyncTrace(_TraceBase[_T]):
         await async_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
-                    assignee_email=email,
+                annotation_create_params.Body(
+                    assignee_email=email if isinstance(email, list) else [email],
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
                     span_uuid=await self._get_span_uuid(async_client),
