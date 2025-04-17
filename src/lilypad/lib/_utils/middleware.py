@@ -68,6 +68,7 @@ def _get_custom_context_manager(
     project_uuid: UUID | None = None,
     span_context_holder: SpanContextHolder | None = None,
     current_span: Span | None = None,
+    decorator_tags: list[str] | None = None,
 ) -> Callable[..., _GeneratorContextManager[Span]]:
     @contextmanager
     def custom_context_manager(
@@ -93,6 +94,7 @@ def _get_custom_context_manager(
             attributes: dict[str, AttributeValue] = {
                 "lilypad.project_uuid": str(new_project_uuid) if new_project_uuid else "",
                 "lilypad.is_async": is_async,
+                "lilypad.decorator.tags": decorator_tags
             }
             if function:
                 attribute_type = "function"
@@ -284,10 +286,11 @@ def create_mirascope_middleware(
     project_uuid: UUID | None = None,
     span_context_holder: SpanContextHolder | None = None,
     current_span: Span | None = None,
+    decorator_tags: list[str] | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Creates the middleware decorator for a Lilypad/Mirascope function."""
     cm_callable: Callable[[SyncFunc | AsyncFunc], _GeneratorContextManager[Span]] = _get_custom_context_manager(
-        function, arg_types, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span
+        function, arg_types, arg_values, is_async, prompt_template, project_uuid, span_context_holder, current_span, decorator_tags
     )
     _handlers = _Handlers("function" if function else "trace")
     return middleware_factory(
