@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.23 (2025-04-17)
+
+Full Changelog: [v0.1.0-alpha.22...v0.1.0-alpha.23](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.22...v0.1.0-alpha.23)
+
+### Features
+
+* fix: include docstrings in closure computation ([2a196f9](https://github.com/Mirascope/lilypad-sdk-python/commit/2a196f94f87780a13b69a2d8438ff441a5eb243d))
+
 ## 0.1.0-alpha.22 (2025-04-17)
 
 Full Changelog: [v0.1.0-alpha.21...v0.1.0-alpha.22](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.21...v0.1.0-alpha.22)
