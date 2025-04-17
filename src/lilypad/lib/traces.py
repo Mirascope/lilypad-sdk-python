@@ -22,6 +22,7 @@ from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
 from pydantic import BaseModel
+from cachetools.func import lru_cache
 from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -191,6 +192,7 @@ class AsyncTrace(_TraceBase[_T]):
 _trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
 
 
+@lru_cache(maxsize=1)
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
     """Get the BatchSpanProcessor from the current TracerProvider.
 
@@ -272,13 +274,14 @@ FunctionInfo: TypeAlias = tuple[str, str, int, str, DecoratorArgs]
 
 
 def register_decorated_function(
-    decorator_name: str, fn: Callable[..., Any], context: dict[str, Any] | None = None
+    decorator_name: str, fn: Callable[..., Any], function_name: str, context: dict[str, Any] | None = None
 ) -> None:
     """Register a function that has been decorated.
 
     Args:
         decorator_name: The name of the decorator
         fn: The decorated function
+        function_name: The name of the function
         context: Optional context information to store with the function
     """
     if not _RECORDING_ENABLED:
@@ -289,8 +292,6 @@ def register_decorated_function(
         file_path: str = inspect.getfile(fn)
         abs_path: str = os.path.abspath(file_path)
         lineno: int = inspect.getsourcelines(fn)[1]
-        # Use Closure.from_fn to get the wrapped function name
-        function_name: str = Closure.from_fn(fn).name
         module_name: str = fn.__module__
 
         # Add to registry
@@ -622,8 +623,16 @@ def trace(
         prompt_template = (
             fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
         )
+
+        def _get_closure() -> Closure:
+            cached = getattr(fn, "__lilypad_closure__", None)
+            if cached is None:
+                cached = Closure.from_fn(fn)
+                fn.__lilypad_closure__ = cached
+            return cached
+
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
+            register_decorated_function(TRACE_MODULE_NAME, fn, _get_closure().name, {"mode": mode})
 
         signature = inspect.signature(fn)
 
@@ -664,7 +673,7 @@ def trace(
                             settings = get_settings()
                             async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
                             if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
+                                closure = _get_closure()
 
                                 try:
                                     function = await async_lilypad_client.projects.functions.retrieve_by_hash(
@@ -853,7 +862,7 @@ def trace(
                             lilypad_client = Lilypad(api_key=settings.api_key)
 
                             if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
+                                closure = _get_closure()
 
                                 try:
                                     function = lilypad_client.projects.functions.retrieve_by_hash(
