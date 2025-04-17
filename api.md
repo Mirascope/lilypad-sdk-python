@@ -212,7 +212,6 @@ from lilypad.types.projects import SpanListAggregatesResponse
 
 Methods:
 
-- <code title="get /projects/{project_uuid}/spans/{span_id}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">get_span_by_span_id</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
 - <code title="get /projects/{project_uuid}/spans/metadata">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">list_aggregates</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/span_list_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_list_aggregates_response.py">SpanListAggregatesResponse</a></code>
 - <code title="patch /spans/{span_uuid}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">update_tags</a>(span_uuid, \*\*<a href="src/lilypad/types/projects/span_update_tags_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
