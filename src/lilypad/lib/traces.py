@@ -486,7 +486,8 @@ _SANDBOX_CUSTOM_RESULT = {
     "trace_context": "_get_trace_context()",
 }
 _SANDBOX_PRE_ACTIONS = [
-    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",]
+    "lilypad.configure(log_handlers=[logging.StreamHandler(sys.stderr)])",
+]
 _SANDBOX_AFTER_ACTIONS = [
     "result = result.response if isinstance(result, AsyncTrace | Trace) else result",
     "with suppress(ImportError): from mirascope.core import BaseCallResponse",
