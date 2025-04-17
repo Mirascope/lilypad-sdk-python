@@ -136,7 +136,7 @@ class _JSONSpanExporter(SpanExporter):
             "links": [
                 {
                     "context": {
-                        "trace_id": f"{link.context.trace_id:032}",
+                        "trace_id": f"{link.context.trace_id:032x}",
                         "span_id": f"{link.context.span_id:016x}",
                     },
                     "attributes": link.attributes,
