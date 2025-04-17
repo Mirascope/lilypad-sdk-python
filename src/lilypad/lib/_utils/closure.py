@@ -50,11 +50,9 @@ def get_qualified_name(fn: Callable) -> str:
 
 def _is_third_party(module: ModuleType, site_packages: set[str]) -> bool:
     module_file = getattr(module, "__file__", None)
-    # (1) never inline *this* module’s own definitions — treat yourself as third‑party
-    if module_file and Path(module_file).resolve() == Path(__file__).resolve():
-        return True
     return (
-        module.__name__ == "lilypad"  # always consider lilypad as third-party
+        module.__name__ == "lilypad"  # always consider lilypad-sdk as third-party
+        or module.__name__.startswith("lilypad.")
         or module.__name__ in sys.stdlib_module_names
         or module_file is None
         or any(str(Path(module_file).resolve()).startswith(site_pkg) for site_pkg in site_packages)
