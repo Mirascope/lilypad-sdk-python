@@ -14,8 +14,6 @@ __all__ = ["AnnotationPublic"]
 class AnnotationPublic(BaseModel):
     created_at: datetime
 
-    function_uuid: str
-
     project_uuid: str
 
     span: SpanMoreDetails
@@ -28,6 +26,8 @@ class AnnotationPublic(BaseModel):
     assigned_to: Optional[str] = None
 
     data: Optional[object] = None
+
+    function_uuid: Optional[str] = None
 
     label: Optional[Label] = None
     """Label enum"""
