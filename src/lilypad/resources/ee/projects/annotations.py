@@ -67,8 +67,7 @@ class AnnotationsResource(SyncAPIResource):
         Args: project_uuid: The project UUID.
 
         annotations_service: The annotation
-        service. project_service: The project service. annotations_create: The
-        annotation create model.
+        service. annotations_create: The annotation create model.
 
         Returns: AnnotationPublic: The created annotation.
 
@@ -221,8 +220,7 @@ class AsyncAnnotationsResource(AsyncAPIResource):
         Args: project_uuid: The project UUID.
 
         annotations_service: The annotation
-        service. project_service: The project service. annotations_create: The
-        annotation create model.
+        service. annotations_create: The annotation create model.
 
         Returns: AnnotationPublic: The created annotation.
 
