@@ -1,5 +1,6 @@
 """Tests for the `Closure` class"""
 
+import os
 import sys
 import inspect
 import importlib.metadata
@@ -96,6 +97,24 @@ def test_single_fn() -> None:
     closure = Closure.from_fn(single_fn)
     assert closure.code == _expected(single_fn)
     assert closure.dependencies == {}
+
+    os.environ["LILYPAD_VERSIONING_INCLUDE_DOCSTRINGS"] = "true"
+    Closure.from_fn.cache_clear()
+    closure = Closure.from_fn(single_fn)
+    assert (
+        closure.code
+        == inspect.cleandoc('''
+        def single_fn() -> str:
+            """
+            def single_fn() -> str:
+                return "Hello, world!"
+            """
+            return "Hello, world!"
+        ''')
+        + "\n"
+    )
+    assert closure.dependencies == {}
+    os.environ["LILYPAD_VERSIONING_INCLUDE_DOCSTRINGS"] = "false"
 
 
 def test_sub_fn() -> None:
