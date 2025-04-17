@@ -41,6 +41,7 @@ from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
 from .._exceptions import NotFoundError
+from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
 from ..types.projects.functions import FunctionPublic
@@ -123,7 +124,7 @@ class Trace(_TraceBase[_T]):
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
-        lilypad_client = Lilypad(api_key=settings.api_key)
+        lilypad_client = get_sync_client(api_key=settings.api_key)
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
@@ -131,7 +132,7 @@ class Trace(_TraceBase[_T]):
         """Assign the trace to a user by email."""
         settings = get_settings()
 
-        lilypad_client = Lilypad(api_key=settings.api_key)
+        lilypad_client = get_sync_client(api_key=settings.api_key)
 
         lilypad_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
@@ -167,14 +168,14 @@ class AsyncTrace(_TraceBase[_T]):
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
-        lilypad_client = AsyncLilypad(api_key=settings.api_key)
+        lilypad_client = get_async_client(api_key=settings.api_key)
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
     async def assign(self, email: str) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
-        async_client = AsyncLilypad(api_key=settings.api_key)
+        async_client = get_async_client(api_key=settings.api_key)
 
         await async_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
@@ -671,7 +672,7 @@ def trace(
                                 arg_values=arg_values,
                             )
                             settings = get_settings()
-                            async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+                            async_lilypad_client = get_async_client(api_key=settings.api_key)
                             if versioning == "automatic":
                                 closure = _get_closure()
 
@@ -735,7 +736,7 @@ def trace(
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
                 settings = get_settings()
-                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+                async_lilypad_client = get_async_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
                 try:
                     versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
@@ -785,7 +786,7 @@ def trace(
                 *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
             ) -> _R:
                 settings = get_settings()
-                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+                async_lilypad_client = get_async_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
 
                 try:
@@ -859,7 +860,7 @@ def trace(
                                 arg_values=arg_values,
                             )
                             settings = get_settings()
-                            lilypad_client = Lilypad(api_key=settings.api_key)
+                            lilypad_client = get_sync_client(api_key=settings.api_key)
 
                             if versioning == "automatic":
                                 closure = _get_closure()
@@ -924,7 +925,7 @@ def trace(
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
                 settings = get_settings()
-                lilypad_client = Lilypad(api_key=settings.api_key)
+                lilypad_client = get_sync_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
 
                 try:
@@ -973,7 +974,7 @@ def trace(
 
             def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
                 settings = get_settings()
-                lilypad_client = Lilypad(api_key=settings.api_key)
+                lilypad_client = get_sync_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
 
                 try:

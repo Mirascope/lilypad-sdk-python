@@ -8,7 +8,7 @@ import weakref
 
 from cachetools.func import lru_cache
 
-from lilypad import Lilypad, AsyncLilypad
+from ..._client import Lilypad, AsyncLilypad
 
 
 @lru_cache(maxsize=None)
