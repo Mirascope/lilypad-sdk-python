@@ -328,7 +328,7 @@ pygments==2.18.0
     # via rich
 pyparsing==3.2.2
     # via httplib2
-pyright==1.1.397
+pyright==1.1.399
 pytest==8.3.3
     # via pytest-asyncio
     # via pytest-cov
