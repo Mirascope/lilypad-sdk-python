@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import json
 import inspect
+import threading
 from types import MappingProxyType
 from typing import (
     Any,
@@ -16,9 +17,8 @@ from typing import (
     TypeAlias,
     overload,
 )
-from functools import cached_property
-from contextlib import contextmanager
-from contextvars import ContextVar
+from contextlib import suppress, contextmanager
+from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
 from pydantic import BaseModel
@@ -188,6 +188,9 @@ class AsyncTrace(_TraceBase[_T]):
         )
 
 
+_trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
+
+
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
     """Get the BatchSpanProcessor from the current TracerProvider.
 
@@ -195,15 +198,44 @@ def _get_batch_span_processor() -> BatchSpanProcessor | None:
     This avoids using a global variable by inspecting the provider's _active_span_processors.
     """
     tracer_provider = get_tracer_provider()
-    processor = getattr(tracer_provider, "_active_span_processor", None)
-    if not processor:
-        return None
-    _span_processors = getattr(processor, "_span_processors", None)
-    if _span_processors:
-        for processor in _span_processors:
-            if isinstance(processor, BatchSpanProcessor):
-                return processor
+    if hasattr(tracer_provider, "get_active_span_processor"):
+        active_processor = tracer_provider.get_active_span_processor()
+        if hasattr(active_processor, "_span_processors"):
+            for processor in active_processor._span_processors:
+                if isinstance(processor, BatchSpanProcessor):
+                    return processor
+        elif isinstance(active_processor, BatchSpanProcessor):
+            return active_processor
+    elif hasattr(tracer_provider, "_active_span_processor"):
+        processor = getattr(tracer_provider, "_active_span_processor", None)
+        if isinstance(processor, BatchSpanProcessor):
+            return processor
+        elif hasattr(processor, "_span_processors"):
+            for span_processors in processor._span_processors:
+                if isinstance(span_processors, BatchSpanProcessor):
+                    return span_processors
     return None
+
+
+@contextmanager
+def _outermost_trace_lock_context(is_outermost: bool) -> Generator[None, None, None]:
+    processor = _get_batch_span_processor()
+    lock_acquired = False
+    condition: threading.Condition | None = None
+    if is_outermost and processor and hasattr(processor, "condition"):
+        condition = processor.condition
+        if isinstance(condition, threading.Condition):
+            try:
+                condition.acquire()
+                lock_acquired = True
+            except RuntimeError:
+                lock_acquired = False
+    try:
+        yield
+    finally:
+        if lock_acquired and condition:
+            with suppress(RuntimeError):
+                condition.release()
 
 
 # Type definitions for decorator registry
@@ -603,69 +635,85 @@ def trace(
 
             @call_safely(fn)
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with Span(trace_name) as span:
-                    final_args = args
-                    final_kwargs = kwargs
-                    needs_trace_ctx = "trace_ctx" in signature.parameters
-                    has_user_provided_trace_ctx = False
-                    try:
-                        bound_call_args = signature.bind(*args, **kwargs)
-                        has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
-                    except TypeError:
-                        pass
-                    if needs_trace_ctx and not has_user_provided_trace_ctx:
-                        final_args = tuple((span, *args))
-                    arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
-                    arg_values.pop("trace_ctx", None)
-                    arg_types.pop("trace_ctx", None)
+                level = _trace_nesting_level.get()
+                is_outermost = level == 0
+                token: Token | None = None
+                try:
+                    token = _trace_nesting_level.set(level + 1)
+                    with _outermost_trace_lock_context(is_outermost):
+                        with Span(trace_name) as span:
+                            final_args = args
+                            final_kwargs = kwargs
+                            needs_trace_ctx = "trace_ctx" in signature.parameters
+                            has_user_provided_trace_ctx = False
+                            try:
+                                bound_call_args = signature.bind(*args, **kwargs)
+                                has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
+                            except TypeError:
+                                pass
+                            if needs_trace_ctx and not has_user_provided_trace_ctx:
+                                final_args = tuple((span, *args))
+                            arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
+                            arg_values.pop("trace_ctx", None)
+                            arg_types.pop("trace_ctx", None)
 
-                    trace_attribute = _construct_trace_attributes(
-                        arg_types=arg_types,
-                        arg_values=arg_values,
-                    )
-                    settings = get_settings()
-                    async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-                    if versioning == "automatic":
-                        closure = Closure.from_fn(fn)
-
-                        try:
-                            function = await async_lilypad_client.projects.functions.retrieve_by_hash(
-                                project_uuid=settings.project_id, function_hash=closure.hash
-                            )
-                        except NotFoundError:
-                            function = await async_lilypad_client.projects.functions.create(
-                                path_project_uuid=settings.project_id,
-                                code=closure.code,
-                                hash=closure.hash,
-                                name=closure.name,
-                                signature=closure.signature,
+                            trace_attribute = _construct_trace_attributes(
                                 arg_types=arg_types,
-                                dependencies=closure.dependencies,
-                                is_versioned=True,
-                                prompt_template=prompt_template,
+                                arg_values=arg_values,
                             )
-                        function_uuid = function.uuid
-                    else:
-                        function_uuid = None
-                    if is_mirascope_call:
-                        decorator_inner = create_mirascope_middleware(
-                            function,
-                            arg_types,
-                            arg_values,
-                            True,
-                            prompt_template,
-                            settings.project_id,
-                            current_span=span.opentelemetry_span,
-                        )
-                        output = await decorator_inner(fn)(*final_args, **final_kwargs)
-                    else:
-                        with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=True, function=function
-                        ) as result_holder:
-                            output = await fn(*final_args, **final_kwargs)
-                            result_holder.set_result(output)
-                    span_id = span.span_id
-                    _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
+                            settings = get_settings()
+                            async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
+                            if versioning == "automatic":
+                                closure = Closure.from_fn(fn)
+
+                                try:
+                                    function = await async_lilypad_client.projects.functions.retrieve_by_hash(
+                                        project_uuid=settings.project_id, function_hash=closure.hash
+                                    )
+                                except NotFoundError:
+                                    function = await async_lilypad_client.projects.functions.create(
+                                        path_project_uuid=settings.project_id,
+                                        code=closure.code,
+                                        hash=closure.hash,
+                                        name=closure.name,
+                                        signature=closure.signature,
+                                        arg_types=arg_types,
+                                        dependencies=closure.dependencies,
+                                        is_versioned=True,
+                                        prompt_template=prompt_template,
+                                    )
+                                function_uuid = function.uuid
+                            else:
+                                function = None
+                                function_uuid = None
+                            if is_mirascope_call:
+                                decorator_inner = create_mirascope_middleware(
+                                    function,
+                                    arg_types,
+                                    arg_values,
+                                    True,
+                                    prompt_template,
+                                    settings.project_id,
+                                    current_span=span.opentelemetry_span,
+                                )
+                                output = await decorator_inner(fn)(*final_args, **final_kwargs)
+                            else:
+                                with _set_span_attributes(
+                                    TRACE_TYPE, span, trace_attribute, is_async=True, function=function
+                                ) as result_holder:
+                                    output = await fn(*final_args, **final_kwargs)
+                                    result_holder.set_result(output)
+                            span_id = span.span_id
+                            _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
+                finally:
+                    if token:
+                        _trace_nesting_level.reset(token)
+                    if is_outermost:
+                        processor = _get_batch_span_processor()
+                        if processor:
+                            with suppress(Exception):
+                                processor.force_flush(timeout_millis=5000)
+
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
                 return output  # pyright: ignore [reportReturnType]
@@ -774,72 +822,87 @@ def trace(
 
             @call_safely(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-                with Span(trace_name) as span:
-                    final_args = args
-                    final_kwargs = kwargs
-                    needs_trace_ctx = "trace_ctx" in signature.parameters
-                    has_user_provided_trace_ctx = False
-                    try:
-                        bound_call_args = signature.bind(*args, **kwargs)
-                        has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
-                    except TypeError:
-                        pass
+                level = _trace_nesting_level.get()
+                is_outermost = level == 0
+                token: Token | None = None
+                try:
+                    token = _trace_nesting_level.set(level + 1)
+                    with _outermost_trace_lock_context(is_outermost):  # Apply lock CM
+                        with Span(trace_name) as span:
+                            final_args = args
+                            final_kwargs = kwargs
+                            needs_trace_ctx = "trace_ctx" in signature.parameters
+                            has_user_provided_trace_ctx = False
+                            try:
+                                bound_call_args = signature.bind(*args, **kwargs)
+                                has_user_provided_trace_ctx = "trace_ctx" in bound_call_args.arguments
+                            except TypeError:
+                                pass
 
-                    if needs_trace_ctx and not has_user_provided_trace_ctx:
-                        final_args = tuple((span, *args))
-                    arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
-                    arg_values.pop("trace_ctx", None)
-                    arg_types.pop("trace_ctx", None)
+                            if needs_trace_ctx and not has_user_provided_trace_ctx:
+                                final_args = tuple((span, *args))
+                            arg_types, arg_values = inspect_arguments(fn, *final_args, **final_kwargs)
+                            arg_values.pop("trace_ctx", None)
+                            arg_types.pop("trace_ctx", None)
 
-                    trace_attribute = _construct_trace_attributes(
-                        arg_types=arg_types,
-                        arg_values=arg_values,
-                    )
-                    settings = get_settings()
-                    lilypad_client = Lilypad(api_key=settings.api_key)
-
-                    if versioning == "automatic":
-                        closure = Closure.from_fn(fn)
-
-                        try:
-                            function = lilypad_client.projects.functions.retrieve_by_hash(
-                                project_uuid=settings.project_id, function_hash=closure.hash
-                            )
-                        except NotFoundError:
-                            function = lilypad_client.projects.functions.create(
-                                path_project_uuid=settings.project_id,
-                                code=closure.code,
-                                hash=closure.hash,
-                                name=closure.name,
-                                signature=closure.signature,
+                            trace_attribute = _construct_trace_attributes(
                                 arg_types=arg_types,
-                                dependencies=closure.dependencies,
-                                is_versioned=True,
-                                prompt_template=prompt_template,
+                                arg_values=arg_values,
                             )
-                        function_uuid = function.uuid
-                    else:
-                        function = None
-                        function_uuid = None
-                    if is_mirascope_call:
-                        decorator_inner = create_mirascope_middleware(
-                            function,
-                            arg_types,
-                            arg_values,
-                            False,
-                            prompt_template,
-                            settings.project_id,
-                            current_span=span.opentelemetry_span,
-                        )
-                        output = decorator_inner(fn)(*final_args, **final_kwargs)
-                    else:
-                        with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=False, function=function
-                        ) as result_holder:
-                            output = fn(*final_args, **final_kwargs)
-                            result_holder.set_result(output)
-                    span_id = span.span_id
-                    _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
+                            settings = get_settings()
+                            lilypad_client = Lilypad(api_key=settings.api_key)
+
+                            if versioning == "automatic":
+                                closure = Closure.from_fn(fn)
+
+                                try:
+                                    function = lilypad_client.projects.functions.retrieve_by_hash(
+                                        project_uuid=settings.project_id, function_hash=closure.hash
+                                    )
+                                except NotFoundError:
+                                    function = lilypad_client.projects.functions.create(
+                                        path_project_uuid=settings.project_id,
+                                        code=closure.code,
+                                        hash=closure.hash,
+                                        name=closure.name,
+                                        signature=closure.signature,
+                                        arg_types=arg_types,
+                                        dependencies=closure.dependencies,
+                                        is_versioned=True,
+                                        prompt_template=prompt_template,
+                                    )
+                                function_uuid = function.uuid
+                            else:
+                                function = None
+                                function_uuid = None
+                            if is_mirascope_call:
+                                decorator_inner = create_mirascope_middleware(
+                                    function,
+                                    arg_types,
+                                    arg_values,
+                                    False,
+                                    prompt_template,
+                                    settings.project_id,
+                                    current_span=span.opentelemetry_span,
+                                )
+                                output = decorator_inner(fn)(*final_args, **final_kwargs)
+                            else:
+                                with _set_span_attributes(
+                                    TRACE_TYPE, span, trace_attribute, is_async=False, function=function
+                                ) as result_holder:
+                                    output = fn(*final_args, **final_kwargs)
+                                    result_holder.set_result(output)
+                            span_id = span.span_id
+                            _set_trace_context({"span_id": span_id, "function_uuid": function_uuid})
+                finally:
+                    if token:
+                        _trace_nesting_level.reset(token)
+                    if is_outermost:
+                        processor = _get_batch_span_processor()
+                        if processor:
+                            with suppress(Exception):
+                                processor.force_flush(timeout_millis=5000)
+
                 if mode == "wrap":
                     return Trace(response=output, span_id=span_id, function_uuid=function_uuid)
                 return output  # pyright: ignore [reportReturnType]

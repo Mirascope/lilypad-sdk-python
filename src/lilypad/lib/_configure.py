@@ -2,11 +2,13 @@
 
 import logging
 import importlib.util
+from secrets import token_bytes
 from collections.abc import Sequence
 
 from pydantic import TypeAdapter
 from opentelemetry import trace
-from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+from opentelemetry.trace import INVALID_SPAN_ID, INVALID_TRACE_ID
+from opentelemetry.sdk.trace import IdGenerator, ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import (
     SpanExporter,
     SpanExportResult,
@@ -26,6 +28,25 @@ except ImportError:
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
 TraceCreateResponseAdapter = TypeAdapter(TraceCreateResponse)
+
+
+class CryptoIdGenerator(IdGenerator):
+    """Generate span/trace IDs with cryptographically secure randomness."""
+
+    def _random_int(self, n_bytes: int) -> int:
+        return int.from_bytes(token_bytes(n_bytes), "big")
+
+    def generate_span_id(self) -> int:
+        span_id = self._random_int(8)  # 64bit
+        while span_id == INVALID_SPAN_ID:
+            span_id = self._random_int(8)
+        return span_id
+
+    def generate_trace_id(self) -> int:
+        trace_id = self._random_int(16)  # 128bit
+        while trace_id == INVALID_TRACE_ID:
+            trace_id = self._random_int(16)
+        return trace_id
 
 
 class _JSONSpanExporter(SpanExporter):
@@ -152,7 +173,7 @@ def configure(
         logger.error("TracerProvider already initialized.")  # noqa: T201
         return
     otlp_exporter = _JSONSpanExporter()
-    provider = TracerProvider()
+    provider = TracerProvider(id_generator=CryptoIdGenerator())
     processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)

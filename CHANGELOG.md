@@ -6,10 +6,17 @@ Full Changelog: [v0.1.0-alpha.20...v0.1.0-alpha.21](https://github.com/Mirascope
 
 ### Features
 
-* **api:** update via SDK Studio ([94d7aa3](https://github.com/Mirascope/lilypad-sdk-python/commit/94d7aa3d190d5bd4cbbdd1f4109cae470b906dc4))
-* **api:** update via SDK Studio ([51603f4](https://github.com/Mirascope/lilypad-sdk-python/commit/51603f46897ae007c101fc780c61bf7c22b5ec8f))
-* **api:** update via SDK Studio ([2283012](https://github.com/Mirascope/lilypad-sdk-python/commit/22830125ccecdbcd1af4febe4ee6c55f80809736))
-* **api:** update via SDK Studio ([0e01610](https://github.com/Mirascope/lilypad-sdk-python/commit/0e0161009061ea316101819480076bc60fbeb775))
+* **api:** update via SDK Studio ([374de68](https://github.com/Mirascope/lilypad-sdk-python/commit/374de6826f40a366e9409d93b54713504368264f))
+* **api:** update via SDK Studio ([27335f7](https://github.com/Mirascope/lilypad-sdk-python/commit/27335f7df89805de99e9bb0a2d3e5073be61da6d))
+* **api:** update via SDK Studio ([928359b](https://github.com/Mirascope/lilypad-sdk-python/commit/928359bc0c7f8cd6cef818b5e330f4e291fdb334))
+* **api:** update via SDK Studio ([7c98165](https://github.com/Mirascope/lilypad-sdk-python/commit/7c98165fafcc0dca4bff6b642942c16d2599d190))
+* feat: use CryptoIdGenerator to prevent duplicate trace/span IDs ([6fe69dc](https://github.com/Mirascope/lilypad-sdk-python/commit/6fe69dc7aeb2185d5124a805a1d4d76240547c6b))
+
+
+### Bug Fixes
+
+* Ensure nested trace spans export together via deferred flush ([44e1645](https://github.com/Mirascope/lilypad-sdk-python/commit/44e1645cc8e2c2ff30372f55d0ca82d2b56f7e0e))
+
 
 ## 0.1.0-alpha.20 (2025-04-15)
 
