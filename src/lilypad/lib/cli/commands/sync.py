@@ -16,7 +16,7 @@ from pydantic import TypeAdapter
 from rich.table import Table
 from rich.console import Console
 
-from lilypad import Lilypad
+from lilypad.lib._utils.client import get_sync_client
 from lilypad.lib._utils.settings import get_settings
 from lilypad.types.projects.functions import FunctionPublic, NameRetrieveByNameResponse
 
@@ -406,7 +406,7 @@ def sync_command(
             clear_registry()
             sys.path.pop(0)
     settings = get_settings()
-    client = Lilypad(api_key=settings.api_key)
+    client = get_sync_client(api_key=settings.api_key)
     decorator_name = TRACE_MODULE_NAME
     functions = results.get(decorator_name, [])
     if not functions:
