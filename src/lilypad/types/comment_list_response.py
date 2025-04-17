@@ -20,8 +20,6 @@ class CommentListResponseItem(BaseModel):
 
     uuid: str
 
-    child_comments: Optional[List[object]] = None
-
     is_edited: Optional[bool] = None
 
     parent_comment_uuid: Optional[str] = None

@@ -1,4 +1,4 @@
-configured_endpoints: 79
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/mirascope%2Flilypad-sdk-d85133c2023964e8dea43759a40c43ac86fbcf711773f76546d66504c829c98d.yml
-openapi_spec_hash: 88ac12a1a3df4bf0c27815f852dc05c6
-config_hash: ab0d83b2e93831382f2be8f72d3e54ad
+configured_endpoints: 81
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/mirascope%2Flilypad-sdk-4b8fc775e36b95187fea88d89cc0ee10120793aafe5c2cc8b6f2fe6d16e811ac.yml
+openapi_spec_hash: 67eee4d8b8fa47a3821b07a0b35763cd
+config_hash: 72d8f76bb3cb0179fc87aa4173401d34

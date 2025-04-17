@@ -1,6 +1,6 @@
 [project]
 name = "lilypad-sdk"
-version = "0.1.0-alpha.20"
+version = "0.1.0-alpha.21"
 description = "The official Python library for the lilypad API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -45,19 +45,20 @@ Repository = "https://github.com/Mirascope/lilypad-sdk-python"
 managed = true
 # version pins are in requirements-dev.lock
 dev-dependencies = [
-  "respx",
-  "pytest>=8.3.2",
-  "pyright>=1.1.397",
-  "pytest-asyncio>=0.23.8",
-  "pytest-cov>=5.0.0",
-  "pytest-asyncio",
-  "time-machine",
-  "nox",
-  "dirty-equals>=0.6.0",
-  "importlib-metadata>=6.7.0",
-  "rich>=13.7.1",
-  "nest_asyncio==1.6.0",
-  "pre-commit>=3.8.0",
+    "pyright==1.1.399",
+    "pytest>=8.3.2",
+    "mypy",
+    "respx",
+    "pytest-asyncio>=0.23.8",
+    "pytest-cov>=5.0.0",
+    "ruff",
+    "time-machine",
+    "nox",
+    "dirty-equals>=0.6.0",
+    "importlib-metadata>=6.7.0",
+    "rich>=13.7.1",
+    "nest_asyncio==1.6.0",
+    "pre-commit>=3.8.0",
 ]
 
 [tool.rye.scripts]
