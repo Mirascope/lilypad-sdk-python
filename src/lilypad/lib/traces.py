@@ -154,16 +154,7 @@ class Trace(_TraceBase[_T]):
         settings = get_settings()
         client = Lilypad(api_key=settings.api_key)
         span_uuid = self._get_span_uuid(client)
-        if not span_uuid:
-            raise LilypadNotFoundError(
-                f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
-            )
-        try:
-            client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
+        client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
 
 
 class AsyncTrace(_TraceBase[_T]):
@@ -218,16 +209,7 @@ class AsyncTrace(_TraceBase[_T]):
         settings = get_settings()
         client = AsyncLilypad(api_key=settings.api_key)
         span_uuid = await self._get_span_uuid(client)
-        if not span_uuid:
-            raise LilypadNotFoundError(
-                f"Could not find span UUID (otel_span_id: {self.formated_span_id}). Cannot add tags."
-            )
-        try:
-            await client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
-        except NotFoundError as e:
-            raise LilypadNotFoundError(f"Failed to update tags: Span not found. Details: {e}")
-        except Exception as e:
-            raise LilypadValueError(f"Failed to add tags to span '{span_uuid}': {e}")
+        await client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
 
 
 _trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
