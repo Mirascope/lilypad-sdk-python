@@ -1,6 +1,5 @@
 """Unit tests for the span() context manager and related functionality."""
 
-import json
 from typing import Any
 from contextlib import AbstractContextManager
 from collections.abc import Generator
@@ -8,6 +7,7 @@ from collections.abc import Generator
 import pytest
 
 from lilypad.lib.spans import span
+from lilypad.lib._utils import json_dumps
 
 dummy_spans: list["DummySpan"] = []
 
@@ -178,8 +178,8 @@ def test_metadata_serialization() -> None:
     with span("metadata test") as s:
         s.metadata(data)
     dummy = dummy_spans[0]
-    assert dummy.attributes.get("list") == json.dumps([1, 2, 3])
-    assert dummy.attributes.get("dict") == json.dumps({"a": 1})
+    assert dummy.attributes.get("list") == json_dumps([1, 2, 3])
+    assert dummy.attributes.get("dict") == json_dumps({"a": 1})
 
 
 def test_dummy_span_record_exception_directly() -> None:

@@ -196,9 +196,10 @@ def _set_response_model_attributes(  # noqa: D401
         messages = None
 
     attr_key = f"lilypad.{trace_type}."
-    span.set_attribute(f"{attr_key}output", completion)
+    attributes = {f"{attr_key}output": completion}
     if messages is not None:
-        span.set_attribute(f"{attr_key}messages", messages)
+        attributes[f"{attr_key}messages"] = messages
+    span.set_attributes(attributes)
 
 
 class _Handlers:

@@ -15,7 +15,7 @@ from opentelemetry.trace import Span, Status, SpanKind, StatusCode, SpanContext
 from mirascope.core.base._utils._base_type import BaseType as mb_BaseType
 
 # Import the module directly to reference its contents
-from lilypad.lib._utils import middleware, encode_gemini_part
+from lilypad.lib._utils import json_dumps, middleware, fast_jsonable, encode_gemini_part
 
 # Import specific items needed for testing/patching
 from lilypad.lib._utils.middleware import (
@@ -133,8 +133,8 @@ def test_set_call_response_attributes_serializable():
     span = MagicMock(spec=Span)
     with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x):
         _set_call_response_attributes(response, span, "trace")
-        expected_output = json.dumps(response.message_param)
-        expected_messages = json.dumps(response.messages)
+        expected_output = '{"role":"assistant","content":"value"}'
+        expected_messages = '[{"role":"user","content":"hello"}]'
         expected_attributes = {
             "lilypad.trace.output": expected_output,
             "lilypad.trace.messages": expected_messages,
@@ -153,7 +153,7 @@ def test_set_call_response_attributes_needs_serialization():
     with (
         patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=TypeError),
         patch(
-            "lilypad.lib._utils.json._serialize_proto_data", return_value=serialized_messages
+            "lilypad.lib._utils.middleware._serialize_proto_data", return_value=serialized_messages
         ) as mock_proto_serializer,
     ):
         _set_call_response_attributes(response, span, "trace")
@@ -169,19 +169,22 @@ def test_set_call_response_attributes_needs_serialization():
 
 def test_set_response_model_attributes_base_model_with_messages():
     """Test _set_response_model_attributes with BaseModel having messages."""
-    result = MagicMock(spec=BaseModel)
-    result.model_dump_json.return_value = '{"key": "value"}'
+
+    class MockModel(BaseModel):
+        key: str
+
+    result = MockModel(key="value")
     result._response = MagicMock(spec=mb.BaseCallResponse)
     result._response.messages = [{"role": "user", "parts": ["hello"]}]
     span = MagicMock(spec=Span)
-    with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x) as mock_encoder:
+    with patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=lambda x: fast_jsonable(x)) as mock_encoder:
         _set_response_model_attributes(result, span, "trace")
         expected_attributes = {
-            "lilypad.trace.output": '{"key": "value"}',
-            "lilypad.trace.messages": json.dumps(result._response.messages),
+            "lilypad.trace.output": '{"key":"value"}',
+            "lilypad.trace.messages": json_dumps(result._response.messages),
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
-        mock_encoder.assert_called_once_with(result._response.messages)
+        mock_encoder.assert_has_calls([call(MockModel(key="value")), call([{"role": "user", "parts": ["hello"]}])])
 
 
 # Assumes Production Code Fix: str(result.value)
@@ -441,8 +444,8 @@ def test_get_custom_context_manager():
                 "lilypad.function.name": fn_mock.__name__,
                 "lilypad.function.signature": mock_function.signature,
                 "lilypad.function.code": mock_function.code,
-                "lilypad.function.arg_types": json.dumps(mock_function.arg_types),
-                "lilypad.function.arg_values": json.dumps(arg_values),
+                "lilypad.function.arg_types": json_dumps(mock_function.arg_types),
+                "lilypad.function.arg_values": json_dumps(arg_values),
                 "lilypad.function.prompt_template": prompt_template,
                 "lilypad.function.version": 1,
                 "lilypad.is_async": is_async,
