@@ -16,7 +16,7 @@ from typing import (
     TypeAlias,
     overload,
 )
-from functools import lru_cache
+from functools import lru_cache  # noqa: TID251
 from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
@@ -47,8 +47,11 @@ from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
 from ._utils.function_cache import (
+    get_cached_closure,
     get_function_by_hash_sync,
+    get_deployed_function_sync,
     get_function_by_hash_async,
+    get_deployed_function_async,
     get_function_by_version_sync,
     get_function_by_version_async,
 )
@@ -637,6 +640,8 @@ def trace(
         if _RECORDING_ENABLED and versioning == "automatic":
             _register_decorated_function(TRACE_MODULE_NAME, fn, get_closure(fn).name, {"mode": mode})
 
+        settings = get_settings()
+
         signature = get_signature(fn)
 
         if name is None:
@@ -673,7 +678,6 @@ def trace(
                                 arg_types=arg_types,
                                 arg_values=arg_values,
                             )
-                            settings = get_settings()
                             async_lilypad_client = get_async_client(api_key=settings.api_key)
                             if versioning == "automatic":
                                 closure = get_closure(fn)
@@ -728,29 +732,19 @@ def trace(
             if versioning is None:
                 return inner_async
 
+            function_name = get_qualified_name(fn)
+
             async def _specific_function_version_async(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
-                settings = get_settings()
-                function_name = get_qualified_name(fn)
                 try:
                     versioned_function = await get_function_by_version_async(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
                     )
-                    versioned_function_closure = Closure(
-                        name=versioned_function.name,
-                        code=versioned_function.code,
-                        signature=versioned_function.signature,
-                        hash=versioned_function.hash,
-                        dependencies={
-                            k: v.model_dump(mode="python") for k, v in versioned_function.dependencies.items()
-                        }
-                        if versioned_function.dependencies is not None
-                        else {},
-                    )
+                    versioned_function_closure = get_cached_closure(versioned_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -781,26 +775,20 @@ def trace(
             inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
             async def _deployed_version_async(
-                *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
+                *args: _P.args,
+                sandbox: SandboxRunner | None = None,
+                ttl: float | None = None,
+                force_refresh: bool = False,
+                **kwargs: _P.kwargs,
             ) -> _R:
-                settings = get_settings()
-                async_lilypad_client = get_async_client(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
-
                 try:
-                    deployed_function = await async_lilypad_client.projects.functions.name.retrieve_deployed(
+                    deployed_function = await get_deployed_function_async(
                         project_uuid=settings.project_id,
+                        ttl=ttl,
+                        force_refresh=force_refresh,
                         function_name=function_name,
                     )
-                    deployed_function_closure = Closure(
-                        name=deployed_function.name,
-                        code=deployed_function.code,
-                        signature=deployed_function.signature,
-                        hash=deployed_function.hash,
-                        dependencies={k: v.model_dump(mode="python") for k, v in deployed_function.dependencies.items()}
-                        if deployed_function.dependencies is not None
-                        else {},
-                    )
+                    deployed_function_closure = get_cached_closure(deployed_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -857,7 +845,6 @@ def trace(
                                 arg_types=arg_types,
                                 arg_values=arg_values,
                             )
-                            settings = get_settings()
                             lilypad_client = get_sync_client(api_key=settings.api_key)
 
                             if versioning == "automatic":
@@ -913,30 +900,19 @@ def trace(
             if versioning is None:
                 return inner  # pyright: ignore [reportReturnType]
 
+            function_name = get_qualified_name(fn)
+
             def _specific_function_version(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
-                settings = get_settings()
-                function_name = get_qualified_name(fn)
-
                 try:
                     versioned_function = get_function_by_version_sync(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
                     )
-                    versioned_function_closure = Closure(
-                        name=versioned_function.name,
-                        code=versioned_function.code,
-                        signature=versioned_function.signature,
-                        hash=versioned_function.hash,
-                        dependencies={
-                            k: v.model_dump(mode="python") for k, v in versioned_function.dependencies.items()
-                        }
-                        if versioned_function.dependencies is not None
-                        else {},
-                    )
+                    versioned_function_closure = get_cached_closure(versioned_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -966,25 +942,21 @@ def trace(
 
             inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
-            def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
-                settings = get_settings()
-                lilypad_client = get_sync_client(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
-
+            def _deployed_version(
+                *args: _P.args,
+                sandbox: SandboxRunner | None = None,
+                ttl: float | None = None,
+                force_refresh: bool = False,
+                **kwargs: _P.kwargs,
+            ) -> _R:
                 try:
-                    deployed_function = lilypad_client.projects.functions.name.retrieve_deployed(
+                    deployed_function = get_deployed_function_sync(
                         project_uuid=settings.project_id,
+                        ttl=ttl,
+                        force_refresh=force_refresh,
                         function_name=function_name,
                     )
-                    deployed_function_closure = Closure(
-                        name=deployed_function.name,
-                        code=deployed_function.code,
-                        signature=deployed_function.signature,
-                        hash=deployed_function.hash,
-                        dependencies={k: v.model_dump(mode="python") for k, v in deployed_function.dependencies.items()}
-                        if deployed_function.dependencies is not None
-                        else {},
-                    )
+                    deployed_function_closure = get_cached_closure(deployed_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 

@@ -190,9 +190,7 @@ def _set_response_model_attributes(  # noqa: D401
         completion: str | int | float | bool | None = fast_jsonable(result)
         response_obj: Any | None = getattr(result, "_response", None)
         messages_raw: Any | None = getattr(response_obj, "messages", None) if response_obj else None
-        messages: str | int | float | bool | None = (
-            fast_jsonable(messages_raw) if messages_raw is not None else None
-        )
+        messages: str | int | float | bool | None = fast_jsonable(messages_raw) if messages_raw is not None else None
     else:
         completion = result if isinstance(result, (str, int, float, bool)) else str(result)
         messages = None
@@ -201,6 +199,7 @@ def _set_response_model_attributes(  # noqa: D401
     span.set_attribute(f"{attr_key}output", completion)
     if messages is not None:
         span.set_attribute(f"{attr_key}messages", messages)
+
 
 class _Handlers:
     def __init__(self, trace_type: str) -> None:

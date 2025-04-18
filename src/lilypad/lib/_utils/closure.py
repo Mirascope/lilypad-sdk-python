@@ -812,4 +812,5 @@ def get_closure(fn: Callable) -> Closure:
         fn.__lilypad_closure__ = closure
         return closure
 
+
 __all__ = ["Closure"]
