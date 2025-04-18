@@ -369,8 +369,8 @@ def fast_jsonable(val: Any) -> str | int | float | bool | None:
 
     try:
         return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode("utf-8")
-    except TypeError:
-        return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode("utf-8")
+    except (TypeError, orjson.JSONEncodeError):
+        return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
 
 
 __all__ = [

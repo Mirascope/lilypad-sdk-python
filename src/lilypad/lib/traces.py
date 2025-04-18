@@ -21,6 +21,7 @@ from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
+import orjson
 from pydantic import BaseModel
 from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
@@ -542,7 +543,7 @@ def _construct_trace_attributes(
     for arg_name, arg_value in arg_values.items():
         try:
             serialized_arg_value = fast_jsonable(arg_value)
-        except ValueError:
+        except (TypeError, ValueError, orjson.JSONEncodeError):
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {

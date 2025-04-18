@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, ParamSpec, cast
 from contextlib import contextmanager, _GeneratorContextManager
 from collections.abc import Callable, Generator
 
+import orjson
 from pydantic import BaseModel
 from mirascope.core import base as mb
 from opentelemetry.trace import Span, Status, StatusCode, SpanContext, get_tracer
@@ -77,7 +78,7 @@ def _get_custom_context_manager(
         for arg_name, arg_value in arg_values.items():
             try:
                 serialized_arg_value = fast_jsonable(arg_value)
-            except ValueError:
+            except (TypeError, ValueError, orjson.JSONEncodeError):
                 serialized_arg_value = "could not serialize"
             jsonable_arg_values[arg_name] = serialized_arg_value
         if current_span:
