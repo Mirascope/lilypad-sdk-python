@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.24 (2025-04-18)
+
+Full Changelog: [v0.1.0-alpha.23...v0.1.0-alpha.24](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.23...v0.1.0-alpha.24)
+
+### Features
+
+* Fix: google ai contents patch ([2ab75ae](https://github.com/Mirascope/lilypad-sdk-python/commit/2ab75ae9706bc1b8fc9a98a52328db45f3f6459a))
+
 ## 0.1.0-alpha.23 (2025-04-17)
 
 Full Changelog: [v0.1.0-alpha.22...v0.1.0-alpha.23](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.22...v0.1.0-alpha.23)
