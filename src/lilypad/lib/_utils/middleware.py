@@ -17,9 +17,9 @@ from mirascope.integrations import middleware_factory
 from opentelemetry.util.types import AttributeValue
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
-from .json import json_dumps
+from .json import json_dumps, fast_jsonable
 from .settings import get_settings
-from .functions import ArgTypes, ArgValues, fast_jsonable
+from .functions import ArgTypes, ArgValues
 
 if TYPE_CHECKING:
     from ...types.projects.functions import FunctionPublic
@@ -100,7 +100,7 @@ def _get_custom_context_manager(
                 attributes["lilypad.function.signature"] = function.signature
                 attributes["lilypad.function.code"] = function.code
                 attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = jsonable_arg_values
+                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
                 attributes["lilypad.function.prompt_template"] = prompt_template or ""
                 attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             else:

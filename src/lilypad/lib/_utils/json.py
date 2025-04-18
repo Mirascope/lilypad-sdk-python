@@ -1,5 +1,3 @@
-import types
-import inspect
 import datetime
 import dataclasses
 from re import Pattern
@@ -8,16 +6,11 @@ from uuid import UUID
 from types import GeneratorType
 from typing import (
     Any,
-    Union,
     TypeVar,
     ParamSpec,
-    TypeAlias,
-    get_args,
-    get_origin,
 )
 from decimal import Decimal
 from pathlib import Path, PurePath
-from functools import cache
 from ipaddress import (
     IPv4Address,
     IPv4Network,
@@ -379,6 +372,7 @@ def fast_jsonable(val: Any) -> str | int | float | bool | None:
         return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode("utf-8")
     except TypeError:
         return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode("utf-8")
+
 
 __all__ = [
     "json_dumps",

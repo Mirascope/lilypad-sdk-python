@@ -14,7 +14,6 @@ from typing import (
 from functools import cache
 from collections.abc import Callable
 
-
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 

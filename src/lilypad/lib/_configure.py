@@ -1,8 +1,8 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
 
+import os
 import logging
 import importlib.util
-import os
 from secrets import token_bytes
 from collections.abc import Sequence
 
@@ -16,7 +16,6 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
 )
 
-from .._client import Lilypad
 from ._utils.client import get_sync_client
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
