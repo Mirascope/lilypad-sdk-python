@@ -4,9 +4,10 @@ import datetime
 from typing import Any
 from contextlib import AbstractContextManager
 
-import orjson
 from opentelemetry import context as context_api
 from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, set_span_in_context
+
+from lilypad.lib._utils.json import json_dumps
 
 
 class Span:
@@ -112,7 +113,7 @@ class Span:
         for key, value in data.items():
             if not isinstance(value, str | int | float | bool) and value is not None:
                 try:
-                    value = str(orjson.dumps(value))
+                    value = json_dumps(value)
                 except Exception:
                     value = str(value)
             self._span.set_attribute(key, value)

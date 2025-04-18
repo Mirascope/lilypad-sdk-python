@@ -77,7 +77,7 @@ class SandboxRunner(ABC):
             pass
 
         if returncode != 0:
-            error_message = f"Process exited with non-zero status.\nStdout: {stdout}\nStderr: {stderr}"
+            error_message = f"Process exited with non-zero status.\nStdout: {stdout.decode(errors='replace')}\nStderr: {stderr.decode(errors='replace')}"
             raise RuntimeError(error_message)
 
         return cast(Result, orjson.loads(stdout.strip()))

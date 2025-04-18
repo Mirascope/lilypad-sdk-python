@@ -16,13 +16,13 @@ from typing import (
     TypeAlias,
     overload,
 )
+from functools import lru_cache
 from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
 import orjson
 from pydantic import BaseModel
-from cachetools.func import lru_cache
 from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -40,6 +40,7 @@ from ._utils import (
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
+from ._utils.json import json_dumps
 from .._exceptions import NotFoundError
 from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
@@ -274,7 +275,7 @@ DecoratorArgs: TypeAlias = dict[str, Any]
 FunctionInfo: TypeAlias = tuple[str, str, int, str, DecoratorArgs]
 
 
-def register_decorated_function(
+def _register_decorated_function(
     decorator_name: str, fn: Callable[..., Any], function_name: str, context: dict[str, Any] | None = None
 ) -> None:
     """Register a function that has been decorated.
@@ -545,8 +546,8 @@ def _construct_trace_attributes(
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {
-        "lilypad.trace.arg_types": str(orjson.dumps(arg_types)),
-        "lilypad.trace.arg_values": str(orjson.dumps(jsonable_arg_values)),
+        "lilypad.trace.arg_types": json_dumps(arg_types),
+        "lilypad.trace.arg_values": json_dumps(jsonable_arg_values),
     }
 
 
@@ -633,7 +634,7 @@ def trace(
             return cached
 
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn, _get_closure().name, {"mode": mode})
+            _register_decorated_function(TRACE_MODULE_NAME, fn, _get_closure().name, {"mode": mode})
 
         signature = inspect.signature(fn)
 

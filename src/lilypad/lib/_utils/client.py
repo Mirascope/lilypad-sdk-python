@@ -5,8 +5,7 @@ from __future__ import annotations
 import os
 import asyncio
 import weakref
-
-from cachetools.func import lru_cache
+from functools import lru_cache  # noqa: TID251
 
 from ..._client import Lilypad, AsyncLilypad
 
