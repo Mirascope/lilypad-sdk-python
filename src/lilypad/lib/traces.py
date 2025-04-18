@@ -32,7 +32,6 @@ from ._utils import (
     Closure,
     call_safely,
     fn_is_async,
-    jsonable_encoder,
     inspect_arguments,
     get_qualified_name,
     create_mirascope_middleware,
@@ -40,10 +39,12 @@ from ._utils import (
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
-from ._utils.json import json_dumps
+from ._utils.json import json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
 from ._utils.client import get_sync_client, get_async_client
+from ._utils.closure import get_closure
 from ._utils.settings import get_settings
+from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
 from ..types.projects.functions import FunctionPublic
 
@@ -541,7 +542,7 @@ def _construct_trace_attributes(
     jsonable_arg_values = {}
     for arg_name, arg_value in arg_values.items():
         try:
-            serialized_arg_value = jsonable_encoder(arg_value)
+            serialized_arg_value = fast_jsonable(arg_value)
         except ValueError:
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
@@ -626,17 +627,10 @@ def trace(
             fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
         )
 
-        def _get_closure() -> Closure:
-            cached = getattr(fn, "__lilypad_closure__", None)
-            if cached is None:
-                cached = Closure.from_fn(fn)
-                fn.__lilypad_closure__ = cached
-            return cached
-
         if _RECORDING_ENABLED and versioning == "automatic":
-            _register_decorated_function(TRACE_MODULE_NAME, fn, _get_closure().name, {"mode": mode})
+            _register_decorated_function(TRACE_MODULE_NAME, fn, get_closure(fn).name, {"mode": mode})
 
-        signature = inspect.signature(fn)
+        signature = get_signature(fn)
 
         if name is None:
             trace_name = get_qualified_name(fn)
@@ -675,7 +669,7 @@ def trace(
                             settings = get_settings()
                             async_lilypad_client = get_async_client(api_key=settings.api_key)
                             if versioning == "automatic":
-                                closure = _get_closure()
+                                closure = get_closure(fn)
 
                                 try:
                                     function = await async_lilypad_client.projects.functions.retrieve_by_hash(
@@ -859,7 +853,7 @@ def trace(
                             lilypad_client = get_sync_client(api_key=settings.api_key)
 
                             if versioning == "automatic":
-                                closure = _get_closure()
+                                closure = get_closure(fn)
 
                                 try:
                                     function = lilypad_client.projects.functions.retrieve_by_hash(

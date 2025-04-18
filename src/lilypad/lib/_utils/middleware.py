@@ -17,10 +17,9 @@ from mirascope.integrations import middleware_factory
 from opentelemetry.util.types import AttributeValue
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
-from . import jsonable_encoder
 from .json import json_dumps
 from .settings import get_settings
-from .functions import ArgTypes, ArgValues
+from .functions import ArgTypes, ArgValues, fast_jsonable
 
 if TYPE_CHECKING:
     from ...types.projects.functions import FunctionPublic
@@ -77,7 +76,7 @@ def _get_custom_context_manager(
         jsonable_arg_values = {}
         for arg_name, arg_value in arg_values.items():
             try:
-                serialized_arg_value = jsonable_encoder(arg_value)
+                serialized_arg_value = fast_jsonable(arg_value)
             except ValueError:
                 serialized_arg_value = "could not serialize"
             jsonable_arg_values[arg_name] = serialized_arg_value
@@ -101,7 +100,7 @@ def _get_custom_context_manager(
                 attributes["lilypad.function.signature"] = function.signature
                 attributes["lilypad.function.code"] = function.code
                 attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
+                attributes["lilypad.function.arg_values"] = jsonable_arg_values
                 attributes["lilypad.function.prompt_template"] = prompt_template or ""
                 attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             else:
@@ -167,11 +166,11 @@ def _serialize_proto_data(data: list[dict]) -> str:
 
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
-        output = json_dumps(jsonable_encoder(response.message_param))
+        output = fast_jsonable(response.message_param)
     except TypeError:
         output = str(response.message_param)
     try:
-        messages = json_dumps(jsonable_encoder(response.messages))
+        messages = fast_jsonable(response.messages)
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
     attributes: dict[str, AttributeValue] = {
@@ -188,7 +187,7 @@ def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, 
         if (_response := getattr(result, "_response", None)) and (
             _response_messages := getattr(_response, "messages", None)
         ):
-            messages = json_dumps(jsonable_encoder(_response_messages))
+            messages = fast_jsonable(_response_messages)
         else:
             messages = None
     else:
