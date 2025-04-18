@@ -181,29 +181,26 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, tra
     span.set_attributes(attributes)
 
 
-def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, trace_type: str) -> None:
+def _set_response_model_attributes(  # noqa: D401
+    result: BaseModel | mb.BaseType,
+    span: Span,
+    trace_type: str,
+) -> None:
     if isinstance(result, BaseModel):
-        completion = result.model_dump_json()
-        # Safely handle the case where result._response might be None
-        if (_response := getattr(result, "_response", None)) and (
-            _response_messages := getattr(_response, "messages", None)
-        ):
-            messages = fast_jsonable(_response_messages)
-        else:
-            messages = None
+        completion: str | int | float | bool | None = fast_jsonable(result)
+        response_obj: Any | None = getattr(result, "_response", None)
+        messages_raw: Any | None = getattr(response_obj, "messages", None) if response_obj else None
+        messages: str | int | float | bool | None = (
+            fast_jsonable(messages_raw) if messages_raw is not None else None
+        )
     else:
-        if not isinstance(result, str | int | float | bool):
-            result = str(result)
-        completion = result
+        completion = result if isinstance(result, (str, int, float, bool)) else str(result)
         messages = None
 
-    attributes: dict[str, AttributeValue] = {
-        f"lilypad.{trace_type}.output": completion,
-    }
-    if messages:
-        attributes[f"lilypad.{trace_type}.messages"] = messages
-    span.set_attributes(attributes)
-
+    attr_key = f"lilypad.{trace_type}."
+    span.set_attribute(f"{attr_key}output", completion)
+    if messages is not None:
+        span.set_attribute(f"{attr_key}messages", messages)
 
 class _Handlers:
     def __init__(self, trace_type: str) -> None:

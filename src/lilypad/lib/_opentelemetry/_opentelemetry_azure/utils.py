@@ -111,7 +111,7 @@ def get_tool_calls(message: dict | BaseModel) -> list[dict[str, Any]] | None:
         if isinstance(tool_call, BaseModel):
             call_id = tool_call.id  # pyright: ignore[reportAttributeAccessIssue]
             tool_type = tool_call.type  # pyright: ignore[reportAttributeAccessIssue]
-            tool_call_dict["function"] = tool_call.function.model_dump()  # pyright: ignore[reportAttributeAccessIssue]
+            tool_call_dict["function"] = tool_call.function.model_dump(mode="python")  # pyright: ignore[reportAttributeAccessIssue]
         else:
             call_id = tool_call.get("id")
             tool_type = tool_call.get("type")

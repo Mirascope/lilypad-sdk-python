@@ -531,8 +531,11 @@ def _set_span_attributes(
     result_holder = _ResultHolder()
     yield result_holder
     original_output = result_holder.result
-    output_for_span = original_output.model_dump() if isinstance(original_output, BaseModel) else original_output
-    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
+    if isinstance(original_output, BaseModel):
+        output_for_span = json_dumps(original_output.model_dump(mode="python"))
+    else:
+        output_for_span = fast_jsonable(original_output)
+    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", output_for_span)
 
 
 def _construct_trace_attributes(
@@ -739,7 +742,7 @@ def trace(
                         code=versioned_function.code,
                         signature=versioned_function.signature,
                         hash=versioned_function.hash,
-                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                        dependencies={k: v.model_dump(mode="python") for k, v in versioned_function.dependencies.items()}
                         if versioned_function.dependencies is not None
                         else {},
                     )
@@ -789,7 +792,7 @@ def trace(
                         code=deployed_function.code,
                         signature=deployed_function.signature,
                         hash=deployed_function.hash,
-                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                        dependencies={k: v.model_dump(mode="python") for k, v in deployed_function.dependencies.items()}
                         if deployed_function.dependencies is not None
                         else {},
                     )
@@ -924,7 +927,7 @@ def trace(
                         code=versioned_function.code,
                         signature=versioned_function.signature,
                         hash=versioned_function.hash,
-                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
+                        dependencies={k: v.model_dump(mode="python") for k, v in versioned_function.dependencies.items()}
                         if versioned_function.dependencies is not None
                         else {},
                     )
@@ -972,7 +975,7 @@ def trace(
                         code=deployed_function.code,
                         signature=deployed_function.signature,
                         hash=deployed_function.hash,
-                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
+                        dependencies={k: v.model_dump(mode="python") for k, v in deployed_function.dependencies.items()}
                         if deployed_function.dependencies is not None
                         else {},
                     )
