@@ -46,6 +46,8 @@ def generate_content(
                 contents = kwargs.get("contents", [])
                 if isinstance(contents, str):
                     contents = [{"content": contents, "role": "user"}]
+                elif isinstance(contents, dict):
+                    contents = [contents]
                 for content in contents:
                     set_content_event(span, content)
             try:
@@ -94,7 +96,12 @@ def generate_content_async(
             end_on_exit=False,
         ) as span:
             if span.is_recording():
-                for content in kwargs.get("contents", []):
+                contents = kwargs.get("contents", [])
+                if isinstance(contents, str):
+                    contents = [{"content": contents, "role": "user"}]
+                elif isinstance(contents, dict):
+                    contents = [contents]
+                for content in contents:
                     set_content_event(span, content)
             try:
                 result = await wrapped(*args, **kwargs)
