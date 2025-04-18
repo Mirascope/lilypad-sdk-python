@@ -255,6 +255,8 @@ opentelemetry-sdk==1.31.1
 opentelemetry-semantic-conventions==0.52b1
     # via opentelemetry-instrumentation
     # via opentelemetry-sdk
+orjson==3.10.16
+    # via lilypad-sdk
 outlines==0.2.1
     # via lilypad-sdk
 outlines-core==0.1.26
