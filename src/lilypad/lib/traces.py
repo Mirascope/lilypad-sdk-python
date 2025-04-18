@@ -46,8 +46,12 @@ from ._utils.closure import get_closure
 from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
-from ._utils.function_cache import get_function_by_hash_sync, get_function_by_hash_async, get_function_by_version_sync, \
-    get_function_by_version_async
+from ._utils.function_cache import (
+    get_function_by_hash_sync,
+    get_function_by_hash_async,
+    get_function_by_version_sync,
+    get_function_by_version_async,
+)
 from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
