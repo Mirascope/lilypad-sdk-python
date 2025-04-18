@@ -241,8 +241,11 @@ multidict==6.2.0
     # via aiobotocore
     # via aiohttp
     # via yarl
+mypy==1.15.0
 mypy-boto3-bedrock-runtime==1.37.7
     # via boto3-stubs
+mypy-extensions==1.0.0
+    # via mypy
 nest-asyncio==1.6.0
     # via outlines
 networkx==3.4.2
@@ -268,6 +271,8 @@ opentelemetry-sdk==1.31.1
 opentelemetry-semantic-conventions==0.52b1
     # via opentelemetry-instrumentation
     # via opentelemetry-sdk
+orjson==3.10.16
+    # via lilypad-sdk
 outlines==0.2.1
     # via lilypad-sdk
 outlines-core==0.1.26
@@ -391,6 +396,7 @@ sympy==1.13.1
 time-machine==2.9.0
 tomli==2.0.2
     # via coverage
+    # via mypy
     # via pytest
 torch==2.6.0
     # via outlines
@@ -423,6 +429,7 @@ typing-extensions==4.12.2
     # via lilypad-sdk
     # via mirascope
     # via multidict
+    # via mypy
     # via mypy-boto3-bedrock-runtime
     # via openai
     # via opentelemetry-sdk

@@ -16,7 +16,7 @@ from pydantic import TypeAdapter
 from rich.table import Table
 from rich.console import Console
 
-from lilypad import Lilypad
+from lilypad.lib._utils.client import get_sync_client
 from lilypad.lib._utils.settings import get_settings
 from lilypad.types.projects.functions import FunctionPublic, NameRetrieveByNameResponse
 
@@ -27,7 +27,7 @@ from ...traces import (
     disable_recording,
     get_decorated_functions,
 )
-from ..._utils.closure import Closure, _run_ruff
+from ..._utils.closure import _run_ruff, get_closure
 
 app = typer.Typer()
 console = Console()
@@ -406,7 +406,7 @@ def sync_command(
             clear_registry()
             sys.path.pop(0)
     settings = get_settings()
-    client = Lilypad(api_key=settings.api_key)
+    client = get_sync_client(api_key=settings.api_key)
     decorator_name = TRACE_MODULE_NAME
     functions = results.get(decorator_name, [])
     if not functions:
@@ -429,7 +429,7 @@ def sync_command(
         except Exception as e:
             print(f"[red]Error retrieving function {function_name} from {module_name}: {e}[/red]")
             continue
-        closure = Closure.from_fn(fn)
+        closure = get_closure(fn)
         try:
             with console.status(f"Fetching versions for [bold]{function_name}[/bold]..."):
                 raw_response = client.projects.functions.name.retrieve_by_name(

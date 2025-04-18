@@ -116,7 +116,7 @@ def test_set_message_event():
         "gen_ai.user.message",
         attributes={
             gen_ai_attributes.GEN_AI_SYSTEM: "anthropic",
-            "content": json.dumps([{"type": "text", "text": "Hello"}]),
+            "content": '[{"type":"text","text":"Hello"}]',
         },
     )
 

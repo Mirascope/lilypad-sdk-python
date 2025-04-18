@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from typing import Any
 from typing_extensions import TypedDict
 
@@ -11,6 +10,7 @@ from opentelemetry.util.types import AttributeValue
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer
+from ..._utils.json import json_dumps
 
 
 class BedrockMetadata(TypedDict, total=False):
@@ -98,7 +98,7 @@ def default_bedrock_cleanup(span: Span, metadata: BedrockMetadata, buffers: list
             gen_ai_attributes.GEN_AI_SYSTEM: "bedrock",
             "index": idx,
             "finish_reason": choice.finish_reason or "none",
-            "message": json.dumps(msg),
+            "message": json_dumps(msg),
         }
         span.add_event("gen_ai.choice", attributes=event_attrs)
 
@@ -111,7 +111,7 @@ def set_bedrock_message_event(span: Span, message: dict[str, Any]) -> None:
     content_val = message.get("content")
     if isinstance(content_val, list | dict):
         try:
-            content_str = json.dumps(content_val)
+            content_str = json_dumps(content_val)
         except (TypeError, ValueError):
             content_str = str(content_val)
     elif isinstance(content_val, str):
