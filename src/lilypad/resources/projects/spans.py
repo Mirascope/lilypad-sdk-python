@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import List, Optional
 
 import httpx
 
@@ -21,7 +21,6 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.projects import span_update_tags_params, span_list_aggregates_params
-from ...types.span_more_details import SpanMoreDetails
 from ...types.projects.functions import TimeFrame
 from ...types.projects.functions.time_frame import TimeFrame
 from ...types.projects.functions.span_public import SpanPublic
@@ -49,42 +48,6 @@ class SpansResource(SyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return SpansResourceWithStreamingResponse(self)
-
-    def get_span_by_span_id(
-        self,
-        span_id: str,
-        *,
-        project_uuid: str,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanMoreDetails:
-        """
-        Get span by project_uuid and span_id.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not span_id:
-            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
-        return self._get(
-            f"/projects/{project_uuid}/spans/{span_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanMoreDetails,
-        )
 
     def list_aggregates(
         self,
@@ -130,7 +93,8 @@ class SpansResource(SyncAPIResource):
         self,
         span_uuid: str,
         *,
-        tags: Optional[Iterable[span_update_tags_params.Tag]] | NotGiven = NOT_GIVEN,
+        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -154,7 +118,13 @@ class SpansResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return self._patch(
             f"/spans/{span_uuid}",
-            body=maybe_transform({"tags": tags}, span_update_tags_params.SpanUpdateTagsParams),
+            body=maybe_transform(
+                {
+                    "tags_by_name": tags_by_name,
+                    "tags_by_uuid": tags_by_uuid,
+                },
+                span_update_tags_params.SpanUpdateTagsParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -181,42 +151,6 @@ class AsyncSpansResource(AsyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return AsyncSpansResourceWithStreamingResponse(self)
-
-    async def get_span_by_span_id(
-        self,
-        span_id: str,
-        *,
-        project_uuid: str,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanMoreDetails:
-        """
-        Get span by project_uuid and span_id.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not span_id:
-            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
-        return await self._get(
-            f"/projects/{project_uuid}/spans/{span_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanMoreDetails,
-        )
 
     async def list_aggregates(
         self,
@@ -264,7 +198,8 @@ class AsyncSpansResource(AsyncAPIResource):
         self,
         span_uuid: str,
         *,
-        tags: Optional[Iterable[span_update_tags_params.Tag]] | NotGiven = NOT_GIVEN,
+        tags_by_name: Optional[List[str]] | NotGiven = NOT_GIVEN,
+        tags_by_uuid: Optional[List[str]] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -288,7 +223,13 @@ class AsyncSpansResource(AsyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
         return await self._patch(
             f"/spans/{span_uuid}",
-            body=await async_maybe_transform({"tags": tags}, span_update_tags_params.SpanUpdateTagsParams),
+            body=await async_maybe_transform(
+                {
+                    "tags_by_name": tags_by_name,
+                    "tags_by_uuid": tags_by_uuid,
+                },
+                span_update_tags_params.SpanUpdateTagsParams,
+            ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -300,9 +241,6 @@ class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.get_span_by_span_id = to_raw_response_wrapper(
-            spans.get_span_by_span_id,
-        )
         self.list_aggregates = to_raw_response_wrapper(
             spans.list_aggregates,
         )
@@ -315,9 +253,6 @@ class AsyncSpansResourceWithRawResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.get_span_by_span_id = async_to_raw_response_wrapper(
-            spans.get_span_by_span_id,
-        )
         self.list_aggregates = async_to_raw_response_wrapper(
             spans.list_aggregates,
         )
@@ -330,9 +265,6 @@ class SpansResourceWithStreamingResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.get_span_by_span_id = to_streamed_response_wrapper(
-            spans.get_span_by_span_id,
-        )
         self.list_aggregates = to_streamed_response_wrapper(
             spans.list_aggregates,
         )
@@ -345,9 +277,6 @@ class AsyncSpansResourceWithStreamingResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.get_span_by_span_id = async_to_streamed_response_wrapper(
-            spans.get_span_by_span_id,
-        )
         self.list_aggregates = async_to_streamed_response_wrapper(
             spans.list_aggregates,
         )

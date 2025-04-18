@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import ast
 import sys
 import site
@@ -51,7 +52,8 @@ def get_qualified_name(fn: Callable) -> str:
 def _is_third_party(module: ModuleType, site_packages: set[str]) -> bool:
     module_file = getattr(module, "__file__", None)
     return (
-        module.__name__ == "lilypad"  # always consider lilypad as third-party
+        module.__name__ == "lilypad"  # always consider lilypad-sdk as third-party
+        or module.__name__.startswith("lilypad.")
         or module.__name__ in sys.stdlib_module_names
         or module_file is None
         or any(str(Path(module_file).resolve()).startswith(site_pkg) for site_pkg in site_packages)
@@ -138,6 +140,9 @@ def _clean_source_code(
       4. Convert multi-line strings to triple-quoted strings.
     """
     source = dedent(inspect.getsource(fn))
+    docstr_flag = os.getenv("LILYPAD_VERSIONING_INCLUDE_DOCSTRINGS", "true").lower()
+    if docstr_flag not in ("0", "false", "no"):
+        return source.rstrip()
     module = cst.parse_module(source)
 
     transformer = _RemoveDocstringTransformer(exclude_fn_body=exclude_fn_body)
@@ -323,6 +328,13 @@ class _DefinitionCollector(ast.NodeVisitor):
         self.definitions_to_include: list[Callable[..., Any] | type] = []
         self.definitions_to_analyze: list[Callable[..., Any] | type] = []
         self.imports: set[str] = set()
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if node.id in self.used_names:
+            candidate = getattr(self.module, node.id, None)
+            if callable(candidate):
+                self.definitions_to_include.append(candidate)
+        self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         for decorator_node in node.decorator_list:

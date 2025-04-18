@@ -2,6 +2,7 @@
 
 import logging
 import importlib.util
+import os
 from secrets import token_bytes
 from collections.abc import Sequence
 
@@ -148,6 +149,7 @@ class _JSONSpanExporter(SpanExporter):
 
 
 def configure(
+    *,
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
