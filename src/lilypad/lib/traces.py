@@ -83,10 +83,8 @@ class _TraceBase(Generic[_T]):
             self._flush = True
 
     def _create_body(
-        self, project_id: str, span_uuid: str, annotation: Annotation | list[Annotation]
+        self, project_id: str, span_uuid: str, annotation: tuple[Annotation, ...]
     ) -> list[annotation_create_params.Body]:
-        if not isinstance(annotation, list):
-            annotation = [annotation]
         return [
             annotation_create_params.Body(
                 data=annotation.data,
@@ -117,7 +115,7 @@ class Trace(_TraceBase[_T]):
                 return span["uuid"]
         return None
 
-    def annotate(self, annotation: Annotation | list[Annotation]) -> None:
+    def annotate(self, *annotation: Annotation) -> None:
         """
         Annotate the trace with the given annotation.
         """
@@ -126,7 +124,7 @@ class Trace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
-    def assign(self, email: str) -> None:
+    def assign(self, *email: str) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
 
@@ -135,8 +133,8 @@ class Trace(_TraceBase[_T]):
         lilypad_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
-                    assignee_email=email,
+                annotation_create_params.Body(
+                    assignee_email=list(email),
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
                     span_uuid=self._get_span_uuid(lilypad_client),
@@ -161,7 +159,7 @@ class AsyncTrace(_TraceBase[_T]):
                 return span["uuid"]
         return None
 
-    async def annotate(self, annotation: Annotation | list[Annotation]) -> None:
+    async def annotate(self, *annotation: Annotation) -> None:
         """
         Annotate the trace with the given annotation.
         """
@@ -170,7 +168,7 @@ class AsyncTrace(_TraceBase[_T]):
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
-    async def assign(self, email: str) -> None:
+    async def assign(self, *email: str) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
         async_client = AsyncLilypad(api_key=settings.api_key)
@@ -178,8 +176,8 @@ class AsyncTrace(_TraceBase[_T]):
         await async_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
             body=[
-                dict(
-                    assignee_email=email,
+                annotation_create_params.Body(
+                    assignee_email=list(email),
                     function_uuid=self.function_uuid,
                     project_uuid=settings.project_id,
                     span_uuid=await self._get_span_uuid(async_client),
