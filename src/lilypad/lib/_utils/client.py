@@ -10,7 +10,7 @@ from functools import lru_cache  # noqa: TID251
 from ..._client import Lilypad, AsyncLilypad
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=256)
 def _sync_singleton(api_key: str) -> Lilypad:  # noqa: D401
     """Return (or create) the process‑wide synchronous client.
 
@@ -39,7 +39,7 @@ def get_sync_client(api_key: str | None = None) -> Lilypad:  # noqa: D401
     return _sync_singleton(key)
 
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=256)
 def _async_singleton(api_key: str, loop_id: int) -> AsyncLilypad:  # noqa: D401
     """Return (or create) an asynchronous client bound to a specific loop.
 
