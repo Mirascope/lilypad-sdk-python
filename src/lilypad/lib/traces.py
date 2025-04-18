@@ -46,7 +46,8 @@ from ._utils.closure import get_closure
 from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
-from ._utils.function_cache import get_function_by_hash_sync, get_function_by_hash_async
+from ._utils.function_cache import get_function_by_hash_sync, get_function_by_hash_async, get_function_by_version_sync, \
+    get_function_by_version_async
 from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
@@ -728,10 +729,9 @@ def trace(
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
                 settings = get_settings()
-                async_lilypad_client = get_async_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
                 try:
-                    versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
+                    versioned_function = await get_function_by_version_async(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
@@ -914,11 +914,10 @@ def trace(
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
                 settings = get_settings()
-                lilypad_client = get_sync_client(api_key=settings.api_key)
                 function_name = get_qualified_name(fn)
 
                 try:
-                    versioned_function = lilypad_client.projects.functions.name.retrieve_by_version(
+                    versioned_function = get_function_by_version_sync(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
