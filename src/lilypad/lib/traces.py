@@ -46,6 +46,7 @@ from ._utils.closure import get_closure
 from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
+from ._utils.function_cache import get_function_by_hash_sync, get_function_by_hash_async
 from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
@@ -571,6 +572,8 @@ _SANDBOX_EXTRA_IMPORT = [
     "from contextlib import suppress",
 ]
 
+"""Cached helpers for FunctionPublic retrieval."""
+
 
 @overload
 def trace(name: str | None = None, *, versioning: None = None, mode: None = None) -> TraceDecorator: ...
@@ -671,7 +674,7 @@ def trace(
                                 closure = get_closure(fn)
 
                                 try:
-                                    function = await async_lilypad_client.projects.functions.retrieve_by_hash(
+                                    function = await get_function_by_hash_async(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
@@ -857,7 +860,7 @@ def trace(
                                 closure = get_closure(fn)
 
                                 try:
-                                    function = lilypad_client.projects.functions.retrieve_by_hash(
+                                    function = get_function_by_hash_sync(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
