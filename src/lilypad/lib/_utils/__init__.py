@@ -1,11 +1,11 @@
 """Utilities for the `lilypad` module."""
 
+from .json import json_dumps, fast_jsonable
 from .config import load_config
 from .closure import Closure, DependencyInfo, get_qualified_name
 from .functions import (
     ArgTypes,
     ArgValues,
-    jsonable_encoder,
     inspect_arguments,
 )
 from .middleware import encode_gemini_part, create_mirascope_middleware
@@ -20,7 +20,9 @@ __all__ = [
     "DependencyInfo",
     "create_mirascope_middleware",
     "encode_gemini_part",
+    "fast_jsonable",
     "get_qualified_name",
     "inspect_arguments",
+    "json_dumps",
     "load_config",
 ]
