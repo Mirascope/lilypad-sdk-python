@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, Tuple
 from functools import lru_cache  # noqa: TID251
 
 from lilypad.lib._utils.client import get_sync_client, get_async_client
@@ -11,7 +10,7 @@ from lilypad.types.projects.functions import FunctionPublic
 
 _HASH_SYNC_MAX = 2_048
 _hash_async_lock = asyncio.Lock()
-_hash_async_cache: Dict[Tuple[str, str], FunctionPublic] = {}
+_hash_async_cache: dict[tuple[str, str], FunctionPublic] = {}
 
 
 @lru_cache(maxsize=_HASH_SYNC_MAX)
@@ -45,7 +44,7 @@ async def get_function_by_hash_async(project_uuid: str, function_hash: str) -> F
 
 _VERSION_SYNC_MAX = 2_048
 _version_async_lock = asyncio.Lock()
-_version_async_cache: Dict[Tuple[str, str, int], FunctionPublic] = {}
+_version_async_cache: dict[tuple[str, str, int], FunctionPublic] = {}
 
 
 @lru_cache(maxsize=_VERSION_SYNC_MAX)
