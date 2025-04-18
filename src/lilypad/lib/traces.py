@@ -718,11 +718,6 @@ def trace(
                 finally:
                     if token:
                         _trace_nesting_level.reset(token)
-                    if is_outermost:
-                        processor = _get_batch_span_processor()
-                        if processor:
-                            with suppress(Exception):
-                                processor.force_flush(timeout_millis=5000)
 
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
@@ -907,11 +902,6 @@ def trace(
                 finally:
                     if token:
                         _trace_nesting_level.reset(token)
-                    if is_outermost:
-                        processor = _get_batch_span_processor()
-                        if processor:
-                            with suppress(Exception):
-                                processor.force_flush(timeout_millis=5000)
 
                 if mode == "wrap":
                     return Trace(response=output, span_id=span_id, function_uuid=function_uuid)
