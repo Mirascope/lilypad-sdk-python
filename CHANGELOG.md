@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-alpha.25 (2025-04-18)
+
+Full Changelog: [v0.1.0-alpha.24...v0.1.0-alpha.25](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.24...v0.1.0-alpha.25)
+
+### Features
+
+* feat: change list args to *args ([86de6d3](https://github.com/Mirascope/lilypad-sdk-python/commit/86de6d3d84f44460911838a04718867a5743014e))
+* feat: fix lint ([bf11a48](https://github.com/Mirascope/lilypad-sdk-python/commit/bf11a484dbef98125e8475538ef5267498da5777))
+* feat: support multiple email ([138d1a9](https://github.com/Mirascope/lilypad-sdk-python/commit/138d1a974c4b965ae0ba599c5997ba790d5ed03d))
+
 ## 0.1.0-alpha.24 (2025-04-18)
 
 Full Changelog: [v0.1.0-alpha.23...v0.1.0-alpha.24](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.23...v0.1.0-alpha.24)
