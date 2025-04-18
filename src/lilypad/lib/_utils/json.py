@@ -352,7 +352,7 @@ def json_dumps(obj: Any) -> str:
 def _to_json_serializable(obj: Any) -> Any:
     """Convert Python objects to JSON serializable format."""
     if isinstance(obj, BaseModel):
-        return obj.model_dump(mode="python")
+        return obj.model_dump(mode="python", warnings=False)
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         return dataclasses.asdict(obj)
     if isinstance(obj, Enum):
