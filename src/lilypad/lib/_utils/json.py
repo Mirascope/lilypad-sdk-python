@@ -22,7 +22,6 @@ from ipaddress import (
 from collections import deque, defaultdict
 from collections.abc import Callable
 
-from orjson import orjson
 from pydantic import BaseModel
 
 _P = ParamSpec("_P")

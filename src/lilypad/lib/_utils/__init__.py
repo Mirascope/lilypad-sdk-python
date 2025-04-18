@@ -22,6 +22,5 @@ __all__ = [
     "encode_gemini_part",
     "get_qualified_name",
     "inspect_arguments",
-    "jsonable_encoder",
     "load_config",
 ]
