@@ -1,4 +1,3 @@
-import json
 import base64
 from io import BytesIO
 from typing import Any
@@ -8,6 +7,8 @@ import PIL.WebPImagePlugin
 from opentelemetry.trace import Span
 from opentelemetry.util.types import AttributeValue
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+
+from lilypad.lib._utils.json import json_dumps
 
 
 def get_llm_request_attributes(kwargs: dict[str, Any], instance: Any) -> dict[str, AttributeValue]:
@@ -80,9 +81,9 @@ def set_content_event(span: Span, content: Any) -> None:
                 )
             else:
                 content.append(part)
-        attributes["content"] = json.dumps(content)
+        attributes["content"] = json_dumps(content)
     elif role == "model" and (tool_calls := get_tool_calls(parts)):
-        attributes["tool_calls"] = json.dumps(tool_calls)
+        attributes["tool_calls"] = json_dumps(tool_calls)
     # TODO: Convert to using Otel Events API
     span.add_event(
         f"gen_ai.{role}.message",
@@ -100,7 +101,7 @@ def get_candidate_event(candidate: Any) -> dict[str, AttributeValue]:
             message_dict["content"] = [part.text for part in parts]
         if tool_calls := get_tool_calls(parts):
             message_dict["tool_calls"] = tool_calls
-        attributes["message"] = json.dumps(message_dict)
+        attributes["message"] = json_dumps(message_dict)
         attributes["index"] = candidate.index or 0
         attributes["finish_reason"] = candidate.finish_reason.value if candidate.finish_reason is not None else "none"
     return attributes

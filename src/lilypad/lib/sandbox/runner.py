@@ -1,10 +1,11 @@
 """This module contains the SandboxRunner abstract base class."""
 
-import json
 import inspect
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar, cast
 from typing_extensions import TypedDict
+
+import orjson
 
 from .._utils import Closure
 
@@ -54,10 +55,10 @@ class SandboxRunner(ABC):
         return any(line.strip() for line in lines if line.strip().startswith("async def "))
 
     @classmethod
-    def parse_execution_result(cls, stdout: str, stderr: str, returncode: int) -> Result:
+    def parse_execution_result(cls, stdout: bytes, stderr: bytes, returncode: int) -> Result:
         """Parse the execution result from stdout, stderr, and return code."""
         try:
-            data = json.loads(stdout.strip())
+            data = orjson.loads(stdout.strip())
 
             if returncode == 0:
                 return cast(Result, data)
@@ -72,14 +73,14 @@ class SandboxRunner(ABC):
                         module_name=data.get("module_name"),
                         error_class=data.get("error_type"),
                     )
-        except json.JSONDecodeError:
+        except orjson.JSONDecodeError:
             pass
 
         if returncode != 0:
             error_message = f"Process exited with non-zero status.\nStdout: {stdout}\nStderr: {stderr}"
             raise RuntimeError(error_message)
 
-        return cast(Result, json.loads(stdout.strip()))
+        return cast(Result, orjson.loads(stdout.strip()))
 
     @classmethod
     def generate_script(

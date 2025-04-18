@@ -1,7 +1,6 @@
 """Docker sandbox runner."""
 
 import io
-import json
 import tarfile
 from typing import Any, cast
 from contextlib import suppress
@@ -79,10 +78,7 @@ class DockerSandboxRunner(SandboxRunner):
                 demux=True,
             )
 
-            stdout_str = stdout.decode("utf-8") if stdout else ""
-            stderr_str = stderr.decode("utf-8") if stderr else ""
-
-            return self.parse_execution_result(stdout_str, stderr_str, exit_code)
+            return self.parse_execution_result(stdout or b"", stderr or b"", exit_code)
         finally:
             if container:
                 with suppress(Exception):

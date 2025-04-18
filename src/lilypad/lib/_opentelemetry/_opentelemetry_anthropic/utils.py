@@ -1,4 +1,3 @@
-import json
 from typing import Any, TypedDict
 
 from opentelemetry.trace import Span
@@ -6,6 +5,7 @@ from opentelemetry.util.types import AttributeValue
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
 
 from .._utils import ChoiceBuffer, set_server_address_and_port
+from ..._utils.json import json_dumps
 
 
 class AnthropicMetadata(TypedDict, total=False):
@@ -92,7 +92,7 @@ def default_anthropic_cleanup(span: Span, metadata: AnthropicMetadata, buffers: 
             gen_ai_attributes.GEN_AI_SYSTEM: gen_ai_attributes.GenAiSystemValues.ANTHROPIC.value,
             "index": idx,
             "finish_reason": choice.finish_reason or "none",
-            "message": json.dumps(message),
+            "message": json_dumps(message),
         }
         span.add_event("gen_ai.choice", attributes=event_attributes)
 
@@ -154,10 +154,10 @@ def set_message_event(span: Span, message: Any) -> None:
     role = message.get("role")
     if content := message.get("content"):
         if not isinstance(content, str):
-            content = json.dumps(content)
+            content = json_dumps(content)
         attributes["content"] = content
     elif role == "assistant" and (tool_calls := get_tool_calls(message)):
-        attributes["tool_calls"] = json.dumps(tool_calls)
+        attributes["tool_calls"] = json_dumps(tool_calls)
     # TODO: Convert to using Otel Events API
     span.add_event(
         f"gen_ai.{role}.message",
@@ -176,7 +176,7 @@ def get_message_event(message: Any) -> dict[str, AttributeValue]:
     if tool_calls := get_tool_call(message):
         message_dict["tool_calls"] = tool_calls
 
-    attributes["message"] = json.dumps(message_dict)
+    attributes["message"] = json_dumps(message_dict)
     return attributes
 
 

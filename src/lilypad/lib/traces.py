@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import json
 import inspect
 import threading
 from types import MappingProxyType
@@ -21,6 +20,7 @@ from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
+import orjson
 from pydantic import BaseModel
 from cachetools.func import lru_cache
 from opentelemetry.trace import format_span_id, get_tracer_provider
@@ -545,8 +545,8 @@ def _construct_trace_attributes(
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {
-        "lilypad.trace.arg_types": json.dumps(arg_types),
-        "lilypad.trace.arg_values": json.dumps(jsonable_arg_values),
+        "lilypad.trace.arg_types": str(orjson.dumps(arg_types)),
+        "lilypad.trace.arg_values": str(orjson.dumps(jsonable_arg_values)),
     }
 
 

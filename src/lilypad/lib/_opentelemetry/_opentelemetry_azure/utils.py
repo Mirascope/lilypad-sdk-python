@@ -1,4 +1,3 @@
-import json
 from typing import Any, TypedDict
 
 from pydantic import BaseModel
@@ -10,6 +9,7 @@ from opentelemetry.semconv._incubating.attributes.gen_ai_attributes import (
 )
 
 from .._utils import ChoiceBuffer
+from ..._utils.json import json_dumps
 
 
 class AzureMetadata(TypedDict, total=False):
@@ -93,7 +93,7 @@ def default_azure_cleanup(span: Span, metadata: AzureMetadata, buffers: list[Cho
             gen_ai_attributes.GEN_AI_SYSTEM: GenAiSystemValues.AZ_AI_INFERENCE.value,
             "index": idx,
             "finish_reason": choice.finish_reason.value if choice.finish_reason else "none",
-            "message": json.dumps(message),
+            "message": json_dumps(message),
         }
         span.add_event("gen_ai.choice", attributes=event_attributes)
 
@@ -134,10 +134,10 @@ def set_message_event(span: Span, message: dict) -> None:
     role = message.get("role", "")
     if content := message.get("content"):
         if not isinstance(content, str):
-            content = json.dumps(content)
+            content = json_dumps(content)
         attributes["content"] = content
     elif role == "assistant" and (tool_calls := get_tool_calls(message)):
-        attributes["tool_calls"] = json.dumps(tool_calls)
+        attributes["tool_calls"] = json_dumps(tool_calls)
     elif role == "tool" and (tool_call_id := message.get("tool_call_id")):
         attributes["id"] = tool_call_id
     # TODO: Convert to using Otel Events API
@@ -161,7 +161,7 @@ def get_choice_event(choice: Any) -> dict[str, AttributeValue]:
         if tool_calls := get_tool_calls(message):
             message_dict["tool_calls"] = tool_calls
 
-        attributes["message"] = json.dumps(message_dict)
+        attributes["message"] = json_dumps(message_dict)
         attributes["index"] = choice.index
         attributes["finish_reason"] = choice.finish_reason.value if choice.finish_reason else "none"
     return attributes

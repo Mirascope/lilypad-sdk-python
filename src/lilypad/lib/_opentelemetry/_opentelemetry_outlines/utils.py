@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import inspect
 from typing import Any, ParamSpec, cast
 from collections.abc import Callable
@@ -10,6 +9,8 @@ from collections.abc import Callable
 from pydantic import BaseModel
 from opentelemetry.trace import Span
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
+
+from lilypad.lib._utils.json import json_dumps
 
 P = ParamSpec("P")
 
@@ -47,7 +48,7 @@ def record_stop_sequences(span: Span, stop_at: str | list[str] | None) -> None:
         return
     stops = stop_at if isinstance(stop_at, list) else [stop_at]
     # stops is now list[str]
-    span.set_attribute("outlines.request.stop_sequences", json.dumps(stops))
+    span.set_attribute("outlines.request.stop_sequences", json_dumps(stops))
 
 
 def set_choice_event(span: Span, result: Any) -> None:

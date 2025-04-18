@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import base64
 import logging
 from io import BytesIO
@@ -19,6 +18,7 @@ from opentelemetry.util.types import AttributeValue
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
 from . import jsonable_encoder
+from .json import json_dumps
 from .settings import get_settings
 from .functions import ArgTypes, ArgValues
 
@@ -100,15 +100,15 @@ def _get_custom_context_manager(
                 attributes["lilypad.function.name"] = fn.__name__
                 attributes["lilypad.function.signature"] = function.signature
                 attributes["lilypad.function.code"] = function.code
-                attributes["lilypad.function.arg_types"] = json.dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = json.dumps(jsonable_arg_values)
+                attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
+                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
                 attributes["lilypad.function.prompt_template"] = prompt_template or ""
                 attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             else:
                 attribute_type = "trace"
             attributes["lilypad.type"] = attribute_type
-            attributes[f"lilypad.{attribute_type}.arg_types"] = json.dumps(arg_types)
-            attributes[f"lilypad.{attribute_type}.arg_values"] = json.dumps(jsonable_arg_values)
+            attributes[f"lilypad.{attribute_type}.arg_types"] = json_dumps(arg_types)
+            attributes[f"lilypad.{attribute_type}.arg_values"] = json_dumps(jsonable_arg_values)
             attributes[f"lilypad.{attribute_type}.prompt_template"] = prompt_template or ""
             filtered_attributes = {k: v for k, v in attributes.items() if v is not None}
             _current_span.set_attributes(filtered_attributes)
@@ -162,16 +162,16 @@ def _serialize_proto_data(data: list[dict]) -> str:
             serialized_item["parts"] = [encode_gemini_part(part) for part in item["parts"]]
         serializable_data.append(serialized_item)
 
-    return json.dumps(serializable_data)
+    return json_dumps(serializable_data)
 
 
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
-        output = json.dumps(jsonable_encoder(response.message_param))
+        output = json_dumps(jsonable_encoder(response.message_param))
     except TypeError:
         output = str(response.message_param)
     try:
-        messages = json.dumps(jsonable_encoder(response.messages))
+        messages = json_dumps(jsonable_encoder(response.messages))
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
     attributes: dict[str, AttributeValue] = {
@@ -188,7 +188,7 @@ def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, 
         if (_response := getattr(result, "_response", None)) and (
             _response_messages := getattr(_response, "messages", None)
         ):
-            messages = json.dumps(jsonable_encoder(_response_messages))
+            messages = json_dumps(jsonable_encoder(_response_messages))
         else:
             messages = None
     else:
@@ -203,6 +203,7 @@ def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, 
     if messages:
         attributes[f"lilypad.{trace_type}.messages"] = messages
     span.set_attributes(attributes)
+
 
 class _Handlers:
     def __init__(self, trace_type: str) -> None:
@@ -219,13 +220,11 @@ class _Handlers:
         call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
         _set_call_response_attributes(call_response, span, self.trace_type)
 
-
     def handle_response_model(self, result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
         if span is None:
             return
 
         _set_response_model_attributes(result, span, self.trace_type)
-
 
     def handle_structured_stream(self, result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
         if span is None:
@@ -233,13 +232,11 @@ class _Handlers:
 
         _set_response_model_attributes(result.constructed_response_model, span, self.trace_type)
 
-
     async def handle_call_response_async(self, result: mb.BaseCallResponse, fn: Callable, span: Span | None) -> None:
         if span is None:
             return
 
         _set_call_response_attributes(result, span, self.trace_type)
-
 
     async def handle_stream_async(self, stream: mb.BaseStream, fn: Callable, span: Span | None) -> None:
         if span is None:
@@ -247,14 +244,16 @@ class _Handlers:
         call_response = cast(mb.BaseCallResponse, stream.construct_call_response())
         _set_call_response_attributes(call_response, span, self.trace_type)
 
-
-    async def handle_response_model_async(self, result: BaseModel | mb.BaseType, fn: Callable, span: Span | None) -> None:
+    async def handle_response_model_async(
+        self, result: BaseModel | mb.BaseType, fn: Callable, span: Span | None
+    ) -> None:
         if span is None:
             return
         _set_response_model_attributes(result, span, self.trace_type)
 
-
-    async def handle_structured_stream_async(self, result: mb.BaseStructuredStream, fn: Callable, span: Span | None) -> None:
+    async def handle_structured_stream_async(
+        self, result: mb.BaseStructuredStream, fn: Callable, span: Span | None
+    ) -> None:
         if span is None:
             return
         _set_response_model_attributes(result.constructed_response_model, span, self.trace_type)
