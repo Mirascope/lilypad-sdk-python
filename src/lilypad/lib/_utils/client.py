@@ -51,7 +51,7 @@ def _async_singleton(api_key: str, loop_id: int) -> AsyncLilypad:  # noqa: D401
     loop = asyncio.get_running_loop()
     client = AsyncLilypad(api_key=api_key)
     # Ensure the client is closed when the loop is closed.
-    weakref.finalize(loop, _async_singleton.cache_pop, (api_key, loop_id))
+    weakref.finalize(loop, _async_singleton.cache.pop, (api_key, loop_id), None)
     return client
 
 
