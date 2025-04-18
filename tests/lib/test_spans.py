@@ -119,7 +119,7 @@ def test_basic_sync_span() -> None:
     assert any("hello" in event[1].get(f"{event[0]}.message", "") for event in info_events)
     assert any("debug message" in event[1].get(f"{event[0]}.message", "") for event in debug_events)
     custom_value = dummy.attributes.get("custom")
-    assert custom_value == json.dumps({"nested": [1, 2, 3]})
+    assert custom_value == '{"nested":[1,2,3]}'
     s.finish()
     assert dummy.ended is True
 

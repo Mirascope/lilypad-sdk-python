@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import threading
 from time import time
-from typing import Any, Awaitable
+from typing import Any, Final, Generic, TypeVar, Callable, Awaitable, OrderedDict
 from functools import lru_cache  # noqa: TID251
 from collections.abc import Coroutine
 
@@ -168,18 +168,48 @@ async def get_deployed_function_async(
         return fn
 
 
-@lru_cache(maxsize=256)
+_T = TypeVar("_T")
+
+
+class _LRU(OrderedDict[str, _T], Generic[_T]):  # noqa: D101
+    __slots__: tuple[str, ...] = ("_lock", "_max")
+
+    def __init__(self, maxsize: int) -> None:  # noqa: D401
+        super().__init__()
+        self._lock = threading.Lock()
+        self._max = maxsize
+
+    def get_or_create(self, key: str, factory: Callable[..., _T]) -> _T:
+        with self._lock:
+            try:
+                self.move_to_end(key)
+                return self[key]
+            except KeyError:
+                value = factory()
+                self[key] = value
+                if len(self) > self._max:
+                    self.popitem(last=False)  # evict least‑recent
+                return value
+
+
+_MAX_ENTRIES: Final[int] = 256
+_CLOSURE_CACHE: Final[_LRU[Closure]] = _LRU(_MAX_ENTRIES)
+
+
 def get_cached_closure(function: FunctionPublic) -> Closure:
-    """Get a closure that returns the cached function."""
-    return Closure(
-        name=function.name,
-        code=function.code,
-        signature=function.signature,
-        hash=function.hash,
-        dependencies={k: v.model_dump(mode="python") for k, v in function.dependencies.items()}
-        if function.dependencies is not None
-        else {},
-    )
+    """Return a `Closure` for *function*, caching by its UUID."""
+    key = str(function.uuid)
+
+    def _build() -> Closure:
+        return Closure(
+            name=function.name,
+            code=function.code,
+            signature=function.signature,
+            hash=function.hash,
+            dependencies={k: v.model_dump(mode="python") for k, v in (function.dependencies or {}).items()},
+        )
+
+    return _CLOSURE_CACHE.get_or_create(key, _build)
 
 
 __all__ = [

@@ -96,7 +96,7 @@ def test_serialize_proto_data_without_parts():
     """Test _serialize_proto_data with data that has no 'parts' key."""
     data = [{"key": "value"}]
     output = _serialize_proto_data(data)
-    assert output == json.dumps(data)
+    assert output == '[{"key":"value"}]'
 
 
 # Test assumes encode_gemini_part handles bytes correctly within _serialize_proto_data
@@ -131,7 +131,7 @@ def test_set_call_response_attributes_serializable():
     response.message_param = {"role": "assistant", "content": "value"}
     response.messages = [{"role": "user", "content": "hello"}]
     span = MagicMock(spec=Span)
-    with patch("lilypad.lib._utils.middleware.jsonable_encoder", side_effect=lambda x: x):
+    with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x):
         _set_call_response_attributes(response, span, "trace")
         expected_output = json.dumps(response.message_param)
         expected_messages = json.dumps(response.messages)
@@ -151,9 +151,9 @@ def test_set_call_response_attributes_needs_serialization():
     serialized_messages = '[{"role":"user", "parts": ["serialized_msg"]}]'
 
     with (
-        patch("lilypad.lib._utils.middleware.jsonable_encoder", side_effect=TypeError),
+        patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=TypeError),
         patch(
-            "lilypad.lib._utils.middleware._serialize_proto_data", return_value=serialized_messages
+            "lilypad.lib._utils.json._serialize_proto_data", return_value=serialized_messages
         ) as mock_proto_serializer,
     ):
         _set_call_response_attributes(response, span, "trace")
@@ -174,7 +174,7 @@ def test_set_response_model_attributes_base_model_with_messages():
     result._response = MagicMock(spec=mb.BaseCallResponse)
     result._response.messages = [{"role": "user", "parts": ["hello"]}]
     span = MagicMock(spec=Span)
-    with patch("lilypad.lib._utils.middleware.jsonable_encoder", side_effect=lambda x: x) as mock_encoder:
+    with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x) as mock_encoder:
         _set_response_model_attributes(result, span, "trace")
         expected_attributes = {
             "lilypad.trace.output": '{"key": "value"}',
