@@ -1,5 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+from typing import Optional
 from datetime import datetime
 from typing_extensions import Literal
 
@@ -18,7 +19,7 @@ class OrganizationGetLicenseResponse(BaseModel):
 
     license_id: str
 
-    organization_uuid: str
+    organization_uuid: Optional[str] = None
 
     tier: Literal[0, 1, 2, 3]
     """License tier enum."""
