@@ -538,7 +538,9 @@ def _set_span_attributes(
     result_holder = _ResultHolder()
     yield result_holder
     original_output = result_holder.result
-    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", "" if original_output is None else fast_jsonable(original_output) )
+    span.opentelemetry_span.set_attribute(
+        f"lilypad.{trace_type}.output", "" if original_output is None else fast_jsonable(original_output)
+    )
 
 
 def _construct_trace_attributes(
@@ -577,8 +579,6 @@ _SANDBOX_EXTRA_IMPORT = [
     "import logging",
     "from contextlib import suppress",
 ]
-
-"""Cached helpers for FunctionPublic retrieval."""
 
 
 @overload
