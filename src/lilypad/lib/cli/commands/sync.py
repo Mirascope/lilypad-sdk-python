@@ -27,7 +27,7 @@ from ...traces import (
     disable_recording,
     get_decorated_functions,
 )
-from ..._utils.closure import _run_ruff, get_closure
+from ..._utils.closure import Closure, _run_ruff
 
 app = typer.Typer()
 console = Console()
@@ -429,7 +429,7 @@ def sync_command(
         except Exception as e:
             print(f"[red]Error retrieving function {function_name} from {module_name}: {e}[/red]")
             continue
-        closure = get_closure(fn)
+        closure = Closure.from_fn(fn)
         try:
             with console.status(f"Fetching versions for [bold]{function_name}[/bold]..."):
                 raw_response = client.projects.functions.name.retrieve_by_name(

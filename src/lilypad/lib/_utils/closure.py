@@ -804,13 +804,4 @@ class Closure(BaseModel):
         )
 
 
-def get_closure(fn: Callable) -> Closure:
-    try:
-        return fn.__lilypad_closure__
-    except AttributeError:
-        closure = Closure.from_fn(fn)
-        fn.__lilypad_closure__ = closure
-        return closure
-
-
 __all__ = ["Closure"]

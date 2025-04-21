@@ -42,7 +42,6 @@ from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundE
 from ._utils.json import json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
 from ._utils.client import get_sync_client, get_async_client
-from ._utils.closure import get_closure
 from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
@@ -636,7 +635,7 @@ def trace(
         )
 
         if _RECORDING_ENABLED and versioning == "automatic":
-            _register_decorated_function(TRACE_MODULE_NAME, fn, get_closure(fn).name, {"mode": mode})
+            _register_decorated_function(TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode})
 
         settings = get_settings()
 
@@ -678,7 +677,7 @@ def trace(
                             )
                             async_lilypad_client = get_async_client(api_key=settings.api_key)
                             if versioning == "automatic":
-                                closure = get_closure(fn)
+                                closure = Closure.from_fn(fn)
 
                                 try:
                                     function = await get_function_by_hash_async(
@@ -846,7 +845,7 @@ def trace(
                             lilypad_client = get_sync_client(api_key=settings.api_key)
 
                             if versioning == "automatic":
-                                closure = get_closure(fn)
+                                closure = Closure.from_fn(fn)
 
                                 try:
                                     function = get_function_by_hash_sync(
