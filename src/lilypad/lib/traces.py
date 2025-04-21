@@ -676,15 +676,17 @@ def trace(
                                 arg_values=arg_values,
                             )
                             async_lilypad_client = get_async_client(api_key=settings.api_key)
-                            if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
 
+                            closure = Closure.from_fn(fn)
+
+                            @call_safely(fn)
+                            async def get_or_create_function_async() -> FunctionPublic | None:
                                 try:
-                                    function = await get_function_by_hash_async(
+                                    return await get_function_by_hash_async(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
-                                    function = await async_lilypad_client.projects.functions.create(
+                                    return await async_lilypad_client.projects.functions.create(
                                         path_project_uuid=settings.project_id,
                                         code=closure.code,
                                         hash=closure.hash,
@@ -695,10 +697,14 @@ def trace(
                                         is_versioned=True,
                                         prompt_template=prompt_template,
                                     )
-                                function_uuid = function.uuid
+
+                            if versioning == "automatic":
+                                function = await get_or_create_function_async()
                             else:
                                 function = None
-                                function_uuid = None
+
+                            function_uuid = function.uuid if function else None
+
                             if is_mirascope_call:
                                 decorator_inner = create_mirascope_middleware(
                                     function,
@@ -844,15 +850,16 @@ def trace(
                             )
                             lilypad_client = get_sync_client(api_key=settings.api_key)
 
-                            if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
+                            closure = Closure.from_fn(fn)
 
+                            @call_safely(fn)
+                            def get_or_create_function_sync() -> FunctionPublic | None:
                                 try:
-                                    function = get_function_by_hash_sync(
+                                    return get_function_by_hash_sync(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
-                                    function = lilypad_client.projects.functions.create(
+                                    return lilypad_client.projects.functions.create(
                                         path_project_uuid=settings.project_id,
                                         code=closure.code,
                                         hash=closure.hash,
@@ -863,10 +870,14 @@ def trace(
                                         is_versioned=True,
                                         prompt_template=prompt_template,
                                     )
-                                function_uuid = function.uuid
+
+                            if versioning == "automatic":
+                                function = get_or_create_function_sync()
                             else:
                                 function = None
-                                function_uuid = None
+
+                            function_uuid = function.uuid if function else None
+
                             if is_mirascope_call:
                                 decorator_inner = create_mirascope_middleware(
                                     function,
