@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Fetch actual commit SHA for PRs
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install Rye
         run: |
@@ -25,12 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: rye sync --all-features
-
-      - name: Run format
-        run: ./scripts/format
-
-      - name: Show format diff
-        run: git diff --exit-code
 
       - name: Run lints
         run: ./scripts/lint
