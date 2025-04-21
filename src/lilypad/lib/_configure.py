@@ -1,5 +1,5 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
-"for debug"
+
 import logging
 import importlib.util
 from secrets import token_bytes
