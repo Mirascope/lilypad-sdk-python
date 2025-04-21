@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.1.0-alpha.26 (2025-04-21)
+
+Full Changelog: [v0.1.0-alpha.25...v0.1.0-alpha.26](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.25...v0.1.0-alpha.26)
+
+### Features
+
+* **api:** update via SDK Studio ([44010c4](https://github.com/Mirascope/lilypad-sdk-python/commit/44010c46687784bc5cb842b9eeca9245bd77d5d4))
+* fix: debug ([ca179b5](https://github.com/Mirascope/lilypad-sdk-python/commit/ca179b5a9d073013fce0a285fed7ee398165dae4))
+* fix: dump json and use mirascope common messages ([99cb348](https://github.com/Mirascope/lilypad-sdk-python/commit/99cb34848d9fc9fb11a9e013754f7770f566f455))
+* fix: format ([b6d7f92](https://github.com/Mirascope/lilypad-sdk-python/commit/b6d7f926fc6dce3963b0c83556181f7702f067fa))
+
+
+### Bug Fixes
+
+* change span attribute to trace ([f622949](https://github.com/Mirascope/lilypad-sdk-python/commit/f62294901b81d6461aed2a9a9e9913369c8d31ff))
+* debug ([2aaf874](https://github.com/Mirascope/lilypad-sdk-python/commit/2aaf87420c8de46d0347da4cca87db318983babc))
+* debug ([08abd67](https://github.com/Mirascope/lilypad-sdk-python/commit/08abd672e1ce6a2ff7b4aa8995bbd6ee9add9424))
+* format ([fbea1cd](https://github.com/Mirascope/lilypad-sdk-python/commit/fbea1cdfcd1de1554599c87d50a3ca148758ce9d))
+* format ([30df8d3](https://github.com/Mirascope/lilypad-sdk-python/commit/30df8d32811ef21ac1db0aea837911cd14a16614))
+
+
+### Chores
+
+* **internal:** update models test ([4d8be22](https://github.com/Mirascope/lilypad-sdk-python/commit/4d8be22b7d8823413894c535131814239555145f))
+
 ## 0.1.0-alpha.25 (2025-04-18)
 
 Full Changelog: [v0.1.0-alpha.24...v0.1.0-alpha.25](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.24...v0.1.0-alpha.25)
