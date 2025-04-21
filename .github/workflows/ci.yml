@@ -26,6 +26,12 @@ jobs:
       - name: Install dependencies
         run: rye sync --all-features
 
+      - name: Run format
+        run: ./scripts/format
+
+      - name: Show format diff
+        run: git diff --exit-code
+
       - name: Run lints
         run: ./scripts/lint
 
