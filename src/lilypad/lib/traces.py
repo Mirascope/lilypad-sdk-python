@@ -142,6 +142,18 @@ class Trace(_TraceBase[_T]):
             ],
         )
 
+    def tag(self, *tags: str) -> None:
+        """
+        Annotate the trace with the given tags.
+        """
+        if not tags:
+            return None
+        tag_list = list(tags)
+        settings = get_settings()
+        client = Lilypad(api_key=settings.api_key)
+        span_uuid = self._get_span_uuid(client)
+        client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
+
 
 class AsyncTrace(_TraceBase[_T]):
     """
@@ -184,6 +196,18 @@ class AsyncTrace(_TraceBase[_T]):
                 )
             ],
         )
+
+    async def tag(self, *tags: str) -> None:
+        """
+        Annotate the trace with the given tags.
+        """
+        if not tags:
+            return None
+        tag_list = list(tags)
+        settings = get_settings()
+        client = AsyncLilypad(api_key=settings.api_key)
+        span_uuid = await self._get_span_uuid(client)
+        await client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
 
 
 _trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
@@ -507,13 +531,19 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str, span: Span, span_attribute: _TraceAttribute, is_async: bool, function: FunctionPublic | None
+    trace_type: str,
+    span: Span,
+    span_attribute: _TraceAttribute,
+    is_async: bool,
+    function: FunctionPublic | None,
+    decorator_tags: list[str] | None = None,
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
+    span_attribute["lilypad.trace.tags"] = decorator_tags
     if function:
         function_uuid = function.uuid
         span_attribute[f"lilypad.{trace_type}.signature"] = function.signature
@@ -568,33 +598,59 @@ _SANDBOX_EXTRA_IMPORT = [
 
 
 @overload
-def trace(name: str | None = None, *, versioning: None = None, mode: None = None) -> TraceDecorator: ...
+def trace(
+    name: str | None = None,
+    *,
+    versioning: None = None,
+    mode: None = None,
+    tags: list[str] | None = None,
+) -> TraceDecorator: ...
 
 
 @overload
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"], mode: None = None
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"],
+    mode: None = None,
+    tags: list[str] | None = None,
 ) -> VersionedFunctionTraceDecorator: ...
 
 
 @overload
-def trace(name: str | None = None, *, versioning: None, mode: Literal["wrap"]) -> WrappedTraceDecorator: ...
+def trace(
+    name: str | None = None,
+    *,
+    versioning: None,
+    mode: Literal["wrap"],
+    tags: list[str] | None = None,
+) -> WrappedTraceDecorator: ...
 
 
 @overload
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"], mode: Literal["wrap"]
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"],
+    mode: Literal["wrap"],
+    tags: list[str] | None = None,
 ) -> WrappedVersionedFunctionTraceDecorator: ...
 
 
 def trace(
-    name: str | None = None, *, versioning: Literal["automatic"] | None = None, mode: Literal["wrap"] | None = None
+    name: str | None = None,
+    *,
+    versioning: Literal["automatic"] | None = None,
+    mode: Literal["wrap"] | None = None,
+    tags: list[str] | None = None,
 ) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
     The decorated function will trace and log automatically.
     If mode="wrap" is set, the function will return a Trace[_R] object with a 'response' property containing the original function's response and an 'annotate' method.
     """
+
+    decorator_tags = sorted(list(set(tags))) if tags else None
 
     @overload
     def decorator(
@@ -621,7 +677,7 @@ def trace(
             fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
         )
         if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode})
+            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode, "tags": decorator_tags})
 
         signature = inspect.signature(fn)
 
@@ -882,11 +938,17 @@ def trace(
                                     prompt_template,
                                     settings.project_id,
                                     current_span=span.opentelemetry_span,
+                                    decorator_tags=decorator_tags,
                                 )
                                 output = decorator_inner(fn)(*final_args, **final_kwargs)
                             else:
                                 with _set_span_attributes(
-                                    TRACE_TYPE, span, trace_attribute, is_async=False, function=function
+                                    TRACE_TYPE,
+                                    span,
+                                    trace_attribute,
+                                    is_async=False,
+                                    function=function,
+                                    decorator_tags=decorator_tags,
                                 ) as result_holder:
                                     output = fn(*final_args, **final_kwargs)
                                     result_holder.set_result(output)

@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Fetch actual commit SHA for PRs
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install Rye
         run: |
