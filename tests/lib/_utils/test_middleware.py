@@ -11,6 +11,7 @@ import pytest
 import PIL.Image
 import PIL.WebPImagePlugin
 from pydantic import BaseModel
+from mirascope import BaseMessageParam
 from opentelemetry.trace import Span, Status, SpanKind, StatusCode, SpanContext
 from mirascope.core.base._utils._base_type import BaseType as mb_BaseType
 
@@ -130,14 +131,17 @@ def test_set_call_response_attributes_serializable():
     response = MagicMock(spec=mb.BaseCallResponse)
     response.message_param = {"role": "assistant", "content": "value"}
     response.messages = [{"role": "user", "content": "hello"}]
+    response.common_messages = [{"role": "user", "content": "hello"}]
     span = MagicMock(spec=Span)
     with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x):
         _set_call_response_attributes(response, span, "trace")
         expected_output = '{"role":"assistant","content":"value"}'
         expected_messages = '[{"role":"user","content":"hello"}]'
+        expected_common_messages = '[{"role":"user","content":"hello"}]'
         expected_attributes = {
             "lilypad.trace.output": expected_output,
             "lilypad.trace.messages": expected_messages,
+            "lilypad.trace.common_messages": expected_common_messages,
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
 
@@ -147,6 +151,7 @@ def test_set_call_response_attributes_needs_serialization():
     response = MagicMock(spec=mb.BaseCallResponse)
     response.message_param = MagicMock()
     response.messages = [MagicMock()]
+    response.common_messages = [BaseMessageParam(role="user", content="hello")]
     span = MagicMock(spec=Span)
     serialized_messages = '[{"role":"user", "parts": ["serialized_msg"]}]'
 
@@ -161,6 +166,7 @@ def test_set_call_response_attributes_needs_serialization():
             # Production code falls back to str() for message_param on TypeError
             "lilypad.trace.output": str(response.message_param),
             "lilypad.trace.messages": serialized_messages,
+            "lilypad.trace.common_messages": '[{"role":"user","content":"hello"}]',
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
         # Ensure _serialize_proto_data was called ONLY for messages
@@ -554,6 +560,7 @@ def test_create_mirascope_middleware():
             prompt_template,
             project_uuid,
             mock_span_context_holder,
+            None,
             None,
         )
 

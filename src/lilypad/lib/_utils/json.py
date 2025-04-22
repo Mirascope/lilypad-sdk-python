@@ -351,14 +351,26 @@ def json_dumps(obj: Any) -> str:
 
 def _to_json_serializable(obj: Any) -> Any:
     """Convert Python objects to JSON serializable format."""
+    if isinstance(obj, _PRIMITIVES):  # For fast return
+        return obj
     if isinstance(obj, BaseModel):
         return obj.model_dump(mode="python", warnings=False)
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
         return dataclasses.asdict(obj)
     if isinstance(obj, Enum):
         return obj.value
-    if isinstance(obj, PurePath):
+    if isinstance(obj, Decimal):
+        return decimal_encoder(obj)
+    if isinstance(obj, datetime.timedelta):  # ★ 追加
+        return obj.total_seconds()
+    if isinstance(
+        obj, (UUID, IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6Interface, IPv6Network, PurePath)
+    ):
         return str(obj)
+    if isinstance(obj, dict):
+        return {_to_json_serializable(key): _to_json_serializable(value) for key, value in obj.items()}
+    if isinstance(obj, list | tuple | set | frozenset | deque | GeneratorType):
+        return [_to_json_serializable(item) for item in obj]
     return obj
 
 

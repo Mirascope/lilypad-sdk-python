@@ -176,7 +176,7 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, tra
         messages = fast_jsonable(response.messages)
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
-    common_messages = json.dumps(jsonable_encoder(response.common_messages))
+    common_messages = fast_jsonable(response.common_messages)
     attributes: dict[str, AttributeValue] = {
         f"lilypad.{trace_type}.output": output,
         f"lilypad.{trace_type}.messages": messages,

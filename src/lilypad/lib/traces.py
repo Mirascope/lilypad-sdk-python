@@ -691,7 +691,9 @@ def trace(
         )
 
         if _RECORDING_ENABLED and versioning == "automatic":
-            _register_decorated_function(TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode, "tags": decorator_tags})
+            _register_decorated_function(
+                TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode, "tags": decorator_tags}
+            )
 
         settings = get_settings()
 
