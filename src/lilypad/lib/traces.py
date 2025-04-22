@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import json
 import inspect
 import threading
 from types import MappingProxyType
@@ -17,10 +16,12 @@ from typing import (
     TypeAlias,
     overload,
 )
+from functools import lru_cache  # noqa: TID251
 from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
 
+import orjson
 from pydantic import BaseModel
 from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
@@ -31,7 +32,6 @@ from ._utils import (
     Closure,
     call_safely,
     fn_is_async,
-    jsonable_encoder,
     inspect_arguments,
     get_qualified_name,
     create_mirascope_middleware,
@@ -39,9 +39,21 @@ from ._utils import (
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
+from ._utils.json import json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
+from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
+from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
+from ._utils.function_cache import (
+    get_cached_closure,
+    get_function_by_hash_sync,
+    get_deployed_function_sync,
+    get_function_by_hash_async,
+    get_deployed_function_async,
+    get_function_by_version_sync,
+    get_function_by_version_async,
+)
 from ..types.projects.functions import FunctionPublic
 
 _P = ParamSpec("_P")
@@ -120,7 +132,7 @@ class Trace(_TraceBase[_T]):
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
-        lilypad_client = Lilypad(api_key=settings.api_key)
+        lilypad_client = get_sync_client(api_key=settings.api_key)
         body = self._create_body(settings.project_id, self._get_span_uuid(lilypad_client), annotation)
         lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
@@ -128,7 +140,7 @@ class Trace(_TraceBase[_T]):
         """Assign the trace to a user by email."""
         settings = get_settings()
 
-        lilypad_client = Lilypad(api_key=settings.api_key)
+        lilypad_client = get_sync_client(api_key=settings.api_key)
 
         lilypad_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
@@ -176,14 +188,14 @@ class AsyncTrace(_TraceBase[_T]):
         Annotate the trace with the given annotation.
         """
         settings = get_settings()
-        lilypad_client = AsyncLilypad(api_key=settings.api_key)
+        lilypad_client = get_async_client(api_key=settings.api_key)
         body = self._create_body(settings.project_id, await self._get_span_uuid(lilypad_client), annotation)
         await lilypad_client.ee.projects.annotations.create(project_uuid=settings.project_id, body=body)
 
     async def assign(self, *email: str) -> None:
         """Assign the trace to a user by email."""
         settings = get_settings()
-        async_client = AsyncLilypad(api_key=settings.api_key)
+        async_client = get_async_client(api_key=settings.api_key)
 
         await async_client.ee.projects.annotations.create(
             project_uuid=settings.project_id,
@@ -213,6 +225,7 @@ class AsyncTrace(_TraceBase[_T]):
 _trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
 
 
+@lru_cache(maxsize=1)
 def _get_batch_span_processor() -> BatchSpanProcessor | None:
     """Get the BatchSpanProcessor from the current TracerProvider.
 
@@ -293,14 +306,15 @@ DecoratorArgs: TypeAlias = dict[str, Any]
 FunctionInfo: TypeAlias = tuple[str, str, int, str, DecoratorArgs]
 
 
-def register_decorated_function(
-    decorator_name: str, fn: Callable[..., Any], context: dict[str, Any] | None = None
+def _register_decorated_function(
+    decorator_name: str, fn: Callable[..., Any], function_name: str, context: dict[str, Any] | None = None
 ) -> None:
     """Register a function that has been decorated.
 
     Args:
         decorator_name: The name of the decorator
         fn: The decorated function
+        function_name: The name of the function
         context: Optional context information to store with the function
     """
     if not _RECORDING_ENABLED:
@@ -311,8 +325,6 @@ def register_decorated_function(
         file_path: str = inspect.getfile(fn)
         abs_path: str = os.path.abspath(file_path)
         lineno: int = inspect.getsourcelines(fn)[1]
-        # Use Closure.from_fn to get the wrapped function name
-        function_name: str = Closure.from_fn(fn).name
         module_name: str = fn.__module__
 
         # Add to registry
@@ -555,8 +567,9 @@ def _set_span_attributes(
     result_holder = _ResultHolder()
     yield result_holder
     original_output = result_holder.result
-    output_for_span = original_output.model_dump_json() if isinstance(original_output, BaseModel) else original_output
-    span.opentelemetry_span.set_attribute(f"lilypad.{trace_type}.output", str(output_for_span))
+    span.opentelemetry_span.set_attribute(
+        f"lilypad.{trace_type}.output", "" if original_output is None else fast_jsonable(original_output)
+    )
 
 
 def _construct_trace_attributes(
@@ -566,13 +579,13 @@ def _construct_trace_attributes(
     jsonable_arg_values = {}
     for arg_name, arg_value in arg_values.items():
         try:
-            serialized_arg_value = jsonable_encoder(arg_value)
-        except ValueError:
+            serialized_arg_value = fast_jsonable(arg_value)
+        except (TypeError, ValueError, orjson.JSONEncodeError):
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {
-        "lilypad.trace.arg_types": json.dumps(arg_types),
-        "lilypad.trace.arg_values": json.dumps(jsonable_arg_values),
+        "lilypad.trace.arg_types": json_dumps(arg_types),
+        "lilypad.trace.arg_values": json_dumps(jsonable_arg_values),
     }
 
 
@@ -676,10 +689,15 @@ def trace(
         prompt_template = (
             fn._prompt_template if hasattr(fn, "_prompt_template") else ""  # pyright: ignore[reportFunctionMemberAccess]
         )
-        if _RECORDING_ENABLED and versioning == "automatic":
-            register_decorated_function(TRACE_MODULE_NAME, fn, {"mode": mode, "tags": decorator_tags})
 
-        signature = inspect.signature(fn)
+        if _RECORDING_ENABLED and versioning == "automatic":
+            _register_decorated_function(
+                TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode, "tags": decorator_tags}
+            )
+
+        settings = get_settings()
+
+        signature = get_signature(fn)
 
         if name is None:
             trace_name = get_qualified_name(fn)
@@ -715,17 +733,18 @@ def trace(
                                 arg_types=arg_types,
                                 arg_values=arg_values,
                             )
-                            settings = get_settings()
-                            async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-                            if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
+                            async_lilypad_client = get_async_client(api_key=settings.api_key)
 
+                            closure = Closure.from_fn(fn)
+
+                            @call_safely(fn)
+                            async def get_or_create_function_async() -> FunctionPublic | None:
                                 try:
-                                    function = await async_lilypad_client.projects.functions.retrieve_by_hash(
+                                    return await get_function_by_hash_async(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
-                                    function = await async_lilypad_client.projects.functions.create(
+                                    return await async_lilypad_client.projects.functions.create(
                                         path_project_uuid=settings.project_id,
                                         code=closure.code,
                                         hash=closure.hash,
@@ -736,10 +755,14 @@ def trace(
                                         is_versioned=True,
                                         prompt_template=prompt_template,
                                     )
-                                function_uuid = function.uuid
+
+                            if versioning == "automatic":
+                                function = await get_or_create_function_async()
                             else:
                                 function = None
-                                function_uuid = None
+
+                            function_uuid = function.uuid if function else None
+
                             if is_mirascope_call:
                                 decorator_inner = create_mirascope_middleware(
                                     function,
@@ -762,11 +785,6 @@ def trace(
                 finally:
                     if token:
                         _trace_nesting_level.reset(token)
-                    if is_outermost:
-                        processor = _get_batch_span_processor()
-                        if processor:
-                            with suppress(Exception):
-                                processor.force_flush(timeout_millis=5000)
 
                 if mode == "wrap":
                     return AsyncTrace(response=output, span_id=span_id, function_uuid=function_uuid)
@@ -775,28 +793,19 @@ def trace(
             if versioning is None:
                 return inner_async
 
+            function_name = get_qualified_name(fn)
+
             async def _specific_function_version_async(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
-                settings = get_settings()
-                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
                 try:
-                    versioned_function = await async_lilypad_client.projects.functions.name.retrieve_by_version(
+                    versioned_function = await get_function_by_version_async(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
                     )
-                    versioned_function_closure = Closure(
-                        name=versioned_function.name,
-                        code=versioned_function.code,
-                        signature=versioned_function.signature,
-                        hash=versioned_function.hash,
-                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
-                        if versioned_function.dependencies is not None
-                        else {},
-                    )
+                    versioned_function_closure = get_cached_closure(versioned_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -827,26 +836,20 @@ def trace(
             inner_async.version = _specific_function_version_async  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
             async def _deployed_version_async(
-                *args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs
+                *args: _P.args,
+                sandbox: SandboxRunner | None = None,
+                ttl: float | None = None,
+                force_refresh: bool = False,
+                **kwargs: _P.kwargs,
             ) -> _R:
-                settings = get_settings()
-                async_lilypad_client = AsyncLilypad(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
-
                 try:
-                    deployed_function = await async_lilypad_client.projects.functions.name.retrieve_deployed(
+                    deployed_function = await get_deployed_function_async(
                         project_uuid=settings.project_id,
+                        ttl=ttl,
+                        force_refresh=force_refresh,
                         function_name=function_name,
                     )
-                    deployed_function_closure = Closure(
-                        name=deployed_function.name,
-                        code=deployed_function.code,
-                        signature=deployed_function.signature,
-                        hash=deployed_function.hash,
-                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
-                        if deployed_function.dependencies is not None
-                        else {},
-                    )
+                    deployed_function_closure = get_cached_closure(deployed_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -903,18 +906,18 @@ def trace(
                                 arg_types=arg_types,
                                 arg_values=arg_values,
                             )
-                            settings = get_settings()
-                            lilypad_client = Lilypad(api_key=settings.api_key)
+                            lilypad_client = get_sync_client(api_key=settings.api_key)
 
-                            if versioning == "automatic":
-                                closure = Closure.from_fn(fn)
+                            closure = Closure.from_fn(fn)
 
+                            @call_safely(fn)
+                            def get_or_create_function_sync() -> FunctionPublic | None:
                                 try:
-                                    function = lilypad_client.projects.functions.retrieve_by_hash(
+                                    return get_function_by_hash_sync(
                                         project_uuid=settings.project_id, function_hash=closure.hash
                                     )
                                 except NotFoundError:
-                                    function = lilypad_client.projects.functions.create(
+                                    return lilypad_client.projects.functions.create(
                                         path_project_uuid=settings.project_id,
                                         code=closure.code,
                                         hash=closure.hash,
@@ -925,10 +928,14 @@ def trace(
                                         is_versioned=True,
                                         prompt_template=prompt_template,
                                     )
-                                function_uuid = function.uuid
+
+                            if versioning == "automatic":
+                                function = get_or_create_function_sync()
                             else:
                                 function = None
-                                function_uuid = None
+
+                            function_uuid = function.uuid if function else None
+
                             if is_mirascope_call:
                                 decorator_inner = create_mirascope_middleware(
                                     function,
@@ -957,11 +964,6 @@ def trace(
                 finally:
                     if token:
                         _trace_nesting_level.reset(token)
-                    if is_outermost:
-                        processor = _get_batch_span_processor()
-                        if processor:
-                            with suppress(Exception):
-                                processor.force_flush(timeout_millis=5000)
 
                 if mode == "wrap":
                     return Trace(response=output, span_id=span_id, function_uuid=function_uuid)
@@ -970,29 +972,19 @@ def trace(
             if versioning is None:
                 return inner  # pyright: ignore [reportReturnType]
 
+            function_name = get_qualified_name(fn)
+
             def _specific_function_version(
                 forced_version: int,
                 sandbox: SandboxRunner | None = None,
             ) -> Callable[_P, _R]:
-                settings = get_settings()
-                lilypad_client = Lilypad(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
-
                 try:
-                    versioned_function = lilypad_client.projects.functions.name.retrieve_by_version(
+                    versioned_function = get_function_by_version_sync(
                         version_num=forced_version,
                         project_uuid=settings.project_id,
                         function_name=function_name,
                     )
-                    versioned_function_closure = Closure(
-                        name=versioned_function.name,
-                        code=versioned_function.code,
-                        signature=versioned_function.signature,
-                        hash=versioned_function.hash,
-                        dependencies={k: v.model_dump() for k, v in versioned_function.dependencies.items()}
-                        if versioned_function.dependencies is not None
-                        else {},
-                    )
+                    versioned_function_closure = get_cached_closure(versioned_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 
@@ -1022,25 +1014,21 @@ def trace(
 
             inner.version = _specific_function_version  # pyright: ignore [reportAttributeAccessIssue, reportFunctionMemberAccess]
 
-            def _deployed_version(*args: _P.args, sandbox: SandboxRunner | None = None, **kwargs: _P.kwargs) -> _R:
-                settings = get_settings()
-                lilypad_client = Lilypad(api_key=settings.api_key)
-                function_name = get_qualified_name(fn)
-
+            def _deployed_version(
+                *args: _P.args,
+                sandbox: SandboxRunner | None = None,
+                ttl: float | None = None,
+                force_refresh: bool = False,
+                **kwargs: _P.kwargs,
+            ) -> _R:
                 try:
-                    deployed_function = lilypad_client.projects.functions.name.retrieve_deployed(
+                    deployed_function = get_deployed_function_sync(
                         project_uuid=settings.project_id,
+                        ttl=ttl,
+                        force_refresh=force_refresh,
                         function_name=function_name,
                     )
-                    deployed_function_closure = Closure(
-                        name=deployed_function.name,
-                        code=deployed_function.code,
-                        signature=deployed_function.signature,
-                        hash=deployed_function.hash,
-                        dependencies={k: v.model_dump() for k, v in deployed_function.dependencies.items()}
-                        if deployed_function.dependencies is not None
-                        else {},
-                    )
+                    deployed_function_closure = get_cached_closure(deployed_function)
                 except Exception as e:
                     raise RemoteFunctionError(f"Failed to retrieve function {fn.__name__}: {e}")
 

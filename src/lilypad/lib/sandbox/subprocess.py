@@ -47,7 +47,7 @@ class SubprocessSandboxRunner(SandboxRunner):
             result = subprocess.run(
                 ["uv", "run", "--no-project", str(tmp_path)],
                 capture_output=True,
-                text=True,
+                text=False,
                 env=self.environment,
             )
 

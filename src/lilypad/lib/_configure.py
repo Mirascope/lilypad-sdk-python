@@ -1,8 +1,8 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
 
+import os
 import logging
 import importlib.util
-import os
 from secrets import token_bytes
 from collections.abc import Sequence
 
@@ -16,7 +16,7 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
 )
 
-from .._client import Lilypad
+from ._utils.client import get_sync_client
 from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
 from ..types.projects.functions import SpanPublic
@@ -56,7 +56,7 @@ class _JSONSpanExporter(SpanExporter):
     def __init__(self) -> None:
         """Initialize the exporter with the custom endpoint URL."""
         self.settings = get_settings()
-        self.client = Lilypad()
+        self.client = get_sync_client(api_key=self.settings.api_key)
         self.log = logging.getLogger(__name__)
 
     def pretty_print_display_names(self, span: SpanPublic) -> None:
@@ -137,7 +137,7 @@ class _JSONSpanExporter(SpanExporter):
             "links": [
                 {
                     "context": {
-                        "trace_id": f"{link.context.trace_id:032}",
+                        "trace_id": f"{link.context.trace_id:032x}",
                         "span_id": f"{link.context.span_id:016x}",
                     },
                     "attributes": link.attributes,

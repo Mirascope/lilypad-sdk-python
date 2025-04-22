@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import base64
 import logging
 from io import BytesIO
@@ -11,6 +10,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, ParamSpec, cast
 from contextlib import contextmanager, _GeneratorContextManager
 from collections.abc import Callable, Generator
 
+import orjson
 from pydantic import BaseModel
 from mirascope.core import base as mb
 from opentelemetry.trace import Span, Status, StatusCode, SpanContext, get_tracer
@@ -18,7 +18,7 @@ from mirascope.integrations import middleware_factory
 from opentelemetry.util.types import AttributeValue
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
-from . import jsonable_encoder
+from .json import json_dumps, fast_jsonable
 from .settings import get_settings
 from .functions import ArgTypes, ArgValues
 
@@ -78,8 +78,8 @@ def _get_custom_context_manager(
         jsonable_arg_values = {}
         for arg_name, arg_value in arg_values.items():
             try:
-                serialized_arg_value = jsonable_encoder(arg_value)
-            except ValueError:
+                serialized_arg_value = fast_jsonable(arg_value)
+            except (TypeError, ValueError, orjson.JSONEncodeError):
                 serialized_arg_value = "could not serialize"
             jsonable_arg_values[arg_name] = serialized_arg_value
         if current_span:
@@ -102,15 +102,15 @@ def _get_custom_context_manager(
                 attributes["lilypad.function.name"] = fn.__name__
                 attributes["lilypad.function.signature"] = function.signature
                 attributes["lilypad.function.code"] = function.code
-                attributes["lilypad.function.arg_types"] = json.dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = json.dumps(jsonable_arg_values)
+                attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
+                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
                 attributes["lilypad.function.prompt_template"] = prompt_template or ""
                 attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             else:
                 attribute_type = "trace"
             attributes["lilypad.type"] = attribute_type
-            attributes[f"lilypad.{attribute_type}.arg_types"] = json.dumps(arg_types)
-            attributes[f"lilypad.{attribute_type}.arg_values"] = json.dumps(jsonable_arg_values)
+            attributes[f"lilypad.{attribute_type}.arg_types"] = json_dumps(arg_types)
+            attributes[f"lilypad.{attribute_type}.arg_values"] = json_dumps(jsonable_arg_values)
             attributes[f"lilypad.{attribute_type}.prompt_template"] = prompt_template or ""
             filtered_attributes = {k: v for k, v in attributes.items() if v is not None}
             _current_span.set_attributes(filtered_attributes)
@@ -164,19 +164,19 @@ def _serialize_proto_data(data: list[dict]) -> str:
             serialized_item["parts"] = [encode_gemini_part(part) for part in item["parts"]]
         serializable_data.append(serialized_item)
 
-    return json.dumps(serializable_data)
+    return json_dumps(serializable_data)
 
 
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
-        output = json.dumps(jsonable_encoder(response.message_param))
+        output = fast_jsonable(response.message_param)
     except TypeError:
         output = str(response.message_param)
     try:
-        messages = json.dumps(jsonable_encoder(response.messages))
+        messages = fast_jsonable(response.messages)
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
-    common_messages = json.dumps(jsonable_encoder(response.common_messages))
+    common_messages = fast_jsonable(response.common_messages)
     attributes: dict[str, AttributeValue] = {
         f"lilypad.{trace_type}.output": output,
         f"lilypad.{trace_type}.messages": messages,
@@ -185,27 +185,24 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, tra
     span.set_attributes(attributes)
 
 
-def _set_response_model_attributes(result: BaseModel | mb.BaseType, span: Span, trace_type: str) -> None:
+def _set_response_model_attributes(  # noqa: D401
+    result: BaseModel | mb.BaseType,
+    span: Span,
+    trace_type: str,
+) -> None:
     if isinstance(result, BaseModel):
-        completion = result.model_dump_json()
-        # Safely handle the case where result._response might be None
-        if (_response := getattr(result, "_response", None)) and (
-            _response_messages := getattr(_response, "messages", None)
-        ):
-            messages = json.dumps(jsonable_encoder(_response_messages))
-        else:
-            messages = None
+        completion: str | int | float | bool | None = fast_jsonable(result)
+        response_obj: Any | None = getattr(result, "_response", None)
+        messages_raw: Any | None = getattr(response_obj, "messages", None) if response_obj else None
+        messages: str | int | float | bool | None = fast_jsonable(messages_raw) if messages_raw is not None else None
     else:
-        if not isinstance(result, str | int | float | bool):
-            result = str(result)
-        completion = result
+        completion = result if isinstance(result, (str, int, float, bool)) else str(result)
         messages = None
 
-    attributes: dict[str, AttributeValue] = {
-        f"lilypad.{trace_type}.output": completion,
-    }
-    if messages:
-        attributes[f"lilypad.{trace_type}.messages"] = messages
+    attr_key = f"lilypad.{trace_type}."
+    attributes = {f"{attr_key}output": completion}
+    if messages is not None:
+        attributes[f"{attr_key}messages"] = messages
     span.set_attributes(attributes)
 
 

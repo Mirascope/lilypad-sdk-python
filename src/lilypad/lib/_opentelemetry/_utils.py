@@ -48,6 +48,8 @@ class AsyncStreamProtocol(Protocol):
 
 
 class ChoiceBuffer:
+    __slots__ = ("index", "finish_reason", "text_content", "tool_calls_buffers")
+
     def __init__(self, index: int) -> None:
         self.index = index
         self.finish_reason = None
