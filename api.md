@@ -80,7 +80,7 @@ from lilypad.types.ee import (
 
 Methods:
 
-- <code title="post /ee/user-organizations">client.ee.user_organizations.<a href="./src/lilypad/resources/ee/user_organizations.py">create</a>(\*\*<a href="src/lilypad/types/ee/user_organization_create_params.py">params</a>) -> <a href="./src/lilypad/types/ee/user_organization_table.py">UserOrganizationTable</a></code>
+- <code title="post /ee/user-organizations">client.ee.user_organizations.<a href="./src/lilypad/resources/ee/user_organizations.py">create</a>(\*\*<a href="src/lilypad/types/ee/user_organization_create_params.py">params</a>) -> <a href="./src/lilypad/types/auth/user_public.py">UserPublic</a></code>
 - <code title="patch /ee/user-organizations/{user_organization_uuid}">client.ee.user_organizations.<a href="./src/lilypad/resources/ee/user_organizations.py">update</a>(user_organization_uuid, \*\*<a href="src/lilypad/types/ee/user_organization_update_params.py">params</a>) -> <a href="./src/lilypad/types/ee/user_organization_table.py">UserOrganizationTable</a></code>
 - <code title="delete /ee/user-organizations/{user_organization_uuid}">client.ee.user_organizations.<a href="./src/lilypad/resources/ee/user_organizations.py">delete</a>(user_organization_uuid) -> <a href="./src/lilypad/types/ee/user_organization_delete_response.py">UserOrganizationDeleteResponse</a></code>
 - <code title="get /ee/user-organizations">client.ee.user_organizations.<a href="./src/lilypad/resources/ee/user_organizations.py">get_user_organizations</a>() -> <a href="./src/lilypad/types/ee/user_organization_get_user_organizations_response.py">UserOrganizationGetUserOrganizationsResponse</a></code>
@@ -226,7 +226,7 @@ from lilypad.types.projects import TraceCreateResponse, TraceListResponse
 Methods:
 
 - <code title="post /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">create</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_create_response.py">TraceCreateResponse</a></code>
-- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_list_response.py">TraceListResponse</a></code>
+- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/trace_list_params.py">params</a>) -> <a href="./src/lilypad/types/projects/trace_list_response.py">TraceListResponse</a></code>
 
 ## Environments
 
@@ -261,7 +261,6 @@ Methods:
 - <code title="get /organizations-invites/{invite_token}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">retrieve</a>(invite_token) -> <a href="./src/lilypad/types/organization_invite.py">OrganizationInvite</a></code>
 - <code title="get /organizations-invites/">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">list</a>() -> <a href="./src/lilypad/types/organizations_invite_list_response.py">OrganizationsInviteListResponse</a></code>
 - <code title="delete /organizations-invites/{organization_invite_uuid}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">delete</a>(organization_invite_uuid) -> <a href="./src/lilypad/types/organizations_invite_delete_response.py">OrganizationsInviteDeleteResponse</a></code>
-- <code title="post /organizations-invites/{organization_invite_uuid}">client.organizations_invites.<a href="./src/lilypad/resources/organizations_invites.py">resend</a>(organization_invite_uuid, \*\*<a href="src/lilypad/types/organizations_invite_resend_params.py">params</a>) -> <a href="./src/lilypad/types/organization_invite.py">OrganizationInvite</a></code>
 
 # Spans
 
