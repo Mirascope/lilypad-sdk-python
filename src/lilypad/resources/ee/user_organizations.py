@@ -20,6 +20,7 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.ee.user_role import UserRole
+from ...types.auth.user_public import UserPublic
 from ...types.ee.user_organization_table import UserOrganizationTable
 from ...types.ee.user_organization_delete_response import UserOrganizationDeleteResponse
 from ...types.ee.user_organization_get_users_response import UserOrganizationGetUsersResponse
@@ -58,7 +59,7 @@ class UserOrganizationsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserOrganizationTable:
+    ) -> UserPublic:
         """
         Create user organization
 
@@ -77,7 +78,7 @@ class UserOrganizationsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserOrganizationTable,
+            cast_to=UserPublic,
         )
 
     def update(
@@ -223,7 +224,7 @@ class AsyncUserOrganizationsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserOrganizationTable:
+    ) -> UserPublic:
         """
         Create user organization
 
@@ -244,7 +245,7 @@ class AsyncUserOrganizationsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserOrganizationTable,
+            cast_to=UserPublic,
         )
 
     async def update(

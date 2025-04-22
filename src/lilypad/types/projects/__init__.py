@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from .deployment_public import DeploymentPublic as DeploymentPublic
+from .trace_list_params import TraceListParams as TraceListParams
 from .trace_list_response import TraceListResponse as TraceListResponse
 from .trace_create_response import TraceCreateResponse as TraceCreateResponse
 from .function_create_params import FunctionCreateParams as FunctionCreateParams
