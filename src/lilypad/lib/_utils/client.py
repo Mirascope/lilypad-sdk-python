@@ -3,11 +3,71 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import weakref
-from functools import lru_cache  # noqa: TID251
+from typing import Any, TypeVar, Callable, ParamSpec
+from functools import (
+    wraps,
+    lru_cache,  # noqa: TID251
+)
+
+import httpx
 
 from .settings import get_settings
-from ..._client import Lilypad, AsyncLilypad
+from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
+from ..exceptions import LilypadException
+from .fn_is_async import fn_is_async
+from ..._exceptions import LilypadError
+
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
+
+
+def safe_lilypad_call(*, logger_name: str = "lilypad") -> Callable[[Callable[_P, _R]], Callable[_P, _R | None]]:
+    """Return a decorator that suppresses httpx transport errors."""
+
+    logger = logging.getLogger(logger_name)
+
+    def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R | None]:
+        if fn_is_async(fn):
+
+            @wraps(fn)
+            async def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R | None:  # type: ignore[override]
+                try:
+                    return await fn(*args, **kwargs)
+                except (httpx.RequestError, httpx.HTTPStatusError, LilypadException, LilypadError) as exc:
+                    logger.warning("Lilypad call failed – graceful degradation (%s)", exc)
+                    return None
+
+            return inner
+
+        @wraps(fn)
+        def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R | None:  # type: ignore[override]
+            try:
+                return fn(*args, **kwargs)
+            except (httpx.RequestError, httpx.HTTPStatusError, LilypadException, LilypadError) as exc:
+                logger.warning("Lilypad call failed – graceful degradation (%s)", exc)
+                return None
+
+        return inner
+
+    return decorator
+
+
+class Lilypad(_BaseLilypad):
+    """Fail-soft synchronous Lilypad client."""
+
+    @safe_lilypad_call()
+    def _request(self, *args: Any, **kwargs: Any):
+        return super()._request(*args, **kwargs)
+
+
+class AsyncLilypad(_BaseAsyncLilypad):
+    """Fail-soft asynchronous Lilypad client."""
+
+    @safe_lilypad_call()
+    async def _request(self, *args: Any, **kwargs: Any):
+        return await super()._request(*args, **kwargs)
 
 
 @lru_cache(maxsize=256)

@@ -84,6 +84,15 @@ class _JSONSpanExporter(SpanExporter):
             raw_response = self.client.projects.traces.create(
                 project_uuid=self.settings.project_id, extra_body=span_data
             )
+            if raw_response is None:
+                self.log.warning(
+                    "Exporter skipped – traces not sent (no response from %s, project_id=%s, span_count=%d)",
+                    self.client.base_url,
+                    self.settings.project_id,
+                    len(span_data),
+                )
+                return SpanExportResult.SUCCESS
+
             response_spans = TraceCreateResponseAdapter.validate_python(raw_response)
             if len(response_spans) > 0:
                 for response_span in response_spans:
