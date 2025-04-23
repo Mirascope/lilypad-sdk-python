@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.0-alpha.27 (2025-04-23)
+
+Full Changelog: [v0.1.0-alpha.26...v0.1.0-alpha.27](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.26...v0.1.0-alpha.27)
+
+### Bug Fixes
+
+* fix unittest ([0379b08](https://github.com/Mirascope/lilypad-sdk-python/commit/0379b082b5ca0992e96629c4d75ca1996fe1cd23))
+* **pydantic v1:** more robust ModelField.annotation check ([64c9d99](https://github.com/Mirascope/lilypad-sdk-python/commit/64c9d994d9a5de824fef00ed801eb1a492cff4f6))
+
+
+### Chores
+
+* **ci:** add timeout thresholds for CI jobs ([7a15d51](https://github.com/Mirascope/lilypad-sdk-python/commit/7a15d512c0fbf473478aede1d296fad61858419a))
+* **internal:** fix list file params ([fe55414](https://github.com/Mirascope/lilypad-sdk-python/commit/fe554148bd0ffeb4ae754b845f204dd8fa0ffc0c))
+* **internal:** import reformatting ([b413351](https://github.com/Mirascope/lilypad-sdk-python/commit/b413351ecff9702e27fa667a3d89ad95deadb5e5))
+* **internal:** refactor retries to not use recursion ([abdef45](https://github.com/Mirascope/lilypad-sdk-python/commit/abdef4586df861156706a0852d5f4c35f9aa5982))
+
 ## 0.1.0-alpha.26 (2025-04-21)
 
 Full Changelog: [v0.1.0-alpha.25...v0.1.0-alpha.26](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.25...v0.1.0-alpha.26)
