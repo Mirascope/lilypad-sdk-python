@@ -3,61 +3,37 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 import weakref
-from typing import Any, TypeVar, Callable, ParamSpec
+from typing import Any, TypeVar, ParamSpec
 from functools import (
-    wraps,
     lru_cache,  # noqa: TID251
 )
 
-import httpx
+from httpx import RequestError, HTTPStatusError
 
 from .settings import get_settings
 from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
 from ..exceptions import LilypadException
-from .fn_is_async import fn_is_async
-from ..._exceptions import LilypadError
+from .call_safely import call_safely
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
 
-def safe_lilypad_call(*, logger_name: str = "lilypad") -> Callable[[Callable[_P, _R]], Callable[_P, _R | None]]:
-    """Return a decorator that suppresses httpx transport errors."""
+def _noop_fallback(*_args: object, **_kwargs: object) -> None:
+    """Fallback used by @call_safely – swallow the exception and return None."""
+    return None
 
-    logger = logging.getLogger(logger_name)
 
-    def decorator(fn: Callable[_P, _R]) -> Callable[_P, _R | None]:
-        if fn_is_async(fn):
-
-            @wraps(fn)
-            async def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R | None:  # type: ignore[override]
-                try:
-                    return await fn(*args, **kwargs)
-                except (httpx.RequestError, httpx.HTTPStatusError, LilypadException, LilypadError) as exc:
-                    logger.warning("Lilypad call failed – graceful degradation (%s)", exc)
-                    return None
-
-            return inner
-
-        @wraps(fn)
-        def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R | None:  # type: ignore[override]
-            try:
-                return fn(*args, **kwargs)
-            except (httpx.RequestError, httpx.HTTPStatusError, LilypadException, LilypadError) as exc:
-                logger.warning("Lilypad call failed – graceful degradation (%s)", exc)
-                return None
-
-        return inner
-
-    return decorator
+async def _async_noop_fallback(*_args: object, **_kwargs: object) -> None:
+    """Fallback used by @call_safely – swallow the exception and return None."""
+    return None
 
 
 class Lilypad(_BaseLilypad):
     """Fail-soft synchronous Lilypad client."""
 
-    @safe_lilypad_call()
+    @call_safely(_noop_fallback, catch=(LilypadException, RequestError, HTTPStatusError))
     def _request(self, *args: Any, **kwargs: Any):
         return super()._request(*args, **kwargs)
 
@@ -65,7 +41,7 @@ class Lilypad(_BaseLilypad):
 class AsyncLilypad(_BaseAsyncLilypad):
     """Fail-soft asynchronous Lilypad client."""
 
-    @safe_lilypad_call()
+    @call_safely(_async_noop_fallback, catch=(LilypadException, RequestError, HTTPStatusError))
     async def _request(self, *args: Any, **kwargs: Any):
         return await super()._request(*args, **kwargs)
 

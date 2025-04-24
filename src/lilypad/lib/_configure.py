@@ -3,6 +3,7 @@
 import os
 import time
 import queue
+import random
 import logging
 import threading
 import importlib.util
@@ -119,6 +120,7 @@ class _JSONSpanExporter(SpanExporter):
         while True:
             item = self._q.get()
             if item is None:
+                self._q.task_done()
                 break
 
             response_spans = self._send_once(item.data)
@@ -134,15 +136,21 @@ class _JSONSpanExporter(SpanExporter):
                 self._q.task_done()
                 continue
 
-            delay = _BACKOFF_SECS * 2 ** (item.attempts - 1)
-            threading.Timer(delay, self._q.put, args=(item,)).start()
-            self._q.task_done()
+            delay = (_BACKOFF_SECS * 2 ** (item.attempts - 1)) * (0.8 + 0.4 * random.random())
 
-            time.sleep(_WORKER_SLEEP)
+            self._q.task_done()
+            time.sleep(delay)
+            try:
+                self._q.put_nowait(item)
+            except queue.Full:
+                self.log.warning("Retry queue full – dropping %d spans", len(item.data))
 
     def shutdown(self) -> None:
         self._q.put(None)
+        self._q.join()
         self._worker.join(timeout=1.0)
+        if self._worker.is_alive():
+            self.log.debug("Worker thread did not finish within timeout")
 
     def force_flush(self, timeout_millis: int = 30_000) -> bool:
         start = time.time()
@@ -157,14 +165,17 @@ class _JSONSpanExporter(SpanExporter):
 
         span_data = [self._span_to_dict(span) for span in spans]
 
-        if self._send_once(span_data):
+        if response_spans := self._send_once(span_data):
+            if response_spans is not None:
+                for response_span in response_spans:
+                    self.pretty_print_display_names(response_span)
             return SpanExportResult.SUCCESS
 
         try:
             self._q.put_nowait(_RetryPayload(span_data))
             return SpanExportResult.SUCCESS
         except queue.Full:
-            self.log.warning("Retry queue full – dropping %d spans", len(span_data))
+            self.log.error("Retry queue full – dropping %d spans", len(span_data))
             return SpanExportResult.FAILURE
 
     def _span_to_dict(self, span: ReadableSpan) -> dict[str, Any]:
