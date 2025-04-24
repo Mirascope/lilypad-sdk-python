@@ -166,9 +166,8 @@ class _JSONSpanExporter(SpanExporter):
         span_data = [self._span_to_dict(span) for span in spans]
 
         if response_spans := self._send_once(span_data):
-            if response_spans is not None:
-                for response_span in response_spans:
-                    self.pretty_print_display_names(response_span)
+            for response_span in response_spans:
+                self.pretty_print_display_names(response_span)
             return SpanExportResult.SUCCESS
 
         try:
