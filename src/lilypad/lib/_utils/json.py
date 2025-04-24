@@ -349,28 +349,35 @@ def json_dumps(obj: Any) -> str:
     return orjson.dumps(obj, option=ORJSON_OPTS).decode("utf-8")
 
 
-def _to_json_serializable(obj: Any) -> Any:
+def _to_json_serializable(obj: Any, seen: set[int]) -> Any:
     """Convert Python objects to JSON serializable format."""
-    if isinstance(obj, _PRIMITIVES):  # For fast return
+    if seen is None:
+        seen = set()
+    object_id = id(obj)
+    if object_id in seen:
+        return f"<CircularRef {type(obj).__name__}>"
+    seen.add(object_id)
+
+    if isinstance(obj, _PRIMITIVES):
         return obj
     if isinstance(obj, BaseModel):
-        return obj.model_dump(mode="python", warnings=False)
+        return {k: _to_json_serializable(v, seen) for k, v in obj.model_dump(mode="python", warnings=False).items()}
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
-        return dataclasses.asdict(obj)
+        return {f.name: _to_json_serializable(getattr(obj, f.name), seen) for f in dataclasses.fields(obj)}
     if isinstance(obj, Enum):
         return obj.value
     if isinstance(obj, Decimal):
         return decimal_encoder(obj)
-    if isinstance(obj, datetime.timedelta):  # ★ 追加
+    if isinstance(obj, datetime.timedelta):
         return obj.total_seconds()
     if isinstance(
         obj, (UUID, IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6Interface, IPv6Network, PurePath)
     ):
         return str(obj)
     if isinstance(obj, dict):
-        return {_to_json_serializable(key): _to_json_serializable(value) for key, value in obj.items()}
+        return {_to_json_serializable(key, seen): _to_json_serializable(value, seen) for key, value in obj.items()}
     if isinstance(obj, list | tuple | set | frozenset | deque | GeneratorType):
-        return [_to_json_serializable(item) for item in obj]
+        return [_to_json_serializable(item, seen) for item in obj]
     return obj
 
 
@@ -380,7 +387,7 @@ def fast_jsonable(val: Any) -> str | int | float | bool | None:
         return val
 
     try:
-        return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode("utf-8")
+        return orjson.dumps(_to_json_serializable(val, set()), option=ORJSON_OPTS).decode()
     except (TypeError, orjson.JSONEncodeError):
         return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
 
