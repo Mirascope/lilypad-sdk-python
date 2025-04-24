@@ -27,21 +27,30 @@ def _default_logger(name: str = "lilypad") -> logging.Logger:
 @overload
 def call_safely(
     child_fn: Callable[_P, Coroutine[Any, Any, _R]],
-) -> Callable[[Callable[_P, Coroutine[Any, Any, _R]]], Callable[_P, Coroutine[Any, Any, _R]]]: ...
+    *,
+    catch: tuple[type[BaseException], ...] | None = None,
+) -> Callable[
+    [Callable[_P, Coroutine[Any, Any, _R]]],
+    Callable[_P, Coroutine[Any, Any, _R]],
+]: ...
 
 
 @overload
 def call_safely(
     child_fn: Callable[_P, _R],
+    *,
+    catch: tuple[type[BaseException], ...] | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
 
 
 def call_safely(
     child_fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
-) -> (
-    Callable[[Callable[_P, Coroutine[Any, Any, _R]]], Callable[_P, Coroutine[Any, Any, _R]]]
-    | Callable[[Callable[_P, _R]], Callable[_P, _R]]
+    *,
+    catch: tuple[type[BaseException], ...] | None = None,
 ):
+    if catch is None:
+        catch = (LilypadException,)
+
     @overload
     def decorator(
         fn: Callable[_P, Coroutine[Any, Any, _R]],
@@ -55,11 +64,11 @@ def call_safely(
     ) -> Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]]:
         if fn_is_async(fn):
 
-            @wraps(child_fn)
+            @wraps(fn)
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 try:
                     return await fn(*args, **kwargs)
-                except LilypadException as e:
+                except catch as e:
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
                     logger.error("Exception type: %s", type(e).__name__)
@@ -75,11 +84,11 @@ def call_safely(
             return inner_async
         else:
 
-            @wraps(child_fn)
+            @wraps(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 try:
                     return fn(*args, **kwargs)  # pyright: ignore [reportReturnType]
-                except LilypadException as e:
+                except catch as e:
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
                     logger.error("Exception type: %s", type(e).__name__)
