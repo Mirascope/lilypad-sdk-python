@@ -413,9 +413,11 @@ def _to_json_serializable(
 
 def _any_to_text(val: Any, custom_serializers: SerializerMap | None = None) -> str:
     try:
-        return orjson.dumps(
-            _to_json_serializable(val, custom_serializers=custom_serializers), option=ORJSON_OPTS
-        ).decode()
+        serialized_value = _to_json_serializable(val, custom_serializers=custom_serializers)
+        # if the result itself is already a JSON-safe primitive, return as-is
+        if isinstance(serialized_value, (str, int, float, bool)) or serialized_value is None:
+            return serialized_value
+        return orjson.dumps(serialized_value, option=ORJSON_OPTS).decode()
     except (TypeError, orjson.JSONEncodeError):
         try:
             return orjson.dumps(jsonable_encoder(val, custom_encoder=custom_serializers), option=ORJSON_OPTS).decode()
