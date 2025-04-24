@@ -11,6 +11,7 @@ from .functions import (
 from .middleware import encode_gemini_part, create_mirascope_middleware
 from .call_safely import call_safely
 from .fn_is_async import fn_is_async
+from .serializer_registry import register_serializer
 
 __all__ = [
     "ArgTypes",
@@ -25,4 +26,5 @@ __all__ = [
     "inspect_arguments",
     "json_dumps",
     "load_config",
+    "register_serializer",
 ]

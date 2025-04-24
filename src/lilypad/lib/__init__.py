@@ -2,6 +2,7 @@
 
 from .spans import span
 from .tools import tool
+from ._utils import register_serializer
 from .traces import trace
 from .messages import Message
 from ._configure import configure
@@ -11,6 +12,7 @@ __all__ = [
     "configure",
     "Message",
     "RemoteFunctionError",
+    "register_serializer",
     "span",
     "tool",
     "trace",
