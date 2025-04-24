@@ -56,8 +56,23 @@ class Span:
 
     def __enter__(self) -> "Span":
         tracer = get_tracer("lilypad")
-        self._span = tracer.start_span(self.name)
+        self._span: OTSpan = tracer.start_span(self.name)
         self._span.set_attribute("lilypad.type", "trace")
+
+        self._is_root = self._span.parent is None
+        self._condition = None
+        self._lock_acquired = False
+
+        if self._is_root:  # Lock when span is root
+            proc = get_batch_span_processor()
+            if proc and hasattr(proc, "condition"):
+                condition = proc.condition
+                try:
+                    condition.acquire()
+                    self._condition = condition
+                    self._lock_acquired = True
+                except RuntimeError:
+                    pass
 
         self._current_context = context_api.get_current()
         ctx = set_span_in_context(self._span, self._current_context)
@@ -79,9 +94,13 @@ class Span:
         if self._span is not None:
             self._span.end()
 
-        if self._span and self._span.parent is None:
-            proc = get_batch_span_processor()
-            if proc:
+        if self._is_root:
+            if self._lock_acquired and self._condition:
+                with suppress(RuntimeError):
+                    self._condition.release()
+                self._lock_acquired = False
+
+            if (proc := get_batch_span_processor()) is not None:
                 for _ in range(3):  # max 3 tries
                     if proc.force_flush(timeout_millis=5_000):
                         break
