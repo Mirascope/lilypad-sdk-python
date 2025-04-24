@@ -9,13 +9,13 @@ from contextvars import ContextVar
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from .constants import REMOTE_API_URL, REMOTE_CLIENT_URL
+from .constants import BASE_URL, REMOTE_CLIENT_URL
 
 
 class Settings(BaseSettings):
     """Global (context-local) settings for Lilypad."""
 
-    remote_api_url: str = Field(default=REMOTE_API_URL)
+    base_url: str = Field(default=BASE_URL)
     remote_client_url: str = Field(default=REMOTE_CLIENT_URL)
     api_key: str | None = None
     project_id: str | None = None

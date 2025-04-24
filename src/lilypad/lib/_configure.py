@@ -155,8 +155,7 @@ def configure(
     *,
     api_key: str | None = None,
     project_id: str | None = None,
-    remote_api_url: str | None = None,
-    remote_client_url: str | None = None,
+    base_url: str | None = None,
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
@@ -173,8 +172,7 @@ def configure(
     new.update(
         api_key=api_key,
         project_id=project_id,
-        remote_api_url=remote_api_url,
-        remote_client_url=remote_client_url,
+        base_url=base_url,
     )
 
     _set_settings(new)

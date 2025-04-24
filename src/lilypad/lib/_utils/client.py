@@ -11,7 +11,7 @@ from ..._client import Lilypad, AsyncLilypad
 
 
 @lru_cache(maxsize=256)
-def _sync_singleton(api_key: str) -> Lilypad:  # noqa: D401
+def _sync_singleton(api_key: str, base_url: str | None) -> Lilypad:  # noqa: D401
     """Return (or create) the process‑wide synchronous client.
 
     Args:
@@ -20,15 +20,16 @@ def _sync_singleton(api_key: str) -> Lilypad:  # noqa: D401
     Returns:
         A memoized :class:`lilypad.Lilypad` instance tied to *api_key*.
     """
-    return Lilypad(api_key=api_key)
+    return Lilypad(api_key=api_key, base_url=base_url)
 
 
-def get_sync_client(api_key: str | None = None) -> Lilypad:  # noqa: D401
+def get_sync_client(api_key: str | None = None, base_url: str | None = None) -> Lilypad:  # noqa: D401
     """Obtain a cached synchronous client.
 
     Args:
         api_key: Overrides the ``LILYPAD_API_KEY`` environment variable when
             provided.  If *None*, the environment variable is used.
+        base_url: Overrides the ``LILYPAD_BASE_URL`` environment variable when
 
     Returns:
         A cached :class:`lilypad.Lilypad`.
@@ -36,11 +37,11 @@ def get_sync_client(api_key: str | None = None) -> Lilypad:  # noqa: D401
     key = api_key or get_settings().api_key
     if key is None:
         raise RuntimeError("Lilypad API key not provided and LILYPAD_API_KEY is not set.")
-    return _sync_singleton(key)
+    return _sync_singleton(key, base_url or get_settings().base_url)
 
 
 @lru_cache(maxsize=256)
-def _async_singleton(api_key: str, loop_id_for_cache: int) -> AsyncLilypad:  # noqa: D401
+def _async_singleton(api_key: str, loop_id_for_cache: int, base_url: str | None = None) -> AsyncLilypad:  # noqa: D401
     """Return (or create) an asynchronous client bound to a specific loop.
 
     Args:
@@ -48,13 +49,13 @@ def _async_singleton(api_key: str, loop_id_for_cache: int) -> AsyncLilypad:  # n
         loop_id_for_cache: ``id(asyncio.get_running_loop())`` identifying the event loop.
     """
     loop = asyncio.get_running_loop()
-    client = AsyncLilypad(api_key=api_key)
+    client = AsyncLilypad(api_key=api_key, base_url=base_url)
     # Ensure the client is closed when the loop is closed.
     weakref.finalize(loop, _async_singleton.cache_clear)
     return client
 
 
-def get_async_client(api_key: str | None = None) -> AsyncLilypad:  # noqa: D401
+def get_async_client(api_key: str | None = None, base_url: str | None = None) -> AsyncLilypad:  # noqa: D401
     """Obtain a cached asynchronous client for the current event loop.
 
     The cache key is the tuple ``(api_key, id(event_loop))`` so that each
@@ -76,7 +77,7 @@ def get_async_client(api_key: str | None = None) -> AsyncLilypad:  # noqa: D401
     if key is None:
         raise RuntimeError("Lilypad API key not provided and LILYPAD_API_KEY is not set.")
 
-    return _async_singleton(key, id(loop))
+    return _async_singleton(key, id(loop), base_url=base_url or get_settings().base_url)
 
 
 __all__ = ["get_sync_client", "get_async_client"]
