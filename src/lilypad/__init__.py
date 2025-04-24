@@ -1,7 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from . import types
-from .lib import Message, RemoteFunctionError, span, tool, trace, configure
+from .lib import Message, RemoteFunctionError, span, tool, trace, configure, register_serializer
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, Stream, Lilypad, Timeout, Transport, AsyncClient, AsyncStream, AsyncLilypad, RequestOptions
@@ -33,6 +33,7 @@ __all__ = [
     "configure",
     "Message",
     "RemoteFunctionError",
+    "register_serializer",
     "span",
     "tool",
     "trace",

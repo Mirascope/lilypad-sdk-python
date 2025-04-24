@@ -36,7 +36,7 @@ from ._utils import (
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
-from ._utils.json import json_dumps, fast_jsonable
+from ._utils.json import to_text, json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
 from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
@@ -52,6 +52,7 @@ from ._utils.function_cache import (
     get_function_by_version_async,
 )
 from ..types.projects.functions import FunctionPublic
+from ._utils.serializer_registry import SerializerMap
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -59,9 +60,13 @@ _R_CO = TypeVar("_R_CO", covariant=True)
 _T = TypeVar("_T")
 
 
-TRACE_TYPE = "trace"
-
 TRACE_MODULE_NAME = "lilypad.lib.traces"
+
+
+def _get_trace_type(function: FunctionPublic | None) -> Literal["trace", "function"]:
+    if function:
+        return "function"
+    return "trace"
 
 
 class Annotation(BaseModel):
@@ -489,17 +494,17 @@ def _set_trace_context(trace_ctx: dict[str, Any]) -> None:
 
 @contextmanager
 def _set_span_attributes(
-    trace_type: str,
     span: Span,
     span_attribute: _TraceAttribute,
     is_async: bool,
     function: FunctionPublic | None,
     decorator_tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
-    span_attribute["lilypad.type"] = trace_type
+    span_attribute["lilypad.type"] = trace_type = _get_trace_type(function)
     span_attribute["lilypad.is_async"] = is_async
     if decorator_tags is not None:
         span_attribute["lilypad.trace.tags"] = decorator_tags
@@ -515,24 +520,26 @@ def _set_span_attributes(
     yield result_holder
     original_output = result_holder.result
     span.opentelemetry_span.set_attribute(
-        f"lilypad.{trace_type}.output", "" if original_output is None else fast_jsonable(original_output)
+        f"lilypad.{trace_type}.output", "" if original_output is None else to_text(original_output, serializers)
     )
 
 
 def _construct_trace_attributes(
+    trace_type: str,
     arg_types: dict[str, str],
     arg_values: dict[str, Any],
+    serializers: SerializerMap,
 ) -> dict[str, AttributeValue]:
     jsonable_arg_values = {}
     for arg_name, arg_value in arg_values.items():
         try:
-            serialized_arg_value = fast_jsonable(arg_value)
+            serialized_arg_value = fast_jsonable(arg_value, custom_serializers=serializers)
         except (TypeError, ValueError, orjson.JSONEncodeError):
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
     return {
-        "lilypad.trace.arg_types": json_dumps(arg_types),
-        "lilypad.trace.arg_values": json_dumps(jsonable_arg_values),
+        f"lilypad.{trace_type}.arg_types": json_dumps(arg_types),
+        f"lilypad.{trace_type}.arg_values": json_dumps(jsonable_arg_values),
     }
 
 
@@ -564,6 +571,7 @@ def trace(
     versioning: None = None,
     mode: None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> TraceDecorator: ...
 
 
@@ -574,6 +582,7 @@ def trace(
     versioning: Literal["automatic"],
     mode: None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> VersionedFunctionTraceDecorator: ...
 
 
@@ -584,6 +593,7 @@ def trace(
     versioning: None,
     mode: Literal["wrap"],
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> WrappedTraceDecorator: ...
 
 
@@ -594,6 +604,7 @@ def trace(
     versioning: Literal["automatic"],
     mode: Literal["wrap"],
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> WrappedVersionedFunctionTraceDecorator: ...
 
 
@@ -603,6 +614,7 @@ def trace(
     versioning: Literal["automatic"] | None = None,
     mode: Literal["wrap"] | None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
@@ -642,6 +654,8 @@ def trace(
                 TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode, "tags": decorator_tags}
             )
 
+        local_serializers = serializers or {}
+
         settings = get_settings()
 
         signature = get_signature(fn)
@@ -670,10 +684,6 @@ def trace(
                     arg_values.pop("trace_ctx", None)
                     arg_types.pop("trace_ctx", None)
 
-                    trace_attribute = _construct_trace_attributes(
-                        arg_types=arg_types,
-                        arg_values=arg_values,
-                    )
                     async_lilypad_client = get_async_client(api_key=settings.api_key)
 
                     closure = Closure.from_fn(fn)
@@ -704,6 +714,13 @@ def trace(
 
                     function_uuid = function.uuid if function else None
 
+                    trace_attribute = _construct_trace_attributes(
+                        trace_type=_get_trace_type(function),
+                        arg_types=arg_types,
+                        arg_values=arg_values,
+                        serializers=local_serializers,
+                    )
+
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
@@ -717,7 +734,7 @@ def trace(
                         output = await decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE, span, trace_attribute, is_async=True, function=function
+                            span, trace_attribute, is_async=True, function=function, serializers=local_serializers
                         ) as result_holder:
                             output = await fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
@@ -834,10 +851,6 @@ def trace(
                     arg_values.pop("trace_ctx", None)
                     arg_types.pop("trace_ctx", None)
 
-                    trace_attribute = _construct_trace_attributes(
-                        arg_types=arg_types,
-                        arg_values=arg_values,
-                    )
                     lilypad_client = get_sync_client(api_key=settings.api_key)
 
                     closure = Closure.from_fn(fn)
@@ -868,6 +881,13 @@ def trace(
 
                     function_uuid = function.uuid if function else None
 
+                    trace_attribute = _construct_trace_attributes(
+                        trace_type=_get_trace_type(function),
+                        arg_types=arg_types,
+                        arg_values=arg_values,
+                        serializers=local_serializers,
+                    )
+
                     if is_mirascope_call:
                         decorator_inner = create_mirascope_middleware(
                             function,
@@ -882,12 +902,12 @@ def trace(
                         output = decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            TRACE_TYPE,
                             span,
                             trace_attribute,
                             is_async=False,
                             function=function,
                             decorator_tags=decorator_tags,
+                            serializers=local_serializers,
                         ) as result_holder:
                             output = fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)

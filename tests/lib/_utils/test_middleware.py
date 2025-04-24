@@ -154,9 +154,17 @@ def test_set_call_response_attributes_needs_serialization():
     response.common_messages = [BaseMessageParam(role="user", content="hello")]
     span = MagicMock(spec=Span)
     serialized_messages = '[{"role":"user", "parts": ["serialized_msg"]}]'
+    import lilypad.lib._utils.json as _json
+
+    orig_fast = _json.fast_jsonable
+
+    def fast_side_effect(val, *args, **kwargs):
+        if val is response.message_param or val is response.messages:
+            raise TypeError
+        return orig_fast(val, *args, **kwargs)
 
     with (
-        patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=TypeError),
+        patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=fast_side_effect),
         patch(
             "lilypad.lib._utils.middleware._serialize_proto_data", return_value=serialized_messages
         ) as mock_proto_serializer,
