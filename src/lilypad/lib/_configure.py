@@ -22,8 +22,8 @@ from opentelemetry.sdk.trace.export import (
 
 from .exceptions import LilypadException
 from ._utils.client import get_sync_client
-from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
+from ._utils.otel_debug import wrap_batch_processor
 from ..types.projects.functions import SpanPublic
 
 try:
@@ -32,6 +32,9 @@ except ImportError:
     from logging import StreamHandler as LogHandler
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
+
+# Ignore pydantic deprecation warnings by using `list[SpanPublic]` instead of `TraceCreateResponse`
+TraceCreateResponseAdapter = TypeAdapter(list[SpanPublic])
 
 _MAX_RETRIES = 5
 _BACKOFF_SECS = 2.0
@@ -44,9 +47,6 @@ class _RetryPayload:
     def __init__(self, data: list[dict[str, Any]]):
         self.data = data
         self.attempts = 0
-
-
-TraceCreateResponseAdapter = TypeAdapter(TraceCreateResponse)
 
 
 class CryptoIdGenerator(IdGenerator):
@@ -249,6 +249,8 @@ def configure(
     otlp_exporter = _JSONSpanExporter()
     provider = TracerProvider(id_generator=CryptoIdGenerator())
     processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
+    if log_level == logging.DEBUG:
+        wrap_batch_processor(processor)
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
 
