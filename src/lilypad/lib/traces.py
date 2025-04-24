@@ -16,7 +16,6 @@ from typing import (
     TypeAlias,
     overload,
 )
-from functools import lru_cache  # noqa: TID251
 from contextlib import suppress, contextmanager
 from contextvars import Token, ContextVar
 from collections.abc import Callable, Coroutine, Generator
@@ -25,9 +24,8 @@ import orjson
 from pydantic import BaseModel
 from opentelemetry.trace import format_span_id, get_tracer_provider
 from opentelemetry.util.types import AttributeValue
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from .spans import Span
+from .spans import Span, get_batch_span_processor
 from ._utils import (
     Closure,
     call_safely,
@@ -225,36 +223,9 @@ class AsyncTrace(_TraceBase[_T]):
 _trace_nesting_level: ContextVar[int] = ContextVar("_trace_nesting_level", default=0)
 
 
-@lru_cache(maxsize=1)
-def _get_batch_span_processor() -> BatchSpanProcessor | None:
-    """Get the BatchSpanProcessor from the current TracerProvider.
-
-    Retrieve the BatchSpanProcessor from the current TracerProvider dynamically.
-    This avoids using a global variable by inspecting the provider's _active_span_processors.
-    """
-    tracer_provider = get_tracer_provider()
-    if hasattr(tracer_provider, "get_active_span_processor"):
-        active_processor = tracer_provider.get_active_span_processor()
-        if hasattr(active_processor, "_span_processors"):
-            for processor in active_processor._span_processors:
-                if isinstance(processor, BatchSpanProcessor):
-                    return processor
-        elif isinstance(active_processor, BatchSpanProcessor):
-            return active_processor
-    elif hasattr(tracer_provider, "_active_span_processor"):
-        processor = getattr(tracer_provider, "_active_span_processor", None)
-        if isinstance(processor, BatchSpanProcessor):
-            return processor
-        elif hasattr(processor, "_span_processors"):
-            for span_processors in processor._span_processors:
-                if isinstance(span_processors, BatchSpanProcessor):
-                    return span_processors
-    return None
-
-
 @contextmanager
 def _outermost_trace_lock_context(is_outermost: bool) -> Generator[None, None, None]:
-    processor = _get_batch_span_processor()
+    processor = get_batch_span_processor()
     lock_acquired = False
     condition: threading.Condition | None = None
     if is_outermost and processor and hasattr(processor, "condition"):

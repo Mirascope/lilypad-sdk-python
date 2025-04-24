@@ -1,6 +1,5 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
 
-import os
 import logging
 import importlib.util
 from secrets import token_bytes
@@ -17,8 +16,8 @@ from opentelemetry.sdk.trace.export import (
 )
 
 from ._utils.client import get_sync_client
-from ..types.projects import TraceCreateResponse
 from ._utils.settings import get_settings
+from ._utils.otel_debug import wrap_batch_processor
 from ..types.projects.functions import SpanPublic
 
 try:
@@ -178,6 +177,8 @@ def configure(
     otlp_exporter = _JSONSpanExporter()
     provider = TracerProvider(id_generator=CryptoIdGenerator())
     processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
+    if log_level == logging.DEBUG:
+        wrap_batch_processor(processor)
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
 

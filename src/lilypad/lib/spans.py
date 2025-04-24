@@ -1,13 +1,46 @@
 """A context manager for creating a tracing span with parent-child relationship tracking,"""
 
+import time
 import datetime
 from typing import Any
-from contextlib import AbstractContextManager
+from functools import lru_cache  # noqa: TID251
+from contextlib import AbstractContextManager, suppress
+from contextvars import ContextVar
 
 from opentelemetry import context as context_api
-from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, set_span_in_context
+from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, get_tracer_provider, set_span_in_context
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from lilypad.lib._utils.json import json_dumps
+
+_trace_level: ContextVar[int] = ContextVar("_trace_level", default=0)
+
+
+@lru_cache(maxsize=1)
+def get_batch_span_processor() -> BatchSpanProcessor | None:
+    """Get the BatchSpanProcessor from the current TracerProvider.
+
+    Retrieve the BatchSpanProcessor from the current TracerProvider dynamically.
+    This avoids using a global variable by inspecting the provider's _active_span_processors.
+    """
+    tracer_provider = get_tracer_provider()
+    if hasattr(tracer_provider, "get_active_span_processor"):
+        active_processor = tracer_provider.get_active_span_processor()
+        if hasattr(active_processor, "_span_processors"):
+            for processor in active_processor._span_processors:
+                if isinstance(processor, BatchSpanProcessor):
+                    return processor
+        elif isinstance(active_processor, BatchSpanProcessor):
+            return active_processor
+    elif hasattr(tracer_provider, "_active_span_processor"):
+        processor = getattr(tracer_provider, "_active_span_processor", None)
+        if isinstance(processor, BatchSpanProcessor):
+            return processor
+        elif hasattr(processor, "_span_processors"):
+            for span_processors in processor._span_processors:
+                if isinstance(span_processors, BatchSpanProcessor):
+                    return span_processors
+    return None
 
 
 class Span:
@@ -45,6 +78,14 @@ class Span:
 
         if self._span is not None:
             self._span.end()
+
+        if self._span and self._span.parent is None:
+            proc = get_batch_span_processor()
+            if proc:
+                for _ in range(3):  # max 3 tries
+                    if proc.force_flush(timeout_millis=5_000):
+                        break
+                    time.sleep(0.05)
 
         if self._token:
             context_api.detach(self._token)
