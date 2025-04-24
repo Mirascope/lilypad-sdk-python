@@ -9,12 +9,10 @@ from functools import (
     lru_cache,  # noqa: TID251
 )
 
-from httpx import RequestError, HTTPStatusError
-
 from .settings import get_settings
 from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
-from ..exceptions import LilypadException
 from .call_safely import call_safely
+from ..._exceptions import APIConnectionError
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -33,17 +31,17 @@ async def _async_noop_fallback(*_args: object, **_kwargs: object) -> None:
 class Lilypad(_BaseLilypad):
     """Fail-soft synchronous Lilypad client."""
 
-    @call_safely(_noop_fallback, catch=(LilypadException, RequestError, HTTPStatusError))
-    def _request(self, *args: Any, **kwargs: Any):
-        return super()._request(*args, **kwargs)
+    @call_safely(_noop_fallback, catch=(APIConnectionError,))
+    def request(self, *args: Any, **kwargs: Any):
+        return super().request(*args, **kwargs)
 
 
 class AsyncLilypad(_BaseAsyncLilypad):
     """Fail-soft asynchronous Lilypad client."""
 
-    @call_safely(_async_noop_fallback, catch=(LilypadException, RequestError, HTTPStatusError))
-    async def _request(self, *args: Any, **kwargs: Any):
-        return await super()._request(*args, **kwargs)
+    @call_safely(_async_noop_fallback, catch=(APIConnectionError,))
+    async def request(self, *args: Any, **kwargs: Any):
+        return await super().request(*args, **kwargs)
 
 
 @lru_cache(maxsize=256)

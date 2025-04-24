@@ -1,6 +1,5 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
 
-import os
 import time
 import queue
 import random
@@ -77,6 +76,7 @@ class _JSONSpanExporter(SpanExporter):
         self.settings = get_settings()
         self.client = get_sync_client(api_key=self.settings.api_key)
         self.log = logging.getLogger(__name__)
+        self._stop = threading.Event()
         self._q: queue.Queue[_RetryPayload] = queue.Queue(maxsize=10_000)
         self._worker = threading.Thread(target=self._worker_loop, name="LilypadSpanRetry", daemon=True)
         self._worker.start()
@@ -123,34 +123,25 @@ class _JSONSpanExporter(SpanExporter):
                 self._q.task_done()
                 break
 
-            response_spans = self._send_once(item.data)
-            if response_spans is not None:
-                for response_span in response_spans:
-                    self.pretty_print_display_names(response_span)
-                self._q.task_done()
-                continue
-
-            item.attempts += 1
-            if item.attempts > _MAX_RETRIES:
-                self.log.warning("Giving up after %d retries (dropping %d spans)", _MAX_RETRIES, len(item.data))
-                self._q.task_done()
-                continue
-
-            delay = (_BACKOFF_SECS * 2 ** (item.attempts - 1)) * (0.8 + 0.4 * random.random())
-
-            self._q.task_done()
-            time.sleep(delay)
             try:
-                self._q.put_nowait(item)
-            except queue.Full:
-                self.log.warning("Retry queue full – dropping %d spans", len(item.data))
+                if response_spans := self._send_once(item.data):
+                    for response_span in response_spans:
+                        self.pretty_print_display_names(response_span)
+                    return None
+                item.attempts += 1
+                if item.attempts <= _MAX_RETRIES and not self._stop.is_set():
+                    delay = (_BACKOFF_SECS * 2 ** (item.attempts - 1)) * (0.8 + 0.4 * random.random())
+                    time.sleep(delay)
+                    self._q.put(item)
+            finally:
+                self._q.task_done()
 
     def shutdown(self) -> None:
+        self._stop.set()
         self._q.put(None)
-        self._q.join()
-        self._worker.join(timeout=1.0)
+        self._worker.join(timeout=5)
         if self._worker.is_alive():
-            self.log.debug("Worker thread did not finish within timeout")
+            self.log.warning("Worker did not exit in time – dropping remaining spans")
 
     def force_flush(self, timeout_millis: int = 30_000) -> bool:
         start = time.time()
