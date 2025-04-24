@@ -349,7 +349,7 @@ def json_dumps(obj: Any) -> str:
     return orjson.dumps(obj, option=ORJSON_OPTS).decode("utf-8")
 
 
-def _to_json_serializable(obj: Any, seen: set[int]) -> Any:
+def _to_json_serializable(obj: Any, seen: set[int] | None = None) -> Any:
     """Convert Python objects to JSON serializable format."""
     if seen is None:
         seen = set()
@@ -383,7 +383,7 @@ def _to_json_serializable(obj: Any, seen: set[int]) -> Any:
 
 def _any_to_text(val: Any) -> str:
     try:
-        return orjson.dumps(_to_json_serializable(val, set()), option=ORJSON_OPTS).decode()
+        return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode()
     except (TypeError, orjson.JSONEncodeError):
         return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
 
