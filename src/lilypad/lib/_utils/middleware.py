@@ -94,7 +94,6 @@ def _get_custom_context_manager(
             attributes: dict[str, AttributeValue] = {
                 "lilypad.project_uuid": str(new_project_uuid) if new_project_uuid else "",
                 "lilypad.is_async": is_async,
-                "lilypad.decorator.tags": decorator_tags,
             }
             if decorator_tags is not None:
                 attributes["lilypad.decorator.tags"] = json_dumps(decorator_tags)
