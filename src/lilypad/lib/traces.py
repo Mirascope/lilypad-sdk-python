@@ -52,6 +52,7 @@ from ._utils.function_cache import (
     get_function_by_version_async,
 )
 from ..types.projects.functions import FunctionPublic
+from ._utils.serializer_registry import SerializerMap
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -498,6 +499,7 @@ def _set_span_attributes(
     is_async: bool,
     function: FunctionPublic | None,
     decorator_tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
     settings = get_settings()
@@ -518,7 +520,7 @@ def _set_span_attributes(
     yield result_holder
     original_output = result_holder.result
     span.opentelemetry_span.set_attribute(
-        f"lilypad.{trace_type}.output", "" if original_output is None else to_text(original_output)
+        f"lilypad.{trace_type}.output", "" if original_output is None else to_text(original_output, serializers)
     )
 
 
@@ -526,11 +528,12 @@ def _construct_trace_attributes(
     trace_type: str,
     arg_types: dict[str, str],
     arg_values: dict[str, Any],
+    serializers: SerializerMap,
 ) -> dict[str, AttributeValue]:
     jsonable_arg_values = {}
     for arg_name, arg_value in arg_values.items():
         try:
-            serialized_arg_value = fast_jsonable(arg_value)
+            serialized_arg_value = fast_jsonable(arg_value, custom_serializers=serializers)
         except (TypeError, ValueError, orjson.JSONEncodeError):
             serialized_arg_value = "could not serialize"
         jsonable_arg_values[arg_name] = serialized_arg_value
@@ -568,6 +571,7 @@ def trace(
     versioning: None = None,
     mode: None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> TraceDecorator: ...
 
 
@@ -578,6 +582,7 @@ def trace(
     versioning: Literal["automatic"],
     mode: None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> VersionedFunctionTraceDecorator: ...
 
 
@@ -588,6 +593,7 @@ def trace(
     versioning: None,
     mode: Literal["wrap"],
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> WrappedTraceDecorator: ...
 
 
@@ -598,6 +604,7 @@ def trace(
     versioning: Literal["automatic"],
     mode: Literal["wrap"],
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> WrappedVersionedFunctionTraceDecorator: ...
 
 
@@ -607,6 +614,7 @@ def trace(
     versioning: Literal["automatic"] | None = None,
     mode: Literal["wrap"] | None = None,
     tags: list[str] | None = None,
+    serializers: SerializerMap | None = None,
 ) -> TraceDecorator | VersionedFunctionTraceDecorator:
     """The tracing LLM generations.
 
@@ -645,6 +653,8 @@ def trace(
             _register_decorated_function(
                 TRACE_MODULE_NAME, fn, Closure.from_fn(fn).name, {"mode": mode, "tags": decorator_tags}
             )
+
+        local_serializers = serializers or {}
 
         settings = get_settings()
 
@@ -708,6 +718,7 @@ def trace(
                         trace_type=_get_trace_type(function),
                         arg_types=arg_types,
                         arg_values=arg_values,
+                        serializers=local_serializers,
                     )
 
                     if is_mirascope_call:
@@ -723,7 +734,7 @@ def trace(
                         output = await decorator_inner(fn)(*final_args, **final_kwargs)
                     else:
                         with _set_span_attributes(
-                            span, trace_attribute, is_async=True, function=function
+                            span, trace_attribute, is_async=True, function=function, serializers=local_serializers
                         ) as result_holder:
                             output = await fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)
@@ -874,6 +885,7 @@ def trace(
                         trace_type=_get_trace_type(function),
                         arg_types=arg_types,
                         arg_values=arg_values,
+                        serializers=local_serializers,
                     )
 
                     if is_mirascope_call:
@@ -895,6 +907,7 @@ def trace(
                             is_async=False,
                             function=function,
                             decorator_tags=decorator_tags,
+                            serializers=local_serializers,
                         ) as result_holder:
                             output = fn(*final_args, **final_kwargs)
                             result_holder.set_result(output)

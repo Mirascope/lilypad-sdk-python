@@ -10,6 +10,7 @@ from typing import (
     ParamSpec,
 )
 from decimal import Decimal
+from logging import getLogger
 from pathlib import Path, PurePath
 from ipaddress import (
     IPv4Address,
@@ -23,6 +24,10 @@ from collections import deque, defaultdict
 from collections.abc import Callable
 
 from pydantic import BaseModel
+
+from lilypad.lib._utils.serializer_registry import SerializerMap, get_serializer
+
+logger = getLogger(__name__)
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -349,7 +354,9 @@ def json_dumps(obj: Any) -> str:
     return orjson.dumps(obj, option=ORJSON_OPTS).decode("utf-8")
 
 
-def _to_json_serializable(obj: Any, seen: set[int] | None = None) -> Any:
+def _to_json_serializable(
+    obj: Any, seen: set[int] | None = None, custom_serializers: SerializerMap | None = None
+) -> Any:
     """Convert Python objects to JSON serializable format."""
     if seen is None:
         seen = set()
@@ -358,12 +365,32 @@ def _to_json_serializable(obj: Any, seen: set[int] | None = None) -> Any:
         return f"<CircularRef {type(obj).__name__}>"
     seen.add(object_id)
 
+    obj_type = type(obj)
+
+    if custom_serializers is not None and (custom_serializer := custom_serializers.get(obj_type)):
+        try:
+            return custom_serializer(obj)
+        except Exception:
+            logger.debug("custom serializer failed", exc_info=True)
+
+    if (custom_serializer := get_serializer(obj_type)) is not None:
+        try:
+            return custom_serializer(obj)
+        except Exception:
+            logger.debug("custom serializer failed", exc_info=True)
+
     if isinstance(obj, _PRIMITIVES):
         return obj
     if isinstance(obj, BaseModel):
-        return {k: _to_json_serializable(v, seen) for k, v in obj.model_dump(mode="python", warnings=False).items()}
+        return {
+            k: _to_json_serializable(v, seen, custom_serializers)
+            for k, v in obj.model_dump(mode="python", warnings=False).items()
+        }
     if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
-        return {f.name: _to_json_serializable(getattr(obj, f.name), seen) for f in dataclasses.fields(obj)}
+        return {
+            f.name: _to_json_serializable(getattr(obj, f.name), seen, custom_serializers)
+            for f in dataclasses.fields(obj)
+        }
     if isinstance(obj, Enum):
         return obj.value
     if isinstance(obj, Decimal):
@@ -375,37 +402,46 @@ def _to_json_serializable(obj: Any, seen: set[int] | None = None) -> Any:
     ):
         return str(obj)
     if isinstance(obj, dict):
-        return {_to_json_serializable(key, seen): _to_json_serializable(value, seen) for key, value in obj.items()}
+        return {
+            _to_json_serializable(key, seen, custom_serializers): _to_json_serializable(value, seen, custom_serializers)
+            for key, value in obj.items()
+        }
     if isinstance(obj, list | tuple | set | frozenset | deque | GeneratorType):
-        return [_to_json_serializable(item, seen) for item in obj]
+        return [_to_json_serializable(item, seen, custom_serializers) for item in obj]
     return obj
 
 
-def _any_to_text(val: Any) -> str:
+def _any_to_text(val: Any, custom_serializers: SerializerMap | None = None) -> str:
     try:
-        return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode()
+        return orjson.dumps(
+            _to_json_serializable(val, custom_serializers=custom_serializers), option=ORJSON_OPTS
+        ).decode()
     except (TypeError, orjson.JSONEncodeError):
-        return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
+        try:
+            return orjson.dumps(jsonable_encoder(val, custom_encoder=custom_serializers), option=ORJSON_OPTS).decode()
+        except Exception:
+            return repr(val)
 
 
-def fast_jsonable(val: Any) -> str | int | float | bool | None:
+def fast_jsonable(val: Any, custom_serializers: SerializerMap | None = None) -> str | int | float | bool | None:
     """Convert a value to a JSON serializable format."""
     if isinstance(val, _PRIMITIVES):
         return val
 
-    return _any_to_text(val)
+    return _any_to_text(val, custom_serializers=custom_serializers)
 
 
-def to_text(value: Any) -> str:
+def to_text(value: Any, custom_serializers: SerializerMap | None = None) -> str:
     """Guarantee TEXT representation for span attributes."""
     if isinstance(value, str):
         return value
     if isinstance(value, (int, float, bool, type(None))):
         return str(value)
-    return _any_to_text(value)
+    return _any_to_text(value, custom_serializers)
 
 
 __all__ = [
-    "json_dumps",
     "fast_jsonable",
+    "json_dumps",
+    "to_text",
 ]
