@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0-alpha.28 (2025-04-24)
+
+Full Changelog: [v0.1.0-alpha.27...v0.1.0-alpha.28](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.27...v0.1.0-alpha.28)
+
+### Chores
+
+* broadly detect json family of content-type headers ([0d902a7](https://github.com/Mirascope/lilypad-sdk-python/commit/0d902a77977681bda59fe3f96bc1744d5a2fa4ad))
+* **ci:** only use depot for staging repos ([0849d45](https://github.com/Mirascope/lilypad-sdk-python/commit/0849d450ffeb1a2cadd125854cb54bbcd4ea421f))
+* **internal:** codegen related update ([a81ffcb](https://github.com/Mirascope/lilypad-sdk-python/commit/a81ffcb089a89ba1b8d7b32376f0fbb3c2a0490e))
+* **internal:** minor formatting changes ([5bc51f4](https://github.com/Mirascope/lilypad-sdk-python/commit/5bc51f45f19544858a14f961acd513001483c306))
+
 ## 0.1.0-alpha.27 (2025-04-23)
 
 Full Changelog: [v0.1.0-alpha.26...v0.1.0-alpha.27](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.26...v0.1.0-alpha.27)
