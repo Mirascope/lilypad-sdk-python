@@ -349,7 +349,7 @@ def json_dumps(obj: Any) -> str:
     return orjson.dumps(obj, option=ORJSON_OPTS).decode("utf-8")
 
 
-def _to_json_serializable(obj: Any, seen: set[int]) -> Any:
+def _to_json_serializable(obj: Any, seen: set[int] | None = None) -> Any:
     """Convert Python objects to JSON serializable format."""
     if seen is None:
         seen = set()
@@ -381,15 +381,28 @@ def _to_json_serializable(obj: Any, seen: set[int]) -> Any:
     return obj
 
 
+def _any_to_text(val: Any) -> str:
+    try:
+        return orjson.dumps(_to_json_serializable(val), option=ORJSON_OPTS).decode()
+    except (TypeError, orjson.JSONEncodeError):
+        return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
+
+
 def fast_jsonable(val: Any) -> str | int | float | bool | None:
     """Convert a value to a JSON serializable format."""
     if isinstance(val, _PRIMITIVES):
         return val
 
-    try:
-        return orjson.dumps(_to_json_serializable(val, set()), option=ORJSON_OPTS).decode()
-    except (TypeError, orjson.JSONEncodeError):
-        return orjson.dumps(jsonable_encoder(val), option=ORJSON_OPTS).decode()
+    return _any_to_text(val)
+
+
+def to_text(value: Any) -> str:
+    """Guarantee TEXT representation for span attributes."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float, bool, type(None))):
+        return str(value)
+    return _any_to_text(value)
 
 
 __all__ = [
