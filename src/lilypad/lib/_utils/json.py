@@ -360,10 +360,11 @@ def _to_json_serializable(
     """Convert Python objects to JSON serializable format."""
     if seen is None:
         seen = set()
-    object_id = id(obj)
-    if object_id in seen:
-        return f"<CircularRef {type(obj).__name__}>"
-    seen.add(object_id)
+    if not isinstance(obj, _PRIMITIVES):
+        object_id = id(obj)
+        if object_id in seen:
+            return f"<CircularRef {type(obj).__name__}>"
+        seen.add(object_id)
 
     obj_type = type(obj)
 
