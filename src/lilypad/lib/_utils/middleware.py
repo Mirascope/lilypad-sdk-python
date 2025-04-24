@@ -96,6 +96,8 @@ def _get_custom_context_manager(
                 "lilypad.is_async": is_async,
                 "lilypad.decorator.tags": decorator_tags,
             }
+            if decorator_tags is not None:
+                attributes["lilypad.decorator.tags"] = json_dumps(decorator_tags)
             if function:
                 attribute_type = "function"
                 attributes["lilypad.function.uuid"] = str(function.uuid)

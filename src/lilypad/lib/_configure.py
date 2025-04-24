@@ -28,7 +28,8 @@ except ImportError:
 
 DEFAULT_LOG_LEVEL: int = logging.INFO
 
-TraceCreateResponseAdapter = TypeAdapter(TraceCreateResponse)
+# Ignore pydantic deprecation warnings by using `list[SpanPublic]` instead of `TraceCreateResponse`
+TraceCreateResponseAdapter = TypeAdapter(list[SpanPublic])
 
 
 class CryptoIdGenerator(IdGenerator):

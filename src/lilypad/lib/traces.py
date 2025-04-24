@@ -555,7 +555,8 @@ def _set_span_attributes(
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type
     span_attribute["lilypad.is_async"] = is_async
-    span_attribute["lilypad.trace.tags"] = decorator_tags
+    if decorator_tags is not None:
+        span_attribute["lilypad.trace.tags"] = decorator_tags
     if function:
         function_uuid = function.uuid
         span_attribute[f"lilypad.{trace_type}.signature"] = function.signature
