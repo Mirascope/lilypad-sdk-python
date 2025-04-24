@@ -17,6 +17,8 @@ from ..._exceptions import RateLimitError, APIConnectionError, InternalServerErr
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
+NETWORK_EXCEPTIONS = (APIConnectionError, InternalServerError, RateLimitError)
+
 
 def _noop_fallback(*_args: object, **_kwargs: object) -> None:
     """Fallback used by @call_safely – swallow the exception and return None."""
@@ -31,7 +33,7 @@ async def _async_noop_fallback(*_args: object, **_kwargs: object) -> None:
 class Lilypad(_BaseLilypad):
     """Fail-soft synchronous Lilypad client."""
 
-    @call_safely(_noop_fallback, catch=(APIConnectionError, InternalServerError, RateLimitError))
+    @call_safely(_noop_fallback, catch=NETWORK_EXCEPTIONS)
     def request(self, *args: Any, **kwargs: Any):
         return super().request(*args, **kwargs)
 
@@ -39,7 +41,7 @@ class Lilypad(_BaseLilypad):
 class AsyncLilypad(_BaseAsyncLilypad):
     """Fail-soft asynchronous Lilypad client."""
 
-    @call_safely(_async_noop_fallback, catch=(APIConnectionError, InternalServerError, RateLimitError))
+    @call_safely(_async_noop_fallback, catch=NETWORK_EXCEPTIONS)
     async def request(self, *args: Any, **kwargs: Any):
         return await super().request(*args, **kwargs)
 
@@ -113,4 +115,4 @@ def get_async_client(api_key: str | None = None) -> AsyncLilypad:  # noqa: D401
     return _async_singleton(key, id(loop))
 
 
-__all__ = ["get_sync_client", "get_async_client"]
+__all__ = ["get_sync_client", "get_async_client", "NETWORK_EXCEPTIONS"]
