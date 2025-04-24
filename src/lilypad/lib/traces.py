@@ -36,7 +36,7 @@ from ._utils import (
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
 from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
-from ._utils.json import json_dumps, fast_jsonable
+from ._utils.json import to_text, json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
 from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
@@ -515,7 +515,7 @@ def _set_span_attributes(
     yield result_holder
     original_output = result_holder.result
     span.opentelemetry_span.set_attribute(
-        f"lilypad.{trace_type}.output", "" if original_output is None else fast_jsonable(original_output)
+        f"lilypad.{trace_type}.output", "" if original_output is None else to_text(original_output)
     )
 
 

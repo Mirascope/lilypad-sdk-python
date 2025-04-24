@@ -18,7 +18,7 @@ from mirascope.integrations import middleware_factory
 from opentelemetry.util.types import AttributeValue
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
-from .json import json_dumps, fast_jsonable
+from .json import to_text, json_dumps, fast_jsonable
 from .settings import get_settings
 from .functions import ArgTypes, ArgValues
 
@@ -179,7 +179,7 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, tra
         messages = _serialize_proto_data(response.messages)  # Gemini
     common_messages = fast_jsonable(response.common_messages)
     attributes: dict[str, AttributeValue] = {
-        f"lilypad.{trace_type}.output": output,
+        f"lilypad.{trace_type}.output": to_text(output),
         f"lilypad.{trace_type}.messages": messages,
         f"lilypad.{trace_type}.common_messages": common_messages,
     }
