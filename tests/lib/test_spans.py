@@ -38,6 +38,7 @@ class DummySpan:
         self.attributes: dict[str, Any] = {}
         self.events: list[tuple[str, dict[str, Any]]] = []
         self.ended: bool = False
+        self.parent: "DummySpan" | None = None
         dummy_spans.append(self)
 
     def set_attribute(self, key: str, value: Any) -> None:
