@@ -15,6 +15,9 @@ jobs:
     runs-on: ${{ github.repository == 'stainless-sdks/lilypad-sdk-python' && 'depot-ubuntu-24.04' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Fetch actual commit SHA for PRs
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install Rye
         run: |
