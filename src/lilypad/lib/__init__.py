@@ -1,5 +1,6 @@
 """The `lillypad.lib` package."""
 
+from .run import Run, run
 from .spans import span
 from .tools import tool
 from ._utils import register_serializer
@@ -13,6 +14,8 @@ __all__ = [
     "Message",
     "RemoteFunctionError",
     "register_serializer",
+    "run",
+    "Run",
     "span",
     "tool",
     "trace",

@@ -11,7 +11,8 @@ from opentelemetry import context as context_api
 from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, get_tracer_provider, set_span_in_context
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from lilypad.lib._utils.json import json_dumps
+from ..lib.run import RUN_CONTEXT
+from ..lib._utils.json import json_dumps
 
 _trace_level: ContextVar[int] = ContextVar("_trace_level", default=0)
 
@@ -59,6 +60,9 @@ class Span:
         self._span: OTSpan = tracer.start_span(self.name)
         self._span.set_attribute("lilypad.type", "trace")
 
+        current_run = RUN_CONTEXT.get()
+        if current_run and current_run.id is not None:
+            self._span.set_attribute("lilypad.run_id", current_run.id)
         self._is_root = self._span.parent is None
         self._condition = None
         self._lock_acquired = False
