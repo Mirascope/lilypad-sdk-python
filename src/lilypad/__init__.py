@@ -1,12 +1,14 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from . import types
+from .lib import Message, RemoteFunctionError, span, tool, trace, configure, register_serializer
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, Stream, Lilypad, Timeout, Transport, AsyncClient, AsyncStream, AsyncLilypad, RequestOptions
 from ._models import BaseModel
 from ._version import __title__, __version__
 from ._response import APIResponse as APIResponse, AsyncAPIResponse as AsyncAPIResponse
+from .lib.spans import Span
 from ._constants import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES, DEFAULT_CONNECTION_LIMITS
 from ._exceptions import (
     APIError,
@@ -28,6 +30,13 @@ from ._base_client import DefaultHttpxClient, DefaultAsyncHttpxClient
 from ._utils._logs import setup_logging as _setup_logging
 
 __all__ = [
+    "configure",
+    "Message",
+    "RemoteFunctionError",
+    "register_serializer",
+    "span",
+    "tool",
+    "trace",
     "types",
     "__version__",
     "__title__",
@@ -66,6 +75,7 @@ __all__ = [
     "DEFAULT_CONNECTION_LIMITS",
     "DefaultHttpxClient",
     "DefaultAsyncHttpxClient",
+    "Span",
 ]
 
 _setup_logging()
