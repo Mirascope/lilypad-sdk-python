@@ -226,7 +226,7 @@ from lilypad.types.projects import TraceCreateResponse, TraceListResponse
 Methods:
 
 - <code title="post /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">create</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_create_response.py">TraceCreateResponse</a></code>
-- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/trace_list_params.py">params</a>) -> <a href="./src/lilypad/types/projects/trace_list_response.py">TraceListResponse</a></code>
+- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_list_response.py">TraceListResponse</a></code>
 
 ## Environments
 
