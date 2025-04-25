@@ -18,6 +18,8 @@ class AnnotationCreateParams(TypedDict, total=False):
 class Body(TypedDict, total=False):
     assigned_to: Optional[List[str]]
 
+    assignee_email: Optional[List[str]]
+
     data: Optional[object]
 
     function_uuid: Optional[str]

@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 import httpx
 
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
-from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
 from ..._response import (
@@ -17,7 +14,6 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.projects import trace_list_params
 from ...types.projects.trace_list_response import TraceListResponse
 from ...types.projects.trace_create_response import TraceCreateResponse
 
@@ -81,8 +77,6 @@ class TracesResource(SyncAPIResource):
         self,
         project_uuid: str,
         *,
-        cursor: Optional[str] | NotGiven = NOT_GIVEN,
-        limit: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -90,14 +84,12 @@ class TracesResource(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> TraceListResponse:
-        """Get root spans for a project in a paginated fashion.
+        """
+        Get all traces.
 
-        Pass the **span_id of the
-        last item** from the previous page as `cursor` to fetch the next page.
+        Child spans are not lazy loaded to avoid N+1 queries.
 
         Args:
-          cursor: last span_id of previous page
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -111,17 +103,7 @@ class TracesResource(SyncAPIResource):
         return self._get(
             f"/projects/{project_uuid}/traces",
             options=make_request_options(
-                extra_headers=extra_headers,
-                extra_query=extra_query,
-                extra_body=extra_body,
-                timeout=timeout,
-                query=maybe_transform(
-                    {
-                        "cursor": cursor,
-                        "limit": limit,
-                    },
-                    trace_list_params.TraceListParams,
-                ),
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=TraceListResponse,
         )
@@ -184,8 +166,6 @@ class AsyncTracesResource(AsyncAPIResource):
         self,
         project_uuid: str,
         *,
-        cursor: Optional[str] | NotGiven = NOT_GIVEN,
-        limit: int | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -193,14 +173,12 @@ class AsyncTracesResource(AsyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> TraceListResponse:
-        """Get root spans for a project in a paginated fashion.
+        """
+        Get all traces.
 
-        Pass the **span_id of the
-        last item** from the previous page as `cursor` to fetch the next page.
+        Child spans are not lazy loaded to avoid N+1 queries.
 
         Args:
-          cursor: last span_id of previous page
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -214,17 +192,7 @@ class AsyncTracesResource(AsyncAPIResource):
         return await self._get(
             f"/projects/{project_uuid}/traces",
             options=make_request_options(
-                extra_headers=extra_headers,
-                extra_query=extra_query,
-                extra_body=extra_body,
-                timeout=timeout,
-                query=await async_maybe_transform(
-                    {
-                        "cursor": cursor,
-                        "limit": limit,
-                    },
-                    trace_list_params.TraceListParams,
-                ),
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=TraceListResponse,
         )
