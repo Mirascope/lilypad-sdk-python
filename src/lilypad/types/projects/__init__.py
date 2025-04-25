@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from .span_list_params import SpanListParams as SpanListParams
 from .deployment_public import DeploymentPublic as DeploymentPublic
+from .span_list_response import SpanListResponse as SpanListResponse
 from .trace_list_response import TraceListResponse as TraceListResponse
+from .span_delete_response import SpanDeleteResponse as SpanDeleteResponse
 from .trace_create_response import TraceCreateResponse as TraceCreateResponse
 from .function_create_params import FunctionCreateParams as FunctionCreateParams
 from .function_list_response import FunctionListResponse as FunctionListResponse

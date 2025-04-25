@@ -13,6 +13,7 @@ from lilypad.types.ee.projects import (
     Label,
     AnnotationCreateResponse,
     AnnotationListResponse,
+    AnnotationDeleteResponse,
 )
 ```
 
@@ -21,6 +22,7 @@ Methods:
 - <code title="post /ee/projects/{project_uuid}/annotations">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">create</a>(project_uuid, \*\*<a href="src/lilypad/types/ee/projects/annotation_create_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/annotation_create_response.py">AnnotationCreateResponse</a></code>
 - <code title="patch /ee/projects/{project_uuid}/annotations/{annotation_uuid}">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">update</a>(annotation_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/ee/projects/annotation_update_params.py">params</a>) -> <a href="./src/lilypad/types/ee/projects/annotation_public.py">AnnotationPublic</a></code>
 - <code title="get /ee/projects/{project_uuid}/annotations">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">list</a>(project_uuid) -> <a href="./src/lilypad/types/ee/projects/annotation_list_response.py">AnnotationListResponse</a></code>
+- <code title="delete /ee/projects/{project_uuid}/annotations/{annotation_uuid}">client.ee.projects.annotations.<a href="./src/lilypad/resources/ee/projects/annotations.py">delete</a>(annotation_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/ee/projects/annotation_delete_response.py">AnnotationDeleteResponse</a></code>
 
 ### Functions
 
@@ -207,11 +209,14 @@ Methods:
 Types:
 
 ```python
-from lilypad.types.projects import SpanListAggregatesResponse
+from lilypad.types.projects import SpanListResponse, SpanDeleteResponse, SpanListAggregatesResponse
 ```
 
 Methods:
 
+- <code title="get /projects/{project_uuid}/spans/{span_id}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">retrieve</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
+- <code title="get /projects/{project_uuid}/spans">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/span_list_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_list_response.py">SpanListResponse</a></code>
+- <code title="delete /projects/{project_uuid}/spans/{span_uuid}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">delete</a>(span_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/projects/span_delete_response.py">SpanDeleteResponse</a></code>
 - <code title="get /projects/{project_uuid}/spans/metadata">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">list_aggregates</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/span_list_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_list_aggregates_response.py">SpanListAggregatesResponse</a></code>
 - <code title="patch /spans/{span_uuid}">client.projects.spans.<a href="./src/lilypad/resources/projects/spans.py">update_tags</a>(span_uuid, \*\*<a href="src/lilypad/types/projects/span_update_tags_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
@@ -319,7 +324,9 @@ from lilypad.types import OrganizationPublic
 
 Methods:
 
+- <code title="post /organizations">client.organizations.<a href="./src/lilypad/resources/organizations.py">create</a>(\*\*<a href="src/lilypad/types/organization_create_params.py">params</a>) -> <a href="./src/lilypad/types/organization_public.py">OrganizationPublic</a></code>
 - <code title="patch /organizations">client.organizations.<a href="./src/lilypad/resources/organizations.py">update</a>(\*\*<a href="src/lilypad/types/organization_update_params.py">params</a>) -> <a href="./src/lilypad/types/organization_public.py">OrganizationPublic</a></code>
+- <code title="delete /organizations">client.organizations.<a href="./src/lilypad/resources/organizations.py">delete</a>() -> <a href="./src/lilypad/types/auth/user_public.py">UserPublic</a></code>
 
 # ExternalAPIKeys
 

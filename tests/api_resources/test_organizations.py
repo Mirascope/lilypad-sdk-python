@@ -10,12 +10,47 @@ import pytest
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
 from lilypad.types import OrganizationPublic
+from lilypad.types.auth import UserPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
 class TestOrganizations:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_create(self, client: Lilypad) -> None:
+        organization = client.organizations.create(
+            name="x",
+        )
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_create(self, client: Lilypad) -> None:
+        response = client.organizations.with_raw_response.create(
+            name="x",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organization = response.parse()
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_create(self, client: Lilypad) -> None:
+        with client.organizations.with_streaming_response.create(
+            name="x",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organization = response.parse()
+            assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
@@ -54,9 +89,71 @@ class TestOrganizations:
 
         assert cast(Any, response.is_closed) is True
 
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_delete(self, client: Lilypad) -> None:
+        organization = client.organizations.delete()
+        assert_matches_type(UserPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_delete(self, client: Lilypad) -> None:
+        response = client.organizations.with_raw_response.delete()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organization = response.parse()
+        assert_matches_type(UserPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_delete(self, client: Lilypad) -> None:
+        with client.organizations.with_streaming_response.delete() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organization = response.parse()
+            assert_matches_type(UserPublic, organization, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
 
 class TestAsyncOrganizations:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_create(self, async_client: AsyncLilypad) -> None:
+        organization = await async_client.organizations.create(
+            name="x",
+        )
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_create(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.organizations.with_raw_response.create(
+            name="x",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organization = await response.parse()
+        assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_create(self, async_client: AsyncLilypad) -> None:
+        async with async_client.organizations.with_streaming_response.create(
+            name="x",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organization = await response.parse()
+            assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
@@ -92,5 +189,33 @@ class TestAsyncOrganizations:
 
             organization = await response.parse()
             assert_matches_type(OrganizationPublic, organization, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_delete(self, async_client: AsyncLilypad) -> None:
+        organization = await async_client.organizations.delete()
+        assert_matches_type(UserPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_delete(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.organizations.with_raw_response.delete()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        organization = await response.parse()
+        assert_matches_type(UserPublic, organization, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_delete(self, async_client: AsyncLilypad) -> None:
+        async with async_client.organizations.with_streaming_response.delete() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            organization = await response.parse()
+            assert_matches_type(UserPublic, organization, path=["response"])
 
         assert cast(Any, response.is_closed) is True

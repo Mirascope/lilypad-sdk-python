@@ -23,6 +23,7 @@ from ....types.ee.projects.evaluation_type import EvaluationType
 from ....types.ee.projects.annotation_public import AnnotationPublic
 from ....types.ee.projects.annotation_list_response import AnnotationListResponse
 from ....types.ee.projects.annotation_create_response import AnnotationCreateResponse
+from ....types.ee.projects.annotation_delete_response import AnnotationDeleteResponse
 
 __all__ = ["AnnotationsResource", "AsyncAnnotationsResource"]
 
@@ -180,6 +181,42 @@ class AnnotationsResource(SyncAPIResource):
             cast_to=AnnotationListResponse,
         )
 
+    def delete(
+        self,
+        annotation_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> AnnotationDeleteResponse:
+        """
+        Delete an annotation.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not annotation_uuid:
+            raise ValueError(f"Expected a non-empty value for `annotation_uuid` but received {annotation_uuid!r}")
+        return self._delete(
+            f"/ee/projects/{project_uuid}/annotations/{annotation_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=AnnotationDeleteResponse,
+        )
+
 
 class AsyncAnnotationsResource(AsyncAPIResource):
     @cached_property
@@ -334,6 +371,42 @@ class AsyncAnnotationsResource(AsyncAPIResource):
             cast_to=AnnotationListResponse,
         )
 
+    async def delete(
+        self,
+        annotation_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> AnnotationDeleteResponse:
+        """
+        Delete an annotation.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not annotation_uuid:
+            raise ValueError(f"Expected a non-empty value for `annotation_uuid` but received {annotation_uuid!r}")
+        return await self._delete(
+            f"/ee/projects/{project_uuid}/annotations/{annotation_uuid}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=AnnotationDeleteResponse,
+        )
+
 
 class AnnotationsResourceWithRawResponse:
     def __init__(self, annotations: AnnotationsResource) -> None:
@@ -347,6 +420,9 @@ class AnnotationsResourceWithRawResponse:
         )
         self.list = to_raw_response_wrapper(
             annotations.list,
+        )
+        self.delete = to_raw_response_wrapper(
+            annotations.delete,
         )
 
 
@@ -363,6 +439,9 @@ class AsyncAnnotationsResourceWithRawResponse:
         self.list = async_to_raw_response_wrapper(
             annotations.list,
         )
+        self.delete = async_to_raw_response_wrapper(
+            annotations.delete,
+        )
 
 
 class AnnotationsResourceWithStreamingResponse:
@@ -378,6 +457,9 @@ class AnnotationsResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             annotations.list,
         )
+        self.delete = to_streamed_response_wrapper(
+            annotations.delete,
+        )
 
 
 class AsyncAnnotationsResourceWithStreamingResponse:
@@ -392,4 +474,7 @@ class AsyncAnnotationsResourceWithStreamingResponse:
         )
         self.list = async_to_streamed_response_wrapper(
             annotations.list,
+        )
+        self.delete = async_to_streamed_response_wrapper(
+            annotations.delete,
         )
