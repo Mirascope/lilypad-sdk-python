@@ -95,6 +95,9 @@ class SpanMoreDetails(BaseModel):
 
     provider: str
 
+    scope: Literal["lilypad", "llm"]
+    """Instrumentation Scope name of the span"""
+
     uuid: str
 
     arg_values: Optional[object] = None

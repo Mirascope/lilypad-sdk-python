@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import time
+import queue
+import random
 import logging
+import threading
 import importlib.util
 from typing import Any
 from secrets import token_bytes
@@ -19,6 +23,7 @@ from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
 )
 
+from .exceptions import LilypadException
 from ._utils.client import get_sync_client
 from ._utils.settings import get_settings, _set_settings, _current_settings, _default_settings
 from ._utils.otel_debug import wrap_batch_processor
@@ -33,6 +38,18 @@ DEFAULT_LOG_LEVEL: int = logging.INFO
 
 # Ignore pydantic deprecation warnings by using `list[SpanPublic]` instead of `TraceCreateResponse`
 TraceCreateResponseAdapter = TypeAdapter(list[SpanPublic])
+
+_MAX_RETRIES = 5
+_BACKOFF_SECS = 2.0
+_WORKER_SLEEP = 0.2
+
+
+class _RetryPayload:
+    __slots__ = ("data", "attempts")
+
+    def __init__(self, data: list[dict[str, Any]]):
+        self.data = data
+        self.attempts = 0
 
 
 class CryptoIdGenerator(IdGenerator):
@@ -62,6 +79,10 @@ class _JSONSpanExporter(SpanExporter):
         self.settings = get_settings()
         self.client = get_sync_client(api_key=self.settings.api_key)
         self.log = logging.getLogger(__name__)
+        self._stop = threading.Event()
+        self._q: queue.Queue[_RetryPayload] = queue.Queue(maxsize=10_000)
+        self._worker = threading.Thread(target=self._worker_loop, name="LilypadSpanRetry", daemon=True)
+        self._worker.start()
 
     def pretty_print_display_names(self, span: SpanPublic) -> None:
         """Extract and pretty print the display_name attribute from each span, handling nested spans."""
@@ -80,26 +101,77 @@ class _JSONSpanExporter(SpanExporter):
         for child in span.child_spans:
             self._print_span_node(child, indent + 1)
 
+    def _send_once(self, payload: list[dict[str, Any]]) -> list[SpanPublic] | None:
+        """Send once; return list[SpanPublic] if the API accepted the batch."""
+        try:
+            raw_response = self.client.projects.traces.create(project_uuid=self.settings.project_id, extra_body=payload)
+        except LilypadException as exc:
+            self.log.debug("Server responded with error: %s", exc)
+            return None
+
+        if raw_response is None:
+            self.log.warning("Server responded with None")
+            return None
+
+        response_spans = TraceCreateResponseAdapter.validate_python(raw_response)
+        if len(response_spans) > 0:
+            return response_spans
+        else:
+            return None
+
+    def _worker_loop(self) -> None:
+        while True:
+            item = self._q.get()
+            if item is None:
+                self._q.task_done()
+                break
+
+            try:
+                if response_spans := self._send_once(item.data):
+                    for response_span in response_spans:
+                        self.pretty_print_display_names(response_span)
+                    return None
+                item.attempts += 1
+                if item.attempts <= _MAX_RETRIES and not self._stop.is_set():
+                    delay = (_BACKOFF_SECS * 2 ** (item.attempts - 1)) * (0.8 + 0.4 * random.random())
+                    time.sleep(delay)
+                    self._q.put(item)
+            finally:
+                self._q.task_done()
+
+    def shutdown(self) -> None:
+        self._stop.set()
+        self._q.put(None)
+        self._worker.join(timeout=5)
+        if self._worker.is_alive():
+            self.log.warning("Worker did not exit in time – dropping remaining spans")
+
+    def force_flush(self, timeout_millis: int = 30_000) -> bool:
+        start = time.time()
+        while not self._q.empty() and (time.time() - start) * 1000 < timeout_millis:
+            time.sleep(0.05)
+        return self._q.empty()
+
     def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
         """Convert spans to a list of JSON serializable dictionaries"""
+        if not spans:
+            return SpanExportResult.SUCCESS
+
         span_data = [self._span_to_dict(span) for span in spans]
 
+        if response_spans := self._send_once(span_data):
+            for response_span in response_spans:
+                self.pretty_print_display_names(response_span)
+            return SpanExportResult.SUCCESS
+
         try:
-            raw_response = self.client.projects.traces.create(
-                project_uuid=self.settings.project_id, extra_body=span_data
-            )
-            response_spans = TraceCreateResponseAdapter.validate_python(raw_response)
-            if len(response_spans) > 0:
-                for response_span in response_spans:
-                    self.pretty_print_display_names(response_span)
-                return SpanExportResult.SUCCESS
-            else:
-                return SpanExportResult.FAILURE
-        except Exception as e:
-            self.log.error(f"Error sending spans: {e}")
+            self._q.put_nowait(_RetryPayload(span_data))
+            return SpanExportResult.SUCCESS
+        except queue.Full:
+            self.log.error("Retry queue full – dropping %d spans", len(span_data))
             return SpanExportResult.FAILURE
 
-    def _span_to_dict(self, span: ReadableSpan) -> dict:
+    def _span_to_dict(self, span: ReadableSpan) -> dict[str, Any]:
         """Convert the span data to a dictionary that can be serialized to JSON"""
         # span.instrumentation_scope to_json does not work
         instrumentation_scope = (
