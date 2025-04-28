@@ -35,6 +35,7 @@ from .comment_retrieve_response import CommentRetrieveResponse as CommentRetriev
 from .environment_create_params import EnvironmentCreateParams as EnvironmentCreateParams
 from .environment_list_response import EnvironmentListResponse as EnvironmentListResponse
 from .setting_retrieve_response import SettingRetrieveResponse as SettingRetrieveResponse
+from .organization_create_params import OrganizationCreateParams as OrganizationCreateParams
 from .organization_update_params import OrganizationUpdateParams as OrganizationUpdateParams
 from .user_consent_create_params import UserConsentCreateParams as UserConsentCreateParams
 from .user_consent_update_params import UserConsentUpdateParams as UserConsentUpdateParams

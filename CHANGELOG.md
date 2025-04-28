@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.1.0-alpha.34 (2025-04-28)
+
+Full Changelog: [v0.1.0-alpha.33...v0.1.0-alpha.34](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.33...v0.1.0-alpha.34)
+
+### Features
+
+* **api:** update via SDK Studio ([793b932](https://github.com/Mirascope/lilypad-sdk-python/commit/793b932676382bfeedf037347646c34cd1f53ec5))
+* **api:** update via SDK Studio ([2b29318](https://github.com/Mirascope/lilypad-sdk-python/commit/2b2931836d59d4a44b9cd4226c7f24cd2a99fb58))
+
+
+### Chores
+
+* **internal:** codegen related update ([c34ae36](https://github.com/Mirascope/lilypad-sdk-python/commit/c34ae36e6c3ff10c2c48ecbddd28377714a8dd94))
+
+## 0.1.0-alpha.32 (2025-04-25)
+
+Full Changelog: [v0.1.0-alpha.31...v0.1.0-alpha.32](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.31...v0.1.0-alpha.32)
+
+### Features
+
+* **api:** update via SDK Studio ([c8edac0](https://github.com/Mirascope/lilypad-sdk-python/commit/c8edac0a3ef6d0564213ef8e49088db99290153e))
+* **api:** update via SDK Studio ([814d636](https://github.com/Mirascope/lilypad-sdk-python/commit/814d636c42e99f8937be73cc6106045afaa46fab))
+
 ## 0.1.0-alpha.28 (2025-04-24)
 
 Full Changelog: [v0.1.0-alpha.27...v0.1.0-alpha.28](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.27...v0.1.0-alpha.28)

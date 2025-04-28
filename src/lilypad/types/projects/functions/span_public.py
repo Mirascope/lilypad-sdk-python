@@ -63,6 +63,10 @@ class SpanPublic(BaseModel):
 
     parent_span_id: Optional[str] = None
 
+    score: Optional[float] = None
+
+    session_id: Optional[str] = None
+
     status: Optional[str] = None
 
     type: Optional[Literal["function", "trace"]] = None
