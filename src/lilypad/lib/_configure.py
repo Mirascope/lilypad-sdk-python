@@ -1,5 +1,7 @@
 """Initialize Lilypad OpenTelemetry instrumentation."""
 
+from __future__ import annotations
+
 import time
 import queue
 import random
@@ -8,6 +10,7 @@ import threading
 import importlib.util
 from typing import Any
 from secrets import token_bytes
+from contextlib import contextmanager
 from collections.abc import Sequence
 
 from pydantic import TypeAdapter
@@ -22,7 +25,7 @@ from opentelemetry.sdk.trace.export import (
 
 from .exceptions import LilypadException
 from ._utils.client import get_sync_client
-from ._utils.settings import get_settings
+from ._utils.settings import get_settings, _set_settings, _current_settings, _default_settings
 from ._utils.otel_debug import wrap_batch_processor
 from ..types.projects.functions import SpanPublic
 
@@ -222,6 +225,9 @@ class _JSONSpanExporter(SpanExporter):
 
 def configure(
     *,
+    api_key: str | None = None,
+    project_id: str | None = None,
+    base_url: str | None = None,
     log_level: int = DEFAULT_LOG_LEVEL,
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
@@ -232,16 +238,24 @@ def configure(
     The user can configure log level, format, and output destination via the parameters.
     This allows adjusting log outputs for local runtimes or different environments.
     """
-    # Configure logging for Lilypad.
+
+    current = get_settings()
+    new = current.model_copy(deep=True)
+    new.update(
+        api_key=api_key,
+        project_id=project_id,
+        base_url=base_url,
+    )
+
+    _set_settings(new)
+
     logger = logging.getLogger("lilypad")
     logger.setLevel(log_level)
-    if not log_handlers:
-        if log_handlers is None:
-            log_handlers = []
-        log_handlers.append(LogHandler())
-    for log_handler in log_handlers:
-        log_handler.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(log_handler)
+    logger.handlers.clear()
+    handlers = log_handlers or [LogHandler()]
+    for handler in handlers:
+        handler.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(handler)
 
     # Proceed with tracer provider configuration.
     if trace.get_tracer_provider().__class__.__name__ == "TracerProvider":
@@ -287,3 +301,17 @@ def configure(
         from lilypad.lib._opentelemetry import OutlinesInstrumentor
 
         OutlinesInstrumentor().instrument()
+
+
+@contextmanager
+def lilypad_config(**override: Any):
+    token = None
+    try:
+        base = get_settings()
+        tmp = base.model_copy(deep=True)
+        tmp.update(**override)
+        token = _current_settings.set(tmp)
+        yield
+    finally:
+        if token is not None:
+            _current_settings.reset(token)

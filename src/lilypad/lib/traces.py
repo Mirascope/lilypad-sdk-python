@@ -165,7 +165,7 @@ class Trace(_TraceBase[_T]):
             return None
         tag_list = list(tags)
         settings = get_settings()
-        client = Lilypad(api_key=settings.api_key)
+        client = get_sync_client(api_key=settings.api_key)
         span_uuid = self._get_span_uuid(client)
         client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
 
@@ -220,7 +220,7 @@ class AsyncTrace(_TraceBase[_T]):
             return None
         tag_list = list(tags)
         settings = get_settings()
-        client = AsyncLilypad(api_key=settings.api_key)
+        client = get_async_client(api_key=settings.api_key)
         span_uuid = await self._get_span_uuid(client)
         await client.projects.spans.update_tags(span_uuid=span_uuid, tags_by_name=tag_list)
 
