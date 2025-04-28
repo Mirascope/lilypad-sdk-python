@@ -4,6 +4,7 @@ from .spans import span
 from .tools import tool
 from ._utils import register_serializer
 from .traces import trace
+from .sessions import Session, session
 from .messages import Message
 from ._configure import configure, lilypad_config
 from .exceptions import RemoteFunctionError
@@ -14,6 +15,8 @@ __all__ = [
     "Message",
     "RemoteFunctionError",
     "register_serializer",
+    "session",
+    "Session",
     "span",
     "tool",
     "trace",

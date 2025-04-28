@@ -202,6 +202,7 @@ class _JSONSpanExporter(SpanExporter):
             "end_time": span.end_time,
             "attributes": dict(span.attributes.items()) if span.attributes else {},
             "status": span.status.status_code.name,
+            "session_id": span.attributes.get("lilypad.session_id"),
             "events": [
                 {
                     "name": event.name,
