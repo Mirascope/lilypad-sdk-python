@@ -120,6 +120,8 @@ class SpanMoreDetails(BaseModel):
 
     project_uuid: Optional[str] = None
 
+    session_id: Optional[str] = None
+
     signature: Optional[str] = None
 
     status: Optional[str] = None
