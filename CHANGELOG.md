@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.35 (2025-04-30)
+
+Full Changelog: [v0.1.0-alpha.34...v0.1.0-alpha.35](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.34...v0.1.0-alpha.35)
+
+### Chores
+
+* **internal:** remove diff from release please manifest ([907ee4e](https://github.com/Mirascope/lilypad-sdk-python/commit/907ee4e967621c340b4ef957e9f463ac9dcd85eb))
+* rename Run -&gt; Session ([e90d5b5](https://github.com/Mirascope/lilypad-sdk-python/commit/e90d5b5b6b7ee90ee39f2fb82fff346387b4409a))
+
 ## 0.1.0-alpha.34 (2025-04-28)
 
 Full Changelog: [v0.1.0-alpha.33...v0.1.0-alpha.34](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.33...v0.1.0-alpha.34)
