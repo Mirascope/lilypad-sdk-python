@@ -2,6 +2,15 @@
 
 ## 0.1.0-alpha.35 (2025-04-30)
 
+Full Changelog: [v0.1.0-alpha.34...v0.1.0-alpha.36](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.35...v0.1.0-alpha.36)
+
+### Chores
+
+
+* **internal**: Fix trace URL project_id=None: propagate ContextVar & use cached… by @koxudaxi in https://github.com/Mirascope/lilypad-sdk-python/pull/119
+
+## 0.1.0-alpha.35 (2025-04-30)
+
 Full Changelog: [v0.1.0-alpha.34...v0.1.0-alpha.35](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.34...v0.1.0-alpha.35)
 
 ### Chores
