@@ -11,6 +11,7 @@ import importlib.util
 from typing import Any
 from secrets import token_bytes
 from contextlib import contextmanager
+from contextvars import copy_context
 from collections.abc import Sequence
 
 from pydantic import TypeAdapter
@@ -81,14 +82,19 @@ class _JSONSpanExporter(SpanExporter):
         self.log = logging.getLogger(__name__)
         self._stop = threading.Event()
         self._q: queue.Queue[_RetryPayload] = queue.Queue(maxsize=10_000)
-        self._worker = threading.Thread(target=self._worker_loop, name="LilypadSpanRetry", daemon=True)
+        ctx = copy_context()
+        self._worker = threading.Thread(
+            target=lambda: ctx.run(self._worker_loop),
+            name="LilypadSpanRetry",
+            daemon=True,
+        )
         self._worker.start()
 
     def pretty_print_display_names(self, span: SpanPublic) -> None:
         """Extract and pretty print the display_name attribute from each span, handling nested spans."""
-        settings = get_settings()
         self.log.info(
-            f"View the trace at: {settings.remote_client_url}/projects/{settings.project_id}/traces/{span.uuid}"
+            f"View the trace at: "
+            f"{self.settings.remote_client_url}/projects/{self.settings.project_id}/traces/{span.uuid}"
         )
         self._print_span_node(span, indent=0)
 
