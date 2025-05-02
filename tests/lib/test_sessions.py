@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from lilypad.lib.sessions import SESSION_CONTEXT, Session, session
 from lilypad.lib.spans import span
+from lilypad.lib.sessions import SESSION_CONTEXT, Session, session
 
 
 class DummyTracer:
