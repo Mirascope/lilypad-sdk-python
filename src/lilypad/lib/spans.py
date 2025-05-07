@@ -1,6 +1,7 @@
 """A context manager for creating a tracing span with parent-child relationship tracking,"""
 
 import time
+import logging
 import datetime
 from typing import Any
 from functools import lru_cache  # noqa: TID251
@@ -9,6 +10,7 @@ from contextvars import ContextVar
 
 from opentelemetry import context as context_api
 from opentelemetry.trace import Span as OTSpan, StatusCode, get_tracer, get_tracer_provider, set_span_in_context
+from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from ..lib.sessions import SESSION_CONTEXT
@@ -47,6 +49,8 @@ def get_batch_span_processor() -> BatchSpanProcessor | None:
 class Span:
     """A context manager for creating a tracing span with parent-child relationship tracking."""
 
+    _warned_not_configured: bool = False
+
     def __init__(self, name: str) -> None:
         self.name: str = name
         self._span: OTSpan | None = None
@@ -54,8 +58,21 @@ class Span:
         self._order_cm: AbstractContextManager[Any] | None = None
         self._finished: bool = False
         self._token = None
+        self._noop: bool = False
+        self._span_id: int = 0
 
     def __enter__(self) -> "Span":
+        if not isinstance(get_tracer_provider(), TracerProvider):
+            if not Span._warned_not_configured:
+                logging.getLogger("lilypad").warning(
+                    "Lilypad has not been configured. Tracing is disabled "
+                    "for span '%s'. Call `lilypad.configure(...)` early in program start-up.",
+                    self.name,
+                )
+                Span._warned_not_configured = True
+            self._noop = True
+            return self
+
         tracer = get_tracer("lilypad")
         self._span: OTSpan = tracer.start_span(self.name)
         self._span.set_attribute("lilypad.type", "trace")
@@ -92,6 +109,8 @@ class Span:
         exc_val: BaseException | None,
         exc_tb: Any,
     ) -> None:
+        if self._noop:
+            return
         if exc_type is not None and self._span is not None and exc_val is not None:
             self._span.record_exception(exc_val)
 
@@ -194,12 +213,12 @@ class Span:
     @property
     def span_id(self) -> int:
         """Return the span ID."""
-        return self._span.get_span_context().span_id
+        return self._span_id if self._noop else self._span.get_span_context().span_id
 
     @property
     def opentelemetry_span(self) -> OTSpan | None:
         """Return the underlying OpenTelemetry span."""
-        return self._span
+        return None if self._noop else self._span
 
 
 def span(name: str) -> Span:

@@ -503,6 +503,10 @@ def _set_span_attributes(
     serializers: SerializerMap | None = None,
 ) -> Generator[_ResultHolder, None, None]:
     """Set the attributes on the span."""
+    if span.opentelemetry_span is None:
+        result_holder = _ResultHolder()
+        yield result_holder
+        return
     settings = get_settings()
     span_attribute["lilypad.project_uuid"] = settings.project_id if settings.project_id else ""
     span_attribute["lilypad.type"] = trace_type = _get_trace_type(function)
