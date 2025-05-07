@@ -16,8 +16,9 @@ from collections.abc import Sequence
 
 from pydantic import TypeAdapter
 from opentelemetry import trace
-from opentelemetry.trace import INVALID_SPAN_ID, INVALID_TRACE_ID
+from opentelemetry.trace import INVALID_SPAN_ID, INVALID_TRACE_ID, StatusCode
 from opentelemetry.sdk.trace import IdGenerator, ReadableSpan, TracerProvider
+from opentelemetry.trace.status import Status, StatusCode
 from opentelemetry.sdk.trace.export import (
     SpanExporter,
     SpanExportResult,
@@ -230,6 +231,15 @@ class _JSONSpanExporter(SpanExporter):
         }
 
 
+class MarkOKBatchSpanProcessor(BatchSpanProcessor):
+    """BatchSpanProcessor that marks UNSET spans as OK when configured."""
+
+    def on_end(self, span: ReadableSpan) -> None:
+        if span.status.status_code is StatusCode.UNSET and get_settings().mark_unset_ok:
+            span._status = Status(StatusCode.OK)
+        super().on_end(span)
+
+
 def configure(
     *,
     api_key: str | None = None,
@@ -272,7 +282,9 @@ def configure(
         return
     otlp_exporter = _JSONSpanExporter()
     provider = TracerProvider(id_generator=CryptoIdGenerator())
-    processor = BatchSpanProcessor(otlp_exporter)  # pyright: ignore[reportArgumentType]
+    processor = (
+        MarkOKBatchSpanProcessor(otlp_exporter) if get_settings().mark_unset_ok else BatchSpanProcessor(otlp_exporter)
+    )
     if log_level == logging.DEBUG:
         wrap_batch_processor(processor)
     provider.add_span_processor(processor)
