@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.0-alpha.38 (2025-05-07)
+
+Full Changelog: [v0.1.0-alpha.37...v0.1.0-alpha.38](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.37...v0.1.0-alpha.38)
+
+### Features
+
+* Gracefully handle missing lilypad.configure(): noop Span with single warning ([bebe6cf](https://github.com/Mirascope/lilypad-sdk-python/commit/bebe6cf426af92651049ca9dc06b21ea48fec726))
+
+
+### Chores
+
+* **internal:** codegen related update ([1e8216c](https://github.com/Mirascope/lilypad-sdk-python/commit/1e8216c75347dffaa2a22e17b31bfcca253fb169))
+* **internal:** codegen related update ([83746da](https://github.com/Mirascope/lilypad-sdk-python/commit/83746daa6f4847451f6ca17cae360dff4fea4a03))
+
 ## 0.1.0-alpha.35 (2025-04-30)
 
 Full Changelog: [v0.1.0-alpha.34...v0.1.0-alpha.36](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.35...v0.1.0-alpha.36)
