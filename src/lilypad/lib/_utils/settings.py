@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     remote_client_url: str = Field(default=REMOTE_CLIENT_URL)
     api_key: str | None = None
     project_id: str | None = None
+    mark_unset_ok: bool = False
 
     def update(self, **kwargs: Any) -> None:  # noqa: D401
         """Update non-None fields in place."""

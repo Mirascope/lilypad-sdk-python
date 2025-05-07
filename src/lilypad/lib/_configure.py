@@ -239,6 +239,7 @@ def configure(
     log_format: str | None = None,
     log_handlers: list[logging.Handler] | None = None,
     auto_llm: bool = False,
+    mark_unset_ok: bool | None = None,
 ) -> None:
     """Initialize the OpenTelemetry instrumentation for Lilypad and configure log outputs.
 
@@ -252,6 +253,7 @@ def configure(
         api_key=api_key,
         project_id=project_id,
         base_url=base_url,
+        mark_unset_ok=mark_unset_ok,
     )
 
     _set_settings(new)

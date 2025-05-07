@@ -14,6 +14,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from ..lib.sessions import SESSION_CONTEXT
+from ._utils.settings import get_settings
 from ..lib._utils.json import json_dumps
 
 _trace_level: ContextVar[int] = ContextVar("_trace_level", default=0)
@@ -111,8 +112,14 @@ class Span:
     ) -> None:
         if self._noop:
             return
-        if exc_type is not None and self._span is not None and exc_val is not None:
-            self._span.record_exception(exc_val)
+
+        if self._span is not None:
+            if exc_type is None:
+                if get_settings().mark_unset_ok:
+                    self._span.set_status(StatusCode.OK)
+            else:
+                if exc_val is not None:
+                    self._span.record_exception(exc_val)
 
         if self._span is not None:
             self._span.end()
