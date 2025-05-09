@@ -51,3 +51,8 @@ class LilypadRequestException(LilypadException, RequestError):
 
 class LilypadTimeout(LilypadException, TimeoutException):
     """The request timed out."""
+
+class LilypadPaymentRequiredError(LilypadException):
+    """Raised when an API response has a status code of 402."""
+
+    status_code: Literal[402] = 402
