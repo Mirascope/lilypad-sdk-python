@@ -1,5 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+import typing as _t
+
 from . import types
 from .lib import (
     Message,
@@ -91,6 +93,9 @@ __all__ = [
     "Session",
     "Span",
 ]
+
+if not _t.TYPE_CHECKING:
+    from ._utils._resources_proxy import resources as resources
 
 _setup_logging()
 
