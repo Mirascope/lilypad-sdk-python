@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.0-alpha.39 (2025-05-10)
+
+Full Changelog: [v0.1.0-alpha.38...v0.1.0-alpha.39](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.38...v0.1.0-alpha.39)
+
+### Features
+
+* ignore trace limit server error ([b7193b2](https://github.com/Mirascope/lilypad-sdk-python/commit/b7193b2e39aa0f2500cf2eabc3ee8b11769a6206))
+
+
+### Bug Fixes
+
+* always soft fail for any lilypad exception or error so user code always runs ([709988c](https://github.com/Mirascope/lilypad-sdk-python/commit/709988ca7ef14cfebf246c92a5f7ea70349b10ad))
+* **package:** support direct resource imports ([55f02c0](https://github.com/Mirascope/lilypad-sdk-python/commit/55f02c0f1fa709ff7911ea3d18659b846b851a2a))
+
+
+### Chores
+
+* **internal:** avoid errors for isinstance checks on proxies ([adf6a0e](https://github.com/Mirascope/lilypad-sdk-python/commit/adf6a0ee6d94770fec3ab0468d782a74875bc749))
+* **internal:** version bump ([d184b43](https://github.com/Mirascope/lilypad-sdk-python/commit/d184b43f9a722a22c413e1aaee90409767a78cdd))
+
 ## 0.1.0-alpha.38 (2025-05-07)
 
 Full Changelog: [v0.1.0-alpha.37...v0.1.0-alpha.38](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.37...v0.1.0-alpha.38)
