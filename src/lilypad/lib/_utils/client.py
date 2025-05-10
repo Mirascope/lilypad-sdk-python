@@ -13,12 +13,10 @@ from .settings import get_settings
 from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
 from ..exceptions import LilypadPaymentRequiredError
 from .call_safely import call_safely
-from ..._exceptions import APIStatusError, RateLimitError, APIConnectionError, InternalServerError
+from ..._exceptions import APIStatusError
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
-
-NETWORK_EXCEPTIONS = (APIConnectionError, InternalServerError, RateLimitError)
 
 
 def _noop_fallback(*_args: object, **_kwargs: object) -> None:
@@ -34,7 +32,7 @@ async def _async_noop_fallback(*_args: object, **_kwargs: object) -> None:
 class Lilypad(_BaseLilypad):
     """Fail-soft synchronous Lilypad client."""
 
-    @call_safely(_noop_fallback, catch=NETWORK_EXCEPTIONS, catch_safe_exceptions=(LilypadPaymentRequiredError,))
+    @call_safely(_noop_fallback)
     def request(self, *args: Any, **kwargs: Any):
         try:
             return super().request(*args, **kwargs)
@@ -47,7 +45,7 @@ class Lilypad(_BaseLilypad):
 class AsyncLilypad(_BaseAsyncLilypad):
     """Fail-soft asynchronous Lilypad client."""
 
-    @call_safely(_async_noop_fallback, catch=NETWORK_EXCEPTIONS, catch_safe_exceptions=(LilypadPaymentRequiredError,))
+    @call_safely(_async_noop_fallback)
     async def request(self, *args: Any, **kwargs: Any):
         try:
             return await super().request(*args, **kwargs)
@@ -127,4 +125,4 @@ def get_async_client(api_key: str | None = None, base_url: str | None = None) ->
     return _async_singleton(key, id(loop), base_url=base_url or get_settings().base_url)
 
 
-__all__ = ["get_sync_client", "get_async_client", "NETWORK_EXCEPTIONS"]
+__all__ = ["get_sync_client", "get_async_client"]

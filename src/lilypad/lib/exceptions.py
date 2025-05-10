@@ -4,13 +4,15 @@ from typing import Literal
 
 from httpx import HTTPError, RequestError, TimeoutException
 
-
-class LicenseError(Exception):
-    """Custom exception for license-related errors"""
+from .._exceptions import APIStatusError
 
 
 class LilypadException(Exception):
     """Base class for all Lilypad exceptions."""
+
+
+class LicenseError(LilypadException):
+    """Custom exception for license-related errors"""
 
 
 class RemoteFunctionError(LilypadException):
@@ -51,6 +53,7 @@ class LilypadRequestException(LilypadException, RequestError):
 
 class LilypadTimeout(LilypadException, TimeoutException):
     """The request timed out."""
+
 
 class LilypadPaymentRequiredError(LilypadException):
     """Raised when an API response has a status code of 402."""
