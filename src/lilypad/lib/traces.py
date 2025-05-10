@@ -36,10 +36,10 @@ from ._utils import (
 )
 from .sandbox import SandboxRunner, SubprocessSandboxRunner
 from .._client import Lilypad, AsyncLilypad
-from .exceptions import LilypadValueError, RemoteFunctionError, LilypadNotFoundError
+from .exceptions import RemoteFunctionError
 from ._utils.json import to_text, json_dumps, fast_jsonable
 from .._exceptions import NotFoundError
-from ._utils.client import NETWORK_EXCEPTIONS, get_sync_client, get_async_client
+from ._utils.client import get_sync_client, get_async_client
 from ._utils.settings import get_settings
 from ._utils.functions import get_signature
 from ..types.ee.projects import Label, EvaluationType, annotation_create_params
@@ -671,7 +671,7 @@ def trace(
             trace_name = name
         if fn_is_async(fn):
 
-            @call_safely(fn, catch=NETWORK_EXCEPTIONS)
+            @call_safely(fn)
             @wraps(fn)
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 with Span(trace_name) as span:
@@ -694,7 +694,7 @@ def trace(
 
                     closure = Closure.from_fn(fn)
 
-                    @call_safely(fn, catch=NETWORK_EXCEPTIONS)
+                    @call_safely(fn)
                     @wraps(fn)
                     async def get_or_create_function_async() -> FunctionPublic | None:
                         try:
@@ -774,7 +774,7 @@ def trace(
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                @call_safely(fn, catch=NETWORK_EXCEPTIONS)  # pyright: ignore [reportArgumentType]
+                @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 @wraps(fn)
                 def _inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     result = sandbox.execute_function(
@@ -840,7 +840,7 @@ def trace(
             return inner_async
         else:
 
-            @call_safely(fn, catch=NETWORK_EXCEPTIONS)
+            @call_safely(fn)
             @wraps(fn)
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 with Span(trace_name) as span:
@@ -864,7 +864,7 @@ def trace(
 
                     closure = Closure.from_fn(fn)
 
-                    @call_safely(fn, catch=NETWORK_EXCEPTIONS)
+                    @call_safely(fn)
                     @wraps(fn)
                     def get_or_create_function_sync() -> FunctionPublic | None:
                         try:
@@ -950,7 +950,7 @@ def trace(
                 if sandbox is None:
                     sandbox = SubprocessSandboxRunner(os.environ.copy())
 
-                @call_safely(fn, catch=NETWORK_EXCEPTIONS)  # pyright: ignore [reportArgumentType]
+                @call_safely(fn)  # pyright: ignore [reportArgumentType]
                 @wraps(fn)
                 def _inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                     result = sandbox.execute_function(

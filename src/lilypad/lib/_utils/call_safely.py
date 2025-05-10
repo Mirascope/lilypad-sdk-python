@@ -8,7 +8,7 @@ from collections.abc import Callable, Coroutine
 
 from ..exceptions import LilypadException
 from .fn_is_async import fn_is_async
-from ..._exceptions import RateLimitError
+from ..._exceptions import LilypadError
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -28,9 +28,6 @@ def _default_logger(name: str = "lilypad") -> logging.Logger:
 @overload
 def call_safely(
     child_fn: Callable[_P, Coroutine[Any, Any, _R]],
-    *,
-    catch: tuple[type[BaseException], ...] | None = None,
-    catch_safe_exceptions: tuple[type[BaseException], ...] | None = None,
 ) -> Callable[
     [Callable[_P, Coroutine[Any, Any, _R]]],
     Callable[_P, Coroutine[Any, Any, _R]],
@@ -40,24 +37,12 @@ def call_safely(
 @overload
 def call_safely(
     child_fn: Callable[_P, _R],
-    *,
-    catch: tuple[type[BaseException], ...] | None = None,
-    catch_safe_exceptions: tuple[type[BaseException], ...] | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
 
 
 def call_safely(
     child_fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
-    *,
-    catch: tuple[type[BaseException], ...] | None = None,
-    catch_safe_exceptions: tuple[type[BaseException], ...] | None = None,
 ):
-    if catch is None:
-        catch = (LilypadException,)
-
-    if catch_safe_exceptions is None:
-        catch_safe_exceptions = (RateLimitError,)
-
     @overload
     def decorator(
         fn: Callable[_P, Coroutine[Any, Any, _R]],
@@ -75,11 +60,7 @@ def call_safely(
             async def inner_async(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 try:
                     return await fn(*args, **kwargs)
-                except catch_safe_exceptions as e:
-                    logger = _default_logger()
-                    logger.warning("Safe exception in wrapped function '%s': %s", fn.__name__, str(e))
-                    return child_fn(*args, **kwargs)
-                except catch as e:
+                except (LilypadException, LilypadError) as e:
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
                     logger.error("Exception type: %s", type(e).__name__)
@@ -99,11 +80,7 @@ def call_safely(
             def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
                 try:
                     return fn(*args, **kwargs)  # pyright: ignore [reportReturnType]
-                except catch_safe_exceptions as e:
-                    logger = _default_logger()
-                    logger.warning("Safe exception in wrapped function '%s': %s", fn.__name__, str(e))
-                    return child_fn(*args, **kwargs)
-                except catch as e:
+                except (LilypadException, LilypadError) as e:
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
                     logger.error("Exception type: %s", type(e).__name__)
