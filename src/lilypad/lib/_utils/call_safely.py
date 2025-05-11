@@ -28,6 +28,7 @@ def _default_logger(name: str = "lilypad") -> logging.Logger:
 @overload
 def call_safely(
     child_fn: Callable[_P, Coroutine[Any, Any, _R]],
+    exclude: tuple[type, ...] | None = None,
 ) -> Callable[
     [Callable[_P, Coroutine[Any, Any, _R]]],
     Callable[_P, Coroutine[Any, Any, _R]],
@@ -37,11 +38,13 @@ def call_safely(
 @overload
 def call_safely(
     child_fn: Callable[_P, _R],
+    exclude: tuple[type, ...] | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
 
 
 def call_safely(
     child_fn: Callable[_P, _R] | Callable[_P, Coroutine[Any, Any, _R]],
+    exclude: tuple[type, ...] | None = None,
 ):
     @overload
     def decorator(
@@ -61,7 +64,7 @@ def call_safely(
                 try:
                     return await fn(*args, **kwargs)
                 except (LilypadException, LilypadError) as e:
-                    if isinstance(e, LilypadNotFoundError):
+                    if exclude and isinstance(e, exclude):
                         raise e
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
@@ -83,7 +86,7 @@ def call_safely(
                 try:
                     return fn(*args, **kwargs)  # pyright: ignore [reportReturnType]
                 except (LilypadException, LilypadError) as e:
-                    if isinstance(e, LilypadNotFoundError):
+                    if exclude and isinstance(e, exclude):
                         raise e
                     logger = _default_logger()
                     logger.error("Error in wrapped function '%s': %s", fn.__name__, str(e))
