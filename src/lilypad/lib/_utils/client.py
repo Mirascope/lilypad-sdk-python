@@ -13,7 +13,7 @@ from .settings import get_settings
 from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
 from ..exceptions import LilypadPaymentRequiredError
 from .call_safely import call_safely
-from ..._exceptions import APIStatusError, NotFoundError
+from ..._exceptions import NotFoundError, APIStatusError
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")

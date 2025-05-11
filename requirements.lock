@@ -220,7 +220,7 @@ markupsafe==3.0.2
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-mirascope==1.22.1
+mirascope==1.23.2
     # via lilypad-sdk
 mistralai==1.6.0
     # via lilypad-sdk
