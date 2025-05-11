@@ -13,7 +13,7 @@ dependencies = [
   "distro>=1.7.0, <2",
   "sniffio",
   "libcst>=1.6.0",
-  "mirascope>=1.23.2",
+  "mirascope>=1.23.3",
   "opentelemetry-api>=1.31.0",
   "opentelemetry-sdk>=1.31.0",
   "opentelemetry-instrumentation>=0.51b0",
