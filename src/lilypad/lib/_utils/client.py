@@ -13,7 +13,7 @@ from .settings import get_settings
 from ..._client import Lilypad as _BaseLilypad, AsyncLilypad as _BaseAsyncLilypad
 from ..exceptions import LilypadPaymentRequiredError
 from .call_safely import call_safely
-from ..._exceptions import APIStatusError
+from ..._exceptions import APIStatusError, NotFoundError
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -32,7 +32,7 @@ async def _async_noop_fallback(*_args: object, **_kwargs: object) -> None:
 class Lilypad(_BaseLilypad):
     """Fail-soft synchronous Lilypad client."""
 
-    @call_safely(_noop_fallback)
+    @call_safely(_noop_fallback, exclude=(NotFoundError,))
     def request(self, *args: Any, **kwargs: Any):
         try:
             return super().request(*args, **kwargs)
@@ -45,7 +45,7 @@ class Lilypad(_BaseLilypad):
 class AsyncLilypad(_BaseAsyncLilypad):
     """Fail-soft asynchronous Lilypad client."""
 
-    @call_safely(_async_noop_fallback)
+    @call_safely(_async_noop_fallback, exclude=(NotFoundError,))
     async def request(self, *args: Any, **kwargs: Any):
         try:
             return await super().request(*args, **kwargs)
