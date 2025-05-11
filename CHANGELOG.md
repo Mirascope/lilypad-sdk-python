@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.0-alpha.40 (2025-05-11)
+
+Full Changelog: [v0.1.0-alpha.39...v0.1.0-alpha.40](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.39...v0.1.0-alpha.40)
+
+### Bug Fixes
+
+* exclude NotFoundError from call_safely exception handling ([e381c2b](https://github.com/Mirascope/lilypad-sdk-python/commit/e381c2b3cc0d6d0669ad703916803ed27b26fa7c))
+* raise NotFound exception for missing resources ([a911b8c](https://github.com/Mirascope/lilypad-sdk-python/commit/a911b8c2c3352f7d36b7628c3b69c8cd6efd11d1))
+* reorder import statements for clarity ([09a50b1](https://github.com/Mirascope/lilypad-sdk-python/commit/09a50b1c4a251e3e8b4f1276eb3f9215d58dee06))
+* update mirascope dependency to version 1.23.2 ([c4fc139](https://github.com/Mirascope/lilypad-sdk-python/commit/c4fc139132e3130ceb01e4b96464e99c0d6567ce))
+
+
+### Chores
+
+* **internal:** version bump ([afdd284](https://github.com/Mirascope/lilypad-sdk-python/commit/afdd284ec43be7683cd9e1a363a0050e9ba9c12b))
+
 ## 0.1.0-alpha.39 (2025-05-10)
 
 Full Changelog: [v0.1.0-alpha.38...v0.1.0-alpha.39](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.38...v0.1.0-alpha.39)
