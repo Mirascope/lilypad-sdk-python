@@ -126,7 +126,7 @@ openai = ["openai>=1.57.0"]
 anthropic = ["anthropic>=0.36.0"]
 azure = ["azure-ai-inference>=1.0.0b9,<2.0", "aiohttp>=3.10.5,<4.0"]
 gemini = ["google-generativeai>=0.4.0,<1", "pillow>=10.4.0,<11"]
-google = ["google-genai>=1.7.0,<2", "pillow>=10.4.0,<11"]
+google = ["google-genai>=1.7.0,<2", "pillow>=10.4.0,<11", "proto-plus>=1.24.0"]
 bedrock = [
   "aioboto3>=13.2.0",
   "boto3>=1.35.36",
