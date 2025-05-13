@@ -168,6 +168,16 @@ def _serialize_proto_data(data: list[dict]) -> str:
     return json_dumps(serializable_data)
 
 
+def _serialize_bytes_to_base64(data: bytes) -> str:
+    """Serializes bytes to a base64 encoded string."""
+    return base64.b64encode(data).decode("utf-8")
+
+
+_COMMON_MESSAGES_PARTS_SERIALIZER = {
+    bytes: _serialize_bytes_to_base64,
+}
+
+
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
         output = fast_jsonable(response.message_param)
@@ -177,7 +187,7 @@ def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, tra
         messages = fast_jsonable(response.messages)
     except TypeError:
         messages = _serialize_proto_data(response.messages)  # Gemini
-    common_messages = fast_jsonable(response.common_messages)
+    common_messages = fast_jsonable(response.common_messages, _COMMON_MESSAGES_PARTS_SERIALIZER)
     attributes: dict[str, AttributeValue] = {
         f"lilypad.{trace_type}.output": to_text(output),
         f"lilypad.{trace_type}.messages": messages,
