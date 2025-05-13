@@ -109,7 +109,7 @@ class Lilypad(SyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("LILYPAD_BASE_URL")
         if base_url is None:
-            base_url = f"https://lilypad-api.mirascope.com"
+            base_url = f"https://lilypad-api.mirascope.com/v0"
 
         super().__init__(
             version=__version__,
@@ -305,7 +305,7 @@ class AsyncLilypad(AsyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("LILYPAD_BASE_URL")
         if base_url is None:
-            base_url = f"https://lilypad-api.mirascope.com"
+            base_url = f"https://lilypad-api.mirascope.com/v0"
 
         super().__init__(
             version=__version__,
