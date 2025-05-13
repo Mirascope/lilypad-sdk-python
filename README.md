@@ -16,7 +16,7 @@ The REST API documentation can be found on [mirascope.com](https://mirascope.com
 
 ```sh
 # install from PyPI
-pip install --pre lilypad-sdk
+pip install lilypad-sdk
 ```
 
 ## Usage
