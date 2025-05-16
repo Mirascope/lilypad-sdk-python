@@ -14,6 +14,7 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
+from ....types.ee.projects.span_retrieve_annotations_response import SpanRetrieveAnnotationsResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
 
@@ -74,6 +75,42 @@ class SpansResource(SyncAPIResource):
             cast_to=object,
         )
 
+    def retrieve_annotations(
+        self,
+        span_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanRetrieveAnnotationsResponse:
+        """
+        Get annotations by functions.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_uuid:
+            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
+        return self._get(
+            f"/ee/projects/{project_uuid}/spans/{span_uuid}/annotations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanRetrieveAnnotationsResponse,
+        )
+
 
 class AsyncSpansResource(AsyncAPIResource):
     @cached_property
@@ -131,6 +168,42 @@ class AsyncSpansResource(AsyncAPIResource):
             cast_to=object,
         )
 
+    async def retrieve_annotations(
+        self,
+        span_uuid: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanRetrieveAnnotationsResponse:
+        """
+        Get annotations by functions.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_uuid:
+            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
+        return await self._get(
+            f"/ee/projects/{project_uuid}/spans/{span_uuid}/annotations",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanRetrieveAnnotationsResponse,
+        )
+
 
 class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
@@ -138,6 +211,9 @@ class SpansResourceWithRawResponse:
 
         self.generate_annotation = to_raw_response_wrapper(
             spans.generate_annotation,
+        )
+        self.retrieve_annotations = to_raw_response_wrapper(
+            spans.retrieve_annotations,
         )
 
 
@@ -148,6 +224,9 @@ class AsyncSpansResourceWithRawResponse:
         self.generate_annotation = async_to_raw_response_wrapper(
             spans.generate_annotation,
         )
+        self.retrieve_annotations = async_to_raw_response_wrapper(
+            spans.retrieve_annotations,
+        )
 
 
 class SpansResourceWithStreamingResponse:
@@ -157,6 +236,9 @@ class SpansResourceWithStreamingResponse:
         self.generate_annotation = to_streamed_response_wrapper(
             spans.generate_annotation,
         )
+        self.retrieve_annotations = to_streamed_response_wrapper(
+            spans.retrieve_annotations,
+        )
 
 
 class AsyncSpansResourceWithStreamingResponse:
@@ -165,4 +247,7 @@ class AsyncSpansResourceWithStreamingResponse:
 
         self.generate_annotation = async_to_streamed_response_wrapper(
             spans.generate_annotation,
+        )
+        self.retrieve_annotations = async_to_streamed_response_wrapper(
+            spans.retrieve_annotations,
         )

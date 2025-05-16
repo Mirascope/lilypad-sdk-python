@@ -90,8 +90,8 @@ class SpansResource(SyncAPIResource):
         self,
         project_uuid: str,
         *,
-        query_string: str,
         limit: int | NotGiven = NOT_GIVEN,
+        query_string: Optional[str] | NotGiven = NOT_GIVEN,
         scope: Optional[Literal["lilypad", "llm"]] | NotGiven = NOT_GIVEN,
         time_range_end: Optional[int] | NotGiven = NOT_GIVEN,
         time_range_start: Optional[int] | NotGiven = NOT_GIVEN,
@@ -107,17 +107,7 @@ class SpansResource(SyncAPIResource):
         Search for traces in OpenSearch.
 
         Args:
-          query_string: Search query string
-
-          limit: Maximum number of results to return
-
           scope: Instrumentation Scope name of the span
-
-          time_range_end: End time range in milliseconds
-
-          time_range_start: Start time range in milliseconds
-
-          type: Type of spans to search for
 
           extra_headers: Send extra headers
 
@@ -138,8 +128,8 @@ class SpansResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
-                        "query_string": query_string,
                         "limit": limit,
+                        "query_string": query_string,
                         "scope": scope,
                         "time_range_end": time_range_end,
                         "time_range_start": time_range_start,
@@ -330,8 +320,8 @@ class AsyncSpansResource(AsyncAPIResource):
         self,
         project_uuid: str,
         *,
-        query_string: str,
         limit: int | NotGiven = NOT_GIVEN,
+        query_string: Optional[str] | NotGiven = NOT_GIVEN,
         scope: Optional[Literal["lilypad", "llm"]] | NotGiven = NOT_GIVEN,
         time_range_end: Optional[int] | NotGiven = NOT_GIVEN,
         time_range_start: Optional[int] | NotGiven = NOT_GIVEN,
@@ -347,17 +337,7 @@ class AsyncSpansResource(AsyncAPIResource):
         Search for traces in OpenSearch.
 
         Args:
-          query_string: Search query string
-
-          limit: Maximum number of results to return
-
           scope: Instrumentation Scope name of the span
-
-          time_range_end: End time range in milliseconds
-
-          time_range_start: Start time range in milliseconds
-
-          type: Type of spans to search for
 
           extra_headers: Send extra headers
 
@@ -378,8 +358,8 @@ class AsyncSpansResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
-                        "query_string": query_string,
                         "limit": limit,
+                        "query_string": query_string,
                         "scope": scope,
                         "time_range_end": time_range_end,
                         "time_range_start": time_range_start,

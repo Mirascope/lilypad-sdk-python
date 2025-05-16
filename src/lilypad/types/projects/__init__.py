@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .span_list_params import SpanListParams as SpanListParams
 from .deployment_public import DeploymentPublic as DeploymentPublic
+from .trace_list_params import TraceListParams as TraceListParams
 from .span_list_response import SpanListResponse as SpanListResponse
 from .trace_list_response import TraceListResponse as TraceListResponse
 from .span_delete_response import SpanDeleteResponse as SpanDeleteResponse

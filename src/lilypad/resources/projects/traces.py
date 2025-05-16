@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing_extensions import Literal
+
 import httpx
 
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
 from ..._response import (
@@ -14,7 +17,9 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
+from ...types.projects import trace_list_params
 from ...types.projects.trace_list_response import TraceListResponse
+from ...types.projects.functions.span_public import SpanPublic
 from ...types.projects.trace_create_response import TraceCreateResponse
 
 __all__ = ["TracesResource", "AsyncTracesResource"]
@@ -77,6 +82,9 @@ class TracesResource(SyncAPIResource):
         self,
         project_uuid: str,
         *,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -85,9 +93,7 @@ class TracesResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> TraceListResponse:
         """
-        Get all traces.
-
-        Child spans are not lazy loaded to avoid N+1 queries.
+        Get traces by project UUID.
 
         Args:
           extra_headers: Send extra headers
@@ -103,9 +109,56 @@ class TracesResource(SyncAPIResource):
         return self._get(
             f"/projects/{project_uuid}/traces",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    trace_list_params.TraceListParams,
+                ),
             ),
             cast_to=TraceListResponse,
+        )
+
+    def retrieve_root(
+        self,
+        span_id: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanPublic:
+        """
+        Get traces by project UUID.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_id:
+            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
+        return self._get(
+            f"/projects/{project_uuid}/traces/{span_id}/root",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanPublic,
         )
 
 
@@ -166,6 +219,9 @@ class AsyncTracesResource(AsyncAPIResource):
         self,
         project_uuid: str,
         *,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -174,9 +230,7 @@ class AsyncTracesResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> TraceListResponse:
         """
-        Get all traces.
-
-        Child spans are not lazy loaded to avoid N+1 queries.
+        Get traces by project UUID.
 
         Args:
           extra_headers: Send extra headers
@@ -192,9 +246,56 @@ class AsyncTracesResource(AsyncAPIResource):
         return await self._get(
             f"/projects/{project_uuid}/traces",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    trace_list_params.TraceListParams,
+                ),
             ),
             cast_to=TraceListResponse,
+        )
+
+    async def retrieve_root(
+        self,
+        span_id: str,
+        *,
+        project_uuid: str,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanPublic:
+        """
+        Get traces by project UUID.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not span_id:
+            raise ValueError(f"Expected a non-empty value for `span_id` but received {span_id!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/traces/{span_id}/root",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SpanPublic,
         )
 
 
@@ -208,6 +309,9 @@ class TracesResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             traces.list,
         )
+        self.retrieve_root = to_raw_response_wrapper(
+            traces.retrieve_root,
+        )
 
 
 class AsyncTracesResourceWithRawResponse:
@@ -219,6 +323,9 @@ class AsyncTracesResourceWithRawResponse:
         )
         self.list = async_to_raw_response_wrapper(
             traces.list,
+        )
+        self.retrieve_root = async_to_raw_response_wrapper(
+            traces.retrieve_root,
         )
 
 
@@ -232,6 +339,9 @@ class TracesResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             traces.list,
         )
+        self.retrieve_root = to_streamed_response_wrapper(
+            traces.retrieve_root,
+        )
 
 
 class AsyncTracesResourceWithStreamingResponse:
@@ -243,4 +353,7 @@ class AsyncTracesResourceWithStreamingResponse:
         )
         self.list = async_to_streamed_response_wrapper(
             traces.list,
+        )
+        self.retrieve_root = async_to_streamed_response_wrapper(
+            traces.retrieve_root,
         )

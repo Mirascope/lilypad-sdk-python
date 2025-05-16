@@ -80,7 +80,6 @@ class TestSpans:
     def test_method_list(self, client: Lilypad) -> None:
         span = client.projects.spans.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         )
         assert_matches_type(SpanListResponse, span, path=["response"])
 
@@ -89,8 +88,8 @@ class TestSpans:
     def test_method_list_with_all_params(self, client: Lilypad) -> None:
         span = client.projects.spans.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
             limit=0,
+            query_string="query_string",
             scope="lilypad",
             time_range_end=0,
             time_range_start=0,
@@ -103,7 +102,6 @@ class TestSpans:
     def test_raw_response_list(self, client: Lilypad) -> None:
         response = client.projects.spans.with_raw_response.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         )
 
         assert response.is_closed is True
@@ -116,7 +114,6 @@ class TestSpans:
     def test_streaming_response_list(self, client: Lilypad) -> None:
         with client.projects.spans.with_streaming_response.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -132,7 +129,6 @@ class TestSpans:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             client.projects.spans.with_raw_response.list(
                 project_uuid="",
-                query_string="query_string",
             )
 
     @pytest.mark.skip()
@@ -346,7 +342,6 @@ class TestAsyncSpans:
     async def test_method_list(self, async_client: AsyncLilypad) -> None:
         span = await async_client.projects.spans.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         )
         assert_matches_type(SpanListResponse, span, path=["response"])
 
@@ -355,8 +350,8 @@ class TestAsyncSpans:
     async def test_method_list_with_all_params(self, async_client: AsyncLilypad) -> None:
         span = await async_client.projects.spans.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
             limit=0,
+            query_string="query_string",
             scope="lilypad",
             time_range_end=0,
             time_range_start=0,
@@ -369,7 +364,6 @@ class TestAsyncSpans:
     async def test_raw_response_list(self, async_client: AsyncLilypad) -> None:
         response = await async_client.projects.spans.with_raw_response.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         )
 
         assert response.is_closed is True
@@ -382,7 +376,6 @@ class TestAsyncSpans:
     async def test_streaming_response_list(self, async_client: AsyncLilypad) -> None:
         async with async_client.projects.spans.with_streaming_response.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            query_string="query_string",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -398,7 +391,6 @@ class TestAsyncSpans:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
             await async_client.projects.spans.with_raw_response.list(
                 project_uuid="",
-                query_string="query_string",
             )
 
     @pytest.mark.skip()
