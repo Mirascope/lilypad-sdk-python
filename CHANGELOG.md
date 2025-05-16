@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 (2025-05-16)
+
+Full Changelog: [v0.1.0...v0.2.0](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0...v0.2.0)
+
+### Features
+
+* **api:** update via SDK Studio ([4ed4f09](https://github.com/Mirascope/lilypad-sdk-python/commit/4ed4f09de875167cffafd3946f2554fa076f0f1b))
+
+
+### Chores
+
+* **ci:** fix installation instructions ([62d72ae](https://github.com/Mirascope/lilypad-sdk-python/commit/62d72ae38978338c9d636fe924486982317658e6))
+* **ci:** upload sdks to package manager ([7fd3967](https://github.com/Mirascope/lilypad-sdk-python/commit/7fd3967b1bf285577d95c3c3a0be05eb235d1eb3))
+
 ## 0.1.0 (2025-05-13)
 
 Full Changelog: [v0.1.0-alpha.41...v0.1.0](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.1.0-alpha.41...v0.1.0)
