@@ -28,6 +28,7 @@ from .resources import (
     api_keys,
     comments,
     settings,
+    webhooks,
     current_user,
     environments,
     organizations,
@@ -65,6 +66,7 @@ class Lilypad(SyncAPIClient):
     user_consents: user_consents.UserConsentsResource
     tags: tags.TagsResource
     comments: comments.CommentsResource
+    webhooks: webhooks.WebhooksResource
     with_raw_response: LilypadWithRawResponse
     with_streaming_response: LilypadWithStreamedResponse
 
@@ -137,6 +139,7 @@ class Lilypad(SyncAPIClient):
         self.user_consents = user_consents.UserConsentsResource(self)
         self.tags = tags.TagsResource(self)
         self.comments = comments.CommentsResource(self)
+        self.webhooks = webhooks.WebhooksResource(self)
         self.with_raw_response = LilypadWithRawResponse(self)
         self.with_streaming_response = LilypadWithStreamedResponse(self)
 
@@ -261,6 +264,7 @@ class AsyncLilypad(AsyncAPIClient):
     user_consents: user_consents.AsyncUserConsentsResource
     tags: tags.AsyncTagsResource
     comments: comments.AsyncCommentsResource
+    webhooks: webhooks.AsyncWebhooksResource
     with_raw_response: AsyncLilypadWithRawResponse
     with_streaming_response: AsyncLilypadWithStreamedResponse
 
@@ -333,6 +337,7 @@ class AsyncLilypad(AsyncAPIClient):
         self.user_consents = user_consents.AsyncUserConsentsResource(self)
         self.tags = tags.AsyncTagsResource(self)
         self.comments = comments.AsyncCommentsResource(self)
+        self.webhooks = webhooks.AsyncWebhooksResource(self)
         self.with_raw_response = AsyncLilypadWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadWithStreamedResponse(self)
 
@@ -460,6 +465,7 @@ class LilypadWithRawResponse:
         self.user_consents = user_consents.UserConsentsResourceWithRawResponse(client.user_consents)
         self.tags = tags.TagsResourceWithRawResponse(client.tags)
         self.comments = comments.CommentsResourceWithRawResponse(client.comments)
+        self.webhooks = webhooks.WebhooksResourceWithRawResponse(client.webhooks)
 
 
 class AsyncLilypadWithRawResponse:
@@ -481,6 +487,7 @@ class AsyncLilypadWithRawResponse:
         self.user_consents = user_consents.AsyncUserConsentsResourceWithRawResponse(client.user_consents)
         self.tags = tags.AsyncTagsResourceWithRawResponse(client.tags)
         self.comments = comments.AsyncCommentsResourceWithRawResponse(client.comments)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithRawResponse(client.webhooks)
 
 
 class LilypadWithStreamedResponse:
@@ -504,6 +511,7 @@ class LilypadWithStreamedResponse:
         self.user_consents = user_consents.UserConsentsResourceWithStreamingResponse(client.user_consents)
         self.tags = tags.TagsResourceWithStreamingResponse(client.tags)
         self.comments = comments.CommentsResourceWithStreamingResponse(client.comments)
+        self.webhooks = webhooks.WebhooksResourceWithStreamingResponse(client.webhooks)
 
 
 class AsyncLilypadWithStreamedResponse:
@@ -527,6 +535,7 @@ class AsyncLilypadWithStreamedResponse:
         self.user_consents = user_consents.AsyncUserConsentsResourceWithStreamingResponse(client.user_consents)
         self.tags = tags.AsyncTagsResourceWithStreamingResponse(client.tags)
         self.comments = comments.AsyncCommentsResourceWithStreamingResponse(client.comments)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithStreamingResponse(client.webhooks)
 
 
 Client = Lilypad

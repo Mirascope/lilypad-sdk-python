@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import List
 
-from ..._compat import PYDANTIC_V2
-from ..._models import BaseModel
+from ...._compat import PYDANTIC_V2
+from ...._models import BaseModel
 
-__all__ = ["TraceListResponse"]
+__all__ = ["SpanListPaginatedResponse"]
 
 
-class TraceListResponse(BaseModel):
+class SpanListPaginatedResponse(BaseModel):
     items: List["SpanPublic"]
     """Current slice of items"""
 
@@ -24,9 +24,9 @@ class TraceListResponse(BaseModel):
     """Total number of items"""
 
 
-from .functions.span_public import SpanPublic
+from .span_public import SpanPublic
 
 if PYDANTIC_V2:
-    TraceListResponse.model_rebuild()
+    SpanListPaginatedResponse.model_rebuild()
 else:
-    TraceListResponse.update_forward_refs()  # type: ignore
+    SpanListPaginatedResponse.update_forward_refs()  # type: ignore
