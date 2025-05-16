@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing_extensions import Literal
+
 import httpx
 
 from ...._types import NOT_GIVEN, Body, Query, Headers, NotGiven
@@ -15,9 +17,10 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.projects.functions import TimeFrame, span_list_aggregates_params
+from ....types.projects.functions import TimeFrame, span_list_paginated_params, span_list_aggregates_params
 from ....types.projects.functions.time_frame import TimeFrame
 from ....types.projects.functions.span_list_response import SpanListResponse
+from ....types.projects.functions.span_list_paginated_response import SpanListPaginatedResponse
 from ....types.projects.functions.span_list_aggregates_response import SpanListAggregatesResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
@@ -122,6 +125,56 @@ class SpansResource(SyncAPIResource):
             cast_to=SpanListAggregatesResponse,
         )
 
+    def list_paginated(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanListPaginatedResponse:
+        """
+        Get spans for a function with pagination (new, non-breaking).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/paginated",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    span_list_paginated_params.SpanListPaginatedParams,
+                ),
+            ),
+            cast_to=SpanListPaginatedResponse,
+        )
+
 
 class AsyncSpansResource(AsyncAPIResource):
     @cached_property
@@ -224,6 +277,56 @@ class AsyncSpansResource(AsyncAPIResource):
             cast_to=SpanListAggregatesResponse,
         )
 
+    async def list_paginated(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SpanListPaginatedResponse:
+        """
+        Get spans for a function with pagination (new, non-breaking).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/paginated",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    span_list_paginated_params.SpanListPaginatedParams,
+                ),
+            ),
+            cast_to=SpanListPaginatedResponse,
+        )
+
 
 class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
@@ -234,6 +337,9 @@ class SpansResourceWithRawResponse:
         )
         self.list_aggregates = to_raw_response_wrapper(
             spans.list_aggregates,
+        )
+        self.list_paginated = to_raw_response_wrapper(
+            spans.list_paginated,
         )
 
 
@@ -247,6 +353,9 @@ class AsyncSpansResourceWithRawResponse:
         self.list_aggregates = async_to_raw_response_wrapper(
             spans.list_aggregates,
         )
+        self.list_paginated = async_to_raw_response_wrapper(
+            spans.list_paginated,
+        )
 
 
 class SpansResourceWithStreamingResponse:
@@ -259,6 +368,9 @@ class SpansResourceWithStreamingResponse:
         self.list_aggregates = to_streamed_response_wrapper(
             spans.list_aggregates,
         )
+        self.list_paginated = to_streamed_response_wrapper(
+            spans.list_paginated,
+        )
 
 
 class AsyncSpansResourceWithStreamingResponse:
@@ -270,4 +382,7 @@ class AsyncSpansResourceWithStreamingResponse:
         )
         self.list_aggregates = async_to_streamed_response_wrapper(
             spans.list_aggregates,
+        )
+        self.list_paginated = async_to_streamed_response_wrapper(
+            spans.list_paginated,
         )

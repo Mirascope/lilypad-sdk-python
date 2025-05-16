@@ -93,10 +93,14 @@ class SpanMoreDetails(BaseModel):
 
     model: str
 
+    project_uuid: str
+
     provider: str
 
     scope: Literal["lilypad", "llm"]
     """Instrumentation Scope name of the span"""
+
+    span_id: str
 
     uuid: str
 
@@ -117,8 +121,6 @@ class SpanMoreDetails(BaseModel):
     output: Optional[str] = None
 
     output_tokens: Optional[float] = None
-
-    project_uuid: Optional[str] = None
 
     session_id: Optional[str] = None
 

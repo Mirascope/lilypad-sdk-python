@@ -9,6 +9,8 @@ from .aggregate_metrics import AggregateMetrics as AggregateMetrics
 from .common_call_params import CommonCallParams as CommonCallParams
 from .span_list_response import SpanListResponse as SpanListResponse
 from .common_call_params_param import CommonCallParamsParam as CommonCallParamsParam
+from .span_list_paginated_params import SpanListPaginatedParams as SpanListPaginatedParams
 from .span_list_aggregates_params import SpanListAggregatesParams as SpanListAggregatesParams
+from .span_list_paginated_response import SpanListPaginatedResponse as SpanListPaginatedResponse
 from .span_list_aggregates_response import SpanListAggregatesResponse as SpanListAggregatesResponse
 from .name_retrieve_by_name_response import NameRetrieveByNameResponse as NameRetrieveByNameResponse
