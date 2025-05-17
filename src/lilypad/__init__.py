@@ -22,6 +22,7 @@ from ._models import BaseModel
 from ._version import __title__, __version__
 from ._response import APIResponse as APIResponse, AsyncAPIResponse as AsyncAPIResponse
 from .lib.spans import Span
+from .lib.traces import Trace, AsyncTrace
 from ._constants import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES, DEFAULT_CONNECTION_LIMITS
 from ._exceptions import (
     APIError,
@@ -92,6 +93,8 @@ __all__ = [
     "DefaultAsyncHttpxClient",
     "Session",
     "Span",
+    "Trace",
+    "AsyncTrace",
 ]
 
 if not _t.TYPE_CHECKING:

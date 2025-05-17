@@ -3,7 +3,7 @@
 from .spans import span
 from .tools import tool
 from ._utils import register_serializer
-from .traces import trace, Trace, AsyncTrace
+from .traces import trace
 from .messages import Message
 from .sessions import Session, session
 from ._configure import configure, lilypad_config
@@ -19,7 +19,5 @@ __all__ = [
     "Session",
     "span",
     "tool",
-    "Trace",
-    "AsyncTrace",
     "trace",
 ]
