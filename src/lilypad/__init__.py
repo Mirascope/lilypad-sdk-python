@@ -22,7 +22,7 @@ from ._models import BaseModel
 from ._version import __title__, __version__
 from ._response import APIResponse as APIResponse, AsyncAPIResponse as AsyncAPIResponse
 from .lib.spans import Span
-from .lib.traces import Trace, AsyncTrace
+from .lib.traces import Trace, AsyncTrace, Annotation
 from ._constants import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES, DEFAULT_CONNECTION_LIMITS
 from ._exceptions import (
     APIError,
@@ -95,6 +95,7 @@ __all__ = [
     "Span",
     "Trace",
     "AsyncTrace",
+    "Annotation",
 ]
 
 if not _t.TYPE_CHECKING:
