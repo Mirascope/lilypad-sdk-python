@@ -97,18 +97,15 @@ def _get_custom_context_manager(
             }
             if decorator_tags is not None:
                 attributes["lilypad.trace.tags"] = decorator_tags
-            if function:
-                attribute_type = "function"
-                attributes["lilypad.function.uuid"] = str(function.uuid)
-                attributes["lilypad.function.name"] = fn.__name__
-                attributes["lilypad.function.signature"] = function.signature
-                attributes["lilypad.function.code"] = function.code
-                attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
-                attributes["lilypad.function.prompt_template"] = prompt_template or ""
-                attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
-            else:
-                attribute_type = "trace"
+            attribute_type = "mirascope.v1"
+            attributes["lilypad.function.uuid"] = str(function.uuid)
+            attributes["lilypad.function.name"] = fn.__name__
+            attributes["lilypad.function.signature"] = function.signature
+            attributes["lilypad.function.code"] = function.code
+            attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
+            attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
+            attributes["lilypad.function.prompt_template"] = prompt_template or ""
+            attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             attributes["lilypad.type"] = attribute_type
             attributes[f"lilypad.{attribute_type}.arg_types"] = json_dumps(arg_types)
             attributes[f"lilypad.{attribute_type}.arg_values"] = json_dumps(jsonable_arg_values)
@@ -180,18 +177,19 @@ _COMMON_MESSAGES_PARTS_SERIALIZER = {
 
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
-        output = fast_jsonable(response.message_param)
+        output = fast_jsonable(response)
     except TypeError:
-        output = str(response.message_param)
+        output = str(response)
     try:
-        messages = fast_jsonable(response.messages)
+        messages = fast_jsonable(response.messages + [response.message_param])
     except TypeError:
-        messages = _serialize_proto_data(response.messages)  # Gemini
+        messages = _serialize_proto_data(response.messages + [response.message_param])  # Gemini
     common_messages = fast_jsonable(response.common_messages, _COMMON_MESSAGES_PARTS_SERIALIZER)
     attributes: dict[str, AttributeValue] = {
         f"lilypad.{trace_type}.output": to_text(output),
         f"lilypad.{trace_type}.messages": messages,
         f"lilypad.{trace_type}.common_messages": common_messages,
+        f"lilypad.{trace_type}.content": response.content,
     }
     span.set_attributes(attributes)
 
@@ -212,8 +210,11 @@ def _set_response_model_attributes(  # noqa: D401
 
     attr_key = f"lilypad.{trace_type}."
     attributes = {f"{attr_key}output": completion}
+    if response_obj is not None:
+        attributes[f"{attr_key}response_obj"] = to_text(response_obj)
     if messages is not None:
         attributes[f"{attr_key}messages"] = messages
+
     span.set_attributes(attributes)
 
 
@@ -309,7 +310,7 @@ def create_mirascope_middleware(
         current_span,
         decorator_tags,
     )
-    _handlers = _Handlers("function" if function else "trace")
+    _handlers = _Handlers("mirascope.v1" if function else "trace")
     return middleware_factory(
         custom_context_manager=cm_callable,
         handle_call_response=_handlers.handle_call_response,
