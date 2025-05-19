@@ -53,6 +53,7 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Lilypad", 
 class Lilypad(SyncAPIClient):
     ee: ee.EeResource
     api_keys: api_keys.APIKeysResource
+    webhooks: webhooks.WebhooksResource
     projects: projects.ProjectsResource
     organizations_invites: organizations_invites.OrganizationsInvitesResource
     spans: spans.SpansResource
@@ -62,11 +63,10 @@ class Lilypad(SyncAPIClient):
     organizations: organizations.OrganizationsResource
     external_api_keys: external_api_keys.ExternalAPIKeysResource
     environments: environments.EnvironmentsResource
-    settings: settings.SettingsResource
     user_consents: user_consents.UserConsentsResource
     tags: tags.TagsResource
     comments: comments.CommentsResource
-    webhooks: webhooks.WebhooksResource
+    settings: settings.SettingsResource
     with_raw_response: LilypadWithRawResponse
     with_streaming_response: LilypadWithStreamedResponse
 
@@ -126,6 +126,7 @@ class Lilypad(SyncAPIClient):
 
         self.ee = ee.EeResource(self)
         self.api_keys = api_keys.APIKeysResource(self)
+        self.webhooks = webhooks.WebhooksResource(self)
         self.projects = projects.ProjectsResource(self)
         self.organizations_invites = organizations_invites.OrganizationsInvitesResource(self)
         self.spans = spans.SpansResource(self)
@@ -135,11 +136,10 @@ class Lilypad(SyncAPIClient):
         self.organizations = organizations.OrganizationsResource(self)
         self.external_api_keys = external_api_keys.ExternalAPIKeysResource(self)
         self.environments = environments.EnvironmentsResource(self)
-        self.settings = settings.SettingsResource(self)
         self.user_consents = user_consents.UserConsentsResource(self)
         self.tags = tags.TagsResource(self)
         self.comments = comments.CommentsResource(self)
-        self.webhooks = webhooks.WebhooksResource(self)
+        self.settings = settings.SettingsResource(self)
         self.with_raw_response = LilypadWithRawResponse(self)
         self.with_streaming_response = LilypadWithStreamedResponse(self)
 
@@ -251,6 +251,7 @@ class Lilypad(SyncAPIClient):
 class AsyncLilypad(AsyncAPIClient):
     ee: ee.AsyncEeResource
     api_keys: api_keys.AsyncAPIKeysResource
+    webhooks: webhooks.AsyncWebhooksResource
     projects: projects.AsyncProjectsResource
     organizations_invites: organizations_invites.AsyncOrganizationsInvitesResource
     spans: spans.AsyncSpansResource
@@ -260,11 +261,10 @@ class AsyncLilypad(AsyncAPIClient):
     organizations: organizations.AsyncOrganizationsResource
     external_api_keys: external_api_keys.AsyncExternalAPIKeysResource
     environments: environments.AsyncEnvironmentsResource
-    settings: settings.AsyncSettingsResource
     user_consents: user_consents.AsyncUserConsentsResource
     tags: tags.AsyncTagsResource
     comments: comments.AsyncCommentsResource
-    webhooks: webhooks.AsyncWebhooksResource
+    settings: settings.AsyncSettingsResource
     with_raw_response: AsyncLilypadWithRawResponse
     with_streaming_response: AsyncLilypadWithStreamedResponse
 
@@ -324,6 +324,7 @@ class AsyncLilypad(AsyncAPIClient):
 
         self.ee = ee.AsyncEeResource(self)
         self.api_keys = api_keys.AsyncAPIKeysResource(self)
+        self.webhooks = webhooks.AsyncWebhooksResource(self)
         self.projects = projects.AsyncProjectsResource(self)
         self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResource(self)
         self.spans = spans.AsyncSpansResource(self)
@@ -333,11 +334,10 @@ class AsyncLilypad(AsyncAPIClient):
         self.organizations = organizations.AsyncOrganizationsResource(self)
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResource(self)
         self.environments = environments.AsyncEnvironmentsResource(self)
-        self.settings = settings.AsyncSettingsResource(self)
         self.user_consents = user_consents.AsyncUserConsentsResource(self)
         self.tags = tags.AsyncTagsResource(self)
         self.comments = comments.AsyncCommentsResource(self)
-        self.webhooks = webhooks.AsyncWebhooksResource(self)
+        self.settings = settings.AsyncSettingsResource(self)
         self.with_raw_response = AsyncLilypadWithRawResponse(self)
         self.with_streaming_response = AsyncLilypadWithStreamedResponse(self)
 
@@ -450,6 +450,7 @@ class LilypadWithRawResponse:
     def __init__(self, client: Lilypad) -> None:
         self.ee = ee.EeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithRawResponse(client.api_keys)
+        self.webhooks = webhooks.WebhooksResourceWithRawResponse(client.webhooks)
         self.projects = projects.ProjectsResourceWithRawResponse(client.projects)
         self.organizations_invites = organizations_invites.OrganizationsInvitesResourceWithRawResponse(
             client.organizations_invites
@@ -461,17 +462,17 @@ class LilypadWithRawResponse:
         self.organizations = organizations.OrganizationsResourceWithRawResponse(client.organizations)
         self.external_api_keys = external_api_keys.ExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.environments = environments.EnvironmentsResourceWithRawResponse(client.environments)
-        self.settings = settings.SettingsResourceWithRawResponse(client.settings)
         self.user_consents = user_consents.UserConsentsResourceWithRawResponse(client.user_consents)
         self.tags = tags.TagsResourceWithRawResponse(client.tags)
         self.comments = comments.CommentsResourceWithRawResponse(client.comments)
-        self.webhooks = webhooks.WebhooksResourceWithRawResponse(client.webhooks)
+        self.settings = settings.SettingsResourceWithRawResponse(client.settings)
 
 
 class AsyncLilypadWithRawResponse:
     def __init__(self, client: AsyncLilypad) -> None:
         self.ee = ee.AsyncEeResourceWithRawResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithRawResponse(client.api_keys)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithRawResponse(client.webhooks)
         self.projects = projects.AsyncProjectsResourceWithRawResponse(client.projects)
         self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResourceWithRawResponse(
             client.organizations_invites
@@ -483,17 +484,17 @@ class AsyncLilypadWithRawResponse:
         self.organizations = organizations.AsyncOrganizationsResourceWithRawResponse(client.organizations)
         self.external_api_keys = external_api_keys.AsyncExternalAPIKeysResourceWithRawResponse(client.external_api_keys)
         self.environments = environments.AsyncEnvironmentsResourceWithRawResponse(client.environments)
-        self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
         self.user_consents = user_consents.AsyncUserConsentsResourceWithRawResponse(client.user_consents)
         self.tags = tags.AsyncTagsResourceWithRawResponse(client.tags)
         self.comments = comments.AsyncCommentsResourceWithRawResponse(client.comments)
-        self.webhooks = webhooks.AsyncWebhooksResourceWithRawResponse(client.webhooks)
+        self.settings = settings.AsyncSettingsResourceWithRawResponse(client.settings)
 
 
 class LilypadWithStreamedResponse:
     def __init__(self, client: Lilypad) -> None:
         self.ee = ee.EeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.APIKeysResourceWithStreamingResponse(client.api_keys)
+        self.webhooks = webhooks.WebhooksResourceWithStreamingResponse(client.webhooks)
         self.projects = projects.ProjectsResourceWithStreamingResponse(client.projects)
         self.organizations_invites = organizations_invites.OrganizationsInvitesResourceWithStreamingResponse(
             client.organizations_invites
@@ -507,17 +508,17 @@ class LilypadWithStreamedResponse:
             client.external_api_keys
         )
         self.environments = environments.EnvironmentsResourceWithStreamingResponse(client.environments)
-        self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
         self.user_consents = user_consents.UserConsentsResourceWithStreamingResponse(client.user_consents)
         self.tags = tags.TagsResourceWithStreamingResponse(client.tags)
         self.comments = comments.CommentsResourceWithStreamingResponse(client.comments)
-        self.webhooks = webhooks.WebhooksResourceWithStreamingResponse(client.webhooks)
+        self.settings = settings.SettingsResourceWithStreamingResponse(client.settings)
 
 
 class AsyncLilypadWithStreamedResponse:
     def __init__(self, client: AsyncLilypad) -> None:
         self.ee = ee.AsyncEeResourceWithStreamingResponse(client.ee)
         self.api_keys = api_keys.AsyncAPIKeysResourceWithStreamingResponse(client.api_keys)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithStreamingResponse(client.webhooks)
         self.projects = projects.AsyncProjectsResourceWithStreamingResponse(client.projects)
         self.organizations_invites = organizations_invites.AsyncOrganizationsInvitesResourceWithStreamingResponse(
             client.organizations_invites
@@ -531,11 +532,10 @@ class AsyncLilypadWithStreamedResponse:
             client.external_api_keys
         )
         self.environments = environments.AsyncEnvironmentsResourceWithStreamingResponse(client.environments)
-        self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
         self.user_consents = user_consents.AsyncUserConsentsResourceWithStreamingResponse(client.user_consents)
         self.tags = tags.AsyncTagsResourceWithStreamingResponse(client.tags)
         self.comments = comments.AsyncCommentsResourceWithStreamingResponse(client.comments)
-        self.webhooks = webhooks.AsyncWebhooksResourceWithStreamingResponse(client.webhooks)
+        self.settings = settings.AsyncSettingsResourceWithStreamingResponse(client.settings)
 
 
 Client = Lilypad

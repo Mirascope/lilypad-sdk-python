@@ -16,7 +16,7 @@ from ..._response import (
 )
 from ...types.auth import github_callback_params
 from ..._base_client import make_request_options
-from ...types.auth.user_public import UserPublic
+from ...types.ee.user_public import UserPublic
 
 __all__ = ["GitHubResource", "AsyncGitHubResource"]
 

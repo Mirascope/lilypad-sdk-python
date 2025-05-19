@@ -19,7 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.organization_invite import OrganizationInvite
+from ..types.organization_invite_public import OrganizationInvitePublic
 from ..types.organizations_invite_list_response import OrganizationsInviteListResponse
 from ..types.organizations_invite_delete_response import OrganizationsInviteDeleteResponse
 
@@ -61,7 +61,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> OrganizationInvite:
+    ) -> OrganizationInvitePublic:
         """
         Create an organization invite.
 
@@ -90,7 +90,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OrganizationInvite,
+            cast_to=OrganizationInvitePublic,
         )
 
     def retrieve(
@@ -103,7 +103,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> OrganizationInvite:
+    ) -> OrganizationInvitePublic:
         """
         Get an organization invite.
 
@@ -123,7 +123,7 @@ class OrganizationsInvitesResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OrganizationInvite,
+            cast_to=OrganizationInvitePublic,
         )
 
     def list(
@@ -216,7 +216,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> OrganizationInvite:
+    ) -> OrganizationInvitePublic:
         """
         Create an organization invite.
 
@@ -245,7 +245,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OrganizationInvite,
+            cast_to=OrganizationInvitePublic,
         )
 
     async def retrieve(
@@ -258,7 +258,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> OrganizationInvite:
+    ) -> OrganizationInvitePublic:
         """
         Get an organization invite.
 
@@ -278,7 +278,7 @@ class AsyncOrganizationsInvitesResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OrganizationInvite,
+            cast_to=OrganizationInvitePublic,
         )
 
     async def list(

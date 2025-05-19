@@ -18,9 +18,9 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.projects import trace_list_params
-from ...types.projects.trace_list_response import TraceListResponse
-from ...types.projects.functions.span_public import SpanPublic
+from ...types.span_public import SpanPublic
 from ...types.projects.trace_create_response import TraceCreateResponse
+from ...types.projects.functions.paginated_span_public import PaginatedSpanPublic
 
 __all__ = ["TracesResource", "AsyncTracesResource"]
 
@@ -91,7 +91,7 @@ class TracesResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TraceListResponse:
+    ) -> PaginatedSpanPublic:
         """
         Get traces by project UUID.
 
@@ -122,10 +122,10 @@ class TracesResource(SyncAPIResource):
                     trace_list_params.TraceListParams,
                 ),
             ),
-            cast_to=TraceListResponse,
+            cast_to=PaginatedSpanPublic,
         )
 
-    def retrieve_root(
+    def retrieve_by_span_id(
         self,
         span_id: str,
         *,
@@ -228,7 +228,7 @@ class AsyncTracesResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TraceListResponse:
+    ) -> PaginatedSpanPublic:
         """
         Get traces by project UUID.
 
@@ -259,10 +259,10 @@ class AsyncTracesResource(AsyncAPIResource):
                     trace_list_params.TraceListParams,
                 ),
             ),
-            cast_to=TraceListResponse,
+            cast_to=PaginatedSpanPublic,
         )
 
-    async def retrieve_root(
+    async def retrieve_by_span_id(
         self,
         span_id: str,
         *,
@@ -309,8 +309,8 @@ class TracesResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             traces.list,
         )
-        self.retrieve_root = to_raw_response_wrapper(
-            traces.retrieve_root,
+        self.retrieve_by_span_id = to_raw_response_wrapper(
+            traces.retrieve_by_span_id,
         )
 
 
@@ -324,8 +324,8 @@ class AsyncTracesResourceWithRawResponse:
         self.list = async_to_raw_response_wrapper(
             traces.list,
         )
-        self.retrieve_root = async_to_raw_response_wrapper(
-            traces.retrieve_root,
+        self.retrieve_by_span_id = async_to_raw_response_wrapper(
+            traces.retrieve_by_span_id,
         )
 
 
@@ -339,8 +339,8 @@ class TracesResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             traces.list,
         )
-        self.retrieve_root = to_streamed_response_wrapper(
-            traces.retrieve_root,
+        self.retrieve_by_span_id = to_streamed_response_wrapper(
+            traces.retrieve_by_span_id,
         )
 
 
@@ -354,6 +354,6 @@ class AsyncTracesResourceWithStreamingResponse:
         self.list = async_to_streamed_response_wrapper(
             traces.list,
         )
-        self.retrieve_root = async_to_streamed_response_wrapper(
-            traces.retrieve_root,
+        self.retrieve_by_span_id = async_to_streamed_response_wrapper(
+            traces.retrieve_by_span_id,
         )

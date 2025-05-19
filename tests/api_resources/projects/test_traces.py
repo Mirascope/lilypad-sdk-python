@@ -9,8 +9,9 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types.projects import TraceListResponse, TraceCreateResponse
-from lilypad.types.projects.functions import SpanPublic
+from lilypad.types import SpanPublic
+from lilypad.types.projects import TraceCreateResponse
+from lilypad.types.projects.functions import PaginatedSpanPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -66,7 +67,7 @@ class TestTraces:
         trace = client.projects.traces.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -77,7 +78,7 @@ class TestTraces:
             offset=0,
             order="asc",
         )
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -89,7 +90,7 @@ class TestTraces:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         trace = response.parse()
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -101,7 +102,7 @@ class TestTraces:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             trace = response.parse()
-            assert_matches_type(TraceListResponse, trace, path=["response"])
+            assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -115,8 +116,8 @@ class TestTraces:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve_root(self, client: Lilypad) -> None:
-        trace = client.projects.traces.retrieve_root(
+    def test_method_retrieve_by_span_id(self, client: Lilypad) -> None:
+        trace = client.projects.traces.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -124,8 +125,8 @@ class TestTraces:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve_root(self, client: Lilypad) -> None:
-        response = client.projects.traces.with_raw_response.retrieve_root(
+    def test_raw_response_retrieve_by_span_id(self, client: Lilypad) -> None:
+        response = client.projects.traces.with_raw_response.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -137,8 +138,8 @@ class TestTraces:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve_root(self, client: Lilypad) -> None:
-        with client.projects.traces.with_streaming_response.retrieve_root(
+    def test_streaming_response_retrieve_by_span_id(self, client: Lilypad) -> None:
+        with client.projects.traces.with_streaming_response.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -152,15 +153,15 @@ class TestTraces:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve_root(self, client: Lilypad) -> None:
+    def test_path_params_retrieve_by_span_id(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.traces.with_raw_response.retrieve_root(
+            client.projects.traces.with_raw_response.retrieve_by_span_id(
                 span_id="span_id",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_id` but received ''"):
-            client.projects.traces.with_raw_response.retrieve_root(
+            client.projects.traces.with_raw_response.retrieve_by_span_id(
                 span_id="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
@@ -217,7 +218,7 @@ class TestAsyncTraces:
         trace = await async_client.projects.traces.list(
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -228,7 +229,7 @@ class TestAsyncTraces:
             offset=0,
             order="asc",
         )
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -240,7 +241,7 @@ class TestAsyncTraces:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         trace = await response.parse()
-        assert_matches_type(TraceListResponse, trace, path=["response"])
+        assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -252,7 +253,7 @@ class TestAsyncTraces:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             trace = await response.parse()
-            assert_matches_type(TraceListResponse, trace, path=["response"])
+            assert_matches_type(PaginatedSpanPublic, trace, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -266,8 +267,8 @@ class TestAsyncTraces:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve_root(self, async_client: AsyncLilypad) -> None:
-        trace = await async_client.projects.traces.retrieve_root(
+    async def test_method_retrieve_by_span_id(self, async_client: AsyncLilypad) -> None:
+        trace = await async_client.projects.traces.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -275,8 +276,8 @@ class TestAsyncTraces:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve_root(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.traces.with_raw_response.retrieve_root(
+    async def test_raw_response_retrieve_by_span_id(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.traces.with_raw_response.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -288,8 +289,8 @@ class TestAsyncTraces:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve_root(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.traces.with_streaming_response.retrieve_root(
+    async def test_streaming_response_retrieve_by_span_id(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.traces.with_streaming_response.retrieve_by_span_id(
             span_id="span_id",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -303,15 +304,15 @@ class TestAsyncTraces:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve_root(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_retrieve_by_span_id(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.traces.with_raw_response.retrieve_root(
+            await async_client.projects.traces.with_raw_response.retrieve_by_span_id(
                 span_id="span_id",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_id` but received ''"):
-            await async_client.projects.traces.with_raw_response.retrieve_root(
+            await async_client.projects.traces.with_raw_response.retrieve_by_span_id(
                 span_id="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )

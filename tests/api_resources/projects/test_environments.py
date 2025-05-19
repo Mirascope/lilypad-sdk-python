@@ -11,7 +11,7 @@ from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
 from lilypad.types.projects import (
     DeploymentPublic,
-    EnvironmentRetrieveDeploymentHistoryResponse,
+    EnvironmentGetDeploymentHistoryResponse,
 )
 from lilypad.types.projects.functions import FunctionPublic
 
@@ -23,8 +23,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_deploy(self, client: Lilypad) -> None:
-        environment = client.projects.environments.deploy(
+    def test_method_deploy_function(self, client: Lilypad) -> None:
+        environment = client.projects.environments.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -33,8 +33,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_deploy_with_all_params(self, client: Lilypad) -> None:
-        environment = client.projects.environments.deploy(
+    def test_method_deploy_function_with_all_params(self, client: Lilypad) -> None:
+        environment = client.projects.environments.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -44,8 +44,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_deploy(self, client: Lilypad) -> None:
-        response = client.projects.environments.with_raw_response.deploy(
+    def test_raw_response_deploy_function(self, client: Lilypad) -> None:
+        response = client.projects.environments.with_raw_response.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -58,8 +58,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_deploy(self, client: Lilypad) -> None:
-        with client.projects.environments.with_streaming_response.deploy(
+    def test_streaming_response_deploy_function(self, client: Lilypad) -> None:
+        with client.projects.environments.with_streaming_response.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -74,16 +74,16 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_deploy(self, client: Lilypad) -> None:
+    def test_path_params_deploy_function(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.environments.with_raw_response.deploy(
+            client.projects.environments.with_raw_response.deploy_function(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.projects.environments.with_raw_response.deploy(
+            client.projects.environments.with_raw_response.deploy_function(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -91,8 +91,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve_active_deployment(self, client: Lilypad) -> None:
-        environment = client.projects.environments.retrieve_active_deployment(
+    def test_method_get_active_deployment(self, client: Lilypad) -> None:
+        environment = client.projects.environments.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -100,8 +100,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve_active_deployment(self, client: Lilypad) -> None:
-        response = client.projects.environments.with_raw_response.retrieve_active_deployment(
+    def test_raw_response_get_active_deployment(self, client: Lilypad) -> None:
+        response = client.projects.environments.with_raw_response.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -113,8 +113,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve_active_deployment(self, client: Lilypad) -> None:
-        with client.projects.environments.with_streaming_response.retrieve_active_deployment(
+    def test_streaming_response_get_active_deployment(self, client: Lilypad) -> None:
+        with client.projects.environments.with_streaming_response.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -128,23 +128,23 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve_active_deployment(self, client: Lilypad) -> None:
+    def test_path_params_get_active_deployment(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_active_deployment(
+            client.projects.environments.with_raw_response.get_active_deployment(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_active_deployment(
+            client.projects.environments.with_raw_response.get_active_deployment(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve_active_function(self, client: Lilypad) -> None:
-        environment = client.projects.environments.retrieve_active_function(
+    def test_method_get_current_function(self, client: Lilypad) -> None:
+        environment = client.projects.environments.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -152,8 +152,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve_active_function(self, client: Lilypad) -> None:
-        response = client.projects.environments.with_raw_response.retrieve_active_function(
+    def test_raw_response_get_current_function(self, client: Lilypad) -> None:
+        response = client.projects.environments.with_raw_response.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -165,8 +165,8 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve_active_function(self, client: Lilypad) -> None:
-        with client.projects.environments.with_streaming_response.retrieve_active_function(
+    def test_streaming_response_get_current_function(self, client: Lilypad) -> None:
+        with client.projects.environments.with_streaming_response.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -180,32 +180,32 @@ class TestEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve_active_function(self, client: Lilypad) -> None:
+    def test_path_params_get_current_function(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_active_function(
+            client.projects.environments.with_raw_response.get_current_function(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_active_function(
+            client.projects.environments.with_raw_response.get_current_function(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve_deployment_history(self, client: Lilypad) -> None:
-        environment = client.projects.environments.retrieve_deployment_history(
+    def test_method_get_deployment_history(self, client: Lilypad) -> None:
+        environment = client.projects.environments.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+        assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve_deployment_history(self, client: Lilypad) -> None:
-        response = client.projects.environments.with_raw_response.retrieve_deployment_history(
+    def test_raw_response_get_deployment_history(self, client: Lilypad) -> None:
+        response = client.projects.environments.with_raw_response.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -213,12 +213,12 @@ class TestEnvironments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         environment = response.parse()
-        assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+        assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve_deployment_history(self, client: Lilypad) -> None:
-        with client.projects.environments.with_streaming_response.retrieve_deployment_history(
+    def test_streaming_response_get_deployment_history(self, client: Lilypad) -> None:
+        with client.projects.environments.with_streaming_response.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -226,21 +226,21 @@ class TestEnvironments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             environment = response.parse()
-            assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+            assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve_deployment_history(self, client: Lilypad) -> None:
+    def test_path_params_get_deployment_history(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_deployment_history(
+            client.projects.environments.with_raw_response.get_deployment_history(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            client.projects.environments.with_raw_response.retrieve_deployment_history(
+            client.projects.environments.with_raw_response.get_deployment_history(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
@@ -251,8 +251,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_deploy(self, async_client: AsyncLilypad) -> None:
-        environment = await async_client.projects.environments.deploy(
+    async def test_method_deploy_function(self, async_client: AsyncLilypad) -> None:
+        environment = await async_client.projects.environments.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -261,8 +261,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_deploy_with_all_params(self, async_client: AsyncLilypad) -> None:
-        environment = await async_client.projects.environments.deploy(
+    async def test_method_deploy_function_with_all_params(self, async_client: AsyncLilypad) -> None:
+        environment = await async_client.projects.environments.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -272,8 +272,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_deploy(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.environments.with_raw_response.deploy(
+    async def test_raw_response_deploy_function(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.environments.with_raw_response.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -286,8 +286,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_deploy(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.environments.with_streaming_response.deploy(
+    async def test_streaming_response_deploy_function(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.environments.with_streaming_response.deploy_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -302,16 +302,16 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_deploy(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_deploy_function(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.deploy(
+            await async_client.projects.environments.with_raw_response.deploy_function(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
                 function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.deploy(
+            await async_client.projects.environments.with_raw_response.deploy_function(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -319,8 +319,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve_active_deployment(self, async_client: AsyncLilypad) -> None:
-        environment = await async_client.projects.environments.retrieve_active_deployment(
+    async def test_method_get_active_deployment(self, async_client: AsyncLilypad) -> None:
+        environment = await async_client.projects.environments.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -328,8 +328,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve_active_deployment(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.environments.with_raw_response.retrieve_active_deployment(
+    async def test_raw_response_get_active_deployment(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.environments.with_raw_response.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -341,8 +341,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve_active_deployment(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.environments.with_streaming_response.retrieve_active_deployment(
+    async def test_streaming_response_get_active_deployment(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.environments.with_streaming_response.get_active_deployment(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -356,23 +356,23 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve_active_deployment(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_get_active_deployment(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_active_deployment(
+            await async_client.projects.environments.with_raw_response.get_active_deployment(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_active_deployment(
+            await async_client.projects.environments.with_raw_response.get_active_deployment(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve_active_function(self, async_client: AsyncLilypad) -> None:
-        environment = await async_client.projects.environments.retrieve_active_function(
+    async def test_method_get_current_function(self, async_client: AsyncLilypad) -> None:
+        environment = await async_client.projects.environments.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -380,8 +380,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve_active_function(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.environments.with_raw_response.retrieve_active_function(
+    async def test_raw_response_get_current_function(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.environments.with_raw_response.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -393,8 +393,8 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve_active_function(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.environments.with_streaming_response.retrieve_active_function(
+    async def test_streaming_response_get_current_function(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.environments.with_streaming_response.get_current_function(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -408,32 +408,32 @@ class TestAsyncEnvironments:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve_active_function(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_get_current_function(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_active_function(
+            await async_client.projects.environments.with_raw_response.get_current_function(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_active_function(
+            await async_client.projects.environments.with_raw_response.get_current_function(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve_deployment_history(self, async_client: AsyncLilypad) -> None:
-        environment = await async_client.projects.environments.retrieve_deployment_history(
+    async def test_method_get_deployment_history(self, async_client: AsyncLilypad) -> None:
+        environment = await async_client.projects.environments.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+        assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve_deployment_history(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.projects.environments.with_raw_response.retrieve_deployment_history(
+    async def test_raw_response_get_deployment_history(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.environments.with_raw_response.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -441,12 +441,12 @@ class TestAsyncEnvironments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         environment = await response.parse()
-        assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+        assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve_deployment_history(self, async_client: AsyncLilypad) -> None:
-        async with async_client.projects.environments.with_streaming_response.retrieve_deployment_history(
+    async def test_streaming_response_get_deployment_history(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.environments.with_streaming_response.get_deployment_history(
             environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -454,21 +454,21 @@ class TestAsyncEnvironments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             environment = await response.parse()
-            assert_matches_type(EnvironmentRetrieveDeploymentHistoryResponse, environment, path=["response"])
+            assert_matches_type(EnvironmentGetDeploymentHistoryResponse, environment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve_deployment_history(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_get_deployment_history(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_deployment_history(
+            await async_client.projects.environments.with_raw_response.get_deployment_history(
                 environment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `environment_uuid` but received ''"):
-            await async_client.projects.environments.with_raw_response.retrieve_deployment_history(
+            await async_client.projects.environments.with_raw_response.get_deployment_history(
                 environment_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )

@@ -10,11 +10,9 @@ import pytest
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
 from lilypad.types import (
+    CommentPublic,
     CommentListResponse,
-    CommentCreateResponse,
     CommentDeleteResponse,
-    CommentUpdateResponse,
-    CommentRetrieveResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -30,7 +28,7 @@ class TestComments:
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             text="text",
         )
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -40,7 +38,7 @@ class TestComments:
             text="text",
             parent_comment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -53,7 +51,7 @@ class TestComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = response.parse()
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -66,7 +64,7 @@ class TestComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = response.parse()
-            assert_matches_type(CommentCreateResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -76,7 +74,7 @@ class TestComments:
         comment = client.comments.retrieve(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -88,7 +86,7 @@ class TestComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = response.parse()
-        assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -100,7 +98,7 @@ class TestComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = response.parse()
-            assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -118,7 +116,7 @@ class TestComments:
         comment = client.comments.update(
             comment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -128,7 +126,7 @@ class TestComments:
             is_edited=True,
             text="text",
         )
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -140,7 +138,7 @@ class TestComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = response.parse()
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -152,7 +150,7 @@ class TestComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = response.parse()
-            assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -245,7 +243,7 @@ class TestAsyncComments:
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             text="text",
         )
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -255,7 +253,7 @@ class TestAsyncComments:
             text="text",
             parent_comment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -268,7 +266,7 @@ class TestAsyncComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = await response.parse()
-        assert_matches_type(CommentCreateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -281,7 +279,7 @@ class TestAsyncComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = await response.parse()
-            assert_matches_type(CommentCreateResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -291,7 +289,7 @@ class TestAsyncComments:
         comment = await async_client.comments.retrieve(
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -303,7 +301,7 @@ class TestAsyncComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = await response.parse()
-        assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -315,7 +313,7 @@ class TestAsyncComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = await response.parse()
-            assert_matches_type(CommentRetrieveResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -333,7 +331,7 @@ class TestAsyncComments:
         comment = await async_client.comments.update(
             comment_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -343,7 +341,7 @@ class TestAsyncComments:
             is_edited=True,
             text="text",
         )
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -355,7 +353,7 @@ class TestAsyncComments:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         comment = await response.parse()
-        assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+        assert_matches_type(CommentPublic, comment, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -367,7 +365,7 @@ class TestAsyncComments:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             comment = await response.parse()
-            assert_matches_type(CommentUpdateResponse, comment, path=["response"])
+            assert_matches_type(CommentPublic, comment, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

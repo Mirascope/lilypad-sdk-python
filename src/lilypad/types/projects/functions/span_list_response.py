@@ -9,4 +9,4 @@ __all__ = ["SpanListResponse"]
 
 SpanListResponse: TypeAlias = List["SpanPublic"]
 
-from .span_public import SpanPublic
+from ...span_public import SpanPublic

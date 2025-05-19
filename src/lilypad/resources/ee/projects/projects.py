@@ -10,14 +10,6 @@ from .spans import (
     SpansResourceWithStreamingResponse,
     AsyncSpansResourceWithStreamingResponse,
 )
-from .functions import (
-    FunctionsResource,
-    AsyncFunctionsResource,
-    FunctionsResourceWithRawResponse,
-    AsyncFunctionsResourceWithRawResponse,
-    FunctionsResourceWithStreamingResponse,
-    AsyncFunctionsResourceWithStreamingResponse,
-)
 from ...._compat import cached_property
 from .annotations import (
     AnnotationsResource,
@@ -28,6 +20,14 @@ from .annotations import (
     AsyncAnnotationsResourceWithStreamingResponse,
 )
 from ...._resource import SyncAPIResource, AsyncAPIResource
+from .functions.functions import (
+    FunctionsResource,
+    AsyncFunctionsResource,
+    FunctionsResourceWithRawResponse,
+    AsyncFunctionsResourceWithRawResponse,
+    FunctionsResourceWithStreamingResponse,
+    AsyncFunctionsResourceWithStreamingResponse,
+)
 
 __all__ = ["ProjectsResource", "AsyncProjectsResource"]
 

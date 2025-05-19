@@ -9,7 +9,7 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types.ee.projects import SpanRetrieveAnnotationsResponse
+from lilypad.types.ee.projects import SpanGetAnnotationsResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -71,17 +71,17 @@ class TestSpans:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve_annotations(self, client: Lilypad) -> None:
-        span = client.ee.projects.spans.retrieve_annotations(
+    def test_method_get_annotations(self, client: Lilypad) -> None:
+        span = client.ee.projects.spans.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+        assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve_annotations(self, client: Lilypad) -> None:
-        response = client.ee.projects.spans.with_raw_response.retrieve_annotations(
+    def test_raw_response_get_annotations(self, client: Lilypad) -> None:
+        response = client.ee.projects.spans.with_raw_response.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -89,12 +89,12 @@ class TestSpans:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         span = response.parse()
-        assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+        assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve_annotations(self, client: Lilypad) -> None:
-        with client.ee.projects.spans.with_streaming_response.retrieve_annotations(
+    def test_streaming_response_get_annotations(self, client: Lilypad) -> None:
+        with client.ee.projects.spans.with_streaming_response.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -102,21 +102,21 @@ class TestSpans:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             span = response.parse()
-            assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+            assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve_annotations(self, client: Lilypad) -> None:
+    def test_path_params_get_annotations(self, client: Lilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            client.ee.projects.spans.with_raw_response.retrieve_annotations(
+            client.ee.projects.spans.with_raw_response.get_annotations(
                 span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
-            client.ee.projects.spans.with_raw_response.retrieve_annotations(
+            client.ee.projects.spans.with_raw_response.get_annotations(
                 span_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )
@@ -179,17 +179,17 @@ class TestAsyncSpans:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve_annotations(self, async_client: AsyncLilypad) -> None:
-        span = await async_client.ee.projects.spans.retrieve_annotations(
+    async def test_method_get_annotations(self, async_client: AsyncLilypad) -> None:
+        span = await async_client.ee.projects.spans.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+        assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve_annotations(self, async_client: AsyncLilypad) -> None:
-        response = await async_client.ee.projects.spans.with_raw_response.retrieve_annotations(
+    async def test_raw_response_get_annotations(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.ee.projects.spans.with_raw_response.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
@@ -197,12 +197,12 @@ class TestAsyncSpans:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         span = await response.parse()
-        assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+        assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve_annotations(self, async_client: AsyncLilypad) -> None:
-        async with async_client.ee.projects.spans.with_streaming_response.retrieve_annotations(
+    async def test_streaming_response_get_annotations(self, async_client: AsyncLilypad) -> None:
+        async with async_client.ee.projects.spans.with_streaming_response.get_annotations(
             span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         ) as response:
@@ -210,21 +210,21 @@ class TestAsyncSpans:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             span = await response.parse()
-            assert_matches_type(SpanRetrieveAnnotationsResponse, span, path=["response"])
+            assert_matches_type(SpanGetAnnotationsResponse, span, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve_annotations(self, async_client: AsyncLilypad) -> None:
+    async def test_path_params_get_annotations(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
-            await async_client.ee.projects.spans.with_raw_response.retrieve_annotations(
+            await async_client.ee.projects.spans.with_raw_response.get_annotations(
                 span_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
                 project_uuid="",
             )
 
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
-            await async_client.ee.projects.spans.with_raw_response.retrieve_annotations(
+            await async_client.ee.projects.spans.with_raw_response.get_annotations(
                 span_uuid="",
                 project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
             )

@@ -5,6 +5,8 @@ from datetime import datetime
 from typing_extensions import Literal, TypeAlias
 
 from .._models import BaseModel
+from .tag_public import TagPublic
+from .projects.scope import Scope
 
 __all__ = [
     "SpanMoreDetails",
@@ -15,7 +17,6 @@ __all__ = [
     "MessageContent_ImagePart",
     "MessageContent_ToolCall",
     "Event",
-    "Tag",
 ]
 
 
@@ -72,18 +73,6 @@ class Event(BaseModel):
     type: str
 
 
-class Tag(BaseModel):
-    created_at: datetime
-
-    name: str
-
-    organization_uuid: str
-
-    uuid: str
-
-    project_uuid: Optional[str] = None
-
-
 class SpanMoreDetails(BaseModel):
     data: object
 
@@ -97,7 +86,9 @@ class SpanMoreDetails(BaseModel):
 
     provider: str
 
-    scope: Literal["lilypad", "llm"]
+    response_obj: object
+
+    scope: Scope
     """Instrumentation Scope name of the span"""
 
     span_id: str
@@ -107,6 +98,8 @@ class SpanMoreDetails(BaseModel):
     arg_values: Optional[object] = None
 
     code: Optional[str] = None
+
+    content: Optional[str] = None
 
     cost: Optional[float] = None
 
@@ -128,6 +121,6 @@ class SpanMoreDetails(BaseModel):
 
     status: Optional[str] = None
 
-    tags: Optional[List[Tag]] = None
+    tags: Optional[List[TagPublic]] = None
 
     template: Optional[str] = None
