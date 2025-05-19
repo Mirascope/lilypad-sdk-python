@@ -7,15 +7,18 @@ import logging
 from io import BytesIO
 from uuid import UUID
 from typing import TYPE_CHECKING, Any, TypeVar, ParamSpec, cast
-from contextlib import contextmanager, _GeneratorContextManager
+from contextlib import suppress, contextmanager, _GeneratorContextManager
 from collections.abc import Callable, Generator
 
 import orjson
+import pydantic
+import pydantic_core
 from pydantic import BaseModel
 from mirascope.core import base as mb
 from opentelemetry.trace import Span, Status, StatusCode, SpanContext, get_tracer
 from mirascope.integrations import middleware_factory
 from opentelemetry.util.types import AttributeValue
+from google.protobuf.json_format import MessageToDict
 from mirascope.integrations._middleware_factory import SyncFunc, AsyncFunc
 
 from .json import to_text, json_dumps, fast_jsonable
@@ -97,18 +100,15 @@ def _get_custom_context_manager(
             }
             if decorator_tags is not None:
                 attributes["lilypad.trace.tags"] = decorator_tags
-            if function:
-                attribute_type = "function"
-                attributes["lilypad.function.uuid"] = str(function.uuid)
-                attributes["lilypad.function.name"] = fn.__name__
-                attributes["lilypad.function.signature"] = function.signature
-                attributes["lilypad.function.code"] = function.code
-                attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
-                attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
-                attributes["lilypad.function.prompt_template"] = prompt_template or ""
-                attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
-            else:
-                attribute_type = "trace"
+            attribute_type = "mirascope.v1"
+            attributes["lilypad.function.uuid"] = str(function.uuid)
+            attributes["lilypad.function.name"] = fn.__name__
+            attributes["lilypad.function.signature"] = function.signature
+            attributes["lilypad.function.code"] = function.code
+            attributes["lilypad.function.arg_types"] = json_dumps(arg_types)
+            attributes["lilypad.function.arg_values"] = json_dumps(jsonable_arg_values)
+            attributes["lilypad.function.prompt_template"] = prompt_template or ""
+            attributes["lilypad.function.version"] = function.version_num if function.version_num else -1
             attributes["lilypad.type"] = attribute_type
             attributes[f"lilypad.{attribute_type}.arg_types"] = json_dumps(arg_types)
             attributes[f"lilypad.{attribute_type}.arg_values"] = json_dumps(jsonable_arg_values)
@@ -157,41 +157,82 @@ def encode_gemini_part(
     return part
 
 
-def _serialize_proto_data(data: list[dict]) -> str:
-    serializable_data = []
-    for item in data:
-        serialized_item = item.copy()
-        if "parts" in item:
-            serialized_item["parts"] = [encode_gemini_part(part) for part in item["parts"]]
-        serializable_data.append(serialized_item)
-
-    return json_dumps(serializable_data)
+def safe_serialize(response_obj):
+    """
+    Safely serialize a Pydantic object containing Protobuf fields without using model_dump
+    """
+    # Convert to JSON
+    return json_dumps(recursive_process_value(response_obj))
 
 
-def _serialize_bytes_to_base64(data: bytes) -> str:
-    """Serializes bytes to a base64 encoded string."""
-    return base64.b64encode(data).decode("utf-8")
+def recursive_process_value(value: Any) -> dict | list | str | int | float | bool | None:
+    """
+    Recursively process any value to make it JSON serializable,
+    with special handling for Protobuf objects
+    """
+    # Handle None
+    if value is None:
+        return None
 
+    # Handle Protobuf objects
+    if hasattr(value, "SerializeToString") and callable(getattr(value, "SerializeToString")):
+        # Check if it's a properly structured Protobuf message
+        if hasattr(value, "DESCRIPTOR") and hasattr(value, "ListFields"):
+            # Proper Protobuf message with accessible fields
+            proto_dict = {}
+            for descriptor, field_value in value.ListFields():
+                field_name = descriptor.name
+                proto_dict[field_name] = recursive_process_value(field_value)
+            return proto_dict
+        else:
+            return str(value)
 
-_COMMON_MESSAGES_PARTS_SERIALIZER = {
-    bytes: _serialize_bytes_to_base64,
-}
+    # Handle Pydantic models by accessing their __dict__
+    if hasattr(value, "__dict__") and not isinstance(value, type):
+        result = {}
+        for field_name, field_value in value.__dict__.items():
+            # Skip private fields and tool_types
+            if field_name.startswith("_") or field_name == "tool_types":
+                continue
+            result[field_name] = recursive_process_value(field_value)
+        return result
+
+    # Handle basic types directly
+    if isinstance(value, (str, int, float, bool)):
+        return value
+
+    # Handle lists
+    if isinstance(value, list):
+        return [recursive_process_value(item) for item in value]
+
+    # Handle dictionaries
+    if isinstance(value, dict):
+        return {k: recursive_process_value(v) for k, v in value.items()}
+
+    # Handle sets by converting to list
+    if isinstance(value, set):
+        return [recursive_process_value(item) for item in value]
+
+    # Handle tuples by converting to list
+    if isinstance(value, tuple):
+        return [recursive_process_value(item) for item in value]
+
+    # For any other type, convert to string
+    return str(value)
 
 
 def _set_call_response_attributes(response: mb.BaseCallResponse, span: Span, trace_type: str) -> None:
     try:
-        output = fast_jsonable(response.message_param)
+        output = safe_serialize(response)
     except TypeError:
-        output = str(response.message_param)
+        output = str(response)
     try:
-        messages = fast_jsonable(response.messages)
+        messages = fast_jsonable(response.common_messages + [response.common_message_param])
     except TypeError:
-        messages = _serialize_proto_data(response.messages)  # Gemini
-    common_messages = fast_jsonable(response.common_messages, _COMMON_MESSAGES_PARTS_SERIALIZER)
+        messages = str(response.common_messages) + str(response.common_message_param)
     attributes: dict[str, AttributeValue] = {
-        f"lilypad.{trace_type}.output": to_text(output),
+        f"lilypad.{trace_type}.response": output,
         f"lilypad.{trace_type}.messages": messages,
-        f"lilypad.{trace_type}.common_messages": common_messages,
     }
     span.set_attributes(attributes)
 
@@ -203,17 +244,14 @@ def _set_response_model_attributes(  # noqa: D401
 ) -> None:
     if isinstance(result, BaseModel):
         completion: str | int | float | bool | None = fast_jsonable(result)
-        response_obj: Any | None = getattr(result, "_response", None)
-        messages_raw: Any | None = getattr(response_obj, "messages", None) if response_obj else None
-        messages: str | int | float | bool | None = fast_jsonable(messages_raw) if messages_raw is not None else None
+        response_obj: mb.BaseCallResponse | None = getattr(result, "_response", None)
+        _set_call_response_attributes(response_obj, span, trace_type)
     else:
         completion = result if isinstance(result, (str, int, float, bool)) else str(result)
-        messages = None
 
     attr_key = f"lilypad.{trace_type}."
-    attributes = {f"{attr_key}output": completion}
-    if messages is not None:
-        attributes[f"{attr_key}messages"] = messages
+    attributes = {f"{attr_key}response_model": completion}
+
     span.set_attributes(attributes)
 
 
@@ -309,7 +347,7 @@ def create_mirascope_middleware(
         current_span,
         decorator_tags,
     )
-    _handlers = _Handlers("function" if function else "trace")
+    _handlers = _Handlers("mirascope.v1" if function else "trace")
     return middleware_factory(
         custom_context_manager=cm_callable,
         handle_call_response=_handlers.handle_call_response,
