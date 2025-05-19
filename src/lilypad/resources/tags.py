@@ -18,11 +18,9 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.tag_public import TagPublic
 from ..types.tag_list_response import TagListResponse
-from ..types.tag_create_response import TagCreateResponse
 from ..types.tag_delete_response import TagDeleteResponse
-from ..types.tag_update_response import TagUpdateResponse
-from ..types.tag_retrieve_response import TagRetrieveResponse
 
 __all__ = ["TagsResource", "AsyncTagsResource"]
 
@@ -58,7 +56,7 @@ class TagsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagCreateResponse:
+    ) -> TagPublic:
         """
         Create a tag
 
@@ -83,7 +81,7 @@ class TagsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagCreateResponse,
+            cast_to=TagPublic,
         )
 
     def retrieve(
@@ -96,7 +94,7 @@ class TagsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagRetrieveResponse:
+    ) -> TagPublic:
         """
         Get a tag.
 
@@ -116,7 +114,7 @@ class TagsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagRetrieveResponse,
+            cast_to=TagPublic,
         )
 
     def update(
@@ -131,7 +129,7 @@ class TagsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagUpdateResponse:
+    ) -> TagPublic:
         """
         Update a tag.
 
@@ -158,7 +156,7 @@ class TagsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagUpdateResponse,
+            cast_to=TagPublic,
         )
 
     def list(
@@ -245,7 +243,7 @@ class AsyncTagsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagCreateResponse:
+    ) -> TagPublic:
         """
         Create a tag
 
@@ -270,7 +268,7 @@ class AsyncTagsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagCreateResponse,
+            cast_to=TagPublic,
         )
 
     async def retrieve(
@@ -283,7 +281,7 @@ class AsyncTagsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagRetrieveResponse:
+    ) -> TagPublic:
         """
         Get a tag.
 
@@ -303,7 +301,7 @@ class AsyncTagsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagRetrieveResponse,
+            cast_to=TagPublic,
         )
 
     async def update(
@@ -318,7 +316,7 @@ class AsyncTagsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TagUpdateResponse:
+    ) -> TagPublic:
         """
         Update a tag.
 
@@ -345,7 +343,7 @@ class AsyncTagsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TagUpdateResponse,
+            cast_to=TagPublic,
         )
 
     async def list(

@@ -18,9 +18,9 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.span_public import SpanPublic
 from ..types.span_more_details import SpanMoreDetails
 from ..types.span_list_comments_response import SpanListCommentsResponse
-from ..types.projects.functions.span_public import SpanPublic
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
 

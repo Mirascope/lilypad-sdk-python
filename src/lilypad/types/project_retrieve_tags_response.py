@@ -1,24 +1,10 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import List, Optional
-from datetime import datetime
+from typing import List
 from typing_extensions import TypeAlias
 
-from .._models import BaseModel
+from .tag_public import TagPublic
 
-__all__ = ["ProjectRetrieveTagsResponse", "ProjectRetrieveTagsResponseItem"]
+__all__ = ["ProjectRetrieveTagsResponse"]
 
-
-class ProjectRetrieveTagsResponseItem(BaseModel):
-    created_at: datetime
-
-    name: str
-
-    organization_uuid: str
-
-    uuid: str
-
-    project_uuid: Optional[str] = None
-
-
-ProjectRetrieveTagsResponse: TypeAlias = List[ProjectRetrieveTagsResponseItem]
+ProjectRetrieveTagsResponse: TypeAlias = List[TagPublic]

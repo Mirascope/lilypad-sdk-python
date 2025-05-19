@@ -86,7 +86,7 @@ from lilypad import Lilypad
 
 client = Lilypad()
 
-response = client.ee.projects.functions.run_playground(
+response = client.ee.projects.functions.run_in_playground(
     function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
     project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
     arg_types={"foo": "string"},

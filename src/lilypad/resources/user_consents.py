@@ -19,8 +19,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.user_consent_create_response import UserConsentCreateResponse
-from ..types.user_consent_update_response import UserConsentUpdateResponse
+from ..types.user_consent_public import UserConsentPublic
 
 __all__ = ["UserConsentsResource", "AsyncUserConsentsResource"]
 
@@ -59,7 +58,7 @@ class UserConsentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserConsentCreateResponse:
+    ) -> UserConsentPublic:
         """
         Store user consent.
 
@@ -87,7 +86,7 @@ class UserConsentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserConsentCreateResponse,
+            cast_to=UserConsentPublic,
         )
 
     def update(
@@ -104,7 +103,7 @@ class UserConsentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserConsentUpdateResponse:
+    ) -> UserConsentPublic:
         """
         Update user consent.
 
@@ -133,7 +132,7 @@ class UserConsentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserConsentUpdateResponse,
+            cast_to=UserConsentPublic,
         )
 
 
@@ -171,7 +170,7 @@ class AsyncUserConsentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserConsentCreateResponse:
+    ) -> UserConsentPublic:
         """
         Store user consent.
 
@@ -199,7 +198,7 @@ class AsyncUserConsentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserConsentCreateResponse,
+            cast_to=UserConsentPublic,
         )
 
     async def update(
@@ -216,7 +215,7 @@ class AsyncUserConsentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserConsentUpdateResponse:
+    ) -> UserConsentPublic:
         """
         Update user consent.
 
@@ -245,7 +244,7 @@ class AsyncUserConsentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=UserConsentUpdateResponse,
+            cast_to=UserConsentPublic,
         )
 
 
