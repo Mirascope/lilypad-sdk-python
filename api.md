@@ -214,6 +214,7 @@ Types:
 from lilypad.types.projects import (
     AggregateMetrics,
     Scope,
+    SpanPublic,
     TimeFrame,
     SpanDeleteResponse,
     SpanRetrieveAggregatesResponse,
@@ -240,7 +241,7 @@ Methods:
 
 - <code title="post /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">create</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_create_response.py">TraceCreateResponse</a></code>
 - <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/trace_list_params.py">params</a>) -> <a href="./src/lilypad/types/paginated_span_public.py">PaginatedSpanPublic</a></code>
-- <code title="get /projects/{project_uuid}/traces/{span_id}/root">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">retrieve_by_span_id</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/span_public.py">SpanPublic</a></code>
+- <code title="get /projects/{project_uuid}/traces/{span_id}/root">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">retrieve_by_span_id</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/projects/span_public.py">SpanPublic</a></code>
 
 ## Environments
 
@@ -281,20 +282,13 @@ Methods:
 Types:
 
 ```python
-from lilypad.types import (
-    PaginatedSpanPublic,
-    SpanMoreDetails,
-    SpanPublic,
-    SpanListCommentsResponse,
-    SpanRetrieveAggregatesResponse,
-)
+from lilypad.types import PaginatedSpanPublic, SpanMoreDetails, SpanRetrieveAggregatesResponse
 ```
 
 Methods:
 
 - <code title="get /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">retrieve</a>(span_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
-- <code title="patch /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">update</a>(span_uuid, \*\*<a href="src/lilypad/types/span_update_params.py">params</a>) -> <a href="./src/lilypad/types/span_public.py">SpanPublic</a></code>
-- <code title="get /spans/{span_uuid}/comments">client.spans.<a href="./src/lilypad/resources/spans.py">list_comments</a>(span_uuid) -> <a href="./src/lilypad/types/span_list_comments_response.py">SpanListCommentsResponse</a></code>
+- <code title="patch /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">update</a>(span_uuid, \*\*<a href="src/lilypad/types/span_update_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_public.py">SpanPublic</a></code>
 - <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/paginated">client.spans.<a href="./src/lilypad/resources/spans.py">list_paginated</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/span_list_paginated_params.py">params</a>) -> <a href="./src/lilypad/types/paginated_span_public.py">PaginatedSpanPublic</a></code>
 - <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/metadata">client.spans.<a href="./src/lilypad/resources/spans.py">retrieve_aggregates</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/span_retrieve_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/span_retrieve_aggregates_response.py">SpanRetrieveAggregatesResponse</a></code>
 
@@ -408,7 +402,12 @@ Methods:
 Types:
 
 ```python
-from lilypad.types import CommentPublic, CommentListResponse, CommentDeleteResponse
+from lilypad.types import (
+    CommentPublic,
+    CommentListResponse,
+    CommentDeleteResponse,
+    CommentListCommentsBySpanResponse,
+)
 ```
 
 Methods:
@@ -418,6 +417,7 @@ Methods:
 - <code title="patch /comments/{comment_uuid}">client.comments.<a href="./src/lilypad/resources/comments.py">update</a>(comment_uuid, \*\*<a href="src/lilypad/types/comment_update_params.py">params</a>) -> <a href="./src/lilypad/types/comment_public.py">CommentPublic</a></code>
 - <code title="get /comments">client.comments.<a href="./src/lilypad/resources/comments.py">list</a>() -> <a href="./src/lilypad/types/comment_list_response.py">CommentListResponse</a></code>
 - <code title="delete /comments/{comment_uuid}">client.comments.<a href="./src/lilypad/resources/comments.py">delete</a>(comment_uuid) -> <a href="./src/lilypad/types/comment_delete_response.py">CommentDeleteResponse</a></code>
+- <code title="get /spans/{span_uuid}/comments">client.comments.<a href="./src/lilypad/resources/comments.py">list_comments_by_span</a>(span_uuid) -> <a href="./src/lilypad/types/comment_list_comments_by_span_response.py">CommentListCommentsBySpanResponse</a></code>
 
 # Settings
 

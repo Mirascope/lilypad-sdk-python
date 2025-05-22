@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .scope import Scope as Scope
 from .time_frame import TimeFrame as TimeFrame
+from .span_public import SpanPublic as SpanPublic
 from .aggregate_metrics import AggregateMetrics as AggregateMetrics
 from .deployment_public import DeploymentPublic as DeploymentPublic
 from .trace_list_params import TraceListParams as TraceListParams

@@ -24,7 +24,7 @@ class PaginatedSpanPublic(BaseModel):
     """Total number of items"""
 
 
-from .span_public import SpanPublic
+from .projects.span_public import SpanPublic
 
 if PYDANTIC_V2:
     PaginatedSpanPublic.model_rebuild()

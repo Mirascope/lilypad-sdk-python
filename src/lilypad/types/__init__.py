@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from .tag_public import TagPublic as TagPublic
-from .span_public import SpanPublic as SpanPublic
 from .comment_public import CommentPublic as CommentPublic
 from .project_public import ProjectPublic as ProjectPublic
 from .span_more_details import SpanMoreDetails as SpanMoreDetails
@@ -41,7 +40,6 @@ from .span_list_paginated_params import SpanListPaginatedParams as SpanListPagin
 from .user_consent_create_params import UserConsentCreateParams as UserConsentCreateParams
 from .user_consent_update_params import UserConsentUpdateParams as UserConsentUpdateParams
 from .environment_delete_response import EnvironmentDeleteResponse as EnvironmentDeleteResponse
-from .span_list_comments_response import SpanListCommentsResponse as SpanListCommentsResponse
 from .external_api_key_create_params import ExternalAPIKeyCreateParams as ExternalAPIKeyCreateParams
 from .external_api_key_list_response import ExternalAPIKeyListResponse as ExternalAPIKeyListResponse
 from .external_api_key_update_params import ExternalAPIKeyUpdateParams as ExternalAPIKeyUpdateParams
@@ -52,6 +50,9 @@ from .span_retrieve_aggregates_response import SpanRetrieveAggregatesResponse as
 from .organizations_invite_create_params import OrganizationsInviteCreateParams as OrganizationsInviteCreateParams
 from .organizations_invite_list_response import OrganizationsInviteListResponse as OrganizationsInviteListResponse
 from .organizations_invite_delete_response import OrganizationsInviteDeleteResponse as OrganizationsInviteDeleteResponse
+from .comment_list_comments_by_span_response import (
+    CommentListCommentsBySpanResponse as CommentListCommentsBySpanResponse,
+)
 from .project_create_versioned_function_params import (
     ProjectCreateVersionedFunctionParams as ProjectCreateVersionedFunctionParams,
 )

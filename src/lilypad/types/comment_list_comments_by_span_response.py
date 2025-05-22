@@ -5,6 +5,6 @@ from typing_extensions import TypeAlias
 
 from .comment_public import CommentPublic
 
-__all__ = ["SpanListCommentsResponse"]
+__all__ = ["CommentListCommentsBySpanResponse"]
 
-SpanListCommentsResponse: TypeAlias = List[CommentPublic]
+CommentListCommentsBySpanResponse: TypeAlias = List[CommentPublic]
