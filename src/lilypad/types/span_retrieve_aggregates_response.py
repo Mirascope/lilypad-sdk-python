@@ -3,7 +3,7 @@
 from typing import List
 from typing_extensions import TypeAlias
 
-from ..aggregate_metrics import AggregateMetrics
+from .projects.aggregate_metrics import AggregateMetrics
 
 __all__ = ["SpanRetrieveAggregatesResponse"]
 

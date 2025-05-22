@@ -15,14 +15,6 @@ from .name import (
     NameResourceWithStreamingResponse,
     AsyncNameResourceWithStreamingResponse,
 )
-from .spans import (
-    SpansResource,
-    AsyncSpansResource,
-    SpansResourceWithRawResponse,
-    AsyncSpansResourceWithRawResponse,
-    SpansResourceWithStreamingResponse,
-    AsyncSpansResourceWithStreamingResponse,
-)
 from ...._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from ...._utils import maybe_transform, async_maybe_transform
 from ...._compat import cached_property
@@ -60,10 +52,6 @@ class FunctionsResource(SyncAPIResource):
     @cached_property
     def metadata(self) -> MetadataResource:
         return MetadataResource(self._client)
-
-    @cached_property
-    def spans(self) -> SpansResource:
-        return SpansResource(self._client)
 
     @cached_property
     def with_raw_response(self) -> FunctionsResourceWithRawResponse:
@@ -386,10 +374,6 @@ class AsyncFunctionsResource(AsyncAPIResource):
     @cached_property
     def metadata(self) -> AsyncMetadataResource:
         return AsyncMetadataResource(self._client)
-
-    @cached_property
-    def spans(self) -> AsyncSpansResource:
-        return AsyncSpansResource(self._client)
 
     @cached_property
     def with_raw_response(self) -> AsyncFunctionsResourceWithRawResponse:
@@ -738,10 +722,6 @@ class FunctionsResourceWithRawResponse:
     def metadata(self) -> MetadataResourceWithRawResponse:
         return MetadataResourceWithRawResponse(self._functions.metadata)
 
-    @cached_property
-    def spans(self) -> SpansResourceWithRawResponse:
-        return SpansResourceWithRawResponse(self._functions.spans)
-
 
 class AsyncFunctionsResourceWithRawResponse:
     def __init__(self, functions: AsyncFunctionsResource) -> None:
@@ -776,10 +756,6 @@ class AsyncFunctionsResourceWithRawResponse:
     @cached_property
     def metadata(self) -> AsyncMetadataResourceWithRawResponse:
         return AsyncMetadataResourceWithRawResponse(self._functions.metadata)
-
-    @cached_property
-    def spans(self) -> AsyncSpansResourceWithRawResponse:
-        return AsyncSpansResourceWithRawResponse(self._functions.spans)
 
 
 class FunctionsResourceWithStreamingResponse:
@@ -816,10 +792,6 @@ class FunctionsResourceWithStreamingResponse:
     def metadata(self) -> MetadataResourceWithStreamingResponse:
         return MetadataResourceWithStreamingResponse(self._functions.metadata)
 
-    @cached_property
-    def spans(self) -> SpansResourceWithStreamingResponse:
-        return SpansResourceWithStreamingResponse(self._functions.spans)
-
 
 class AsyncFunctionsResourceWithStreamingResponse:
     def __init__(self, functions: AsyncFunctionsResource) -> None:
@@ -854,7 +826,3 @@ class AsyncFunctionsResourceWithStreamingResponse:
     @cached_property
     def metadata(self) -> AsyncMetadataResourceWithStreamingResponse:
         return AsyncMetadataResourceWithStreamingResponse(self._functions.metadata)
-
-    @cached_property
-    def spans(self) -> AsyncSpansResourceWithStreamingResponse:
-        return AsyncSpansResourceWithStreamingResponse(self._functions.spans)
