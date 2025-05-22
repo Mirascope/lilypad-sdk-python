@@ -13,6 +13,7 @@ from lilypad.types import (
     CommentPublic,
     CommentListResponse,
     CommentDeleteResponse,
+    CommentListCommentsBySpanResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -232,6 +233,48 @@ class TestComments:
                 "",
             )
 
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_list_comments_by_span(self, client: Lilypad) -> None:
+        comment = client.comments.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_list_comments_by_span(self, client: Lilypad) -> None:
+        response = client.comments.with_raw_response.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        comment = response.parse()
+        assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_list_comments_by_span(self, client: Lilypad) -> None:
+        with client.comments.with_streaming_response.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            comment = response.parse()
+            assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_list_comments_by_span(self, client: Lilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
+            client.comments.with_raw_response.list_comments_by_span(
+                "",
+            )
+
 
 class TestAsyncComments:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
@@ -444,5 +487,47 @@ class TestAsyncComments:
     async def test_path_params_delete(self, async_client: AsyncLilypad) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `comment_uuid` but received ''"):
             await async_client.comments.with_raw_response.delete(
+                "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_list_comments_by_span(self, async_client: AsyncLilypad) -> None:
+        comment = await async_client.comments.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_list_comments_by_span(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.comments.with_raw_response.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        comment = await response.parse()
+        assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_list_comments_by_span(self, async_client: AsyncLilypad) -> None:
+        async with async_client.comments.with_streaming_response.list_comments_by_span(
+            "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            comment = await response.parse()
+            assert_matches_type(CommentListCommentsBySpanResponse, comment, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_list_comments_by_span(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `span_uuid` but received ''"):
+            await async_client.comments.with_raw_response.list_comments_by_span(
                 "",
             )
