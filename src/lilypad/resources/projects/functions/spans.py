@@ -20,7 +20,6 @@ from ...._base_client import make_request_options
 from ....types.projects import TimeFrame
 from ....types.projects.functions import span_list_paginated_params, span_retrieve_aggregates_params
 from ....types.projects.time_frame import TimeFrame
-from ....types.projects.functions.span_list_response import SpanListResponse
 from ....types.projects.functions.paginated_span_public import PaginatedSpanPublic
 from ....types.projects.functions.span_retrieve_aggregates_response import SpanRetrieveAggregatesResponse
 
@@ -46,42 +45,6 @@ class SpansResource(SyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return SpansResourceWithStreamingResponse(self)
-
-    def list(
-        self,
-        function_uuid: str,
-        *,
-        project_uuid: str,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanListResponse:
-        """
-        Get span by uuid.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not function_uuid:
-            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
-        return self._get(
-            f"/projects/{project_uuid}/functions/{function_uuid}/spans",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanListResponse,
-        )
 
     def list_paginated(
         self,
@@ -199,42 +162,6 @@ class AsyncSpansResource(AsyncAPIResource):
         """
         return AsyncSpansResourceWithStreamingResponse(self)
 
-    async def list(
-        self,
-        function_uuid: str,
-        *,
-        project_uuid: str,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanListResponse:
-        """
-        Get span by uuid.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not project_uuid:
-            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
-        if not function_uuid:
-            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
-        return await self._get(
-            f"/projects/{project_uuid}/functions/{function_uuid}/spans",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SpanListResponse,
-        )
-
     async def list_paginated(
         self,
         function_uuid: str,
@@ -335,9 +262,6 @@ class SpansResourceWithRawResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.list = to_raw_response_wrapper(
-            spans.list,
-        )
         self.list_paginated = to_raw_response_wrapper(
             spans.list_paginated,
         )
@@ -350,9 +274,6 @@ class AsyncSpansResourceWithRawResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.list = async_to_raw_response_wrapper(
-            spans.list,
-        )
         self.list_paginated = async_to_raw_response_wrapper(
             spans.list_paginated,
         )
@@ -365,9 +286,6 @@ class SpansResourceWithStreamingResponse:
     def __init__(self, spans: SpansResource) -> None:
         self._spans = spans
 
-        self.list = to_streamed_response_wrapper(
-            spans.list,
-        )
         self.list_paginated = to_streamed_response_wrapper(
             spans.list_paginated,
         )
@@ -380,9 +298,6 @@ class AsyncSpansResourceWithStreamingResponse:
     def __init__(self, spans: AsyncSpansResource) -> None:
         self._spans = spans
 
-        self.list = async_to_streamed_response_wrapper(
-            spans.list,
-        )
         self.list_paginated = async_to_streamed_response_wrapper(
             spans.list_paginated,
         )

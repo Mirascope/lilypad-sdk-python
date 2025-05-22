@@ -211,16 +211,11 @@ Methods:
 Types:
 
 ```python
-from lilypad.types.projects.functions import (
-    PaginatedSpanPublic,
-    SpanListResponse,
-    SpanRetrieveAggregatesResponse,
-)
+from lilypad.types.projects.functions import PaginatedSpanPublic, SpanRetrieveAggregatesResponse
 ```
 
 Methods:
 
-- <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans">client.projects.functions.spans.<a href="./src/lilypad/resources/projects/functions/spans.py">list</a>(function_uuid, \*, project_uuid) -> <a href="./src/lilypad/types/projects/functions/span_list_response.py">SpanListResponse</a></code>
 - <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/paginated">client.projects.functions.spans.<a href="./src/lilypad/resources/projects/functions/spans.py">list_paginated</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/projects/functions/span_list_paginated_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/paginated_span_public.py">PaginatedSpanPublic</a></code>
 - <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/metadata">client.projects.functions.spans.<a href="./src/lilypad/resources/projects/functions/spans.py">retrieve_aggregates</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/projects/functions/span_retrieve_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_retrieve_aggregates_response.py">SpanRetrieveAggregatesResponse</a></code>
 

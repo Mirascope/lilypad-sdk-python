@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from .function_public import FunctionPublic as FunctionPublic
 from .common_call_params import CommonCallParams as CommonCallParams
-from .span_list_response import SpanListResponse as SpanListResponse
 from .paginated_span_public import PaginatedSpanPublic as PaginatedSpanPublic
 from .common_call_params_param import CommonCallParamsParam as CommonCallParamsParam
 from .span_list_paginated_params import SpanListPaginatedParams as SpanListPaginatedParams
