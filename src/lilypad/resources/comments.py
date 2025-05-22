@@ -21,6 +21,7 @@ from .._base_client import make_request_options
 from ..types.comment_public import CommentPublic
 from ..types.comment_list_response import CommentListResponse
 from ..types.comment_delete_response import CommentDeleteResponse
+from ..types.comment_list_comments_by_span_response import CommentListCommentsBySpanResponse
 
 __all__ = ["CommentsResource", "AsyncCommentsResource"]
 
@@ -213,6 +214,39 @@ class CommentsResource(SyncAPIResource):
             cast_to=CommentDeleteResponse,
         )
 
+    def list_comments_by_span(
+        self,
+        span_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> CommentListCommentsBySpanResponse:
+        """
+        Get all comments by span.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not span_uuid:
+            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
+        return self._get(
+            f"/spans/{span_uuid}/comments",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=CommentListCommentsBySpanResponse,
+        )
+
 
 class AsyncCommentsResource(AsyncAPIResource):
     @cached_property
@@ -402,6 +436,39 @@ class AsyncCommentsResource(AsyncAPIResource):
             cast_to=CommentDeleteResponse,
         )
 
+    async def list_comments_by_span(
+        self,
+        span_uuid: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> CommentListCommentsBySpanResponse:
+        """
+        Get all comments by span.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not span_uuid:
+            raise ValueError(f"Expected a non-empty value for `span_uuid` but received {span_uuid!r}")
+        return await self._get(
+            f"/spans/{span_uuid}/comments",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=CommentListCommentsBySpanResponse,
+        )
+
 
 class CommentsResourceWithRawResponse:
     def __init__(self, comments: CommentsResource) -> None:
@@ -421,6 +488,9 @@ class CommentsResourceWithRawResponse:
         )
         self.delete = to_raw_response_wrapper(
             comments.delete,
+        )
+        self.list_comments_by_span = to_raw_response_wrapper(
+            comments.list_comments_by_span,
         )
 
 
@@ -443,6 +513,9 @@ class AsyncCommentsResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             comments.delete,
         )
+        self.list_comments_by_span = async_to_raw_response_wrapper(
+            comments.list_comments_by_span,
+        )
 
 
 class CommentsResourceWithStreamingResponse:
@@ -464,6 +537,9 @@ class CommentsResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             comments.delete,
         )
+        self.list_comments_by_span = to_streamed_response_wrapper(
+            comments.list_comments_by_span,
+        )
 
 
 class AsyncCommentsResourceWithStreamingResponse:
@@ -484,4 +560,7 @@ class AsyncCommentsResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             comments.delete,
+        )
+        self.list_comments_by_span = async_to_streamed_response_wrapper(
+            comments.list_comments_by_span,
         )

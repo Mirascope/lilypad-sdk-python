@@ -5,6 +5,6 @@ from typing_extensions import TypeAlias
 
 from ..aggregate_metrics import AggregateMetrics
 
-__all__ = ["SpanRetrieveAggregatesResponse"]
+__all__ = ["NameRetrieveAggregatesResponse"]
 
-SpanRetrieveAggregatesResponse: TypeAlias = List[AggregateMetrics]
+NameRetrieveAggregatesResponse: TypeAlias = List[AggregateMetrics]

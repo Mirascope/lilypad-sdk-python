@@ -175,7 +175,7 @@ def recursive_process_value(value: Any) -> dict | list | str | int | float | boo
         return None
 
     # Handle Protobuf objects
-    if hasattr(value, "SerializeToString") and callable(getattr(value, "SerializeToString")):
+    if hasattr(value, "SerializeToString") and callable(value.SerializeToString):
         # Check if it's a properly structured Protobuf message
         if hasattr(value, "DESCRIPTOR") and hasattr(value, "ListFields"):
             # Proper Protobuf message with accessible fields

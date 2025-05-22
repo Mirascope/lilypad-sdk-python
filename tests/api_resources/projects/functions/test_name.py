@@ -9,13 +9,139 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types.projects.functions import FunctionPublic, NameRetrieveByNameResponse
+from lilypad.types.projects.functions import (
+    FunctionPublic,
+    PaginatedSpanPublic,
+    NameRetrieveByNameResponse,
+    NameRetrieveAggregatesResponse,
+)
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
 class TestName:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_list_paginated(self, client: Lilypad) -> None:
+        name = client.projects.functions.name.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_list_paginated_with_all_params(self, client: Lilypad) -> None:
+        name = client.projects.functions.name.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            limit=1,
+            offset=0,
+            order="asc",
+        )
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_list_paginated(self, client: Lilypad) -> None:
+        response = client.projects.functions.name.with_raw_response.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        name = response.parse()
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_list_paginated(self, client: Lilypad) -> None:
+        with client.projects.functions.name.with_streaming_response.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            name = response.parse()
+            assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_list_paginated(self, client: Lilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.functions.name.with_raw_response.list_paginated(
+                function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `function_uuid` but received ''"):
+            client.projects.functions.name.with_raw_response.list_paginated(
+                function_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_retrieve_aggregates(self, client: Lilypad) -> None:
+        name = client.projects.functions.name.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        )
+        assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_retrieve_aggregates(self, client: Lilypad) -> None:
+        response = client.projects.functions.name.with_raw_response.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        name = response.parse()
+        assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_retrieve_aggregates(self, client: Lilypad) -> None:
+        with client.projects.functions.name.with_streaming_response.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            name = response.parse()
+            assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_retrieve_aggregates(self, client: Lilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            client.projects.functions.name.with_raw_response.retrieve_aggregates(
+                function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+                time_frame="day",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `function_uuid` but received ''"):
+            client.projects.functions.name.with_raw_response.retrieve_aggregates(
+                function_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                time_frame="day",
+            )
 
     @pytest.mark.skip()
     @parametrize
@@ -181,6 +307,127 @@ class TestName:
 
 class TestAsyncName:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_list_paginated(self, async_client: AsyncLilypad) -> None:
+        name = await async_client.projects.functions.name.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_list_paginated_with_all_params(self, async_client: AsyncLilypad) -> None:
+        name = await async_client.projects.functions.name.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            limit=1,
+            offset=0,
+            order="asc",
+        )
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_list_paginated(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.functions.name.with_raw_response.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        name = await response.parse()
+        assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_list_paginated(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.functions.name.with_streaming_response.list_paginated(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            name = await response.parse()
+            assert_matches_type(PaginatedSpanPublic, name, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_list_paginated(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.functions.name.with_raw_response.list_paginated(
+                function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `function_uuid` but received ''"):
+            await async_client.projects.functions.name.with_raw_response.list_paginated(
+                function_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_retrieve_aggregates(self, async_client: AsyncLilypad) -> None:
+        name = await async_client.projects.functions.name.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        )
+        assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_retrieve_aggregates(self, async_client: AsyncLilypad) -> None:
+        response = await async_client.projects.functions.name.with_raw_response.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        name = await response.parse()
+        assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_retrieve_aggregates(self, async_client: AsyncLilypad) -> None:
+        async with async_client.projects.functions.name.with_streaming_response.retrieve_aggregates(
+            function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            time_frame="day",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            name = await response.parse()
+            assert_matches_type(NameRetrieveAggregatesResponse, name, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_retrieve_aggregates(self, async_client: AsyncLilypad) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `project_uuid` but received ''"):
+            await async_client.projects.functions.name.with_raw_response.retrieve_aggregates(
+                function_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                project_uuid="",
+                time_frame="day",
+            )
+
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `function_uuid` but received ''"):
+            await async_client.projects.functions.name.with_raw_response.retrieve_aggregates(
+                function_uuid="",
+                project_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+                time_frame="day",
+            )
 
     @pytest.mark.skip()
     @parametrize

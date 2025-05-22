@@ -9,4 +9,4 @@ __all__ = ["TraceCreateResponse"]
 
 TraceCreateResponse: TypeAlias = List["SpanPublic"]
 
-from ..span_public import SpanPublic
+from .functions.span_public import SpanPublic

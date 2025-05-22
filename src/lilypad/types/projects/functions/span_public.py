@@ -6,12 +6,12 @@ from typing import List, Optional
 from datetime import datetime
 from typing_extensions import Literal
 
-from .._compat import PYDANTIC_V2
-from .._models import BaseModel
-from .tag_public import TagPublic
-from .projects.scope import Scope
-from .ee.projects.annotation_public import AnnotationPublic
-from .projects.functions.function_public import FunctionPublic
+from ..scope import Scope
+from ...._compat import PYDANTIC_V2
+from ...._models import BaseModel
+from ...tag_public import TagPublic
+from .function_public import FunctionPublic
+from ...ee.projects.annotation_public import AnnotationPublic
 
 __all__ = ["SpanPublic"]
 

@@ -26,7 +26,6 @@ from lilypad.lib._utils.middleware import (
     _Handlers,
     _handle_error,
     _handle_error_async,
-    _serialize_proto_data,
     _get_custom_context_manager,
     create_mirascope_middleware,
     _set_call_response_attributes,
@@ -86,46 +85,6 @@ def test_encode_gemini_part_with_webp_image_file():
     assert output.get("data") == expected_data
 
 
-def test_serialize_proto_data_empty():
-    """Test _serialize_proto_data with empty data."""
-    data = []
-    output = _serialize_proto_data(data)
-    assert output == "[]"
-
-
-def test_serialize_proto_data_without_parts():
-    """Test _serialize_proto_data with data that has no 'parts' key."""
-    data = [{"key": "value"}]
-    output = _serialize_proto_data(data)
-    assert output == '[{"key":"value"}]'
-
-
-# Test assumes encode_gemini_part handles bytes correctly within _serialize_proto_data
-def test_serialize_proto_data_with_parts():
-    """Test _serialize_proto_data with data containing 'parts'."""
-    data = [
-        {
-            "key": "value",
-            "parts": [
-                "some string",
-                {"mime_type": "application/octet-stream", "data": b"\x00\x01\x02"},
-                {"key": "value_no_encoding"},
-            ],
-        }
-    ]
-    output = _serialize_proto_data(data)
-    expected_parts = [
-        "some string",
-        {
-            "mime_type": "application/octet-stream",
-            "data": base64.b64encode(b"\x00\x01\x02").decode("utf-8"),
-        },
-        {"key": "value_no_encoding"},
-    ]
-    expected_data = [{"key": "value", "parts": expected_parts}]
-    assert json.loads(output) == expected_data
-
-
 def test_set_call_response_attributes_serializable():
     """Test _set_call_response_attributes with serializable data."""
     response = MagicMock(spec=mb.BaseCallResponse)
@@ -163,12 +122,7 @@ def test_set_call_response_attributes_needs_serialization():
             raise TypeError
         return orig_fast(val, *args, **kwargs)
 
-    with (
-        patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=fast_side_effect),
-        patch(
-            "lilypad.lib._utils.middleware._serialize_proto_data", return_value=serialized_messages
-        ) as mock_proto_serializer,
-    ):
+    with patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=fast_side_effect):
         _set_call_response_attributes(response, span, "trace")
         expected_attributes = {
             # Production code falls back to str() for message_param on TypeError
@@ -177,8 +131,6 @@ def test_set_call_response_attributes_needs_serialization():
             "lilypad.trace.common_messages": '[{"role":"user","content":"hello"}]',
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
-        # Ensure _serialize_proto_data was called ONLY for messages
-        mock_proto_serializer.assert_called_once_with(response.messages)
 
 
 def test_set_response_model_attributes_base_model_with_messages():
