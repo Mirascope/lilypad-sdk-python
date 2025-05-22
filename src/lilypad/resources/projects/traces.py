@@ -19,8 +19,8 @@ from ..._response import (
 from ..._base_client import make_request_options
 from ...types.projects import trace_list_params
 from ...types.span_public import SpanPublic
+from ...types.paginated_span_public import PaginatedSpanPublic
 from ...types.projects.trace_create_response import TraceCreateResponse
-from ...types.projects.functions.paginated_span_public import PaginatedSpanPublic
 
 __all__ = ["TracesResource", "AsyncTracesResource"]
 

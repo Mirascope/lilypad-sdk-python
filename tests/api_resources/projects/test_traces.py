@@ -9,9 +9,8 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types import SpanPublic
+from lilypad.types import SpanPublic, PaginatedSpanPublic
 from lilypad.types.projects import TraceCreateResponse
-from lilypad.types.projects.functions import PaginatedSpanPublic
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 

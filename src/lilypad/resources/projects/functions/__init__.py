@@ -8,14 +8,6 @@ from .name import (
     NameResourceWithStreamingResponse,
     AsyncNameResourceWithStreamingResponse,
 )
-from .spans import (
-    SpansResource,
-    AsyncSpansResource,
-    SpansResourceWithRawResponse,
-    AsyncSpansResourceWithRawResponse,
-    SpansResourceWithStreamingResponse,
-    AsyncSpansResourceWithStreamingResponse,
-)
 from .metadata import (
     MetadataResource,
     AsyncMetadataResource,
@@ -46,12 +38,6 @@ __all__ = [
     "AsyncMetadataResourceWithRawResponse",
     "MetadataResourceWithStreamingResponse",
     "AsyncMetadataResourceWithStreamingResponse",
-    "SpansResource",
-    "AsyncSpansResource",
-    "SpansResourceWithRawResponse",
-    "AsyncSpansResourceWithRawResponse",
-    "SpansResourceWithStreamingResponse",
-    "AsyncSpansResourceWithStreamingResponse",
     "FunctionsResource",
     "AsyncFunctionsResource",
     "FunctionsResourceWithRawResponse",

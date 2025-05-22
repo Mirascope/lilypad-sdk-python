@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import List
 
-from ...._compat import PYDANTIC_V2
-from ...._models import BaseModel
+from .._compat import PYDANTIC_V2
+from .._models import BaseModel
 
 __all__ = ["PaginatedSpanPublic"]
 
@@ -24,7 +24,7 @@ class PaginatedSpanPublic(BaseModel):
     """Total number of items"""
 
 
-from ...span_public import SpanPublic
+from .span_public import SpanPublic
 
 if PYDANTIC_V2:
     PaginatedSpanPublic.model_rebuild()
