@@ -5,8 +5,8 @@ from datetime import datetime
 from typing_extensions import TypeAlias
 
 from .._models import BaseModel
+from .ee.user_public import UserPublic
 from .project_public import ProjectPublic
-from .auth.user_public import UserPublic
 from .environment_public import EnvironmentPublic
 
 __all__ = ["APIKeyListResponse", "APIKeyListResponseItem"]

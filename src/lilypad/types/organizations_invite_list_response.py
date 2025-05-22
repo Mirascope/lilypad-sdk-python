@@ -3,8 +3,8 @@
 from typing import List
 from typing_extensions import TypeAlias
 
-from .organization_invite import OrganizationInvite
+from .organization_invite_public import OrganizationInvitePublic
 
 __all__ = ["OrganizationsInviteListResponse"]
 
-OrganizationsInviteListResponse: TypeAlias = List[OrganizationInvite]
+OrganizationsInviteListResponse: TypeAlias = List[OrganizationInvitePublic]

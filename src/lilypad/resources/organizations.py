@@ -18,7 +18,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.auth.user_public import UserPublic
+from ..types.ee.user_public import UserPublic
 from ..types.organization_public import OrganizationPublic
 
 __all__ = ["OrganizationsResource", "AsyncOrganizationsResource"]

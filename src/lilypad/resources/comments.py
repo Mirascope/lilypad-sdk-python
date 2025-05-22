@@ -18,11 +18,9 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
+from ..types.comment_public import CommentPublic
 from ..types.comment_list_response import CommentListResponse
-from ..types.comment_create_response import CommentCreateResponse
 from ..types.comment_delete_response import CommentDeleteResponse
-from ..types.comment_update_response import CommentUpdateResponse
-from ..types.comment_retrieve_response import CommentRetrieveResponse
 
 __all__ = ["CommentsResource", "AsyncCommentsResource"]
 
@@ -59,7 +57,7 @@ class CommentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentCreateResponse:
+    ) -> CommentPublic:
         """
         Create a comment
 
@@ -85,7 +83,7 @@ class CommentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentCreateResponse,
+            cast_to=CommentPublic,
         )
 
     def retrieve(
@@ -98,7 +96,7 @@ class CommentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentRetrieveResponse:
+    ) -> CommentPublic:
         """
         Get a comment.
 
@@ -118,7 +116,7 @@ class CommentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentRetrieveResponse,
+            cast_to=CommentPublic,
         )
 
     def update(
@@ -133,7 +131,7 @@ class CommentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentUpdateResponse:
+    ) -> CommentPublic:
         """
         Update a comment.
 
@@ -160,7 +158,7 @@ class CommentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentUpdateResponse,
+            cast_to=CommentPublic,
         )
 
     def list(
@@ -248,7 +246,7 @@ class AsyncCommentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentCreateResponse:
+    ) -> CommentPublic:
         """
         Create a comment
 
@@ -274,7 +272,7 @@ class AsyncCommentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentCreateResponse,
+            cast_to=CommentPublic,
         )
 
     async def retrieve(
@@ -287,7 +285,7 @@ class AsyncCommentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentRetrieveResponse:
+    ) -> CommentPublic:
         """
         Get a comment.
 
@@ -307,7 +305,7 @@ class AsyncCommentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentRetrieveResponse,
+            cast_to=CommentPublic,
         )
 
     async def update(
@@ -322,7 +320,7 @@ class AsyncCommentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> CommentUpdateResponse:
+    ) -> CommentPublic:
         """
         Update a comment.
 
@@ -349,7 +347,7 @@ class AsyncCommentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CommentUpdateResponse,
+            cast_to=CommentPublic,
         )
 
     async def list(

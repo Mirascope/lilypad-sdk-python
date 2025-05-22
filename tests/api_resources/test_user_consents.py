@@ -9,10 +9,7 @@ import pytest
 
 from lilypad import Lilypad, AsyncLilypad
 from tests.utils import assert_matches_type
-from lilypad.types import (
-    UserConsentCreateResponse,
-    UserConsentUpdateResponse,
-)
+from lilypad.types import UserConsentPublic
 from lilypad._utils import parse_datetime
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -28,7 +25,7 @@ class TestUserConsents:
             privacy_policy_version="privacy_policy_version",
             tos_version="tos_version",
         )
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -40,7 +37,7 @@ class TestUserConsents:
             tos_accepted_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             user_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -53,7 +50,7 @@ class TestUserConsents:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         user_consent = response.parse()
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -66,7 +63,7 @@ class TestUserConsents:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             user_consent = response.parse()
-            assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+            assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -76,7 +73,7 @@ class TestUserConsents:
         user_consent = client.user_consents.update(
             user_consent_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -88,7 +85,7 @@ class TestUserConsents:
             tos_accepted_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             tos_version="tos_version",
         )
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -100,7 +97,7 @@ class TestUserConsents:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         user_consent = response.parse()
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -112,7 +109,7 @@ class TestUserConsents:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             user_consent = response.parse()
-            assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+            assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -135,7 +132,7 @@ class TestAsyncUserConsents:
             privacy_policy_version="privacy_policy_version",
             tos_version="tos_version",
         )
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -147,7 +144,7 @@ class TestAsyncUserConsents:
             tos_accepted_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             user_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -160,7 +157,7 @@ class TestAsyncUserConsents:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         user_consent = await response.parse()
-        assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -173,7 +170,7 @@ class TestAsyncUserConsents:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             user_consent = await response.parse()
-            assert_matches_type(UserConsentCreateResponse, user_consent, path=["response"])
+            assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -183,7 +180,7 @@ class TestAsyncUserConsents:
         user_consent = await async_client.user_consents.update(
             user_consent_uuid="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
         )
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -195,7 +192,7 @@ class TestAsyncUserConsents:
             tos_accepted_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             tos_version="tos_version",
         )
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -207,7 +204,7 @@ class TestAsyncUserConsents:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         user_consent = await response.parse()
-        assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+        assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -219,7 +216,7 @@ class TestAsyncUserConsents:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             user_consent = await response.parse()
-            assert_matches_type(UserConsentUpdateResponse, user_consent, path=["response"])
+            assert_matches_type(UserConsentPublic, user_consent, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

@@ -15,7 +15,7 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.webhook_handle_stripe_event_response import WebhookHandleStripeEventResponse
+from ..types.webhook_handle_response import WebhookHandleResponse
 
 __all__ = ["WebhooksResource", "AsyncWebhooksResource"]
 
@@ -40,7 +40,7 @@ class WebhooksResource(SyncAPIResource):
         """
         return WebhooksResourceWithStreamingResponse(self)
 
-    def handle_stripe_event(
+    def handle(
         self,
         *,
         stripe_signature: str | NotGiven = NOT_GIVEN,
@@ -50,7 +50,7 @@ class WebhooksResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> WebhookHandleStripeEventResponse:
+    ) -> WebhookHandleResponse:
         """
         Handle Stripe webhook events.
 
@@ -72,7 +72,7 @@ class WebhooksResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=WebhookHandleStripeEventResponse,
+            cast_to=WebhookHandleResponse,
         )
 
 
@@ -96,7 +96,7 @@ class AsyncWebhooksResource(AsyncAPIResource):
         """
         return AsyncWebhooksResourceWithStreamingResponse(self)
 
-    async def handle_stripe_event(
+    async def handle(
         self,
         *,
         stripe_signature: str | NotGiven = NOT_GIVEN,
@@ -106,7 +106,7 @@ class AsyncWebhooksResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> WebhookHandleStripeEventResponse:
+    ) -> WebhookHandleResponse:
         """
         Handle Stripe webhook events.
 
@@ -128,7 +128,7 @@ class AsyncWebhooksResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=WebhookHandleStripeEventResponse,
+            cast_to=WebhookHandleResponse,
         )
 
 
@@ -136,8 +136,8 @@ class WebhooksResourceWithRawResponse:
     def __init__(self, webhooks: WebhooksResource) -> None:
         self._webhooks = webhooks
 
-        self.handle_stripe_event = to_raw_response_wrapper(
-            webhooks.handle_stripe_event,
+        self.handle = to_raw_response_wrapper(
+            webhooks.handle,
         )
 
 
@@ -145,8 +145,8 @@ class AsyncWebhooksResourceWithRawResponse:
     def __init__(self, webhooks: AsyncWebhooksResource) -> None:
         self._webhooks = webhooks
 
-        self.handle_stripe_event = async_to_raw_response_wrapper(
-            webhooks.handle_stripe_event,
+        self.handle = async_to_raw_response_wrapper(
+            webhooks.handle,
         )
 
 
@@ -154,8 +154,8 @@ class WebhooksResourceWithStreamingResponse:
     def __init__(self, webhooks: WebhooksResource) -> None:
         self._webhooks = webhooks
 
-        self.handle_stripe_event = to_streamed_response_wrapper(
-            webhooks.handle_stripe_event,
+        self.handle = to_streamed_response_wrapper(
+            webhooks.handle,
         )
 
 
@@ -163,6 +163,6 @@ class AsyncWebhooksResourceWithStreamingResponse:
     def __init__(self, webhooks: AsyncWebhooksResource) -> None:
         self._webhooks = webhooks
 
-        self.handle_stripe_event = async_to_streamed_response_wrapper(
-            webhooks.handle_stripe_event,
+        self.handle = async_to_streamed_response_wrapper(
+            webhooks.handle,
         )

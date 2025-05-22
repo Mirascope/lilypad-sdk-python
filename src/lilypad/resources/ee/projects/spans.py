@@ -14,7 +14,7 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.ee.projects.span_retrieve_annotations_response import SpanRetrieveAnnotationsResponse
+from ....types.ee.projects.span_get_annotations_response import SpanGetAnnotationsResponse
 
 __all__ = ["SpansResource", "AsyncSpansResource"]
 
@@ -75,7 +75,7 @@ class SpansResource(SyncAPIResource):
             cast_to=object,
         )
 
-    def retrieve_annotations(
+    def get_annotations(
         self,
         span_uuid: str,
         *,
@@ -86,7 +86,7 @@ class SpansResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanRetrieveAnnotationsResponse:
+    ) -> SpanGetAnnotationsResponse:
         """
         Get annotations by functions.
 
@@ -108,7 +108,7 @@ class SpansResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=SpanRetrieveAnnotationsResponse,
+            cast_to=SpanGetAnnotationsResponse,
         )
 
 
@@ -168,7 +168,7 @@ class AsyncSpansResource(AsyncAPIResource):
             cast_to=object,
         )
 
-    async def retrieve_annotations(
+    async def get_annotations(
         self,
         span_uuid: str,
         *,
@@ -179,7 +179,7 @@ class AsyncSpansResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SpanRetrieveAnnotationsResponse:
+    ) -> SpanGetAnnotationsResponse:
         """
         Get annotations by functions.
 
@@ -201,7 +201,7 @@ class AsyncSpansResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=SpanRetrieveAnnotationsResponse,
+            cast_to=SpanGetAnnotationsResponse,
         )
 
 
@@ -212,8 +212,8 @@ class SpansResourceWithRawResponse:
         self.generate_annotation = to_raw_response_wrapper(
             spans.generate_annotation,
         )
-        self.retrieve_annotations = to_raw_response_wrapper(
-            spans.retrieve_annotations,
+        self.get_annotations = to_raw_response_wrapper(
+            spans.get_annotations,
         )
 
 
@@ -224,8 +224,8 @@ class AsyncSpansResourceWithRawResponse:
         self.generate_annotation = async_to_raw_response_wrapper(
             spans.generate_annotation,
         )
-        self.retrieve_annotations = async_to_raw_response_wrapper(
-            spans.retrieve_annotations,
+        self.get_annotations = async_to_raw_response_wrapper(
+            spans.get_annotations,
         )
 
 
@@ -236,8 +236,8 @@ class SpansResourceWithStreamingResponse:
         self.generate_annotation = to_streamed_response_wrapper(
             spans.generate_annotation,
         )
-        self.retrieve_annotations = to_streamed_response_wrapper(
-            spans.retrieve_annotations,
+        self.get_annotations = to_streamed_response_wrapper(
+            spans.get_annotations,
         )
 
 
@@ -248,6 +248,6 @@ class AsyncSpansResourceWithStreamingResponse:
         self.generate_annotation = async_to_streamed_response_wrapper(
             spans.generate_annotation,
         )
-        self.retrieve_annotations = async_to_streamed_response_wrapper(
-            spans.retrieve_annotations,
+        self.get_annotations = async_to_streamed_response_wrapper(
+            spans.get_annotations,
         )

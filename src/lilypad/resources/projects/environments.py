@@ -17,12 +17,10 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.projects import environment_deploy_params
+from ...types.projects import environment_deploy_function_params
 from ...types.projects.deployment_public import DeploymentPublic
 from ...types.projects.functions.function_public import FunctionPublic
-from ...types.projects.environment_retrieve_deployment_history_response import (
-    EnvironmentRetrieveDeploymentHistoryResponse,
-)
+from ...types.projects.environment_get_deployment_history_response import EnvironmentGetDeploymentHistoryResponse
 
 __all__ = ["EnvironmentsResource", "AsyncEnvironmentsResource"]
 
@@ -47,7 +45,7 @@ class EnvironmentsResource(SyncAPIResource):
         """
         return EnvironmentsResourceWithStreamingResponse(self)
 
-    def deploy(
+    def deploy_function(
         self,
         environment_uuid: str,
         *,
@@ -89,13 +87,13 @@ class EnvironmentsResource(SyncAPIResource):
                         "function_uuid": function_uuid,
                         "notes": notes,
                     },
-                    environment_deploy_params.EnvironmentDeployParams,
+                    environment_deploy_function_params.EnvironmentDeployFunctionParams,
                 ),
             ),
             cast_to=DeploymentPublic,
         )
 
-    def retrieve_active_deployment(
+    def get_active_deployment(
         self,
         environment_uuid: str,
         *,
@@ -131,7 +129,7 @@ class EnvironmentsResource(SyncAPIResource):
             cast_to=DeploymentPublic,
         )
 
-    def retrieve_active_function(
+    def get_current_function(
         self,
         environment_uuid: str,
         *,
@@ -167,7 +165,7 @@ class EnvironmentsResource(SyncAPIResource):
             cast_to=FunctionPublic,
         )
 
-    def retrieve_deployment_history(
+    def get_deployment_history(
         self,
         environment_uuid: str,
         *,
@@ -178,7 +176,7 @@ class EnvironmentsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> EnvironmentRetrieveDeploymentHistoryResponse:
+    ) -> EnvironmentGetDeploymentHistoryResponse:
         """
         Get deployment history for an environment.
 
@@ -200,7 +198,7 @@ class EnvironmentsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=EnvironmentRetrieveDeploymentHistoryResponse,
+            cast_to=EnvironmentGetDeploymentHistoryResponse,
         )
 
 
@@ -224,7 +222,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
         """
         return AsyncEnvironmentsResourceWithStreamingResponse(self)
 
-    async def deploy(
+    async def deploy_function(
         self,
         environment_uuid: str,
         *,
@@ -266,13 +264,13 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
                         "function_uuid": function_uuid,
                         "notes": notes,
                     },
-                    environment_deploy_params.EnvironmentDeployParams,
+                    environment_deploy_function_params.EnvironmentDeployFunctionParams,
                 ),
             ),
             cast_to=DeploymentPublic,
         )
 
-    async def retrieve_active_deployment(
+    async def get_active_deployment(
         self,
         environment_uuid: str,
         *,
@@ -308,7 +306,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
             cast_to=DeploymentPublic,
         )
 
-    async def retrieve_active_function(
+    async def get_current_function(
         self,
         environment_uuid: str,
         *,
@@ -344,7 +342,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
             cast_to=FunctionPublic,
         )
 
-    async def retrieve_deployment_history(
+    async def get_deployment_history(
         self,
         environment_uuid: str,
         *,
@@ -355,7 +353,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> EnvironmentRetrieveDeploymentHistoryResponse:
+    ) -> EnvironmentGetDeploymentHistoryResponse:
         """
         Get deployment history for an environment.
 
@@ -377,7 +375,7 @@ class AsyncEnvironmentsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=EnvironmentRetrieveDeploymentHistoryResponse,
+            cast_to=EnvironmentGetDeploymentHistoryResponse,
         )
 
 
@@ -385,17 +383,17 @@ class EnvironmentsResourceWithRawResponse:
     def __init__(self, environments: EnvironmentsResource) -> None:
         self._environments = environments
 
-        self.deploy = to_raw_response_wrapper(
-            environments.deploy,
+        self.deploy_function = to_raw_response_wrapper(
+            environments.deploy_function,
         )
-        self.retrieve_active_deployment = to_raw_response_wrapper(
-            environments.retrieve_active_deployment,
+        self.get_active_deployment = to_raw_response_wrapper(
+            environments.get_active_deployment,
         )
-        self.retrieve_active_function = to_raw_response_wrapper(
-            environments.retrieve_active_function,
+        self.get_current_function = to_raw_response_wrapper(
+            environments.get_current_function,
         )
-        self.retrieve_deployment_history = to_raw_response_wrapper(
-            environments.retrieve_deployment_history,
+        self.get_deployment_history = to_raw_response_wrapper(
+            environments.get_deployment_history,
         )
 
 
@@ -403,17 +401,17 @@ class AsyncEnvironmentsResourceWithRawResponse:
     def __init__(self, environments: AsyncEnvironmentsResource) -> None:
         self._environments = environments
 
-        self.deploy = async_to_raw_response_wrapper(
-            environments.deploy,
+        self.deploy_function = async_to_raw_response_wrapper(
+            environments.deploy_function,
         )
-        self.retrieve_active_deployment = async_to_raw_response_wrapper(
-            environments.retrieve_active_deployment,
+        self.get_active_deployment = async_to_raw_response_wrapper(
+            environments.get_active_deployment,
         )
-        self.retrieve_active_function = async_to_raw_response_wrapper(
-            environments.retrieve_active_function,
+        self.get_current_function = async_to_raw_response_wrapper(
+            environments.get_current_function,
         )
-        self.retrieve_deployment_history = async_to_raw_response_wrapper(
-            environments.retrieve_deployment_history,
+        self.get_deployment_history = async_to_raw_response_wrapper(
+            environments.get_deployment_history,
         )
 
 
@@ -421,17 +419,17 @@ class EnvironmentsResourceWithStreamingResponse:
     def __init__(self, environments: EnvironmentsResource) -> None:
         self._environments = environments
 
-        self.deploy = to_streamed_response_wrapper(
-            environments.deploy,
+        self.deploy_function = to_streamed_response_wrapper(
+            environments.deploy_function,
         )
-        self.retrieve_active_deployment = to_streamed_response_wrapper(
-            environments.retrieve_active_deployment,
+        self.get_active_deployment = to_streamed_response_wrapper(
+            environments.get_active_deployment,
         )
-        self.retrieve_active_function = to_streamed_response_wrapper(
-            environments.retrieve_active_function,
+        self.get_current_function = to_streamed_response_wrapper(
+            environments.get_current_function,
         )
-        self.retrieve_deployment_history = to_streamed_response_wrapper(
-            environments.retrieve_deployment_history,
+        self.get_deployment_history = to_streamed_response_wrapper(
+            environments.get_deployment_history,
         )
 
 
@@ -439,15 +437,15 @@ class AsyncEnvironmentsResourceWithStreamingResponse:
     def __init__(self, environments: AsyncEnvironmentsResource) -> None:
         self._environments = environments
 
-        self.deploy = async_to_streamed_response_wrapper(
-            environments.deploy,
+        self.deploy_function = async_to_streamed_response_wrapper(
+            environments.deploy_function,
         )
-        self.retrieve_active_deployment = async_to_streamed_response_wrapper(
-            environments.retrieve_active_deployment,
+        self.get_active_deployment = async_to_streamed_response_wrapper(
+            environments.get_active_deployment,
         )
-        self.retrieve_active_function = async_to_streamed_response_wrapper(
-            environments.retrieve_active_function,
+        self.get_current_function = async_to_streamed_response_wrapper(
+            environments.get_current_function,
         )
-        self.retrieve_deployment_history = async_to_streamed_response_wrapper(
-            environments.retrieve_deployment_history,
+        self.get_deployment_history = async_to_streamed_response_wrapper(
+            environments.get_deployment_history,
         )
