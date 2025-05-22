@@ -22,8 +22,8 @@ from ._models import BaseModel
 from ._version import __title__, __version__
 from ._response import APIResponse as APIResponse, AsyncAPIResponse as AsyncAPIResponse
 from .lib.spans import Span
-from .lib.traces import Trace, AsyncTrace, Annotation
 from ._constants import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES, DEFAULT_CONNECTION_LIMITS
+from .lib.traces import Trace, Annotation, AsyncTrace
 from ._exceptions import (
     APIError,
     LilypadError,
