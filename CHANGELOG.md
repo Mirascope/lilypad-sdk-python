@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 (2025-05-22)
+
+Full Changelog: [v0.3.0...v0.3.1](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.3.0...v0.3.1)
+
+### Chores
+
+* **docs:** grammar improvements ([a189d37](https://github.com/Mirascope/lilypad-sdk-python/commit/a189d37585c73a487c2bbf1968a116f2ebbb898b))
+
 ## 0.3.0 (2025-05-22)
 
 Full Changelog: [v0.2.3...v0.3.0](https://github.com/Mirascope/lilypad-sdk-python/compare/v0.2.3...v0.3.0)
