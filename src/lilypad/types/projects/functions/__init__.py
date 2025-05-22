@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from .span_public import SpanPublic as SpanPublic
 from .function_public import FunctionPublic as FunctionPublic
 from .common_call_params import CommonCallParams as CommonCallParams
+from .paginated_span_public import PaginatedSpanPublic as PaginatedSpanPublic
 from .common_call_params_param import CommonCallParamsParam as CommonCallParamsParam
+from .name_list_paginated_params import NameListPaginatedParams as NameListPaginatedParams
 from .name_retrieve_by_name_response import NameRetrieveByNameResponse as NameRetrieveByNameResponse
+from .name_retrieve_aggregates_params import NameRetrieveAggregatesParams as NameRetrieveAggregatesParams
+from .name_retrieve_aggregates_response import NameRetrieveAggregatesResponse as NameRetrieveAggregatesResponse

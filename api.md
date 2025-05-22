@@ -178,12 +178,17 @@ Types:
 from lilypad.types.projects.functions import (
     CommonCallParams,
     FunctionPublic,
+    PaginatedSpanPublic,
+    SpanPublic,
+    NameRetrieveAggregatesResponse,
     NameRetrieveByNameResponse,
 )
 ```
 
 Methods:
 
+- <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/paginated">client.projects.functions.name.<a href="./src/lilypad/resources/projects/functions/name.py">list_paginated</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/projects/functions/name_list_paginated_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/paginated_span_public.py">PaginatedSpanPublic</a></code>
+- <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/metadata">client.projects.functions.name.<a href="./src/lilypad/resources/projects/functions/name.py">retrieve_aggregates</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/projects/functions/name_retrieve_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/name_retrieve_aggregates_response.py">NameRetrieveAggregatesResponse</a></code>
 - <code title="get /projects/{project_uuid}/functions/name/{function_name}">client.projects.functions.name.<a href="./src/lilypad/resources/projects/functions/name.py">retrieve_by_name</a>(function_name, \*, project_uuid) -> <a href="./src/lilypad/types/projects/functions/name_retrieve_by_name_response.py">NameRetrieveByNameResponse</a></code>
 - <code title="get /projects/{project_uuid}/functions/name/{function_name}/version/{version_num}">client.projects.functions.name.<a href="./src/lilypad/resources/projects/functions/name.py">retrieve_by_version</a>(version_num, \*, project_uuid, function_name) -> <a href="./src/lilypad/types/projects/functions/function_public.py">FunctionPublic</a></code>
 - <code title="get /projects/{project_uuid}/functions/name/{function_name}/environments">client.projects.functions.name.<a href="./src/lilypad/resources/projects/functions/name.py">retrieve_deployed</a>(function_name, \*, project_uuid) -> <a href="./src/lilypad/types/projects/functions/function_public.py">FunctionPublic</a></code>
@@ -214,7 +219,6 @@ Types:
 from lilypad.types.projects import (
     AggregateMetrics,
     Scope,
-    SpanPublic,
     TimeFrame,
     SpanDeleteResponse,
     SpanRetrieveAggregatesResponse,
@@ -240,8 +244,8 @@ from lilypad.types.projects import TraceCreateResponse
 Methods:
 
 - <code title="post /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">create</a>(project_uuid) -> <a href="./src/lilypad/types/projects/trace_create_response.py">TraceCreateResponse</a></code>
-- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/trace_list_params.py">params</a>) -> <a href="./src/lilypad/types/paginated_span_public.py">PaginatedSpanPublic</a></code>
-- <code title="get /projects/{project_uuid}/traces/{span_id}/root">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">retrieve_by_span_id</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/projects/span_public.py">SpanPublic</a></code>
+- <code title="get /projects/{project_uuid}/traces">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">list</a>(project_uuid, \*\*<a href="src/lilypad/types/projects/trace_list_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/paginated_span_public.py">PaginatedSpanPublic</a></code>
+- <code title="get /projects/{project_uuid}/traces/{span_id}/root">client.projects.traces.<a href="./src/lilypad/resources/projects/traces.py">retrieve_by_span_id</a>(span_id, \*, project_uuid) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
 ## Environments
 
@@ -282,15 +286,13 @@ Methods:
 Types:
 
 ```python
-from lilypad.types import PaginatedSpanPublic, SpanMoreDetails, SpanRetrieveAggregatesResponse
+from lilypad.types import SpanMoreDetails
 ```
 
 Methods:
 
 - <code title="get /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">retrieve</a>(span_uuid) -> <a href="./src/lilypad/types/span_more_details.py">SpanMoreDetails</a></code>
-- <code title="patch /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">update</a>(span_uuid, \*\*<a href="src/lilypad/types/span_update_params.py">params</a>) -> <a href="./src/lilypad/types/projects/span_public.py">SpanPublic</a></code>
-- <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/paginated">client.spans.<a href="./src/lilypad/resources/spans.py">list_paginated</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/span_list_paginated_params.py">params</a>) -> <a href="./src/lilypad/types/paginated_span_public.py">PaginatedSpanPublic</a></code>
-- <code title="get /projects/{project_uuid}/functions/{function_uuid}/spans/metadata">client.spans.<a href="./src/lilypad/resources/spans.py">retrieve_aggregates</a>(function_uuid, \*, project_uuid, \*\*<a href="src/lilypad/types/span_retrieve_aggregates_params.py">params</a>) -> <a href="./src/lilypad/types/span_retrieve_aggregates_response.py">SpanRetrieveAggregatesResponse</a></code>
+- <code title="patch /spans/{span_uuid}">client.spans.<a href="./src/lilypad/resources/spans.py">update</a>(span_uuid, \*\*<a href="src/lilypad/types/span_update_params.py">params</a>) -> <a href="./src/lilypad/types/projects/functions/span_public.py">SpanPublic</a></code>
 
 # Auth
 
