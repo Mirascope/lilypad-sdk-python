@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing_extensions import Literal
+
 import httpx
 
 from ...._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from ...._utils import maybe_transform, async_maybe_transform
 from ...._compat import cached_property
 from ...._resource import SyncAPIResource, AsyncAPIResource
 from ...._response import (
@@ -14,8 +17,13 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
+from ....types.projects import TimeFrame
+from ....types.projects.functions import name_list_paginated_params, name_retrieve_aggregates_params
+from ....types.projects.time_frame import TimeFrame
 from ....types.projects.functions.function_public import FunctionPublic
+from ....types.projects.functions.paginated_span_public import PaginatedSpanPublic
 from ....types.projects.functions.name_retrieve_by_name_response import NameRetrieveByNameResponse
+from ....types.projects.functions.name_retrieve_aggregates_response import NameRetrieveAggregatesResponse
 
 __all__ = ["NameResource", "AsyncNameResource"]
 
@@ -39,6 +47,101 @@ class NameResource(SyncAPIResource):
         For more information, see https://www.github.com/Mirascope/lilypad-sdk-python#with_streaming_response
         """
         return NameResourceWithStreamingResponse(self)
+
+    def list_paginated(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> PaginatedSpanPublic:
+        """
+        Get spans for a function with pagination (new, non-breaking).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/paginated",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    name_list_paginated_params.NameListPaginatedParams,
+                ),
+            ),
+            cast_to=PaginatedSpanPublic,
+        )
+
+    def retrieve_aggregates(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        time_frame: TimeFrame,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> NameRetrieveAggregatesResponse:
+        """
+        Get aggregated span by function uuid.
+
+        Args:
+          time_frame: Timeframe for aggregation
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/metadata",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {"time_frame": time_frame}, name_retrieve_aggregates_params.NameRetrieveAggregatesParams
+                ),
+            ),
+            cast_to=NameRetrieveAggregatesResponse,
+        )
 
     def retrieve_by_name(
         self,
@@ -170,6 +273,101 @@ class AsyncNameResource(AsyncAPIResource):
         """
         return AsyncNameResourceWithStreamingResponse(self)
 
+    async def list_paginated(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        limit: int | NotGiven = NOT_GIVEN,
+        offset: int | NotGiven = NOT_GIVEN,
+        order: Literal["asc", "desc"] | NotGiven = NOT_GIVEN,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> PaginatedSpanPublic:
+        """
+        Get spans for a function with pagination (new, non-breaking).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/paginated",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                        "order": order,
+                    },
+                    name_list_paginated_params.NameListPaginatedParams,
+                ),
+            ),
+            cast_to=PaginatedSpanPublic,
+        )
+
+    async def retrieve_aggregates(
+        self,
+        function_uuid: str,
+        *,
+        project_uuid: str,
+        time_frame: TimeFrame,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> NameRetrieveAggregatesResponse:
+        """
+        Get aggregated span by function uuid.
+
+        Args:
+          time_frame: Timeframe for aggregation
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not project_uuid:
+            raise ValueError(f"Expected a non-empty value for `project_uuid` but received {project_uuid!r}")
+        if not function_uuid:
+            raise ValueError(f"Expected a non-empty value for `function_uuid` but received {function_uuid!r}")
+        return await self._get(
+            f"/projects/{project_uuid}/functions/{function_uuid}/spans/metadata",
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {"time_frame": time_frame}, name_retrieve_aggregates_params.NameRetrieveAggregatesParams
+                ),
+            ),
+            cast_to=NameRetrieveAggregatesResponse,
+        )
+
     async def retrieve_by_name(
         self,
         function_name: str,
@@ -284,6 +482,12 @@ class NameResourceWithRawResponse:
     def __init__(self, name: NameResource) -> None:
         self._name = name
 
+        self.list_paginated = to_raw_response_wrapper(
+            name.list_paginated,
+        )
+        self.retrieve_aggregates = to_raw_response_wrapper(
+            name.retrieve_aggregates,
+        )
         self.retrieve_by_name = to_raw_response_wrapper(
             name.retrieve_by_name,
         )
@@ -299,6 +503,12 @@ class AsyncNameResourceWithRawResponse:
     def __init__(self, name: AsyncNameResource) -> None:
         self._name = name
 
+        self.list_paginated = async_to_raw_response_wrapper(
+            name.list_paginated,
+        )
+        self.retrieve_aggregates = async_to_raw_response_wrapper(
+            name.retrieve_aggregates,
+        )
         self.retrieve_by_name = async_to_raw_response_wrapper(
             name.retrieve_by_name,
         )
@@ -314,6 +524,12 @@ class NameResourceWithStreamingResponse:
     def __init__(self, name: NameResource) -> None:
         self._name = name
 
+        self.list_paginated = to_streamed_response_wrapper(
+            name.list_paginated,
+        )
+        self.retrieve_aggregates = to_streamed_response_wrapper(
+            name.retrieve_aggregates,
+        )
         self.retrieve_by_name = to_streamed_response_wrapper(
             name.retrieve_by_name,
         )
@@ -329,6 +545,12 @@ class AsyncNameResourceWithStreamingResponse:
     def __init__(self, name: AsyncNameResource) -> None:
         self._name = name
 
+        self.list_paginated = async_to_streamed_response_wrapper(
+            name.list_paginated,
+        )
+        self.retrieve_aggregates = async_to_streamed_response_wrapper(
+            name.retrieve_aggregates,
+        )
         self.retrieve_by_name = async_to_streamed_response_wrapper(
             name.retrieve_by_name,
         )
