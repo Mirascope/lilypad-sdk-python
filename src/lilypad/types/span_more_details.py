@@ -86,8 +86,6 @@ class SpanMoreDetails(BaseModel):
 
     provider: str
 
-    response_obj: object
-
     scope: Scope
     """Instrumentation Scope name of the span"""
 
@@ -98,8 +96,6 @@ class SpanMoreDetails(BaseModel):
     arg_values: Optional[object] = None
 
     code: Optional[str] = None
-
-    content: Optional[str] = None
 
     cost: Optional[float] = None
 
@@ -114,6 +110,10 @@ class SpanMoreDetails(BaseModel):
     output: Optional[str] = None
 
     output_tokens: Optional[float] = None
+
+    response: Optional[object] = None
+
+    response_model: Optional[object] = None
 
     session_id: Optional[str] = None
 
