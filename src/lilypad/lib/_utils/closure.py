@@ -748,12 +748,18 @@ def _run_ruff(code: str) -> str:
         tmp_path = Path(tmp_file.name)
 
     try:
-        subprocess.run(
+        proc = subprocess.run(
             ["ruff", "check", "--isolated", "--select=I", "--fix", str(tmp_path)],
-            check=True,
             capture_output=True,
             text=True,
         )
+
+        # 0: no rule violations / 1: violations found but fixed successfully
+        if proc.returncode not in (0, 1):
+            raise subprocess.CalledProcessError(
+                proc.returncode, proc.args, output=proc.stdout, stderr=proc.stderr
+            )
+
         subprocess.run(
             ["ruff", "format", "--isolated", "--line-length=88", str(tmp_path)],
             check=True,

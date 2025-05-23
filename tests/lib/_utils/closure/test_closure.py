@@ -3,8 +3,10 @@
 import os
 import sys
 import inspect
+import subprocess
 import importlib.metadata
 from uuid import UUID
+from unittest.mock import Mock
 from collections.abc import Callable
 
 import pytest
@@ -634,3 +636,23 @@ def test_get_qualified_name_handles_locals():
     simple_name = get_qualified_name(inner_fn)
     # Expected simple name is "inner"
     assert simple_name == "inner"
+
+
+def test_run_ruff_exit_code_1(monkeypatch):
+    """Test that _run_ruff handles exit code 1 correctly."""
+
+    mock_run = Mock(
+        side_effect=[
+            subprocess.CompletedProcess(args=["ruff"], returncode=1, stdout="", stderr=""),
+            subprocess.CompletedProcess(args=["ruff"], returncode=0, stdout="", stderr=""),
+            subprocess.CompletedProcess(args=["ruff"], returncode=1, stdout="", stderr=""),
+            subprocess.CompletedProcess(args=["ruff"], returncode=0, stdout="", stderr=""),
+        ]
+    )
+    monkeypatch.setattr("subprocess.run", mock_run)
+
+    def dummy(): ...
+
+    closure = Closure.from_fn(dummy)
+    assert closure.code.endswith("def dummy(): ...")
+    assert closure.dependencies == {}
