@@ -468,7 +468,7 @@ def test_mirascope_response_model_fn() -> None:
         },
         "pydantic": {
             "extras": None,
-            "version": "2.10.6",
+            "version": "2.11.5",
         },
     }
 
@@ -525,7 +525,7 @@ def test_nested_base_model_definitions() -> None:
         },
         "pydantic": {
             "extras": None,
-            "version": "2.10.6",
+            "version": "2.11.5",
         },
     }
 
@@ -541,7 +541,7 @@ def test_nested_handle_issue_method() -> None:
         },
         "pydantic": {
             "extras": None,
-            "version": "2.10.6",
+            "version": "2.11.5",
         },
     }
 

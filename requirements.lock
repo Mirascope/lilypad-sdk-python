@@ -220,7 +220,7 @@ markupsafe==3.0.2
     # via jinja2
 mdurl==0.1.2
     # via markdown-it-py
-mirascope==1.23.2
+mirascope==1.23.3
     # via lilypad-sdk
 mistralai==1.6.0
     # via lilypad-sdk
@@ -279,6 +279,7 @@ proto-plus==1.26.1
     # via google-api-core
     # via google-cloud-aiplatform
     # via google-cloud-resource-manager
+    # via lilypad-sdk
 protobuf==5.29.4
     # via google-ai-generativelanguage
     # via google-api-core

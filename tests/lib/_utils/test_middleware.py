@@ -25,6 +25,7 @@ from lilypad.lib._utils.middleware import (
     mb,
     _Handlers,
     _handle_error,
+    safe_serialize,
     _handle_error_async,
     _get_custom_context_manager,
     create_mirascope_middleware,
@@ -88,19 +89,15 @@ def test_encode_gemini_part_with_webp_image_file():
 def test_set_call_response_attributes_serializable():
     """Test _set_call_response_attributes with serializable data."""
     response = MagicMock(spec=mb.BaseCallResponse)
-    response.message_param = {"role": "assistant", "content": "value"}
-    response.messages = [{"role": "user", "content": "hello"}]
+    response.common_message_param = {"role": "system", "content": "world"}
     response.common_messages = [{"role": "user", "content": "hello"}]
     span = MagicMock(spec=Span)
     with patch("lilypad.lib._utils.json.jsonable_encoder", side_effect=lambda x: x):
-        _set_call_response_attributes(response, span, "trace")
-        expected_output = '{"role":"assistant","content":"value"}'
-        expected_messages = '[{"role":"user","content":"hello"}]'
-        expected_common_messages = '[{"role":"user","content":"hello"}]'
+        _set_call_response_attributes(response, span, "mirascope.v1")
+        expected_messages = '[{"role":"user","content":"hello"},{"role":"system","content":"world"}]'
         expected_attributes = {
-            "lilypad.trace.output": expected_output,
-            "lilypad.trace.messages": expected_messages,
-            "lilypad.trace.common_messages": expected_common_messages,
+            "lilypad.mirascope.v1.response": safe_serialize(response),
+            "lilypad.mirascope.v1.messages": expected_messages,
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
 
@@ -108,27 +105,25 @@ def test_set_call_response_attributes_serializable():
 def test_set_call_response_attributes_needs_serialization():
     """Test _set_call_response_attributes when serialization (e.g., for Gemini) is needed."""
     response = MagicMock(spec=mb.BaseCallResponse)
-    response.message_param = MagicMock()
-    response.messages = [MagicMock()]
+    response.common_message_param = BaseMessageParam(role="system", content="world")
     response.common_messages = [BaseMessageParam(role="user", content="hello")]
     span = MagicMock(spec=Span)
-    serialized_messages = '[{"role":"user", "parts": ["serialized_msg"]}]'
+    expected_messages = '[{"role":"user","content":"hello"},{"role":"system","content":"world"}]'
     import lilypad.lib._utils.json as _json
 
     orig_fast = _json.fast_jsonable
 
     def fast_side_effect(val, *args, **kwargs):
-        if val is response.message_param or val is response.messages:
+        if val is response.common_messages or val is response.common_message_param:
             raise TypeError
         return orig_fast(val, *args, **kwargs)
 
     with patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=fast_side_effect):
-        _set_call_response_attributes(response, span, "trace")
+        _set_call_response_attributes(response, span, "mirascope.v1")
         expected_attributes = {
             # Production code falls back to str() for message_param on TypeError
-            "lilypad.trace.output": str(response.message_param),
-            "lilypad.trace.messages": serialized_messages,
-            "lilypad.trace.common_messages": '[{"role":"user","content":"hello"}]',
+            "lilypad.mirascope.v1.response": safe_serialize(response),
+            "lilypad.mirascope.v1.messages": expected_messages,
         }
         span.set_attributes.assert_called_once_with(expected_attributes)
 
@@ -141,16 +136,22 @@ def test_set_response_model_attributes_base_model_with_messages():
 
     result = MockModel(key="value")
     result._response = MagicMock(spec=mb.BaseCallResponse)
-    result._response.messages = [{"role": "user", "parts": ["hello"]}]
+    result._response.common_message_param = {"role": "system", "content": "world"}
+    result._response.common_messages = [{"role": "user", "content": "hello"}]
     span = MagicMock(spec=Span)
-    with patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=lambda x: fast_jsonable(x)) as mock_encoder:
-        _set_response_model_attributes(result, span, "trace")
+
+    with (
+        patch("lilypad.lib._utils.middleware.fast_jsonable", side_effect=lambda x: fast_jsonable(x)) as mock_encoder,
+        patch("lilypad.lib._utils.middleware._set_call_response_attributes") as mock_set_call_response,
+    ):
+        _set_response_model_attributes(result, span, "mirascope.v1")
+
+        mock_set_call_response.assert_called_once_with(result._response, span, "mirascope.v1")
+
         expected_attributes = {
-            "lilypad.trace.output": '{"key":"value"}',
-            "lilypad.trace.messages": json_dumps(result._response.messages),
+            "lilypad.mirascope.v1.response_model": '{"key":"value"}',
         }
-        span.set_attributes.assert_called_once_with(expected_attributes)
-        mock_encoder.assert_has_calls([call(MockModel(key="value")), call([{"role": "user", "parts": ["hello"]}])])
+        span.set_attributes.assert_called_with(expected_attributes)
 
 
 # Assumes Production Code Fix: str(result.value)
@@ -166,10 +167,8 @@ def test_set_response_model_attributes_base_type():
 
     _set_response_model_attributes(result, span, "trace")
 
-    # This assertion reflects the *expected* behavior after production code fix
-    expected_attributes_fixed = {"lilypad.trace.output": str(mock_value)}
     # This assertion reflects the *current* behavior based on test failure
-    expected_attributes_current = {"lilypad.trace.output": str(result)}
+    expected_attributes_current = {"lilypad.trace.response_model": str(result)}
 
     # Use the assertion matching the current (failing) state until production code is fixed
     # span.set_attributes.assert_called_once_with(expected_attributes_fixed)
@@ -184,10 +183,8 @@ def test_set_response_model_attributes_primitive():
 
     _set_response_model_attributes(result, span, "trace")
 
-    # This assertion reflects the *expected* behavior after production code fix
-    expected_attributes_fixed = {"lilypad.trace.output": "123"}
     # This assertion reflects the *current* behavior based on test failure
-    expected_attributes_current = {"lilypad.trace.output": 123}
+    expected_attributes_current = {"lilypad.trace.response_model": 123}
 
     # Use the assertion matching the current (failing) state until production code is fixed
     # span.set_attributes.assert_called_once_with(expected_attributes_fixed)
@@ -405,8 +402,9 @@ def test_get_custom_context_manager():
             assert cm_span == span_mock
             expected_attributes = {
                 "lilypad.project_uuid": str(project_uuid),
-                "lilypad.type": "function",
+                "lilypad.is_async": is_async,
                 "lilypad.function.uuid": str(mock_function.uuid),
+                "lilypad.type": "mirascope.v1",
                 "lilypad.function.name": fn_mock.__name__,
                 "lilypad.function.signature": mock_function.signature,
                 "lilypad.function.code": mock_function.code,
@@ -414,7 +412,9 @@ def test_get_custom_context_manager():
                 "lilypad.function.arg_values": json_dumps(arg_values),
                 "lilypad.function.prompt_template": prompt_template,
                 "lilypad.function.version": 1,
-                "lilypad.is_async": is_async,
+                "lilypad.mirascope.v1.arg_types": json_dumps(mock_function.arg_types),
+                "lilypad.mirascope.v1.arg_values": json_dumps(arg_values),
+                "lilypad.mirascope.v1.prompt_template": prompt_template,
             }
             span_mock.set_attributes.assert_called_once_with(expected_attributes)
 
