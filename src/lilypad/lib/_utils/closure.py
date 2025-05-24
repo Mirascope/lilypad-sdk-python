@@ -585,6 +585,9 @@ class _DependencyCollector:
             elif hasattr(definition, "func") and getattr(definition, "__name__", None) is None:
                 definition = definition.func  # pyright: ignore [reportFunctionMemberAccess]
 
+            if isinstance(definition, ModuleType):
+                return
+
             # For methods, if __qualname__ contains a dot, does not include "<locals>" (global)
             # or if it is local (contains "<locals>"), capture the entire class.
             if "." in definition.__qualname__ and inspect.getmodule(definition) is not None:

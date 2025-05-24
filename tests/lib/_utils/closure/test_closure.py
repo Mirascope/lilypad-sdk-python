@@ -56,6 +56,8 @@ from .closure_test_functions.main import (
     handle_issue,
     raw_string_fn,
     multiple_literal_fn,
+    fn_using_time_module,
+    fn_using_random_module,
     multi_joined_string_fn,
     empty_body_fn_docstrings,
     nested_base_model_definitions,
@@ -634,3 +636,21 @@ def test_get_qualified_name_handles_locals():
     simple_name = get_qualified_name(inner_fn)
     # Expected simple name is "inner"
     assert simple_name == "inner"
+
+
+def test_module_without_qualname_time():
+    """Test the `Closure` class with a module that doesn't have __qualname__ attribute (time)."""
+
+    closure = Closure.from_fn(fn_using_time_module)
+    assert closure.code == _expected(fn_using_time_module)
+    assert "time" in closure.code
+    assert closure.dependencies == {}
+
+
+def test_module_without_qualname_random():
+    """Test the `Closure` class with a module that doesn't have __qualname__ attribute (random)."""
+
+    closure = Closure.from_fn(fn_using_random_module)
+    assert closure.code == _expected(fn_using_random_module)
+    assert "random" in closure.code
+    assert closure.dependencies == {}

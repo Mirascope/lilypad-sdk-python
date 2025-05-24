@@ -1,6 +1,8 @@
 """The main methods for testing the `Closure class."""
 
 import os
+import time
+import random
 import inspect
 import importlib.metadata
 from typing import Any, Literal, TypeAlias
@@ -835,3 +837,25 @@ class Chatbot:
                 return f"Hello, {self.name}!"
         """
         return f"Hello, {self.name}!"
+
+
+def fn_using_time_module():
+    """
+    import time
+
+
+    def fn_using_time_module():
+        return time.time()
+    """
+    return time.time()
+
+
+def fn_using_random_module():
+    """
+    import random
+
+
+    def fn_using_random_module():
+        return random.random()
+    """
+    return random.random()
